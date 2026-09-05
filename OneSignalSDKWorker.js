@@ -1,6 +1,6 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'lomedx-pro-v8'; // تم رفع الرقم
+const CACHE_NAME = 'lomedx-pro-v9'; // تم رفع الرقم لإجبار التحديث
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -10,14 +10,14 @@ const CORE_ASSETS = [
   './manifest.json'
 ];
 
-// 1. التثبيت (بدون skipWaiting)
+// 1. التثبيت
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
   );
 });
 
-// 2. التفعيل ومسح الكاش القديم
+// 2. التفعيل ومسح الكاش القديم (تم إصلاح الأقواس هنا)
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -28,9 +28,8 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim()) // هذه الطريقة الصحيحة لتفعيل التحديث فوراً
   );
-  self.clients.claim();
 });
 
 // 3. استراتيجية الشبكة أولاً
@@ -53,7 +52,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// 4. استقبال أمر التحديث من المستخدم فقط
+// 4. استقبال أمر التحديث
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
