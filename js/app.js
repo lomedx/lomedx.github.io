@@ -5455,17 +5455,15 @@ function showUpdateToast() {
   toast.classList.add('show');
 
   // عند الضغط على زر التحديث
-  document.getElementById('updateBtn').onclick = async () => {
-    const reg = await navigator.serviceWorker.getRegistration();
-    if (reg && reg.waiting) {
-      // مسح الكاش القديم قبل التحديث لضمان نجاحه
-      const keys = await caches.keys();
-      await Promise.all(keys.map(k => caches.delete(k)));
-      // إرسال أمر التفعيل للنسخة المنتظرة
-      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-    }
+    // عند الضغط على زر التحديث
+  document.getElementById('updateBtn').onclick = () => {
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (reg && reg.waiting) {
+        // إرسال أمر التفعيل للنسخة المنتظرة فقط
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+    });
   };
-
   // عند الضغط على زر "لاحقاً" (لمنع إزعاج المستخدم في هذه الجلسة)
   document.getElementById('dismissBtn').onclick = () => {
     sessionStorage.setItem('update_dismissed', 'true');
