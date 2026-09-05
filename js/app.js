@@ -3567,24 +3567,35 @@ async function fetchHomeAdsPublic() {
 }
 fetchHomeAdsPublic();
 fetchAnnouncements();
-            // === نظام التحديث الذكي والأناق (بدون دوامة) ===
+            
+// === نظام التحديث الذكي والأنيق (محسّن) ===
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('OneSignalSDKWorker.js').then(reg => {
-      // فحص عند العودة للتبويب
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') reg.update();
-      });
       
+      // 1. الاستماع للتحديثات الجديدة أثناء التصفح
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
         newWorker.addEventListener('statechange', () => {
-          // إذا تم تثبيت نسخة جديدة، أظهر رسالة فقط ولا تقم بالتحديث الإجباري
+          // إذا تم تثبيت نسخة جديدة بنجاح، أظهر الرسالة
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
             showUpdateToast();
           }
         });
       });
+
+      // 2. (الإضافة العبقرية) التحقق عند فتح الموقع إذا كان هناك تحديث ينتظر من قبل
+      if (reg.waiting) {
+        showUpdateToast();
+      }
+
+      // 3. فحص عند العودة للتبويب (بدون إزعاج)
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          reg.update();
+        }
+      });
+      
     });
   });
 
@@ -3600,6 +3611,9 @@ if ('serviceWorker' in navigator) {
 // دالة إظهار رسالة التحديث الأنيقة
 function showUpdateToast() {
   const toast = document.getElementById('toast');
+  // التحقق مما إذا كانت الرسالة معروضة بالفعل لمنع التكرار
+  if (toast.classList.contains('show') && toast.innerHTML.includes('يتوفر إصدار جديد')) return;
+
   toast.innerHTML = `
     <div class="flex flex-col items-center gap-3 w-full">
       <div class="text-sm font-bold text-blue-800">🎉 يتوفر إصدار جديد من المنصة بميزات أسرع.</div>
@@ -3611,6 +3625,7 @@ function showUpdateToast() {
   document.getElementById('updateBtn').onclick = () => {
     navigator.serviceWorker.getRegistration().then(reg => {
       if (reg && reg.waiting) {
+        // إرسال أمر التفعيل للنسخة المنتظرة
         reg.waiting.postMessage({ type: 'SKIP_WAITING' });
       }
     });
@@ -5486,56 +5501,76 @@ window.checkOnlineStatus = () => {
   return true;
 };
 // === نظام تثبيت التطبيق (PWA Install) ===
-let deferredPrompt = null;
+const PwaInstaller = (() => {
+    let deferredPrompt = null;
 
-// 1. التقاط حدث التثبيت من المتصفح
-window.addEventListener('beforeinstallprompt', (e) => {
-    // منع المتصفح من إظهار النافذة الصغيرة الافتراضية فوراً
-    e.preventDefault();
-    // تخزين الحدث لنستخدمه لاحقاً عند ضغط المستخدم على الزر
-    deferredPrompt = e;
-    // console.log('حدث التثبيت جاهز');
-});
-
-// 2. دالة تثبيت التطبيق (ترتبط بزر قائمة الجوال)
-window.installPwaApp = async () => {
-    // إذا كان المتصفح يدعم التثبيت وحدث التثبيت جاهز
-    if (deferredPrompt) {
-        // إظهار نافذة التثبيت الرسمية للمتصفح
-        deferredPrompt.prompt();
-        
-        // انتظار رد المستخدم (هل ضغط تثبيت أم رفض؟)
-        const { outcome } = await deferredPrompt.userChoice;
-        
-        if (outcome === 'accepted') {
-            showToast('تم تثبيت التطبيق بنجاح! تجده على شاشتك الرئيسية 🎉', 'success');
-        } else {
-            showToast('تم إلغاء التثبيت. يمكنك تثبيته في أي وقت لاحقاً.', 'info');
-        }
-        
-        // الحدث يُستخدم مرة واحدة فقط، لذا نفرغ المتغير
-        deferredPrompt = null;
-    } else {
-        // إذا كان المتصفح لا يدعم التثبيت التلقائي (مثل آيفون أو متصفح قديم)
-        showToast('لتثبيت التطبيق: اضغط على زر المشاركة (المربع بسهم لأعلى) في المتصفح، ثم اختر "إضافة إلى الشاشة الرئيسية".', 'info');
-    }
-};
-
-// 3. التحقق إذا كان التطبيق مثبتاً بالفعل (لإخفاء الزر إذا كان يعمل كتطبيق)
-window.addEventListener('appinstalled', () => {
-    // إخفاء زر التثبيت من قائمة الجوال بعد تثبيته
-    const installBtn = document.querySelector('[onclick="installPwaApp()"]');
-    if (installBtn) {
-        installBtn.classList.add('hidden');
-    }
-    deferredPrompt = null;
-});
-
-// فحص عند تحميل الصفحة: إذا كان الموقع مفتوحاً كتطبيق (standalone)، إخفاء الزر
-if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-    window.addEventListener('DOMContentLoaded', () => {
-        const installBtn = document.querySelector('[onclick="installPwaApp()"]');
-        if (installBtn) installBtn.classList.add('hidden');
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        toggleInstallButtonState(true);
     });
-}
+
+    window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        toggleInstallButtonState(false);
+        showToast('تمت إضافة التطبيق إلى شاشتك الرئيسية بنجاح 🎉', 'success');
+    });
+
+    const isIos = () => {
+        const userAgent = window.navigator.userAgent.toLowerCase();
+        const isStandardIos = /iphone|ipad|ipod/.test(userAgent);
+        const isIpadOs = navigator.maxTouchPoints > 1 && /macintosh/.test(userAgent);
+        return isStandardIos || isIpadOs;
+    };
+
+    const isStandalone = () => {
+        return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    };
+
+    const toggleInstallButtonState = (visible) => {
+        // تأكد أنك تملك عنصراً في HTML يحمل id="pwa-install-btn"
+        const installBtn = document.getElementById('pwa-install-btn');
+        if (installBtn) {
+            installBtn.style.display = visible ? 'block' : 'none';
+        }
+    };
+
+    return {
+        async install() {
+            try {
+                if (isStandalone()) {
+                    showToast('أنت تستخدم التطبيق المثبّت بالفعل.', 'info');
+                    return;
+                }
+
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    
+                    if (outcome === 'accepted') {
+                        showToast('جاري إضافة التطبيق إلى جهازك...', 'info');
+                    } else {
+                        // تم تعديل النص هنا
+                        showToast('تم إغلاق نافذة التثبيت. يمكنك المحاولة لاحقاً.', 'info');
+                    }
+                    deferredPrompt = null;
+                    toggleInstallButtonState(false); // إخفاء الزر بعد المحاولة
+                    return;
+                }
+
+                if (isIos()) {
+                    showToast('لتثبيت التطبيق: اضغط زر المشاركة ⎘ أسفل الشاشة، ثم اختر "إضافة إلى الشاشة الرئيسية ⊕".', 'info');
+                    return;
+                }
+
+                showToast('التثبيت المباشر غير متاح حالياً. يمكنك إضافته من قائمة المتصفح (ثلاث نقاط) -> "إضافة إلى الشاشة الرئيسية".', 'warning');
+            } catch (error) {
+                console.error('PWA Installation Error:', error);
+                showToast('تعذر تعقب طلب التثبيت، يرجى المحاولة لاحقاً.', 'error');
+            }
+        }
+    };
+})();
+
+window.installPwaApp = () => PwaInstaller.install();
 // نهاية ملف app.js
