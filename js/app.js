@@ -3568,69 +3568,7 @@ async function fetchHomeAdsPublic() {
 fetchHomeAdsPublic();
 fetchAnnouncements();
             
-// === نظام التحديث الذكي والأنيق (محسّن) ===
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('OneSignalSDKWorker.js').then(reg => {
-      
-      // 1. الاستماع للتحديثات الجديدة أثناء التصفح
-      reg.addEventListener('updatefound', () => {
-        const newWorker = reg.installing;
-        newWorker.addEventListener('statechange', () => {
-          // إذا تم تثبيت نسخة جديدة بنجاح، أظهر الرسالة
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            showUpdateToast();
-          }
-        });
-      });
-
-      // 2. (الإضافة العبقرية) التحقق عند فتح الموقع إذا كان هناك تحديث ينتظر من قبل
-      if (reg.waiting) {
-        showUpdateToast();
-      }
-
-      // 3. فحص عند العودة للتبويب (بدون إزعاج)
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-          reg.update();
-        }
-      });
-      
-    });
-  });
-
-  // إعادة التحميل تحدث فقط إذا ضغط المستخدم على زر التحديث
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing) return;
-    refreshing = true;
-    window.location.reload();
-  });
-}
-
-// دالة إظهار رسالة التحديث الأنيقة
-function showUpdateToast() {
-  const toast = document.getElementById('toast');
-  // التحقق مما إذا كانت الرسالة معروضة بالفعل لمنع التكرار
-  if (toast.classList.contains('show') && toast.innerHTML.includes('يتوفر إصدار جديد')) return;
-
-  toast.innerHTML = `
-    <div class="flex flex-col items-center gap-3 w-full">
-      <div class="text-sm font-bold text-blue-800">🎉 يتوفر إصدار جديد من المنصة بميزات أسرع.</div>
-      <button id="updateBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">تحديث الآن</button>
-    </div>`;
-  toast.style.backgroundColor = '#EFF6FF';
-  toast.classList.add('show');
-
-  document.getElementById('updateBtn').onclick = () => {
-    navigator.serviceWorker.getRegistration().then(reg => {
-      if (reg && reg.waiting) {
-        // إرسال أمر التفعيل للنسخة المنتظرة
-        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-      }
-    });
-  };
-}
+//==========الجزء الأخير==============
 // === الأدوات الطبية والرادار واسأل طبيب ===
 window.openBurnCalculator = () => {
     burnState = { cause: null, degree: null, area: null };
@@ -5450,43 +5388,6 @@ window.selectBlogCategory = (cat) => {
     const searchInput = document.getElementById('blogSearchInput');
     fetchArticles(searchInput ? searchInput.value : '');
 };
-// === نظام التحديث الذكي والأناق ===
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('OneSignalSDKWorker.js').then(reg => {
-      
-      // 1. فحص فوري عند فتح الموقع
-      reg.update();
-
-      // 2. فحص روتيني كل ساعة (3600000 مللي ثانية) بدلاً من دقيقة
-      setInterval(() => { reg.update(); }, 3600000);
-
-      // 3. (العبقرية) فحص فوري عندما يعود المستخدم للتبويب
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-          reg.update();
-        }
-      });
-      
-      reg.addEventListener('updatefound', () => {
-        const newWorker = reg.installing;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            showUpdateToast();
-          }
-        });
-      });
-    });
-  });
-
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing) return;
-    refreshing = true;
-    window.location.reload();
-  });
-}
-
 // === نظام حماية الطلبات عند انقطاع الإنترنت ===
 window.addEventListener('offline', () => {
   showToast('⚠️ يبدو أنك فقدت اتصالك بالإنترنت. التصفح متاح، لكن الحجز والدردشة وأستغاثة معطلة حتى عودة الاتصال.', 'error');
@@ -5500,7 +5401,77 @@ window.checkOnlineStatus = () => {
   }
   return true;
 };
-// === نظام تثبيت التطبيق (PWA Install) ===
+// === نظام التحديث النظيف (بدون إزعاج) ===
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('OneSignalSDKWorker.js').then(reg => {
+      
+      // 1. التحقق إذا كان هناك تحديث ينتظر من قبل
+      if (reg.waiting) {
+        showUpdateToast();
+      }
+
+      // 2. الاستماع للتحديثات الجديدة أثناء التصفح
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', () => {
+          // إذا تم تثبيت نسخة جديدة بنجاح، أظهر الرسالة
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateToast();
+          }
+        });
+      });
+    });
+  });
+
+  // إعادة التحميل تحدث فقط إذا ضغط المستخدم على زر التحديث
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
+}
+
+// دالة إظهار رسالة التحديث (مطورة لمنع التكرار المزعج)
+function showUpdateToast() {
+  // إذا رفض المستخدم التحديث في هذه الجلسة، لا تظهر له الرسالة مجدداً
+  if (sessionStorage.getItem('update_dismissed') === 'true') return;
+
+  const toast = document.getElementById('toast');
+  // التحقق مما إذا كانت الرسالة معروضة بالفعل لمنع التكرار
+  if (toast.classList.contains('show') && toast.innerHTML.includes('يتوفر إصدار جديد')) return;
+
+  toast.innerHTML = `
+    <div class="flex flex-col items-center gap-3 w-full">
+      <div class="text-sm font-bold text-blue-800">🎉 يتوفر إصدار جديد من المنصة بميزات أسرع.</div>
+      <div class="flex gap-2">
+        <button id="updateBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">تحديث الآن</button>
+        <button id="dismissBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold">لاحقاً</button>
+      </div>
+    </div>`;
+  toast.style.backgroundColor = '#EFF6FF';
+  toast.classList.add('show');
+
+  // عند الضغط على زر التحديث
+  document.getElementById('updateBtn').onclick = async () => {
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (reg && reg.waiting) {
+      // مسح الكاش القديم قبل التحديث لضمان نجاحه
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+      // إرسال أمر التفعيل للنسخة المنتظرة
+      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+  };
+
+  // عند الضغط على زر "لاحقاً" (لمنع إزعاج المستخدم في هذه الجلسة)
+  document.getElementById('dismissBtn').onclick = () => {
+    sessionStorage.setItem('update_dismissed', 'true');
+    toast.classList.remove('show');
+  };
+}
 const PwaInstaller = (() => {
     let deferredPrompt = null;
 
