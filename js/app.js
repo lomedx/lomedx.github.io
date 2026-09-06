@@ -2739,23 +2739,17 @@ window.renderAdminDashboard = async () => {
     fetchHomeAdsForAdmin();
     updateAdminFormFields('doctor');
     fetchAdminArticles();
-        // === رسم الرسوم البيانية التحليلية ===
+            // === رسم الرسوم البيانية التحليلية ===
     setTimeout(() => {
         // 1. رسم توزيع المنشآت
         const ctxFac = document.getElementById('facilitiesChart');
         if (ctxFac) {
-            const counts = { hospital: 0, center: 0, lab: 0, doctor: 0, pharmacy: 0 };
-            allData.forEach(item => { if(counts[item.type] !== undefined) counts[item.type]++; });
-            setTimeout(() => {
-        // 1. رسم توزيع المنشآت
-        const ctxFac = document.getElementById('facilitiesChart');
-        if (ctxFac) {
-            // تدمير الرسم القديم إن وجد لمنع تسرب الذاكرة
-            const existingChart = Chart.getChart(ctxFac);
-            if (existingChart) existingChart.destroy();
+            const existingFacChart = Chart.getChart(ctxFac);
+            if (existingFacChart) existingFacChart.destroy();
             
             const counts = { hospital: 0, center: 0, lab: 0, doctor: 0, pharmacy: 0 };
             allData.forEach(item => { if(counts[item.type] !== undefined) counts[item.type]++; });
+            
             new Chart(ctxFac, {
                 type: 'doughnut',
                 data: {
@@ -2769,12 +2763,12 @@ window.renderAdminDashboard = async () => {
         // 2. رسم استغاثات الدم
         const ctxBlood = document.getElementById('bloodChart');
         if (ctxBlood) {
-            const bloodCounts = { "A+":0, "B+":0, "O+":0, "AB+":0, "A-":0, "B-":0, "O-":0, "AB-":0 };
-            bloodRequests.forEach(req => { if(bloodCounts[req.blood_type] !== undefined) bloodCounts[req.blood_type]++; });
-            const ctxBlood = document.getElementById('bloodChart');
-        if (ctxBlood) {
             const existingBloodChart = Chart.getChart(ctxBlood);
             if (existingBloodChart) existingBloodChart.destroy();
+            
+            const bloodCounts = { "A+":0, "B+":0, "O+":0, "AB+":0, "A-":0, "B-":0, "O-":0, "AB-":0 };
+            bloodRequests.forEach(req => { if(bloodCounts[req.blood_type] !== undefined) bloodCounts[req.blood_type]++; });
+            
             new Chart(ctxBlood, {
                 type: 'bar',
                 data: {
@@ -2788,17 +2782,16 @@ window.renderAdminDashboard = async () => {
         // 3. رسم أكثر المقالات قراءةً
         const ctxArt = document.getElementById('articlesChart');
         if (ctxArt) {
+            const existingArtChart = Chart.getChart(ctxArt);
+            if (existingArtChart) existingArtChart.destroy();
+            
             if (topArticles && topArticles.length > 0) {
-                // أخذ أول 3 كلمات من العنوان لجعل الرسم البياني أنيقاً وغير مزدحم
                 const labels = topArticles.map(a => {
                     const words = a.title.split(' ').slice(0, 3).join(' ');
                     return words + (a.title.split(' ').length > 3 ? '...' : '');
                 });
                 const data = topArticles.map(a => a.views || 0);
-                const ctxArt = document.getElementById('articlesChart');
-                 if (ctxArt) {
-                const existingArtChart = Chart.getChart(ctxArt);
-                 if (existingArtChart) existingArtChart.destroy();
+
                 new Chart(ctxArt, {
                     type: 'bar',
                     data: {
@@ -2806,27 +2799,25 @@ window.renderAdminDashboard = async () => {
                         datasets: [{
                             label: 'عدد المشاهدات',
                             data: data,
-                            // ألوان متدرجة من الأقوى للأضعف
                             backgroundColor: [
-                                'rgba(14, 124, 95, 0.9)',  // زمردي (الأكثر قراءة)
-                                'rgba(196, 150, 44, 0.9)',  // ذهبي
-                                'rgba(37, 99, 235, 0.9)',   // أزرق
-                                'rgba(147, 51, 234, 0.9)',  // بنفسجي
-                                'rgba(220, 38, 38, 0.9)'    // أحمر (الأقل قراءة)
+                                'rgba(14, 124, 95, 0.9)',
+                                'rgba(196, 150, 44, 0.9)',
+                                'rgba(37, 99, 235, 0.9)',
+                                'rgba(147, 51, 234, 0.9)',
+                                'rgba(220, 38, 38, 0.9)'
                             ],
                             borderRadius: 8,
                             borderSkipped: false,
-                            barThickness: 24, // عرض الأعمدة
+                            barThickness: 24,
                         }]
                     },
                     options: {
-                        indexAxis: 'y', // لجعله أفقياً
+                        indexAxis: 'y',
                         responsive: true, 
                         maintainAspectRatio: false, 
                         plugins: {
                             legend: { display: false },
                             tooltip: {
-                                // إظهار العنوان كاملاً عند تمرير الماوس
                                 backgroundColor: 'rgba(7, 61, 46, 0.95)',
                                 titleFont: { family: 'Noto Kufi Arabic', size: 14 },
                                 bodyFont: { family: 'IBM Plex Sans Arabic', size: 12 },
@@ -2839,15 +2830,8 @@ window.renderAdminDashboard = async () => {
                             }
                         },
                         scales: {
-                            x: { 
-                                beginAtZero: true,
-                                grid: { color: 'rgba(0,0,0,0.05)' }, 
-                                ticks: { font: { family: 'IBM Plex Sans Arabic' }, color: '#7A8B7A', stepSize: 1 } 
-                            },
-                            y: { 
-                                grid: { display: false }, 
-                                ticks: { font: { family: 'Noto Kufi Arabic', weight: 'bold' }, color: '#1B2A1B' } 
-                            }
+                            x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'IBM Plex Sans Arabic' }, color: '#7A8B7A', stepSize: 1 } },
+                            y: { grid: { display: false }, ticks: { font: { family: 'Noto Kufi Arabic', weight: 'bold' }, color: '#1B2A1B' } }
                         }
                     }
                 });
@@ -2859,6 +2843,9 @@ window.renderAdminDashboard = async () => {
         // 4. رسم توزيع المستلزمات الطبية
         const ctxMedEq = document.getElementById('medEquivChart');
         if (ctxMedEq) {
+            const existingMedChart = Chart.getChart(ctxMedEq);
+            if (existingMedChart) existingMedChart.destroy();
+            
             const typeCounts = { 'تبرع': 0, 'إعارة': 0, 'طلب': 0, 'مستلزمات': 0 };
             medicineDonations.forEach(m => {
                 if (m.medicine_type.includes('تبرع')) typeCounts['تبرع']++;
@@ -2866,11 +2853,7 @@ window.renderAdminDashboard = async () => {
                 else if (m.medicine_type.includes('طلب')) typeCounts['طلب']++;
                 else if (m.medicine_type.includes('مستلزمات')) typeCounts['مستلزمات']++;
             });
-            const ctxMedEq = document.getElementById('medEquivChart');
-        if (ctxMedEq) {
-            const existingMedChart = Chart.getChart(ctxMedEq);
-            if (existingMedChart) existingMedChart.destroy();
-           
+            
             new Chart(ctxMedEq, {
                 type: 'doughnut',
                 data: {
@@ -2884,6 +2867,9 @@ window.renderAdminDashboard = async () => {
         // 5. رسم نشاط رادار الرحيبة
         const ctxRadar = document.getElementById('radarChart');
         if (ctxRadar) {
+            const existingRadarChart = Chart.getChart(ctxRadar);
+            if (existingRadarChart) existingRadarChart.destroy();
+            
             supabase.from('disease_reports').select('disease_id, season').then(({ data: radarData }) => {
                 const counts = {};
                 const allDiseases = [...radarDiseasesData.summer, ...radarDiseasesData.winter];
@@ -2892,11 +2878,7 @@ window.renderAdminDashboard = async () => {
                     const disease = allDiseases.find(d => d.id === r.disease_id);
                     if (disease) counts[disease.name] = (counts[disease.name] || 0) + 1;
                 });
-                const ctxRadar = document.getElementById('radarChart');
-        if (ctxRadar) {
-            const existingRadarChart = Chart.getChart(ctxRadar);
-            if (existingRadarChart) existingRadarChart.destroy();
-            
+                
                 new Chart(ctxRadar, {
                     type: 'bar',
                     data: {
