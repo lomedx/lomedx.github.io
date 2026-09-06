@@ -1576,6 +1576,7 @@ window.handleDoctorLogin = async (e) => {
                 if (window.OneSignalDeferred) {
             OneSignalDeferred.push(function(OneSignal) {
                 OneSignal.login(data.user.id);
+                OneSignal.User.addTag("role", "doctor");
             });
         }
         renderDoctorDashboard(docData); 
@@ -4492,7 +4493,7 @@ window.submitQuestion = async (e) => {
         if (error) throw error;
         
         // === إشعار للجميع بوجود سؤال طبي جديد ===
-        await sendPushNotification(null, "سؤال طبي جديد ❓", `تم طرح سؤال جديد: ${text.substring(0, 40)}...`, 'all');
+        await sendPushNotification(null, "سؤال طبي جديد ❓", `تم طرح سؤال جديد: ${text.substring(0, 40)}...`, 'doctors');
         
         showToast('تم نشر سؤالك بنجاح!', 'success');     
         e.target.reset();
