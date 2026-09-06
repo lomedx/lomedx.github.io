@@ -35,6 +35,7 @@ let currentAdIndex = 0;
 let adInterval = null;
 let allHomeAds = [];
 let currentCity = 'all';
+let activeQrScanner = null;
 let allCities = ['كل المدن', 'الرحيبة']; // أضف أو عدل المدن كما تريد
 
 // === محرك الإشعارات المركزي ===
@@ -99,10 +100,16 @@ window.setupOneSignal = async () => {
         
     });
 };
-function generateUniqueId() { return Math.random().toString(36).substring(2, 8).toUpperCase(); }
-// دالة احترافية وآمنة جداً لتوليد رمز QR
-function generateSecureQrToken() {
-    return crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+// دالة موحدة لتوليد الرموز الآمنة
+function generateSecureToken(length = 32) {
+    if (length <= 10) {
+        // للرموز القصيرة (مثل IDs)
+        return Math.random().toString(36).substring(2, 2 + length).toUpperCase();
+    }
+    // للرموز الطويلة الآمنة (مثل QR Tokens)
+    const arr = new Uint8Array(length / 2);
+    crypto.getRandomValues(arr);
+    return Array.from(arr, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 function escapeHtml(text) {
     if (text === null || text === undefined) return '';
@@ -638,17 +645,27 @@ window.handleSearch = (value) => {
 let searchDebounceTimer;
 let searchDropdown = null;
 
+// دالة Debounce مساعدة لتأخير البحث
+function debounce(func, delay) { 
+    let timeout; 
+    return function(...args) { 
+        clearTimeout(timeout); 
+        timeout = setTimeout(() => func.apply(this, args), delay); 
+    }; 
+}
+
+let searchDebounceTimer;
+let searchDropdown = null;
+
 function initSmartSearch() {
     const searchInput = document.getElementById('heroSearch');
     if (!searchInput) return;
 
-    // إنشاء القائمة و إضافتها للـ body مباشرة لتفادي أي تعارض مع CSS الحاوية
     searchDropdown = document.createElement('div');
     searchDropdown.id = 'smartSearchDropdown';
     searchDropdown.classList.add('hidden'); 
     document.body.appendChild(searchDropdown);
 
-    // دالة لتحديث موقع القائمة تحت حقل البحث مباشرة
     const updateDropdownPosition = () => {
         if (!searchDropdown || !searchInput) return;
         const rect = searchInput.getBoundingClientRect();
@@ -659,25 +676,21 @@ function initSmartSearch() {
         searchDropdown.style.zIndex = '99999';
     };
 
-    searchInput.addEventListener('input', (e) => {
+    // تطبيق Debounce بـ 300 مللي ثانية
+    searchInput.addEventListener('input', debounce((e) => {
         handleSmartSearch(e.target.value);
-    });
+    }, 300));
 
-    // تحديث الموقع عند تمرير الصفحة أو تكبير/تصغير الشاشة
     window.addEventListener('scroll', updateDropdownPosition, true);
     window.addEventListener('resize', updateDropdownPosition);
-    
-    // حفظ الدالة لاستخدامها عند ظهور النتائج
     window.updateSmartSearchPosition = updateDropdownPosition;
 
-    // إخفاء القائمة عند النقر خارجها
     document.addEventListener('click', (e) => {
         if (!searchInput.contains(e.target) && searchDropdown && !searchDropdown.contains(e.target)) {
             searchDropdown.classList.add('hidden');
         }
     });
 }
-
 function handleSmartSearch(value) {
     clearTimeout(searchDebounceTimer);
     searchDebounceTimer = setTimeout(() => {
@@ -1118,6 +1131,15 @@ window.closeCtrlPanel = (event) => {
     const overlay = document.getElementById('ctrlOverlay');
     if (event && event.target.id === 'ctrlOverlay' && overlay.dataset.preventClose === 'true') return; 
     
+    // === إيقاف الكاميرا إجبارياً عند إغلاق اللوحة ===
+    if (activeQrScanner) {
+        activeQrScanner.stop().then(() => {
+            activeQrScanner.clear();
+            activeQrScanner = null;
+        }).catch(() => {
+            activeQrScanner = null;
+        });
+    }
     overlay.classList.remove('active'); 
     unlockScroll(); 
     
@@ -1748,14 +1770,39 @@ async function fetchDocBookings(docId) {
         let statusBadge = ''; let actionButtons = ''; 
         if (b.status === 'accepted') { statusBadge = `<span class="text-xs px-2 py-1 rounded block mb-1" style="background: #D1FAE5; color: #065F46">مقبول - ${escapeHtml(b.time)}</span>`; actionButtons = `<button onclick="updateBookingStatus('${b.id}', 'canceled')" class="text-xs text-white px-2 py-1 rounded bg-red-500">إلغاء</button><button onclick="updateBookingStatus('${b.id}', 'deleted')" class="text-xs text-white px-2 py-1 rounded bg-gray-800">أرشفة</button>`; } 
         else if (b.status === 'canceled') { statusBadge = '<span class="text-xs px-2 py-1 rounded block mb-1" style="background: #F3F4F6; color: #4B5563">ملغي</span>'; actionButtons = `<button onclick="updateBookingStatus('${b.id}', 'pending')" class="text-xs text-white px-2 py-1 rounded bg-gray-500">استعادة</button><button onclick="updateBookingStatus('${b.id}', 'deleted')" class="text-xs text-white px-2 py-1 rounded bg-gray-800">أرشفة</button>`; } 
-        else { statusBadge = '<span class="text-xs px-2 py-1 rounded block mb-1" style="background: #FEF3C7; color: #92400E">طلب جديد</span>'; actionButtons = `<div class="flex flex-col gap-1 w-full"><input type="time" id="time_${b.id}" placeholder="حدد الموعد" class="ctrl-input text-sm py-1"><div class="flex gap-1"><button onclick="acceptBooking('${b.id}')" class="text-xs text-white px-2 py-1 rounded bg-green-600 flex-1">قبول</button><button onclick="updateBookingStatus('${b.id}', 'canceled')" class="text-xs text-white px-2 py-1 rounded bg-red-500">رفض</button></div></div>`; }
+                else { 
+            statusBadge = '<span class="text-xs px-2 py-1 rounded block mb-1" style="background: #FEF3C7; color: #92400E">طلب جديد</span>'; 
+            actionButtons = `<div class="flex flex-col gap-1 w-full">
+                <input type="time" id="time_${b.id}" placeholder="حدد الموعد" class="ctrl-input text-sm py-1">
+                <div class="flex gap-1">
+                    <button data-action="accept" data-id="${b.id}" class="text-xs text-white px-2 py-1 rounded bg-green-600 flex-1">قبول</button>
+                    <button data-action="cancel" data-id="${b.id}" class="text-xs text-white px-2 py-1 rounded bg-red-500">رفض</button>
+                </div>
+            </div>`; 
+        }
         let chatHtml = '';
         if (b.chat && b.chat.length > 0) { chatHtml = b.chat.map(msg => `<div class="text-xs p-2 rounded-lg mb-1 ${msg.sender === 'doctor' ? 'bg-blue-100 text-left' : 'bg-gray-100 text-right'}">${escapeHtml(msg.text)}</div>`).join(''); }
         return `<div class="flex flex-col p-3 rounded-lg border mb-3" style="border-color: var(--border)"><div class="flex items-center justify-between mb-2"><div><span class="text-sm font-bold">${escapeHtml(b.name)}</span><br><span class="text-xs" style="color: var(--muted)">${escapeHtml(b.daystr)}</span></div><div>${statusBadge}<span class="text-[10px] text-gray-400">مرجع: #${escapeHtml(b.ref)}</span></div></div><div class="flex items-center justify-between border-t pt-2 mb-2" style="border-color: var(--border)"><a href="tel:${escapeHtml(b.phone)}" class="text-xs text-blue-600">${escapeHtml(b.phone)}</a><div class="flex gap-1">${actionButtons}</div></div><div class="border-t pt-2" style="border-color: var(--border)"><div class="text-xs font-bold text-gray-600 mb-1">المحادثة:</div><div class="max-h-32 overflow-y-auto mb-2 bg-gray-50 p-2 rounded-lg">${chatHtml || '<span class="text-xs text-gray-400">لا توجد رسائل</span>'}</div><div class="flex gap-1"><input type="text" id="docChat_${b.id}" placeholder="اكتب ردك..." class="ctrl-input text-sm py-1 flex-1"><button onclick="sendDocMessage('${b.id}')" class="text-xs text-white px-3 py-1 rounded bg-blue-500"><i class="fas fa-paper-plane"></i></button></div></div></div>`; 
     }).join('');
     
-    container.innerHTML = bookingsListHtml;
-}
+        container.innerHTML = bookingsListHtml;
+
+    // === Event Delegation للأزرار ===
+    if (!container.dataset.delegated) {
+        container.addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-action]');
+            if (!btn) return;
+            
+            const action = btn.dataset.action;
+            const id = btn.dataset.id;
+            
+            if (action === 'accept') acceptBooking(id);
+            else if (action === 'cancel') updateBookingStatus(id, 'canceled');
+            else if (action === 'restore') updateBookingStatus(id, 'pending');
+            else if (action === 'archive') updateBookingStatus(id, 'deleted');
+        });
+        container.dataset.delegated = 'true'; // لمنع تكرار إضافة المستمع
+    }
 window.acceptBooking = async (bookingId) => { 
     const timeInput = document.getElementById(`time_${bookingId}`); 
     
@@ -1880,12 +1927,19 @@ window.sendDocMessage = async (bookingId) => {
 window.openDoctorScanner = (docId) => {
     const docData = allData.find(d => d.id === docId) || {};
     openCtrlPanel('قارئ الملفات الصحية للمريض', `<div class="flex flex-col gap-4"><div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm flex items-center gap-3"><i class="fas fa-camera text-xl"></i><span>وجه كاميرا الهاتف نحو رمز QR الخاص بالمريض.</span></div><div id="qr-reader" style="width:100%"></div></div>`, '#2563EB');
-    const html5QrCode = new Html5Qrcode("qr-reader");
-    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText) => { html5QrCode.stop().then(() => { fetchPatientHealthFile(decodedText, docData); }).catch(() => {}); },
+    
+    // تخزين الكائن في المتغير العام
+    activeQrScanner = new Html5Qrcode("qr-reader");
+    activeQrScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => { 
+            activeQrScanner.stop().then(() => { 
+                activeQrScanner = null; 
+                fetchPatientHealthFile(decodedText, docData); 
+            }).catch(() => {}); 
+        },
         (errorMessage) => { }
     ).catch(err => { showToast("تعذر الوصول للكاميرا.", 'error'); });
-}
+};
 
 window.fetchPatientHealthFile = async (userId, doctorData) => {
     try {
