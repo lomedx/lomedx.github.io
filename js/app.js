@@ -1362,7 +1362,7 @@ window.openPharmacyLogin = async () => {
         }
     }
     
-    openCtrlPanel('لوحة الصيدليات', `<div class="max-w-sm mx-auto py-8"><div class="text-center mb-6"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style="background: var(--accent-light)"><i class="fas fa-prescription-bottle-medical text-2xl" style="color: var(--accent)"></i></div><h3 class="font-bold text-lg">دخول الصيدليات</h3></div><form onsubmit="handlePharmacyLogin(event)" class="flex flex-col gap-4"><input type="text" id="pharmName" class="ctrl-input text-center" placeholder="اسم الصيدلية" required><input type="text" id="pharmPass" class="ctrl-input text-center font-mono" placeholder="كلمة المرور" required><button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: var(--accent)">دخول</button></form></div>`, '#0E7C5F'); 
+    openCtrlPanel('لوحة الصيدليات', `<div class="max-w-sm mx-auto py-8"><div class="text-center mb-6"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style="background: var(--accent-light)"><i class="fas fa-prescription-bottle-medical text-2xl" style="color: var(--accent)"></i></div><h3 class="font-bold text-lg">دخول الصيدليات</h3></div><form onsubmit="handlePharmacyLogin(event)" class="flex flex-col gap-4"><input type="text" id="pharmPhone" class="ctrl-input text-center" placeholder="مُعرف الدخول (أو رقم الهاتف)" required><input type="text" id="pharmPass" class="ctrl-input text-center font-mono" placeholder="كلمة المرور" required><button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: var(--accent)">دخول</button></form></div>`, '#0E7C5F'); 
 }
 
 window.logoutPharmacy = async () => {
@@ -1499,7 +1499,7 @@ window.setMedAvailable = async (id, pharmName, patientPushId) => {
             sendPushNotification(null, "تم توفير دوائك ✅", pushMessage, 'player', patientPushId);
         }
 
-        showToast('تم إعلام المريض بتوفر الدواء'); 
+        showToast('تم إعلام المريض بتوفر الدواء', 'success'); 
     } catch (e) { 
         showToast('خطأ في التحديث', 'error'); 
     } 
@@ -1519,7 +1519,7 @@ window.openDoctorLogin = async () => {
         }
     }
     
-    openCtrlPanel('لوحة الطبيب', `<div class="max-w-sm mx-auto py-8"><div class="text-center mb-6"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style="background: #DBEAFE"><i class="fas fa-user-md text-2xl" style="color: var(--doctor)"></i></div><h3 class="font-bold text-lg">دخول الطبيب</h3></div><form onsubmit="handleDoctorLogin(event)" class="flex flex-col gap-4"><input type="text" id="docName" class="ctrl-input text-center" placeholder="الاسم" required><input type="text" id="docPass" class="ctrl-input text-center font-mono" placeholder="كلمة المرور" required><button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: var(--doctor)">دخول</button></form></div>`, '#2563EB'); 
+    openCtrlPanel('لوحة الطبيب', `<div class="max-w-sm mx-auto py-8"><div class="text-center mb-6"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style="background: #DBEAFE"><i class="fas fa-user-md text-2xl" style="color: var(--doctor)"></i></div><h3 class="font-bold text-lg">دخول الطبيب</h3></div><form onsubmit="handleDoctorLogin(event)" class="flex flex-col gap-4"><input type="text" id="docPhone" class="ctrl-input text-center" placeholder="مُعرف الدخول (أو رقم الهاتف)" required><input type="text" id="docPass" class="ctrl-input text-center font-mono" placeholder="كلمة المرور" required><button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: var(--doctor)">دخول</button></form></div>`, '#2563EB'); 
 }
 // دالة تسجيل دخول الطبيب
 window.handleDoctorLogin = async (e) => { 
@@ -1533,7 +1533,7 @@ window.handleDoctorLogin = async (e) => {
     const pass = passInput.value.trim();
     
     if (!phone || !pass) {
-        showToast('يرجى إدخال رقم الهاتف وكلمة المرور');
+        showToast('يرجى إدخال مُعرف الدخول (أو رقم الهاتف) وكلمة المرور');
         return;
     }
     
@@ -1543,7 +1543,7 @@ window.handleDoctorLogin = async (e) => {
     // 3. تسجيل الدخول
     const { data, error } = await supabase.auth.signInWithPassword({ email: dummyEmail, password: pass });
     if (error) { 
-        showToast('بيانات الدخول غير صحيحة. تأكد من رقم الهاتف وكلمة المرور.'); 
+        showToast('بيانات الدخول غير صحيحة. تأكد من مُعرف الدخول (أو رقم الهاتف) وكلمة المرور.', 'error'); 
         return; 
     }
 
@@ -1566,7 +1566,7 @@ window.handleDoctorLogin = async (e) => {
         renderDoctorDashboard(docData); 
     } else {
         await supabase.auth.signOut();
-        showToast('رقم الهاتف غير مرتبط بحساب طبيب'); 
+        showToast('مُعرف الدخول (أو رقم الهاتف) غير مرتبط بحساب طبيب', 'error'); 
     } 
 };
 
@@ -1581,7 +1581,7 @@ window.handlePharmacyLogin = async (e) => {
     const pass = passInput.value.trim();
     
     if (!phone || !pass) {
-        showToast('يرجى إدخال رقم الهاتف وكلمة المرور');
+        showToast('يرجى إدخال مُعرف الدخول (أو رقم الهاتف) وكلمة المرور');
         return;
     }
     
@@ -1589,7 +1589,7 @@ window.handlePharmacyLogin = async (e) => {
 
     const { data, error } = await supabase.auth.signInWithPassword({ email: dummyEmail, password: pass });
     if (error) { 
-        showToast('بيانات الدخول غير صحيحة. تأكد من رقم الهاتف وكلمة المرور.'); 
+        showToast('بيانات الدخول غير صحيحة. تأكد من مُعرف الدخول (أو رقم الهاتف) وكلمة المرور.', 'error'); 
         return; 
     }
 
@@ -1611,7 +1611,7 @@ window.handlePharmacyLogin = async (e) => {
         renderPharmacyDashboard(pharmData); 
     } else {
         await supabase.auth.signOut();
-        showToast('رقم الهاتف غير مرتبط بحساب صيدلية'); 
+        showToast('مُعرف الدخول (أو رقم الهاتف) غير مرتبط بحساب صيدلية', 'error'); 
     } 
 };
 window.renderDoctorDashboard = async (doc) => { 
@@ -2567,6 +2567,7 @@ window.updateAdminFormFields = (type) => {
             
           } else if (type === 'doctor') {
         html = `
+        <input type="text" id="new_login_id" class="ctrl-input text-sm col-span-1 sm:col-span-2" placeholder="مُعرف الدخول (رقم الهاتف أو اسم مستخدم)" required>
         <input type="text" id="new_consult_hours" class="ctrl-input text-sm" placeholder="أوقات المعاينة (النظام قديم)">
         <input type="text" id="new_parent_id" class="ctrl-input text-sm" placeholder="ID المشفى التابع له (اختياري)">
         <input type="text" id="new_extra" class="ctrl-input text-sm" placeholder="تفاصيل إضافية">
@@ -2588,7 +2589,10 @@ window.updateAdminFormFields = (type) => {
     } else if (type === 'lab') {
         html = `<input type="text" id="new_extra" class="ctrl-input text-sm col-span-1 sm:col-span-2" placeholder="نوع التحاليل"><select id="new_home_sample" class="ctrl-input text-sm"><option value="لا">لا يوجد سحب منزلي</option><option value="نعم">يوجد سحب منزلي</option></select>`;
     } else if (type === 'pharmacy') {
-        html = `<input type="text" id="new_night_details" class="ctrl-input text-sm" placeholder="تفاصيل المناوبة"><input type="text" id="new_extra" class="ctrl-input text-sm col-span-1 sm:col-span-2" placeholder="ملاحظات">`;
+        html = `
+        <input type="text" id="new_login_id" class="ctrl-input text-sm col-span-1 sm:col-span-2" placeholder="مُعرف الدخول (رقم الهاتف أو اسم مستخدم)" required>
+        <input type="text" id="new_night_details" class="ctrl-input text-sm" placeholder="تفاصيل المناوبة">
+        <input type="text" id="new_extra" class="ctrl-input text-sm col-span-1 sm:col-span-2" placeholder="ملاحظات">`;
     }
     
     html += '<input type="text" id="new_latlng" class="ctrl-input text-sm col-span-1 sm:col-span-2 mt-2" placeholder="إحداثيات الموقع (33.5, 36.3)">';
@@ -3053,24 +3057,32 @@ window.saveFacility = async (e) => {
         }
     }
     
-        if (!id && (type === 'doctor' || type === 'pharmacy')) { 
+                if (!id && (type === 'doctor' || type === 'pharmacy')) { 
         if (!customPassword || customPassword.length < 6) {
             showToast('يرجى إدخال كلمة مرور (6 أحرف على الأقل)');
             return;
         }
         
-        // 1. توليد ID عشوائي لا يعتمد على كلمة المرور
-        const randomPart = generateUniqueId();
-        const dummyEmail = type === 'doctor' ? `doc_${randomPart}@lomedx.app` : `pharm_${randomPart}@lomedx.app`;
+        // 1. قراءة "مُعرف الدخول" من الحقل الجديد
+        const loginIdInput = document.getElementById('new_login_id');
+        let loginId = loginIdInput ? loginIdInput.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+        
+        // 2. إذا كان الحقل فارغاً، نولد رقم عشوائي كحل أخير
+        if (!loginId) {
+            loginId = Math.floor(100000 + Math.random() * 900000).toString();
+            showToast('لم يتم إدخال مُعرف دخول، تم توليد رقم عشوائي تلقائياً.', 'info');
+        }
+        
+        // 3. تكوين الإيميل باستخدام مُعرف الدخول
+        const dummyEmail = type === 'doctor' ? `doc_${loginId}@lomedx.app` : `pharm_${loginId}@lomedx.app`;
         
         try {
-            // 2. استدعاء دالة السيرفر لإنشاء المستخدم
             const { data: funcData, error: funcError } = await supabase.functions.invoke('create-user', {
-                body: { email: dummyEmail, password: customPassword } // كلمة المرور تمرر كـ password فقط
+                body: { email: dummyEmail, password: customPassword }
             });
             
             if (funcError || !funcData || !funcData.user_id) { 
-                showToast('خطأ في إنشاء حساب الدخول: ' + (funcError?.message || 'خطأ غير معروف'), 'error');
+                showToast('خطأ في إنشاء حساب الدخول: ' + (funcError?.message || 'مُعرف الدخول مستخدم مسبقاً'), 'error');
                 return; 
             }
             data.user_id = funcData.user_id; 
