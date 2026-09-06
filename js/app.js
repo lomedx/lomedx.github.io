@@ -1762,7 +1762,7 @@ async function fetchDocBookings(docId) {
         
     if (error || !docBookings) { container.innerHTML = '<p class="text-sm text-center py-4 text-red-500">خطأ في تحميل الحجوزات.</p>'; return; }
     if (docBookings.length === 0) { container.innerHTML = '<p class="text-sm text-center py-4" style="color: var(--muted)">لا توجد طلبات حجز حالياً.</p>'; return; }
-    
+        bookings = docBookings; // تحديث المصفوفة المحلية لكي يجدها كود القبول
     const bookingsListHtml = docBookings.map(b => { 
         let statusBadge = ''; let actionButtons = ''; 
         if (b.status === 'accepted') { 
