@@ -1525,25 +1525,25 @@ window.openDoctorLogin = async () => {
 window.handleDoctorLogin = async (e) => { 
     e.preventDefault(); 
     
-    // 1. قراءة رقم الهاتف وكلمة المرور من الحقول
-    const phoneInput = document.getElementById('docPhone'); // تغيير المعرف ليكون docPhone
+    const loginInput = document.getElementById('docPhone');
     const passInput = document.getElementById('docPass');
     
-    const phone = phoneInput.value.trim().replace(/[^0-9]/g, ''); // إزالة كل ما هو ليس رقماً
+    // 1. تنظيف المُعرف للسماح بالحروف الإنجليزية والأرقام فقط
+    const loginId = loginInput.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
     const pass = passInput.value.trim();
     
-    if (!phone || !pass) {
-        showToast('يرجى إدخال مُعرف الدخول (أو رقم الهاتف) وكلمة المرور');
+    if (!loginId || !pass) {
+        showToast('يرجى إدخال مُعرف الدخول وكلمة المرور');
         return;
     }
     
-    // 2. تكوين الإيميل الوهمي بناءً على رقم الهاتف
-    const dummyEmail = `doc_${phone}@lomedx.app`;
+    // 2. تكوين الإيميل بناءً على المُعرف
+    const dummyEmail = `doc_${loginId}@lomedx.app`;
     
     // 3. تسجيل الدخول
     const { data, error } = await supabase.auth.signInWithPassword({ email: dummyEmail, password: pass });
     if (error) { 
-        showToast('بيانات الدخول غير صحيحة. تأكد من مُعرف الدخول (أو رقم الهاتف) وكلمة المرور.', 'error'); 
+        showToast('بيانات الدخول غير صحيحة. تأكد من مُعرف الدخول وكلمة المرور.', 'error'); 
         return; 
     }
 
@@ -1566,7 +1566,7 @@ window.handleDoctorLogin = async (e) => {
         renderDoctorDashboard(docData); 
     } else {
         await supabase.auth.signOut();
-        showToast('مُعرف الدخول (أو رقم الهاتف) غير مرتبط بحساب طبيب', 'error'); 
+        showToast('مُعرف الدخول غير مرتبط بحساب طبيب', 'error'); 
     } 
 };
 
@@ -1574,22 +1574,24 @@ window.handleDoctorLogin = async (e) => {
 window.handlePharmacyLogin = async (e) => { 
     e.preventDefault(); 
     
-    const phoneInput = document.getElementById('pharmPhone'); // تغيير المعرف ليكون pharmPhone
+    const loginInput = document.getElementById('pharmPhone');
     const passInput = document.getElementById('pharmPass');
     
-    const phone = phoneInput.value.trim().replace(/[^0-9]/g, '');
+    // 1. تنظيف المُعرف للسماح بالحروف الإنجليزية والأرقام فقط
+    const loginId = loginInput.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
     const pass = passInput.value.trim();
     
-    if (!phone || !pass) {
-        showToast('يرجى إدخال مُعرف الدخول (أو رقم الهاتف) وكلمة المرور');
+    if (!loginId || !pass) {
+        showToast('يرجى إدخال مُعرف الدخول وكلمة المرور');
         return;
     }
     
-    const dummyEmail = `pharm_${phone}@lomedx.app`;
+    // 2. تكوين الإيميل بناءً على المُعرف
+    const dummyEmail = `pharm_${loginId}@lomedx.app`;
 
     const { data, error } = await supabase.auth.signInWithPassword({ email: dummyEmail, password: pass });
     if (error) { 
-        showToast('بيانات الدخول غير صحيحة. تأكد من مُعرف الدخول (أو رقم الهاتف) وكلمة المرور.', 'error'); 
+        showToast('بيانات الدخول غير صحيحة. تأكد من مُعرف الدخول وكلمة المرور.', 'error'); 
         return; 
     }
 
@@ -1611,7 +1613,7 @@ window.handlePharmacyLogin = async (e) => {
         renderPharmacyDashboard(pharmData); 
     } else {
         await supabase.auth.signOut();
-        showToast('مُعرف الدخول (أو رقم الهاتف) غير مرتبط بحساب صيدلية', 'error'); 
+        showToast('مُعرف الدخول غير مرتبط بحساب صيدلية', 'error'); 
     } 
 };
 window.renderDoctorDashboard = async (doc) => { 
