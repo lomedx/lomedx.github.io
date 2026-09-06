@@ -55,19 +55,6 @@ async function sendPushNotification(userId, title, message, target = 'user', pla
     }   
     
 }
-// 1. التهيئة (يجب أن توضع في أعلى الملف ليتم تنفيذها فور تحميل الصفحة)
-window.OneSignalDeferred = window.OneSignalDeferred || [];
-OneSignalDeferred.push(function(OneSignal) {
-    OneSignal.init({
-        appId: "2e008b4d-0516-4b06-96b1-8a522e0c1587", // ID تطبيقك
-        allowLocalhostAsSecureOrigin: true,
-        serviceWorker: { 
-            path: "OneSignalSDKWorker.js", // اسم الملف الذي دمجناه
-            scope: "/" 
-        }
-        // تم إزالة notifyButton لأنها قديمة ولا حاجة لها
-    });
-});
 
 // 2. دالة التفعيل (سليمة تماماً ومعدلة لتتوافق مع الإصدار الجديد)
 window.setupOneSignal = async () => {
