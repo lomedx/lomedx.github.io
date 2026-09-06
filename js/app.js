@@ -1353,39 +1353,7 @@ window.openPharmacyLogin = async () => {
     
     openCtrlPanel('لوحة الصيدليات', `<div class="max-w-sm mx-auto py-8"><div class="text-center mb-6"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style="background: var(--accent-light)"><i class="fas fa-prescription-bottle-medical text-2xl" style="color: var(--accent)"></i></div><h3 class="font-bold text-lg">دخول الصيدليات</h3></div><form onsubmit="handlePharmacyLogin(event)" class="flex flex-col gap-4"><input type="text" id="pharmName" class="ctrl-input text-center" placeholder="اسم الصيدلية" required><input type="text" id="pharmPass" class="ctrl-input text-center font-mono" placeholder="كلمة المرور" required><button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: var(--accent)">دخول</button></form></div>`, '#0E7C5F'); 
 }
-window.handlePharmacyLogin = async (e) => { 
-    e.preventDefault(); 
-    const name = document.getElementById('pharmName').value.trim(); 
-    const passInput = document.getElementById('pharmPass').value.trim();
-    const pass = passInput;
-    
-    const dummyEmail = `pharm_${pass.toLowerCase()}@lomedx.app`;
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email: dummyEmail, password: pass });
-    if (error) { showToast('بيانات الدخول غير صحيحة. يرجى المحاولة مرة أخرى.'); return; }
-
-    const pharmData = allData.find(d => d.user_id === data.user.id && d.type === 'pharmacy'); 
-    if (pharmData) { 
-        if (!pharmData.is_subscribed) {
-            await supabase.auth.signOut();
-            showToast('انتهت فترة الاشتراك. يرجى التجديد لمتابعة استخدام اللوحة.');
-            openPaymentModal('صيدلية', pharmData.name);
-            return;
-        }
-        // === إضافة وسيط "صيدلية" لحساب OneSignal ===
-        if (window.OneSignalDeferred) {
-            OneSignalDeferred.push(function(OneSignal) {
-                OneSignal.login(data.user.id);
-                OneSignal.User.addTag("role", "pharmacy");
-            });
-        }
-        renderPharmacyDashboard(pharmData); 
-    } else {
-        await supabase.auth.signOut();
-        showToast('اسم الصيدلية غير مطابق للحساب'); 
-    } 
-}
-        
 window.logoutPharmacy = async () => {
     await supabase.auth.signOut();
     closeCtrlPanel();
@@ -1542,16 +1510,33 @@ window.openDoctorLogin = async () => {
     
     openCtrlPanel('لوحة الطبيب', `<div class="max-w-sm mx-auto py-8"><div class="text-center mb-6"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style="background: #DBEAFE"><i class="fas fa-user-md text-2xl" style="color: var(--doctor)"></i></div><h3 class="font-bold text-lg">دخول الطبيب</h3></div><form onsubmit="handleDoctorLogin(event)" class="flex flex-col gap-4"><input type="text" id="docName" class="ctrl-input text-center" placeholder="الاسم" required><input type="text" id="docPass" class="ctrl-input text-center font-mono" placeholder="كلمة المرور" required><button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: var(--doctor)">دخول</button></form></div>`, '#2563EB'); 
 }
+// دالة تسجيل دخول الطبيب
 window.handleDoctorLogin = async (e) => { 
     e.preventDefault(); 
-    const name = document.getElementById('docName').value.trim(); 
-    const passInput = document.getElementById('docPass').value.trim();
-    const pass = passInput;
-    const dummyEmail = `doc_${pass.toLowerCase()}@lomedx.app`;
     
+    // 1. قراءة رقم الهاتف وكلمة المرور من الحقول
+    const phoneInput = document.getElementById('docPhone'); // تغيير المعرف ليكون docPhone
+    const passInput = document.getElementById('docPass');
+    
+    const phone = phoneInput.value.trim().replace(/[^0-9]/g, ''); // إزالة كل ما هو ليس رقماً
+    const pass = passInput.value.trim();
+    
+    if (!phone || !pass) {
+        showToast('يرجى إدخال رقم الهاتف وكلمة المرور');
+        return;
+    }
+    
+    // 2. تكوين الإيميل الوهمي بناءً على رقم الهاتف
+    const dummyEmail = `doc_${phone}@lomedx.app`;
+    
+    // 3. تسجيل الدخول
     const { data, error } = await supabase.auth.signInWithPassword({ email: dummyEmail, password: pass });
-    if (error) { showToast('بيانات الدخول غير صحيحة. يرجى المحاولة مرة أخرى.'); return; }
+    if (error) { 
+        showToast('بيانات الدخول غير صحيحة. تأكد من رقم الهاتف وكلمة المرور.'); 
+        return; 
+    }
 
+    // 4. التحقق من الملف
     const docData = allData.find(d => d.user_id === data.user.id && d.type === 'doctor'); 
     if (docData) { 
         if (!docData.is_subscribed) {
@@ -1560,7 +1545,8 @@ window.handleDoctorLogin = async (e) => {
             openPaymentModal('طبيب', docData.name); 
             return;
         }
-                if (window.OneSignalDeferred) {
+        
+        if (window.OneSignalDeferred) {
             OneSignalDeferred.push(function(OneSignal) {
                 OneSignal.login(data.user.id);
                 OneSignal.User.addTag("role", "doctor");
@@ -1569,9 +1555,54 @@ window.handleDoctorLogin = async (e) => {
         renderDoctorDashboard(docData); 
     } else {
         await supabase.auth.signOut();
-        showToast('اسم الطبيب غير مطابق للحساب'); 
+        showToast('رقم الهاتف غير مرتبط بحساب طبيب'); 
     } 
-}
+};
+
+// دالة تسجيل دخول الصيدلية
+window.handlePharmacyLogin = async (e) => { 
+    e.preventDefault(); 
+    
+    const phoneInput = document.getElementById('pharmPhone'); // تغيير المعرف ليكون pharmPhone
+    const passInput = document.getElementById('pharmPass');
+    
+    const phone = phoneInput.value.trim().replace(/[^0-9]/g, '');
+    const pass = passInput.value.trim();
+    
+    if (!phone || !pass) {
+        showToast('يرجى إدخال رقم الهاتف وكلمة المرور');
+        return;
+    }
+    
+    const dummyEmail = `pharm_${phone}@lomedx.app`;
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email: dummyEmail, password: pass });
+    if (error) { 
+        showToast('بيانات الدخول غير صحيحة. تأكد من رقم الهاتف وكلمة المرور.'); 
+        return; 
+    }
+
+    const pharmData = allData.find(d => d.user_id === data.user.id && d.type === 'pharmacy'); 
+    if (pharmData) { 
+        if (!pharmData.is_subscribed) {
+            await supabase.auth.signOut();
+            showToast('انتهت فترة الاشتراك. يرجى التجديد لمتابعة استخدام اللوحة.');
+            openPaymentModal('صيدلية', pharmData.name);
+            return;
+        }
+        
+        if (window.OneSignalDeferred) {
+            OneSignalDeferred.push(function(OneSignal) {
+                OneSignal.login(data.user.id);
+                OneSignal.User.addTag("role", "pharmacy");
+            });
+        }
+        renderPharmacyDashboard(pharmData); 
+    } else {
+        await supabase.auth.signOut();
+        showToast('رقم الهاتف غير مرتبط بحساب صيدلية'); 
+    } 
+};
 window.renderDoctorDashboard = async (doc) => { 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -1869,20 +1900,32 @@ window.fetchPatientHealthFile = async (userId, doctorData) => {
             specialty: doctorData?.specialty || 'طبيب عام',
             id: doctorData?.id || 'unknown'
         };
+// استبدل هذا السطر في كودك:
+// const prescriptionBtn = doctorData?.is_subscribed 
+//     ? `<button onclick='openPrescriptionModal("${escapeHtml(userId)}", "${escapeHtml(decryptedP.full_name)}", ${JSON.stringify(docInfo).replace(/'/g, "&#39;")})' ...>
 
-        const prescriptionBtn = doctorData?.is_subscribed 
-    ? `<button onclick='openPrescriptionModal("${escapeHtml(userId)}", "${escapeHtml(decryptedP.full_name)}", ${JSON.stringify(docInfo).replace(/'/g, "&#39;")})' class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg"><i class="fas fa-file-prescription"></i> إنشاء روشتة</button>` 
-            : `<button onclick="openPaymentModal('طبيب', '${doctorData?.name || 'طبيب'}')" class="text-xs bg-gray-300 text-gray-600 px-3 py-1.5 rounded-lg line-through cursor-not-allowed"><i class="fas fa-lock"></i> إنشاء روشتة</button>`;
-
+// بهذا الكود الآمن:
+window.tempPatientContext = {
+    userId: userId,
+    patientName: decryptedP.full_name,
+    doctorInfo: docInfo
+};
+const prescriptionBtn = doctorData?.is_subscribed 
+    ? `<button onclick="openPrescriptionModal()" class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg"><i class="fas fa-file-prescription"></i> إنشاء روشتة</button>` 
+    : `<button onclick="openPaymentModal('طبيب', '${escapeHtml(doctorData?.name || 'طبيب')}')" class="text-xs bg-gray-300 text-gray-600 px-3 py-1.5 rounded-lg line-through cursor-not-allowed"><i class="fas fa-lock"></i> إنشاء روشتة</button>`;
+    
         document.getElementById('modalContent').innerHTML = `<div class="p-6"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg"><i class="fas fa-file-medical ml-2" style="color: var(--doctor)"></i> الملف الصحي للمريض</h3><button onclick="closeModal()" class="text-2xl">&times;</button>${prescriptionBtn}</div><div class="flex flex-col gap-3"><div class="flex items-center gap-4 p-3 rounded-xl" style="background: #DBEAFE"><i class="fas fa-user-circle text-3xl" style="color: var(--doctor)"></i><div><h4 class="font-bold text-lg">${escapeHtml(decryptedP.full_name)}</h4><p class="text-sm text-gray-600">${escapeHtml(decryptedP.age || '-')} سنة | ${escapeHtml(decryptedP.gender || '-')}</p></div></div><div class="grid grid-cols-2 gap-3 text-sm"><div class="p-3 rounded-xl border"><div class="text-xs text-gray-500">فصيلة الدم</div><div class="font-bold text-red-600">${escapeHtml(decryptedP.blood_type || 'غير محدد')}</div></div><div class="p-3 rounded-xl border"><div class="text-xs text-gray-500">الوزن</div><div class="font-bold">${escapeHtml(decryptedP.weight || '-')} كغ</div></div></div><div class="p-3 rounded-xl border"><div class="text-xs text-gray-500 mb-1">الأمراض المزمنة</div><div class="font-semibold">${escapeHtml(decryptedP.diseases || 'لا يوجد')}</div></div><div class="p-3 rounded-xl border"><div class="text-xs text-gray-500 mb-1">الحساسية</div><div class="font-semibold text-red-600">${escapeHtml(decryptedP.allergies || 'لا يوجد')}</div></div><div class="p-3 rounded-xl border"><div class="text-xs text-gray-500 mb-1">الأدوية الحالية</div><div class="font-semibold">${escapeHtml(decryptedP.medications || 'لا يوجد')}</div></div>${specializedRecordHtml}<div class="p-3 rounded-xl bg-green-50 border border-green-200"><div class="text-xs text-green-700 mb-1">جهة طوارئ</div><div class="font-semibold">${escapeHtml(decryptedP.emergency_name || '')} - <span dir="ltr">${escapeHtml(decryptedP.emergency_phone || '')}</span></div></div></div></div>`;
         document.getElementById('modalOverlay').classList.add('active');
         lockScroll();
     } catch (e) { showToast("خطأ في قراءة الملف.", 'error'); }
 }
 
-window.openPrescriptionModal = (patientId, patientName, doctorInfo) => {
+// استبدل بداية دالة openPrescriptionModal بهذا:
+window.openPrescriptionModal = () => {
+    const { userId, patientName, doctorInfo } = window.tempPatientContext; 
     window.currentDoctorInfo = doctorInfo; 
     closeModal(); 
+    
     document.getElementById('modalContent').innerHTML = `
         <div class="p-6">
             <div class="flex justify-between items-center mb-6">
@@ -1892,8 +1935,8 @@ window.openPrescriptionModal = (patientId, patientName, doctorInfo) => {
             <div class="bg-blue-50 p-3 rounded-xl mb-4 text-sm text-blue-800 flex items-center gap-2">
                 <i class="fas fa-user"></i> المريض: <b>${escapeHtml(patientName)}</b>
             </div>
-            <form onsubmit="generatePrescription(event, '${patientId}', '${patientName}')">
-                <div id="medListContainer" class="flex flex-col gap-3 mb-4">
+            <form onsubmit="generatePrescription(event, '${userId}', '${escapeHtml(patientName)}')">
+        <div id="medListContainer" class="flex flex-col gap-3 mb-4">
                     <div class="bg-gray-50 p-3 rounded-xl border" style="border-color: var(--border)">
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             <input type="text" required class="ctrl-input text-sm" placeholder="اسم الدواء" name="drugName[]">
@@ -2703,6 +2746,16 @@ window.renderAdminDashboard = async () => {
         if (ctxFac) {
             const counts = { hospital: 0, center: 0, lab: 0, doctor: 0, pharmacy: 0 };
             allData.forEach(item => { if(counts[item.type] !== undefined) counts[item.type]++; });
+            setTimeout(() => {
+        // 1. رسم توزيع المنشآت
+        const ctxFac = document.getElementById('facilitiesChart');
+        if (ctxFac) {
+            // تدمير الرسم القديم إن وجد لمنع تسرب الذاكرة
+            const existingChart = Chart.getChart(ctxFac);
+            if (existingChart) existingChart.destroy();
+            
+            const counts = { hospital: 0, center: 0, lab: 0, doctor: 0, pharmacy: 0 };
+            allData.forEach(item => { if(counts[item.type] !== undefined) counts[item.type]++; });
             new Chart(ctxFac, {
                 type: 'doughnut',
                 data: {
@@ -2718,6 +2771,10 @@ window.renderAdminDashboard = async () => {
         if (ctxBlood) {
             const bloodCounts = { "A+":0, "B+":0, "O+":0, "AB+":0, "A-":0, "B-":0, "O-":0, "AB-":0 };
             bloodRequests.forEach(req => { if(bloodCounts[req.blood_type] !== undefined) bloodCounts[req.blood_type]++; });
+            const ctxBlood = document.getElementById('bloodChart');
+        if (ctxBlood) {
+            const existingBloodChart = Chart.getChart(ctxBlood);
+            if (existingBloodChart) existingBloodChart.destroy();
             new Chart(ctxBlood, {
                 type: 'bar',
                 data: {
@@ -2738,7 +2795,10 @@ window.renderAdminDashboard = async () => {
                     return words + (a.title.split(' ').length > 3 ? '...' : '');
                 });
                 const data = topArticles.map(a => a.views || 0);
-
+                const ctxArt = document.getElementById('articlesChart');
+                 if (ctxArt) {
+                const existingArtChart = Chart.getChart(ctxArt);
+                 if (existingArtChart) existingArtChart.destroy();
                 new Chart(ctxArt, {
                     type: 'bar',
                     data: {
@@ -2806,6 +2866,11 @@ window.renderAdminDashboard = async () => {
                 else if (m.medicine_type.includes('طلب')) typeCounts['طلب']++;
                 else if (m.medicine_type.includes('مستلزمات')) typeCounts['مستلزمات']++;
             });
+            const ctxMedEq = document.getElementById('medEquivChart');
+        if (ctxMedEq) {
+            const existingMedChart = Chart.getChart(ctxMedEq);
+            if (existingMedChart) existingMedChart.destroy();
+           
             new Chart(ctxMedEq, {
                 type: 'doughnut',
                 data: {
@@ -2827,6 +2892,11 @@ window.renderAdminDashboard = async () => {
                     const disease = allDiseases.find(d => d.id === r.disease_id);
                     if (disease) counts[disease.name] = (counts[disease.name] || 0) + 1;
                 });
+                const ctxRadar = document.getElementById('radarChart');
+        if (ctxRadar) {
+            const existingRadarChart = Chart.getChart(ctxRadar);
+            if (existingRadarChart) existingRadarChart.destroy();
+            
                 new Chart(ctxRadar, {
                     type: 'bar',
                     data: {
@@ -2988,18 +3058,20 @@ window.saveFacility = async (e) => {
         }
     }
     
-    if (!id && (type === 'doctor' || type === 'pharmacy')) { 
+        if (!id && (type === 'doctor' || type === 'pharmacy')) { 
         if (!customPassword || customPassword.length < 6) {
             showToast('يرجى إدخال كلمة مرور (6 أحرف على الأقل)');
             return;
         }
+        
+        // 1. توليد ID عشوائي لا يعتمد على كلمة المرور
         const randomPart = generateUniqueId();
-                const dummyEmail = type === 'doctor' ? `doc_${customPassword.toLowerCase()}@lomedx.app` : `pharm_${customPassword.toLowerCase()}@lomedx.app`;
+        const dummyEmail = type === 'doctor' ? `doc_${randomPart}@lomedx.app` : `pharm_${randomPart}@lomedx.app`;
         
         try {
-            // استدعاء دالة السيرفر لإنشاء المستخدم دون تسجيل خروج الأدمن
+            // 2. استدعاء دالة السيرفر لإنشاء المستخدم
             const { data: funcData, error: funcError } = await supabase.functions.invoke('create-user', {
-                body: { email: dummyEmail, password: customPassword }
+                body: { email: dummyEmail, password: customPassword } // كلمة المرور تمرر كـ password فقط
             });
             
             if (funcError || !funcData || !funcData.user_id) { 
