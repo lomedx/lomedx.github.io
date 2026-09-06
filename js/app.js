@@ -1803,6 +1803,7 @@ async function fetchDocBookings(docId) {
         });
         container.dataset.delegated = 'true'; // لمنع تكرار إضافة المستمع
     }
+}
 window.acceptBooking = async (bookingId) => { 
     const timeInput = document.getElementById(`time_${bookingId}`); 
     
