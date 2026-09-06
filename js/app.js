@@ -1995,33 +1995,35 @@ window.generatePrescription = async (e, patientId, patientName) => {
     const date = new Date();
     const verCode = btoa(`${docInfo.id}-${date.getTime()}`).substring(0, 12).toUpperCase();
 
+    // تعطيل زر الحفظ لمنع النقر المزدوج
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...'; }
+
     try {
-        // patientId هنا هو رمز الـ QR (qr_token)
-        // 1. جلب الروشتات السابقة للمرض
-        const { data: docSnap, error } = await supabase.from('health_files').select('prescriptions').eq('qr_token', patientId).single();
-        if (error) throw error;
-        
-        const currentRx = docSnap.prescriptions || [];
-        // 2. تشفير نص الروشتة باستخدام رمز الـ QR قبل حفظها
-        currentRx.push({ 
-            doctor: docInfo.name, 
-            specialty: docInfo.specialty, 
-            verCode: verCode, 
-            text: encryptField(rxText, patientId), 
-            date: date.toISOString() 
+        // 1. تشفير نص الروشتة باستخدام رمز الـ QR
+        const encryptedText = encryptField(rxText, patientId);
+
+        // 2. استدعاء الدالة الآمنة لإضافة الروشتة مباشرة في قاعدة البيانات (بدون جلب المصفوفة)
+        const { error: rpcError } = await supabase.rpc('append_prescription', {
+            p_qr_token: patientId,
+            p_doctor: docInfo.name,
+            p_specialty: docInfo.specialty,
+            p_vercode: verCode,
+            p_text: encryptedText,
+            p_date: date.toISOString()
         });
-        
-        // 3. حفظ الروشتة المشفرة في قاعدة البيانات
-        await supabase.from('health_files').update({ prescriptions: currentRx }).eq('qr_token', patientId);
+
+        if (rpcError) throw rpcError;
         
         showToast('تم حفظ الروشتة وتشفيرها في ملف المريض بنجاح!', 'success');
         closeModal();
+        // إعادة فتح ملف المريض لعرض الروشتة الجديدة
         fetchPatientHealthFile(patientId, { specialty: 'general' }); 
     } catch (err) { 
-        showToast('خطأ في حفظ الروشتة', 'error'); 
-        
+        showToast('خطأ في حفظ الروشتة: ' + err.message, 'error'); 
+        if(submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-save"></i> حفظ الروشتة في ملف المريض'; }
     }
-}
+};
 window.addPrescriptionRow = () => {
     const container = document.getElementById('medListContainer');
     const newRow = document.createElement('div');
