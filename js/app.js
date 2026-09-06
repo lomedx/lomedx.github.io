@@ -1923,10 +1923,20 @@ window.tempPatientContext = {
     patientName: decryptedP.full_name,
     doctorInfo: docInfo
 };
-const prescriptionBtn = doctorData?.is_subscribed 
-    ? `<button onclick="openPrescriptionModal()" class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg"><i class="fas fa-file-prescription"></i> إنشاء روشتة</button>` 
-    : `<button onclick="openPaymentModal('طبيب', '${escapeHtml(doctorData?.name || 'طبيب')}')" class="text-xs bg-gray-300 text-gray-600 px-3 py-1.5 rounded-lg line-through cursor-not-allowed"><i class="fas fa-lock"></i> إنشاء روشتة</button>`;
-    
+           // التحقق هل أضاف الطبيب روشتة بالفعل في هذه الجلسة؟
+        const hasAddedRx = window.tempPatientContext?.hasAddedPrescription === true;
+
+        let prescriptionBtn = '';
+        if (doctorData?.is_subscribed && !hasAddedRx) {
+            // الزر طبيعي وفعال (لم يضف روشتة بعد)
+            prescriptionBtn = `<button onclick="openPrescriptionModal()" class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg"><i class="fas fa-file-prescription"></i> إنشاء روشتة</button>`;
+        } else if (doctorData?.is_subscribed && hasAddedRx) {
+            // الزر مقفل، ولكن يظهر رسالة تنبيه عند الضغط عليه
+            prescriptionBtn = `<button onclick="showToast('تمت إضافة روشتة لهذا المريض. يرجى مسح رمز QR مرة أخرى لإضافة روشتة جديدة.', 'info')" class="text-xs bg-gray-400 text-white px-3 py-1.5 rounded-lg cursor-pointer"><i class="fas fa-lock"></i> إنشاء روشتة</button>`;
+        } else {
+            // زر مقفل لأن الطبيب غير مشترك
+            prescriptionBtn = `<button onclick="openPaymentModal('طبيب', '${escapeHtml(doctorData?.name || 'طبيب')}')" class="text-xs bg-gray-300 text-gray-600 px-3 py-1.5 rounded-lg line-through cursor-not-allowed"><i class="fas fa-lock"></i> إنشاء روشتة</button>`;
+        } 
         document.getElementById('modalContent').innerHTML = `<div class="p-6"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg"><i class="fas fa-file-medical ml-2" style="color: var(--doctor)"></i> الملف الصحي للمريض</h3><button onclick="closeModal()" class="text-2xl">&times;</button>${prescriptionBtn}</div><div class="flex flex-col gap-3"><div class="flex items-center gap-4 p-3 rounded-xl" style="background: #DBEAFE"><i class="fas fa-user-circle text-3xl" style="color: var(--doctor)"></i><div><h4 class="font-bold text-lg">${escapeHtml(decryptedP.full_name)}</h4><p class="text-sm text-gray-600">${escapeHtml(decryptedP.age || '-')} سنة | ${escapeHtml(decryptedP.gender || '-')}</p></div></div><div class="grid grid-cols-2 gap-3 text-sm"><div class="p-3 rounded-xl border"><div class="text-xs text-gray-500">فصيلة الدم</div><div class="font-bold text-red-600">${escapeHtml(decryptedP.blood_type || 'غير محدد')}</div></div><div class="p-3 rounded-xl border"><div class="text-xs text-gray-500">الوزن</div><div class="font-bold">${escapeHtml(decryptedP.weight || '-')} كغ</div></div></div><div class="p-3 rounded-xl border"><div class="text-xs text-gray-500 mb-1">الأمراض المزمنة</div><div class="font-semibold">${escapeHtml(decryptedP.diseases || 'لا يوجد')}</div></div><div class="p-3 rounded-xl border"><div class="text-xs text-gray-500 mb-1">الحساسية</div><div class="font-semibold text-red-600">${escapeHtml(decryptedP.allergies || 'لا يوجد')}</div></div><div class="p-3 rounded-xl border"><div class="text-xs text-gray-500 mb-1">الأدوية الحالية</div><div class="font-semibold">${escapeHtml(decryptedP.medications || 'لا يوجد')}</div></div>${specializedRecordHtml}<div class="p-3 rounded-xl bg-green-50 border border-green-200"><div class="text-xs text-green-700 mb-1">جهة طوارئ</div><div class="font-semibold">${escapeHtml(decryptedP.emergency_name || '')} - <span dir="ltr">${escapeHtml(decryptedP.emergency_phone || '')}</span></div></div></div></div>`;
         document.getElementById('modalOverlay').classList.add('active');
         lockScroll();
