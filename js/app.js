@@ -1754,12 +1754,12 @@ window.renderDoctorDashboard = async (doc) => {
 async function fetchDocBookings(docId) {
     const container = document.getElementById('docBookingsContainer'); 
     if (!container) return; 
-        // حماية الدردشة: إذا كان الطبيب يكتب حالياً، نؤجل التحديث
+    
     const activeElement = document.activeElement;
     if (activeElement && activeElement.id && activeElement.id.startsWith('docChat_')) {
         return; 
     }
-    // جلب الحجوزات النشطة (استثناء المؤرشفة)
+    
     const { data: docBookings, error } = await supabase.from('bookings')
         .select('*').eq('itemid', docId).neq('status', 'archived').order('created_at', { ascending: false });
         
@@ -1768,9 +1768,13 @@ async function fetchDocBookings(docId) {
     
     const bookingsListHtml = docBookings.map(b => { 
         let statusBadge = ''; let actionButtons = ''; 
-        if (b.status === 'accepted') { statusBadge = `<span class="text-xs px-2 py-1 rounded block mb-1" style="background: #D1FAE5; color: #065F46">مقبول - ${escapeHtml(b.time)}</span>`; actionButtons = `<button onclick="updateBookingStatus('${b.id}', 'canceled')" class="text-xs text-white px-2 py-1 rounded bg-red-500">إلغاء</button><button onclick="updateBookingStatus('${b.id}', 'deleted')" class="text-xs text-white px-2 py-1 rounded bg-gray-800">أرشفة</button>`; } 
-        else if (b.status === 'canceled') { statusBadge = '<span class="text-xs px-2 py-1 rounded block mb-1" style="background: #F3F4F6; color: #4B5563">ملغي</span>'; actionButtons = `<button onclick="updateBookingStatus('${b.id}', 'pending')" class="text-xs text-white px-2 py-1 rounded bg-gray-500">استعادة</button><button onclick="updateBookingStatus('${b.id}', 'deleted')" class="text-xs text-white px-2 py-1 rounded bg-gray-800">أرشفة</button>`; } 
-                else { 
+        if (b.status === 'accepted') { 
+            statusBadge = `<span class="text-xs px-2 py-1 rounded block mb-1" style="background: #D1FAE5; color: #065F46">مقبول - ${escapeHtml(b.time)}</span>`; 
+            actionButtons = `<button data-action="cancel" data-id="${b.id}" class="text-xs text-white px-2 py-1 rounded bg-red-500">إلغاء</button><button data-action="archive" data-id="${b.id}" class="text-xs text-white px-2 py-1 rounded bg-gray-800">أرشفة</button>`; 
+        } else if (b.status === 'canceled') { 
+            statusBadge = '<span class="text-xs px-2 py-1 rounded block mb-1" style="background: #F3F4F6; color: #4B5563">ملغي</span>'; 
+            actionButtons = `<button data-action="restore" data-id="${b.id}" class="text-xs text-white px-2 py-1 rounded bg-gray-500">استعادة</button><button data-action="archive" data-id="${b.id}" class="text-xs text-white px-2 py-1 rounded bg-gray-800">أرشفة</button>`; 
+        } else { 
             statusBadge = '<span class="text-xs px-2 py-1 rounded block mb-1" style="background: #FEF3C7; color: #92400E">طلب جديد</span>'; 
             actionButtons = `<div class="flex flex-col gap-1 w-full">
                 <input type="time" id="time_${b.id}" placeholder="حدد الموعد" class="ctrl-input text-sm py-1">
@@ -1780,12 +1784,14 @@ async function fetchDocBookings(docId) {
                 </div>
             </div>`; 
         }
+        
         let chatHtml = '';
         if (b.chat && b.chat.length > 0) { chatHtml = b.chat.map(msg => `<div class="text-xs p-2 rounded-lg mb-1 ${msg.sender === 'doctor' ? 'bg-blue-100 text-left' : 'bg-gray-100 text-right'}">${escapeHtml(msg.text)}</div>`).join(''); }
+        
         return `<div class="flex flex-col p-3 rounded-lg border mb-3" style="border-color: var(--border)"><div class="flex items-center justify-between mb-2"><div><span class="text-sm font-bold">${escapeHtml(b.name)}</span><br><span class="text-xs" style="color: var(--muted)">${escapeHtml(b.daystr)}</span></div><div>${statusBadge}<span class="text-[10px] text-gray-400">مرجع: #${escapeHtml(b.ref)}</span></div></div><div class="flex items-center justify-between border-t pt-2 mb-2" style="border-color: var(--border)"><a href="tel:${escapeHtml(b.phone)}" class="text-xs text-blue-600">${escapeHtml(b.phone)}</a><div class="flex gap-1">${actionButtons}</div></div><div class="border-t pt-2" style="border-color: var(--border)"><div class="text-xs font-bold text-gray-600 mb-1">المحادثة:</div><div class="max-h-32 overflow-y-auto mb-2 bg-gray-50 p-2 rounded-lg">${chatHtml || '<span class="text-xs text-gray-400">لا توجد رسائل</span>'}</div><div class="flex gap-1"><input type="text" id="docChat_${b.id}" placeholder="اكتب ردك..." class="ctrl-input text-sm py-1 flex-1"><button onclick="sendDocMessage('${b.id}')" class="text-xs text-white px-3 py-1 rounded bg-blue-500"><i class="fas fa-paper-plane"></i></button></div></div></div>`; 
     }).join('');
     
-        container.innerHTML = bookingsListHtml;
+    container.innerHTML = bookingsListHtml;
 
     // === Event Delegation للأزرار ===
     if (!container.dataset.delegated) {
@@ -1801,7 +1807,7 @@ async function fetchDocBookings(docId) {
             else if (action === 'restore') updateBookingStatus(id, 'pending');
             else if (action === 'archive') updateBookingStatus(id, 'deleted');
         });
-        container.dataset.delegated = 'true'; // لمنع تكرار إضافة المستمع
+        container.dataset.delegated = 'true'; 
     }
 }
 window.acceptBooking = async (bookingId) => { 
