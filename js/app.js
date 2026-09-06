@@ -654,9 +654,6 @@ function debounce(func, delay) {
     }; 
 }
 
-let searchDebounceTimer;
-let searchDropdown = null;
-
 function initSmartSearch() {
     const searchInput = document.getElementById('heroSearch');
     if (!searchInput) return;
