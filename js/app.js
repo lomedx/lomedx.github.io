@@ -1215,32 +1215,43 @@ window.confirmBooking = async () => {
     const phoneInput = document.getElementById('patientPhone'); 
     const phone = phoneInput.value.trim(); 
     const notes = document.getElementById('patientNotes').value.trim(); 
+    
     if (!name || !phone) { showToast('الرجاء إدخال الاسم والهاتف'); return; } 
     if (!/^09\d{8}$/.test(phone)) { phoneInput.classList.add('input-invalid'); showToast('رقم هاتف غير صحيح'); return; } 
     phoneInput.classList.remove('input-invalid'); 
+    
     const ref = `R-${Math.floor(Math.random() * 900000) + 100000}`;
-    tempBooking.ref = ref; 
-    tempBooking.name = name; 
-    tempBooking.phone = phone; 
-    tempBooking.notes = notes; 
-    tempBooking.status = 'pending'; 
-    tempBooking.time = tempBooking.slot_time || "بانتظار التحديد";
-    tempBooking.chat = []; 
+    
+    // إرفاق معرف إشعارات المريض
+    const patientPushId = localStorage.getItem('patient_push_id') || null;
 
-    // إرفاق معرف إشعارات المريض (إن وجد)
-    const patientPushId = localStorage.getItem('patient_push_id');
-    if (patientPushId) {
-        tempBooking.patient_push_id = patientPushId;
-    }
+    const submitBtn = document.querySelector('#step2 button[type="submit"]') || document.querySelector('#step2 button');
+    if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التأكيد...'; }
+
     try { 
-        const { data, error } = await supabase.from('bookings').insert([tempBooking]).select(); 
-        if (error) throw error;
-        const newId = data[0].id;
-                // === إشعار للطبيب بوجود حجز جديد ===
+        // === استدعاء الـ Edge Function الآمنة بدلاً من الإدراج المباشر ===
+        const { data: funcData, error: funcError } = await supabase.functions.invoke('book-appointment', {
+            body: { 
+                doctor_id: tempBooking.itemid,
+                patient_name: name,
+                patient_phone: phone,
+                day: tempBooking.daystr,
+                time: tempBooking.slot_time || "بانتظار التحديد",
+                patient_push_id: patientPushId
+            }
+        });
+
+        if (funcError) throw funcError;
+        if (funcData.error) throw new Error(funcData.error);
+
+        const newId = funcData.booking[0].id;
         const doctorData = allData.find(d => d.id === tempBooking.itemid);
+        
+        // إشعار للطبيب بوجود حجز جديد
         if (doctorData && doctorData.user_id) {
-            sendPushNotification(doctorData.user_id, "موعد جديد 🗓️", `المريض ${tempBooking.name} طلب موعداً يوم ${tempBooking.daystr}`);
+            sendPushNotification(doctorData.user_id, "موعد جديد 🗓️", `المريض ${name} طلب موعداً يوم ${tempBooking.daystr}`);
         }
+
         document.getElementById('step2').innerHTML = `
         <div class="text-center py-6 flex flex-col items-center">
             <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4" style="background: var(--accent-light)"><i class="fas fa-check text-3xl" style="color: var(--accent)"></i></div>
@@ -1250,11 +1261,11 @@ window.confirmBooking = async () => {
             <button onclick="closeModal(); openBookingFollowup('${newId}')" class="w-full py-3 rounded-xl text-white font-bold text-sm mb-2" style="background: var(--doctor)">متابعة الحجز والدردشة</button>
             <button onclick="closeModal()" class="w-full py-2 rounded-xl border font-bold text-sm" style="border-color: var(--border)">إغلاق</button>
         </div>`; 
-        } catch (e) { 
-        
-        showToast('خطأ في الحفظ: ' + e.message, 'error');
+    } catch (e) { 
+        showToast('خطأ: ' + e.message, 'error'); 
+        if(submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = 'تأكيد'; }
     } 
-}
+};
 
 window.openBookingFollowup = (bookingId) => {
     currentFollowupBookingId = bookingId;
