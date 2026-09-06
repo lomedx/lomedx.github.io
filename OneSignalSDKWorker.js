@@ -1,6 +1,6 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'lomedx-pro-v10'; // تم رفع الرقم لإجبار التحديث
+const CACHE_NAME = 'lomedx-pro-v11'; // تم رفع الرقم لإجبار التحديث
 const CORE_ASSETS = [
   './',
   './index.html',
