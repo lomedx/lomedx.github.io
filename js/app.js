@@ -3305,7 +3305,7 @@ window.openHealthFile = async () => {
             return; 
         } else {
             const defaultName = session.user.email ? session.user.email.split('@')[0] : 'مريض';
-            const newQrToken = generateSecureQrToken();
+            const newQrToken = generateSecureQrToken(64);
             const { data: newFile, error: insertError } = await supabase.from('health_files').insert([{ id: currentHealthFileId, full_name: defaultName, qr_token: newQrToken }]).select().single();
             if (insertError) {
                 showToast('تعذر إنشاء ملف صحي جديد: ' + insertError.message, 'error');
@@ -3389,7 +3389,7 @@ window.handleHealthRegister = async (e) => {
     
     const userId = data.user.id;
     
-        const { error: dbError } = await supabase.from('health_files').insert([{ id: userId, full_name: fullName, qr_token: generateSecureQrToken() }]);
+        const { error: dbError } = await supabase.from('health_files').insert([{ id: userId, full_name: fullName, qr_token: generateSecureQrToken(64) }]);
     if (dbError) { 
         showToast('تم إنشاء الحساب ولكن حدث خطأ في قاعدة البيانات'); 
         return; 
@@ -3423,7 +3423,7 @@ window.handleHealthLogin = async (e) => {
     
     if (!fileData) {
         const defaultName = data.user.email ? data.user.email.split('@')[0] : 'مريض';
-                const { data: newFile, error: insertError } = await supabase.from('health_files').insert([{ id: currentHealthFileId, full_name: defaultName, qr_token: generateSecureQrToken() }]).select().single();
+                const { data: newFile, error: insertError } = await supabase.from('health_files').insert([{ id: currentHealthFileId, full_name: defaultName, qr_token: generateSecureQrToken(64) }]).select().single();
         if (insertError) {
             
             showToast('تعذر إنشاء ملف صحي: ' + insertError.message, 'error');
@@ -3573,7 +3573,7 @@ window.regenerateQrToken = async () => {
         const decryptedData = decryptHealthFile(currentFile, oldKey);
 
         // 3. توليد مفتاح جديد
-        const newKey = generateSecureQrToken();
+        const newKey = generateSecureQrToken(64);
 
         // 4. إعادة تشفير البيانات بالمفتاح الجديد
         const newEncryptedData = {
