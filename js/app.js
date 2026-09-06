@@ -2019,10 +2019,11 @@ window.generatePrescription = async (e, patientId, patientName) => {
         
         showToast('تم حفظ الروشتة وتشفيرها في ملف المريض بنجاح!', 'success');
         closeModal();
+        window.tempPatientContext.hasAddedPrescription = true;
         // إعادة فتح ملف المريض لعرض الروشتة الجديدة
         fetchPatientHealthFile(patientId, { specialty: 'general' }); 
     } catch (err) { 
-        showToast('خطأ في حفظ الروشتة: ' + err.message, 'error'); 
+        showToast('خطأ في حفظ الروشتة: ' + error.message, 'error'); 
         if(submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-save"></i> حفظ الروشتة في ملف المريض'; }
     }
 };
