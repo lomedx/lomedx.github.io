@@ -1472,6 +1472,7 @@ window.toggleNightShift = async (id, currentStatus) => {
     try { await supabase.from('listings').update({ night: currentStatus }).eq('id', id); showToast(currentStatus ? 'تم تفعيل المناوبة!' : 'تم إيقاف المناوبة.'); localStorage.setItem('force_listings_update', 'true'); } catch (e) { showToast('خطأ في التحديث'); } }
 // دالة تحديث الحالة (متوففر/غير متوفر/قيد البحث)
 window.updateMedStatus = async (id, status) => { 
+    if (!window.checkOnlineStatus()) return; 
     try { 
         await supabase.rpc('update_med_request_status', {
             p_req_id: id,
@@ -1483,6 +1484,7 @@ window.updateMedStatus = async (id, status) => {
 
 // دالة تحديث الملاحظات
 window.updateMedNotes = async (id, notes) => { 
+    if (!window.checkOnlineStatus()) return; 
     try { 
         await supabase.rpc('update_med_request_status', {
             p_req_id: id,
@@ -1495,6 +1497,7 @@ window.updateMedNotes = async (id, notes) => {
 
 // دالة توفير الدواء
 window.setMedAvailable = async (id, pharmName, patientPushId) => { 
+    if (!window.checkOnlineStatus()) return; 
     try { 
         const noteInput = document.getElementById(`medNotes_${id}`);
         const customNote = noteInput ? noteInput.value.trim() : '';
