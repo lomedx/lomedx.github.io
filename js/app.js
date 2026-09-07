@@ -1283,8 +1283,11 @@ window.openBookingFollowup = async (bookingId) => {
     
     if (activeFollowupUnsub) { supabase.removeChannel(activeFollowupUnsub); activeFollowupUnsub = null; }
     
-    // === جلب بيانات الحجز من قاعدة البيانات مباشرة ===
-    const { data: freshBooking, error } = await supabase.from('bookings').select('*').eq('id', bookingId).maybeSingle();
+    // === التعديل هنا: استخدام RPC الآمنة بدلاً من القراءة المباشرة ===
+    const { data: freshBooking, error } = await supabase
+        .rpc('get_booking_by_id', { p_booking_id: bookingId })
+        .maybeSingle();
+    
     if (freshBooking) {
         const index = bookings.findIndex(b => b.id === bookingId);
         if (index !== -1) bookings[index] = freshBooking;
