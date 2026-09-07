@@ -1214,6 +1214,7 @@ window.selectSlot = (time, btn) => {
 window.goToStep = (step) => { document.querySelectorAll('.booking-step').forEach(s => s.classList.remove('active')); document.getElementById(`step${step}`).classList.add('active'); }
 
 window.confirmBooking = async () => { 
+    if (!window.checkOnlineStatus()) return; 
     const name = document.getElementById('patientName').value.trim(); 
     const phoneInput = document.getElementById('patientPhone'); 
     const phone = phoneInput.value.trim(); 
@@ -1333,6 +1334,7 @@ window.renderFollowupChat = (bookingId) => {
 }
 
 window.sendChatMessage = async (bookingId) => {
+    if (!window.checkOnlineStatus()) return; 
     const input = document.getElementById('chatInput'); 
     const text = input.value.trim(); 
     if (!text) return; 
@@ -3598,6 +3600,7 @@ window.saveHealthProfile = async (e) => {
     } catch (err) { showToast('حدث خطأ', 'error'); }
 }
 window.regenerateQrToken = async () => {
+    if (!window.checkOnlineStatus()) return; 
     if (!confirm("هل أنت متأكد من تغيير رمز QR؟ سيتم إعادة تشفير بياناتك وروشتاتك السابقة بمفتاح جديد.")) return;
     try {
         // 1. جلب الملف والمفتاح القديم
