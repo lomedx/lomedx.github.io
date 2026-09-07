@@ -1281,33 +1281,30 @@ window.openBookingFollowup = async (bookingId) => {
     currentFollowupBookingId = bookingId;
     openCtrlPanel('متابعة الحجز والدردشة', `<div id="followupContent" class="flex flex-col gap-4"><p class="text-center py-8 text-gray-400">جاري تحميل بيانات الحجز...</p></div>`, '#0E7C5F');
     
-    if (activeFollowupUnsub) { supabase.removeChannel(activeFollowupUnsub); activeFollowupUnsub = null; }
+    // إيقاف أي مؤقت سابق
+    if (window.activeFollowupInterval) clearInterval(window.activeFollowupInterval);
+
+    // دالة جلب البيانات السريعة عبر RPC الآمن
+    const fetchFollowupData = async () => {
+        const { data: freshBooking } = await supabase.rpc('get_booking_by_id', { p_booking_id: bookingId }).maybeSingle();
+        if (freshBooking) {
+            const index = bookings.findIndex(b => b.id === bookingId);
+            if (index !== -1) bookings[index] = freshBooking;
+            else bookings.push(freshBooking);
+            renderFollowupChat(bookingId);
+        }
+    };
+
+    await fetchFollowupData(); // جلب فوري لأول مرة
     
-    // === التعديل هنا: استخدام RPC الآمنة بدلاً من القراءة المباشرة ===
-    const { data: freshBooking, error } = await supabase
-        .rpc('get_booking_by_id', { p_booking_id: bookingId })
-        .maybeSingle();
-    
-    if (freshBooking) {
-        const index = bookings.findIndex(b => b.id === bookingId);
-        if (index !== -1) bookings[index] = freshBooking;
-        else bookings.push(freshBooking);
-        renderFollowupChat(bookingId); // عرض البيانات فوراً
-    } else {
-        document.getElementById('followupContent').innerHTML = '<p class="text-center py-8 text-red-500">تعذر جلب بيانات الحجز.</p>';
-    }
-    
-    // الاستماع للتحديثات اللحظية (Realtime)
-    activeFollowupUnsub = supabase
-      .channel(`booking_chat_${bookingId}`)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings', filter: `id=eq.${bookingId}` }, payload => {
-          const updatedBooking = payload.new;
-          const index = bookings.findIndex(b => b.id === bookingId);
-          if (index !== -1) bookings[index] = updatedBooking;
-          else bookings.push(updatedBooking);
-          renderFollowupChat(bookingId);
-      })
-      .subscribe();
+    // تحديث كل 4 ثوانٍ طالما النافذة مفتوحة
+    window.activeFollowupInterval = setInterval(async () => {
+        if (!document.getElementById('followupContent')) {
+            clearInterval(window.activeFollowupInterval); // إيقاف التحديث إذا أغلق المستخدم النافذة
+            return;
+        }
+        await fetchFollowupData();
+    }, 3000);
 };
 window.renderFollowupChat = (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId); 
@@ -1969,11 +1966,7 @@ window.fetchPatientHealthFile = async (userId, doctorData) => {
             specialty: doctorData?.specialty || 'طبيب عام',
             id: doctorData?.id || 'unknown'
         };
-// استبدل هذا السطر في كودك:
-// const prescriptionBtn = doctorData?.is_subscribed 
-//     ? `<button onclick='openPrescriptionModal("${escapeHtml(userId)}", "${escapeHtml(decryptedP.full_name)}", ${JSON.stringify(docInfo).replace(/'/g, "&#39;")})' ...>
 
-// بهذا الكود الآمن:
 window.tempPatientContext = {
     userId: userId,
     patientName: decryptedP.full_name,
@@ -2057,36 +2050,38 @@ window.generatePrescription = async (e, patientId, patientName) => {
         }
     }
     if (notes) rxText += `\n📝 *ملاحظات:* ${notes}\n`;
-    rxText += `_______________________\nيرجى الالتزام بالجرعات ولا تنسَ المراجعة.`;
+    rxText += `_______________________\nيرجى الالتزام بالجرعات ولا تنسأ المراجعة.`;
 
     const docInfo = window.currentDoctorInfo || { name: 'طبيب', specialty: 'طبيب عام', id: 'unknown' };
     const date = new Date();
     const verCode = btoa(`${docInfo.id}-${date.getTime()}`).substring(0, 12).toUpperCase();
 
-    // تعطيل زر الحفظ لمنع النقر المزدوج
     const submitBtn = form.querySelector('button[type="submit"]');
-    if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...'; }
+    if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ والتشفير...'; }
 
     try {
-        // 1. تشفير نص الروشتة باستخدام رمز الـ QR
-        const encryptedText = encryptField(rxText, patientId);
-
-        // 2. استدعاء الدالة الآمنة لإضافة الروشتة مباشرة في قاعدة البيانات (بدون جلب المصفوفة)
-        const { error: rpcError } = await supabase.rpc('append_prescription', {
-            p_qr_token: patientId,
-            p_doctor: docInfo.name,
-            p_specialty: docInfo.specialty,
-            p_vercode: verCode,
-            p_text: encryptedText,
-            p_date: date.toISOString()
+        // === استدعاء الـ Edge Function الآمنة لتقوم بالتشفير في الخادم ===
+        const { error: funcError } = await supabase.functions.invoke('save-prescription', {
+            body: { 
+                patient_id: patientId,
+                doctor: docInfo.name,
+                specialty: docInfo.specialty,
+                vercode: verCode,
+                text: rxText, // النص الصريح يُرسل عبر HTTPS آمن
+                date: date.toISOString()
+            }
         });
 
-        if (rpcError) throw rpcError;
+        if (funcError) {
+            let errMsg = funcError.message;
+            if (funcError.context && funcError.context.error) errMsg = funcError.context.error;
+            throw new Error(errMsg);
+        }
         
         showToast('تم حفظ الروشتة وتشفيرها في ملف المريض بنجاح!', 'success');
         closeModal();
         window.tempPatientContext.hasAddedPrescription = true;
-        // إعادة فتح ملف المريض لعرض الروشتة الجديدة
+        // إعادة فتح ملف المريض لعرض الروشتة الجديدة (المفرود عنها تشفيرها محلياً سيتم فكه تلقائياً)
         fetchPatientHealthFile(patientId, { specialty: 'general' }); 
     } catch (err) { 
         showToast('خطأ في حفظ الروشتة: ' + error.message, 'error'); 
@@ -2341,7 +2336,17 @@ function renderBloodBankUI() {
 window.submitBloodRequest = async (e) => {
     e.preventDefault();
     const submitBtn = e.target.querySelector('button[type="submit"]');
-    submitBtn.disabled = true; submitBtn.innerText = 'جاري النشر...';
+    
+    // 1. منع تكرار الطلب محلياً (حماية مزدوجة مع الخادم)
+    const lastBloodRequest = localStorage.getItem('last_blood_request_time');
+    if (lastBloodRequest && (Date.now() - parseInt(lastBloodRequest)) < 3600000) { // ساعة = 3600000 مللي ثانية
+        const minsLeft = Math.ceil((3600000 - (Date.now() - parseInt(lastBloodRequest))) / 60000);
+        showToast(`لقد أرسلت استغاثة مؤخراً. يرجى الانتظار ${minsLeft} دقيقة.`, 'error');
+        return;
+    }
+
+    submitBtn.disabled = true; 
+    submitBtn.innerText = 'جاري النشر...';
     
     const name = document.getElementById('bloodPatient').value.trim();
     const bloodType = document.getElementById('bloodType').value;
@@ -2359,7 +2364,6 @@ window.submitBloodRequest = async (e) => {
     phoneInput.classList.remove('input-invalid');
 
     try {
-        // === استدعاء الـ Edge Function الآمنة ===
         const { data: funcData, error: funcError } = await supabase.functions.invoke('submit-public-request', {
             body: { 
                 type: 'blood',
@@ -2374,18 +2378,26 @@ window.submitBloodRequest = async (e) => {
             }
         });
 
-        if (funcError) throw funcError;
+        if (funcError) {
+            let errMsg = funcError.message;
+            if (funcError.context && funcError.context.error) errMsg = funcError.context.error;
+            throw new Error(errMsg);
+        }
         if (funcData.error) throw new Error(funcData.error);
 
         // === إشعار لجميع المستخدمين بوجود استغاثة دم ===
         await sendPushNotification(null, "استغاثة دم طارئة 🩸", `المريض ${name} يحتاج فصيلة ${bloodType} في ${hospital}`, 'all');
         
+        // تسجيل وقت النشر محلياً لمنع التكرار
+        localStorage.setItem('last_blood_request_time', Date.now().toString());
+        
         showToast('تم نشر استغاثتك بنجاح! سيتم التواصل معك قريباً.', 'success');
         e.target.reset();
     } catch (err) { 
-        showToast('حدث خطأ اثناء النشر: ' + err.message, 'error'); 
+        showToast('حدث خطأ اثناء النشر: ' + error.message, 'error'); 
     } finally {
-        submitBtn.disabled = false; submitBtn.innerText = 'نشر الاستغاثة';
+        submitBtn.disabled = false; 
+        submitBtn.innerText = 'نشر الاستغاثة';
     }
 };
 
@@ -2521,25 +2533,37 @@ window.submitMedicineRequest = async (e) => {
             }
         });
 
-        if (reqError) throw reqError;
+        // === معالجة أخطاء الخادم بشكل صحيح (هنا كان التعليق يحدث) ===
+        if (reqError) {
+            let errorMsg = reqError.message;
+            // استخراج رسالة الخطأ المخصصة من الخادم (مثل رسالة الانتظار ساعة)
+            if (reqError.context && reqError.context.error) {
+                errorMsg = reqError.context.error;
+            }
+            throw new Error(errorMsg);
+        }
         if (reqData.error) throw new Error(reqData.error);
 
         // === إشعار للصيدليات فقط ===
         sendPushNotification(null, "طلب دواء عاجل 💊", `المريض ${name} يبحث عن: ${medList}`, 'pharmacies');
         
+        // === شاشة النجاح الاحترافية (بدلاً من رسالة عادية) ===
         document.getElementById('modalContent').innerHTML = `
         <div class="p-8 text-center">
-            <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style="background: var(--accent-light)"><i class="fas fa-check text-4xl" style="color: var(--accent)"></i></div>
-            <h3 class="text-xl font-bold mb-2" style="font-family: 'Noto Kufi Arabic'">تم إرسال طلبك بنجاح!</h3>
-            <p class="text-sm mb-2" style="color: var(--muted)">رقم طلبك الدوائي هو:</p>
-            <div class="text-2xl font-black text-yellow-600 mb-4">#${medRef}</div>
-            <p class="text-sm mb-6" style="color: var(--muted)">احفظ هذا الرقم للاستعلام عن حالة الدواء لاحقاً في خانة الاستعلام السريع أعلى الصفحة.</p>
+            <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style="background: var(--accent-light)">
+                <i class="fas fa-check text-4xl" style="color: var(--accent)"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">تم بث طلبك للصيدليات!</h3>
+            <p class="text-sm mb-2" style="color: var(--muted)">احفظ هذا الرقم لتتبع حالتك:</p>
+            <div class="text-2xl font-black text-yellow-600 mb-6">#${medRef}</div>
             <button onclick="copyText('${medRef}')" class="w-full py-3 rounded-xl text-white font-bold text-sm mb-2" style="background: var(--accent)">
                 <i class="fas fa-copy ml-2"></i> نسخ الكود
             </button>
-            <button onclick="closeModal()" class="w-full py-2 rounded-xl border font-bold text-sm" style="border-color: var(--border)">حسناً</button>
+            <p class="text-xs text-gray-400 mt-4">سيقوم النظام بإشعارك فور توفّر الدواء في أقرب صيدلية.</p>
+            <button onclick="closeModal()" class="w-full py-2 mt-2 rounded-xl border font-bold text-sm" style="border-color: var(--border)">إغلاق</button>
         </div>`; 
     } catch (err) { 
+        // === إظهار الخطأ للمستخدم وإعادة تفعيل الزر ===
         showToast('حدث خطأ: ' + error.message, 'error'); 
         submitBtn.disabled = false; 
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال للصيدليات'; 
@@ -2555,7 +2579,7 @@ window.quickLookup = async () => {
         if (data && data.length > 0) { 
             openBookingFollowup(data[0].id); 
         } else { 
-            showToast('لم يتم العثور على حجز'); 
+            showToast('لم يتم العثور على حجز', 'error'); 
         }
     } else if (val.startsWith('MED-')) {
         const { data, error } = await supabase.from('medicine_requests').select('*').eq('med_ref', val);
