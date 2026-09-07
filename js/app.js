@@ -21,6 +21,7 @@ let medicineDonations = [];
 let burnState = { cause: null, degree: null, area: null };
 let healthTips = [];
 let tipInterval = null;
+let favoriteDoctors = JSON.parse(localStorage.getItem('lomedx_favorites') || '[]');
 let currentHealthFileId = localStorage.getItem('healthFileId') || null;
 let allQuestions = [];
 let unsubscribeQuestions = null;
@@ -557,10 +558,17 @@ function createCard(item) {
     ${['doctor', 'pharmacy'].includes(item.type) && item.isopen === true ? '<span class="badge" style="background:#10B981;color:white"><i class="fas fa-door-open ml-1"></i>مفتوح</span>' : ''}
     ${['doctor', 'pharmacy'].includes(item.type) && item.isopen === false ? '<span class="badge" style="background:#EF4444;color:white"><i class="fas fa-door-closed ml-1"></i>مغلق</span>' : ''}
     ${item.night ? '<span class="badge" style="background:rgba(196,150,44,0.9);color:white"><i class="fas fa-moon ml-1"></i>ليلي</span>' : ''}
-</div></div><div class="p-5"><div class="flex items-start gap-3 mb-3"><div class="cat-icon ${t.iconClass}"><i class="fas ${t.icon}"></i></div><div class="flex-1 min-w-0"><h3 class="font-bold text-sm mb-1 leading-tight" style="font-family: 'Noto Kufi Arabic'; color: var(--fg);">
-    ${escapeHtml(item.name)}
-    ${(['doctor', 'pharmacy'].includes(item.type) && item.is_subscribed) ? '<span class="verified-badge verified-gold"><i class="fas fa-circle-check"></i> موثق</span>' : ''}
-</h3><div class="flex items-center gap-1 text-[11px]" style="color: ${t.color};">${starsHTML}<span class="mr-1 font-semibold">${escapeHtml(item.rating || 0)}</span></div></div></div><div class="flex flex-col gap-1.5 mb-4">${detailsHTML}</div><div class="flex items-center gap-2"> ${item.phone ? `<a href="tel:${escapeHtml(item.phone)}" onclick="event.stopPropagation(); trackPhoneClick('${escapeHtml(item.id)}')" class="call-btn flex-1 py-2.5 rounded-xl text-white text-xs font-semibold text-center flex items-center justify-center gap-2" style="background: ${t.color}"><i class="fas fa-phone-alt"></i><span dir="ltr">${escapeHtml(item.phone)}</span></a>` : (['doctor', 'pharmacy', 'lab'].includes(item.type) ? `<div class="flex-1 py-2.5 rounded-xl text-gray-400 text-xs font-semibold text-center flex items-center justify-center gap-2 bg-gray-100 cursor-not-allowed"><i class="fas fa-phone-slash"></i><span>لا يوجد رقم</span></div>` : '')}${bookingBtn}<button onclick="event.stopPropagation(); openModal('${escapeHtml(item.id)}')" class="w-10 h-10 rounded-xl border flex items-center justify-center transition-all hover:bg-gray-50" style="border-color: var(--border); color: var(--muted);" aria-label="تفاصيل"><i class="fas fa-info-circle"></i></button></div></div></div>`;
+</div></div><div class="p-5"><div class="flex items-start gap-3 mb-3"><div class="cat-icon ${t.iconClass}"><i class="fas ${t.icon}"></i></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 justify-between">
+    <h3 class="font-bold text-sm mb-1 leading-tight flex-1 min-w-0" style="font-family: 'Noto Kufi Arabic'; color: var(--fg);">
+        ${escapeHtml(item.name)}
+        ${(['doctor', 'pharmacy'].includes(item.type) && item.is_subscribed) ? '<span class="verified-badge verified-gold"><i class="fas fa-circle-check"></i> موثق</span>' : ''}
+    </h3>
+    ${item.type === 'doctor' ? `
+        <button onclick="event.stopPropagation(); toggleFavorite('${escapeHtml(item.id)}', '${escapeHtml(item.name)}', this)" class="text-xl transition-all ${favoriteDoctors.includes(item.id) ? 'text-red-500' : 'text-gray-300 hover:text-red-400'}" aria-label="إضافة للمفضلة">
+            <i class="${favoriteDoctors.includes(item.id) ? 'fas' : 'far'} fa-heart"></i>
+        </button>
+    ` : ''}
+</div><div class="flex items-center gap-1 text-[11px]" style="color: ${t.color};">${starsHTML}<span class="mr-1 font-semibold">${escapeHtml(item.rating || 0)}</span></div></div></div><div class="flex flex-col gap-1.5 mb-4">${detailsHTML}</div><div class="flex items-center gap-2"> ${item.phone ? `<a href="tel:${escapeHtml(item.phone)}" onclick="event.stopPropagation(); trackPhoneClick('${escapeHtml(item.id)}')" class="call-btn flex-1 py-2.5 rounded-xl text-white text-xs font-semibold text-center flex items-center justify-center gap-2" style="background: ${t.color}"><i class="fas fa-phone-alt"></i><span dir="ltr">${escapeHtml(item.phone)}</span></a>` : (['doctor', 'pharmacy', 'lab'].includes(item.type) ? `<div class="flex-1 py-2.5 rounded-xl text-gray-400 text-xs font-semibold text-center flex items-center justify-center gap-2 bg-gray-100 cursor-not-allowed"><i class="fas fa-phone-slash"></i><span>لا يوجد رقم</span></div>` : '')}${bookingBtn}<button onclick="event.stopPropagation(); openModal('${escapeHtml(item.id)}')" class="w-10 h-10 rounded-xl border flex items-center justify-center transition-all hover:bg-gray-50" style="border-color: var(--border); color: var(--muted);" aria-label="تفاصيل"><i class="fas fa-info-circle"></i></button></div></div></div>`;
 }
 
 function renderData() {
@@ -691,7 +699,49 @@ function handleSmartSearch(value) {
         renderSearchDropdown(matches);
     }, 300);
 }
+window.toggleFavorite = (id, name, btnElement) => {
+    const index = favoriteDoctors.indexOf(id);
+    if (index > -1) {
+        favoriteDoctors.splice(index, 1);
+        showToast(`تم إزالة ${name} من المفضلة`);
+    } else {
+        favoriteDoctors.push(id);
+        showToast(`تمت إضافة ${name} إلى المفضلة ❤️`, 'success');
+    }
+    localStorage.setItem('lomedx_favorites', JSON.stringify(favoriteDoctors));
 
+    // تحديث شكل الزر فوراً
+    const icon = btnElement.querySelector('i');
+    if (index > -1) {
+        icon.className = 'far fa-heart';
+        btnElement.classList.remove('text-red-500');
+        btnElement.classList.add('text-gray-300');
+    } else {
+        icon.className = 'fas fa-heart';
+        btnElement.classList.remove('text-gray-300');
+        btnElement.classList.add('text-red-500');
+    }
+
+    // تحديث قسم المفضلة في الصفحة الرئيسية
+    renderFavoritesSection();
+};
+
+// دالة لعرض قسم المفضلة
+function renderFavoritesSection() {
+    const favSection = document.getElementById('favoritesSection');
+    const favGrid = document.getElementById('favoritesGrid');
+    if (!favSection || !favGrid) return;
+
+    const favDoctorsData = allData.filter(d => favoriteDoctors.includes(d.id));
+    
+    if (favDoctorsData.length === 0) {
+        favSection.classList.add('hidden');
+        return;
+    }
+
+    favSection.classList.remove('hidden');
+    favGrid.innerHTML = favDoctorsData.map(createCard).join('');
+}
 function renderSearchDropdown(matches) {
     if (!searchDropdown) return;
     
