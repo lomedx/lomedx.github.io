@@ -1293,31 +1293,35 @@ window.confirmBooking = async () => {
     } 
 };
 
-window.openBookingFollowup = (bookingId) => {
+window.openBookingFollowup = async (bookingId) => {
     currentFollowupBookingId = bookingId;
     openCtrlPanel('متابعة الحجز والدردشة', `<div id="followupContent" class="flex flex-col gap-4"><p class="text-center py-8 text-gray-400">جاري تحميل بيانات الحجز...</p></div>`, '#0E7C5F');
     
-    // إيقاف أي اشتراك سابق
     if (activeFollowupUnsub) { supabase.removeChannel(activeFollowupUnsub); activeFollowupUnsub = null; }
     
-    // جلب البيانات لأول مرة
-    fetchFollowupChat(bookingId);
+    // === جلب بيانات الحجز من قاعدة البيانات مباشرة ===
+    const { data: freshBooking, error } = await supabase.from('bookings').select('*').eq('id', bookingId).maybeSingle();
+    if (freshBooking) {
+        const index = bookings.findIndex(b => b.id === bookingId);
+        if (index !== -1) bookings[index] = freshBooking;
+        else bookings.push(freshBooking);
+        renderFollowupChat(bookingId); // عرض البيانات فوراً
+    } else {
+        document.getElementById('followupContent').innerHTML = '<p class="text-center py-8 text-red-500">تعذر جلب بيانات الحجز.</p>';
+    }
     
     // الاستماع للتحديثات اللحظية (Realtime)
     activeFollowupUnsub = supabase
       .channel(`booking_chat_${bookingId}`)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings', filter: `id=eq.${bookingId}` }, payload => {
-          // عند وصول رسالة جديدة، نقوم بتحديث الواجهة فوراً
           const updatedBooking = payload.new;
           const index = bookings.findIndex(b => b.id === bookingId);
           if (index !== -1) bookings[index] = updatedBooking;
           else bookings.push(updatedBooking);
-          
           renderFollowupChat(bookingId);
       })
       .subscribe();
 };
-
 window.renderFollowupChat = (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId); 
     const contentEl = document.getElementById('followupContent'); if (!contentEl) return;
@@ -2828,7 +2832,7 @@ window.renderAdminDashboard = async () => {
         ${analyticsHtml} 
         ${announcementsHtml} 
         ${homeAdsHtml} 
-        ${announcementsHtml} ${homeAdsHtml} ${radarAdminHtml} ${blogAdminHtml} ${patientsAdminHtml} ${emergencyAdminHtml} <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-tint text-red-600"></i> إدارة استغاثات الدم (${bloodRequests.length})</h4><div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">${bloodHtml}</div></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-hand-holding-medical text-green-600"></i>إدارة المستلزمات الطبية (${medicineDonations.length})</h4><div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">${medDonHtml}</div></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm"><i class="fas fa-plus-circle ml-2" style="color: var(--accent)"></i> <span id="formTitle">إضافة منشأة</span></h4><form onsubmit="saveFacility(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3"><input type="hidden" id="edit_id"><select id="new_type" class="ctrl-input text-sm" required onchange="updateAdminFormFields(this.value)"><option value="hospital">مشفى</option><option value="center">مركز</option><option value="lab">مخبر</option><option value="doctor">طبيب</option><option value="pharmacy">صيدلية</option></select><input type="text" id="new_name" class="ctrl-input text-sm" placeholder="الاسم" required><input type="text" id="new_specialty" class="ctrl-input text-sm" placeholder="التخصص الأساسي" required><input type="text" id="new_address" class="ctrl-input text-sm" placeholder="العنوان / الموقع" required><input type="text" id="new_phone" class="ctrl-input text-sm" placeholder="رقم الهاتف (اختياري)"><input type="text" id="new_hours" class="ctrl-input text-sm" placeholder="أوقات العمل"><input type="text" id="new_image_url" class="ctrl-input text-sm" placeholder="رابط الصورة (URL)"><input type="text" id="new_custom_password" class="ctrl-input text-sm col-span-1 sm:col-span-2" placeholder="كلمة مرور الطبيب/الصيدلية (6 أحرف فأكثر)"><textarea id="new_desc" class="ctrl-input text-sm col-span-2" placeholder="وصف عام (اختياري)" rows="2"></textarea><div id="adminExtraFields" class="contents"></div><button type="submit" class="col-span-1 sm:col-span-2 py-2.5 rounded-xl text-white font-semibold text-sm" style="background: var(--accent)"><i class="fas fa-save ml-1"></i> حفظ</button></form></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm"><i class="fas fa-list ml-2"></i> المنشآت (${allData.length})</h4><div class="flex flex-col gap-2 max-h-96 overflow-y-auto">${listHtml}</div></div> <button onclick="logoutAdmin()" class="w-full py-2.5 rounded-xl border font-semibold text-sm mt-2" style="border-color: #EF4444; color: #EF4444;"><i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج</button> </div>`, '#073D2E'); 
+        ${radarAdminHtml} ${blogAdminHtml} ${patientsAdminHtml} ${emergencyAdminHtml} <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-tint text-red-600"></i> إدارة استغاثات الدم (${bloodRequests.length})</h4><div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">${bloodHtml}</div></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-hand-holding-medical text-green-600"></i>إدارة المستلزمات الطبية (${medicineDonations.length})</h4><div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">${medDonHtml}</div></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm"><i class="fas fa-plus-circle ml-2" style="color: var(--accent)"></i> <span id="formTitle">إضافة منشأة</span></h4><form onsubmit="saveFacility(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3"><input type="hidden" id="edit_id"><select id="new_type" class="ctrl-input text-sm" required onchange="updateAdminFormFields(this.value)"><option value="hospital">مشفى</option><option value="center">مركز</option><option value="lab">مخبر</option><option value="doctor">طبيب</option><option value="pharmacy">صيدلية</option></select><input type="text" id="new_name" class="ctrl-input text-sm" placeholder="الاسم" required><input type="text" id="new_specialty" class="ctrl-input text-sm" placeholder="التخصص الأساسي" required><input type="text" id="new_address" class="ctrl-input text-sm" placeholder="العنوان / الموقع" required><input type="text" id="new_phone" class="ctrl-input text-sm" placeholder="رقم الهاتف (اختياري)"><input type="text" id="new_hours" class="ctrl-input text-sm" placeholder="أوقات العمل"><input type="text" id="new_image_url" class="ctrl-input text-sm" placeholder="رابط الصورة (URL)"><input type="text" id="new_custom_password" class="ctrl-input text-sm col-span-1 sm:col-span-2" placeholder="كلمة مرور الطبيب/الصيدلية (6 أحرف فأكثر)"><textarea id="new_desc" class="ctrl-input text-sm col-span-2" placeholder="وصف عام (اختياري)" rows="2"></textarea><div id="adminExtraFields" class="contents"></div><button type="submit" class="col-span-1 sm:col-span-2 py-2.5 rounded-xl text-white font-semibold text-sm" style="background: var(--accent)"><i class="fas fa-save ml-1"></i> حفظ</button></form></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm"><i class="fas fa-list ml-2"></i> المنشآت (${allData.length})</h4><div class="flex flex-col gap-2 max-h-96 overflow-y-auto">${listHtml}</div></div> <button onclick="logoutAdmin()" class="w-full py-2.5 rounded-xl border font-semibold text-sm mt-2" style="border-color: #EF4444; color: #EF4444;"><i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج</button> </div>`, '#073D2E'); 
     renderAdminEmergencyList();
     fetchAnnouncements();
     fetchHomeAdsForAdmin();
