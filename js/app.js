@@ -2416,6 +2416,7 @@ window.submitBloodRequest = async (e) => {
 };
 
 window.resolveBloodRequest = async (id) => { 
+    if (!window.checkOnlineStatus()) return; 
     try { 
         await supabase.from('blood_requests').update({ status: 'resolved' }).eq('id', id); 
         showToast('تم إنهاء الطلب.', 'success'); 
@@ -3069,9 +3070,9 @@ function renderTopAnnouncement() {
         } else { currentAnnouncement = null; annBar.classList.add('hidden'); navbar.style.top = '0px'; homeSection.style.paddingTop = '6rem'; }
     }
 }
-window.toggleAnnouncement = async (id, status) => { try { await supabase.from('announcements').update({ is_active: status }).eq('id', id); showToast('تم التحديث'); } catch (err) { showToast('خطأ'); } };
-window.deleteAnnouncement = async (id) => { try { await supabase.from('announcements').delete().eq('id', id); showToast('تم الحذف'); } catch (err) { showToast('خطأ'); } };
-window.editFacility = (id) => { 
+window.toggleAnnouncement = async (id, status) => { if (!window.checkOnlineStatus()) return;  try { await supabase.from('announcements').update({ is_active: status }).eq('id', id); showToast('تم التحديث'); } catch (err) { showToast('خطأ'); } };
+window.deleteAnnouncement = async (id) => { if (!window.checkOnlineStatus()) return;  try { await supabase.from('announcements').delete().eq('id', id); showToast('تم الحذف'); } catch (err) { showToast('خطأ'); } };
+window.editFacility = (id) => { if (!window.checkOnlineStatus()) return; 
     const item = allData.find(d => d.id === id); if (!item) return; 
     document.getElementById('edit_id').value = id; document.getElementById('new_type').value = item.type; 
     updateAdminFormFields(item.type); 
@@ -3132,6 +3133,7 @@ window.editFacility = (id) => {
 }
 
 window.deleteFacility = async (id) => { 
+    if (!window.checkOnlineStatus()) return;
     if (!confirm("متأكد من الحذف؟")) return; 
     try { 
         await supabase.from('listings').delete().eq('id', id); 
@@ -3765,8 +3767,8 @@ window.saveHomeAd = async (e) => {
     if (!content) { showToast('الرجاء إدخال رابط'); return; }
     try { await supabase.from('homepage_ads').insert([{ type, content, link, is_active: true }]); await supabase.from('app_config').upsert({ id: 'ads_sync', last_update: Date.now() }); showToast('تم الحفظ!'); e.target.reset(); fetchHomeAdsForAdmin(); } catch (err) { showToast('خطأ'); }
 };
-window.toggleHomeAdStatus = async (id, status) => { try { await supabase.from('homepage_ads').update({ is_active: status }).eq('id', id); await supabase.from('app_config').upsert({ id: 'ads_sync', last_update: Date.now() }); showToast('تم التحديث'); fetchHomeAdsForAdmin(); } catch (err) { showToast('خطأ'); } };
-window.deleteHomeAd = async (id) => { try { await supabase.from('homepage_ads').delete().eq('id', id); await supabase.from('app_config').upsert({ id: 'ads_sync', last_update: Date.now() }); showToast('تم الحذف'); fetchHomeAdsForAdmin(); } catch (err) { showToast('خطأ'); } };
+window.toggleHomeAdStatus = async (id, status) => { if (!window.checkOnlineStatus()) return;  try { await supabase.from('homepage_ads').update({ is_active: status }).eq('id', id); await supabase.from('app_config').upsert({ id: 'ads_sync', last_update: Date.now() }); showToast('تم التحديث'); fetchHomeAdsForAdmin(); } catch (err) { showToast('خطأ'); } };
+window.deleteHomeAd = async (id) => { if (!window.checkOnlineStatus()) return;  try { await supabase.from('homepage_ads').delete().eq('id', id); await supabase.from('app_config').upsert({ id: 'ads_sync', last_update: Date.now() }); showToast('تم الحذف'); fetchHomeAdsForAdmin(); } catch (err) { showToast('خطأ'); } };
 async function fetchHomeAdsForAdmin() {
     const { data } = await supabase.from('homepage_ads').select('*');
     allHomeAds = data || [];
@@ -4544,8 +4546,8 @@ window.redirectToDoctorsSearch = () => {
         }
     }, 1000); 
 };
-window.setRadarDefaultSeason = async () => { try { await supabase.from('radar_settings').upsert({ id: 'config', default_season: document.getElementById('adminRadarSeason').value, last_reset: radarSettings.last_reset || 0 }); showToast("تم تحديث الفصل الافتراضي"); } catch (e) {} };
-window.resetRadarVotes = async () => { try { await supabase.from('radar_settings').upsert({ id: 'config', default_season: radarSettings.default_season, last_reset: Date.now() }); showToast("تم تصفير العدادات بنجاح"); } catch (e) {} };
+window.setRadarDefaultSeason = async () => { if (!window.checkOnlineStatus()) return;  try { await supabase.from('radar_settings').upsert({ id: 'config', default_season: document.getElementById('adminRadarSeason').value, last_reset: radarSettings.last_reset || 0 }); showToast("تم تحديث الفصل الافتراضي"); } catch (e) {} };
+window.resetRadarVotes = async () => { if (!window.checkOnlineStatus()) return;  try { await supabase.from('radar_settings').upsert({ id: 'config', default_season: radarSettings.default_season, last_reset: Date.now() }); showToast("تم تصفير العدادات بنجاح"); } catch (e) {} };
 
 // === 11. Smart Vaccine Scheduler ===
 const vaccineSchedule = [
@@ -4864,6 +4866,7 @@ window.togglePaymentMethod = (method) => {
 };
 
 window.toggleSubscription = async (id, currentStatus) => {
+    if (!window.checkOnlineStatus()) return; 
     try {
         await supabase.from('listings').update({ is_subscribed: currentStatus }).eq('id', id);
         showToast(currentStatus ? 'تم تفعيل الاشتراك بنجاح!' : 'تم إلغاء الاشتراك.', currentStatus ? 'success' : 'info');
@@ -5500,6 +5503,7 @@ window.resetArticleForm = () => {
 
 // 4. حذف المقال
 window.deleteArticle = async (id) => {
+    if (!window.checkOnlineStatus()) return; 
     if (!confirm("هل أنت متأكد من حذف هذا المقال؟")) return;
     try {
         await supabase.from('medical_articles').delete().eq('id', id);
