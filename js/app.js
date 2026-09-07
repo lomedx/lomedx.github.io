@@ -2237,9 +2237,10 @@ window.openMedicineDonation = () => {
         `;
     }).join('');
 }
-    
-window.submitMedicineDonation = async (e) => {
+    window.submitMedicineDonation = async (e) => {
     e.preventDefault();
+    if (!window.checkOnlineStatus()) return; // حماية انقطاع الإنترنت
+    
     const btn = document.getElementById('medDonationSubmitBtn');
     if (!btn) return;
 
@@ -2265,6 +2266,7 @@ window.submitMedicineDonation = async (e) => {
         if (!/^09\d{8}$/.test(phone)) { 
             phoneInput.classList.add('input-invalid'); 
             showToast('رقم الهاتف غير صحيح', 'error'); 
+            btn.disabled = false; btn.innerHTML = '<i class="fas fa-bullhorn ml-2"></i>نشر الإعلان للمجتمع';   
             return; 
         }
         phoneInput.classList.remove('input-invalid');
@@ -2295,6 +2297,7 @@ window.submitMedicineDonation = async (e) => {
         btn.disabled = false; btn.innerHTML = '<i class="fas fa-bullhorn ml-2"></i> نشر الإعلان للمجتمع';
     }
 };
+
 window.resolveMedicineDonation = async (id) => { 
     if (!window.checkOnlineStatus()) return; 
     try { 
@@ -2365,6 +2368,7 @@ function renderBloodBankUI() {
 
 window.submitBloodRequest = async (e) => {
     e.preventDefault();
+    if (!window.checkOnlineStatus()) return;
     const submitBtn = e.target.querySelector('button[type="submit"]');
     
     const lastBloodRequest = localStorage.getItem('last_blood_request_time');
@@ -2496,8 +2500,9 @@ window.previewMedicineImage = (event) => {
     reader.readAsDataURL(file); 
 }
 
- window.submitMedicineRequest = async (e) => { 
+  window.submitMedicineRequest = async (e) => { 
     e.preventDefault(); 
+    if (!window.checkOnlineStatus()) return; // حماية انقطاع الإنترنت
     
     const submitBtn = document.getElementById('medSubmitBtn'); 
     const medList = document.getElementById('medList').value.trim();
@@ -2512,6 +2517,7 @@ window.previewMedicineImage = (event) => {
     if (!/^09\d{8}$/.test(phone)) { 
         phoneInput.classList.add('input-invalid'); 
         showToast('الرجاء إدخال رقم هاتف صحيح'); 
+        submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال للصيدليات'; // إصلاح حبس الزر
         return; 
     } 
     phoneInput.classList.remove('input-invalid'); 
@@ -4690,6 +4696,7 @@ function renderQAList() {
 }
 window.submitQuestion = async (e) => {
     e.preventDefault();
+    if (!window.checkOnlineStatus()) return;
     const submitBtn = e.target.querySelector('button[type="submit"]');
     
     const lastQuestion = localStorage.getItem('last_question_time');
