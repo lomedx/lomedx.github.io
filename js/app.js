@@ -1467,7 +1467,9 @@ async function fetchMedRequests(pharmName) {
     container.innerHTML = html; 
 }
 
-window.toggleNightShift = async (id, currentStatus) => { try { await supabase.from('listings').update({ night: currentStatus }).eq('id', id); showToast(currentStatus ? 'تم تفعيل المناوبة!' : 'تم إيقاف المناوبة.'); localStorage.setItem('force_listings_update', 'true'); } catch (e) { showToast('خطأ في التحديث'); } }
+window.toggleNightShift = async (id, currentStatus) => { 
+    if (!window.checkOnlineStatus()) return; 
+    try { await supabase.from('listings').update({ night: currentStatus }).eq('id', id); showToast(currentStatus ? 'تم تفعيل المناوبة!' : 'تم إيقاف المناوبة.'); localStorage.setItem('force_listings_update', 'true'); } catch (e) { showToast('خطأ في التحديث'); } }
 // دالة تحديث الحالة (متوففر/غير متوفر/قيد البحث)
 window.updateMedStatus = async (id, status) => { 
     try { 
@@ -1806,6 +1808,7 @@ async function fetchDocBookings(docId) {
     }
 }
 window.acceptBooking = async (bookingId) => { 
+    if (!window.checkOnlineStatus()) return; 
     const timeInput = document.getElementById(`time_${bookingId}`); 
     
     // 1. حماية: التأكد من أن حقل الإدخال موجود
@@ -1860,6 +1863,7 @@ window.acceptBooking = async (bookingId) => {
     } 
 };
 window.updateBookingStatus = async (bookingId, newStatus) => { 
+    if (!window.checkOnlineStatus()) return; 
     try { 
     
         if (newStatus === 'deleted') { 
@@ -1872,11 +1876,13 @@ window.updateBookingStatus = async (bookingId, newStatus) => {
     } catch (e) { showToast('حدث خطأ', 'error'); } 
 }
 window.saveDoctorSettings = async (id) => { 
+    if (!window.checkOnlineStatus()) return; 
     const workingDays = Array.from(document.querySelectorAll('input[name="docWorkingDays"]:checked')).map(cb => cb.value); 
     try { await supabase.from('listings').update({ workingdays: workingDays }).eq('id', id); showToast('تم الحفظ!', 'success'); localStorage.setItem('force_listings_update', 'true'); } catch (e) { showToast('خطأ', 'error'); } 
 }
 // الطبيب يختار النظام النشط
 window.setActiveSystem = async (id, system) => {
+    if (!window.checkOnlineStatus()) return; 
     try {
         await supabase.from('listings').update({ active_system: system }).eq('id', id);
         showToast('تم تفعيل النظام المختار', 'success');
@@ -1889,6 +1895,7 @@ window.setActiveSystem = async (id, system) => {
 
 // الطبيب يحفظ أوقات العمل
 window.saveWorkingHours = async (id) => {
+    if (!window.checkOnlineStatus()) return; 
     const start = document.getElementById('docStartTime').value;
     const end = document.getElementById('docEndTime').value;
     if (!start || !end) { showToast('يرجى إدخال وقت البداية والنهاية'); return; }
@@ -2117,6 +2124,7 @@ window.addPrescriptionRow = () => {
 }
 
 window.deletePrescription = async (rxDate) => {
+    if (!window.checkOnlineStatus()) return; 
     if (!confirm("هل أنت متأكد من حذف هذه الروشتة؟")) return;
     try {
         const { data: docSnap, error } = await supabase.from('health_files').select('*').eq('id', currentHealthFileId).maybeSingle();
@@ -2433,6 +2441,7 @@ window.undoRespond = () => { if (window.bloodUndoTimeout) clearTimeout(window.bl
 window.hideToast = () => { document.getElementById('toast').classList.remove('show'); }
 
 window.setStatus = async (id, status) => {
+    if (!window.checkOnlineStatus()) return; 
     try {
         await supabase.from('listings').update({ isopen: status }).eq('id', id);
         localStorage.setItem('force_listings_update', 'true');
@@ -4722,6 +4731,7 @@ window.submitQuestion = async (e) => {
     }
 };
 window.submitAnswer = async (qId) => {
+    if (!window.checkOnlineStatus()) return; 
     const input = document.getElementById(`ansText_${qId}`);
     const text = input.value.trim();
     if (!text) return;
