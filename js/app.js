@@ -362,6 +362,7 @@ async function fetchListings() {
         allData = freshData || [];
         renderData(); 
         updateStats();
+        renderFavoritesSection();
         try {
             localStorage.setItem('cached_listings', JSON.stringify(allData));
             localStorage.removeItem('force_listings_update');
