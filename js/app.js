@@ -362,7 +362,6 @@ async function fetchListings() {
         allData = freshData || [];
         renderData(); 
         updateStats();
-        renderFavoritesSection();
         try {
             localStorage.setItem('cached_listings', JSON.stringify(allData));
             localStorage.removeItem('force_listings_update');
@@ -700,6 +699,42 @@ function handleSmartSearch(value) {
         renderSearchDropdown(matches);
     }, 300);
 }
+window.openFavoritesModal = () => {
+    const favDoctorsData = allData.filter(d => favoriteDoctors.includes(d.id));
+    
+    let contentHtml = '';
+    if (favDoctorsData.length === 0) {
+        // واجهة احترافية إذا كانت المفضلة فارغة
+        contentHtml = `
+            <div class="p-8 text-center">
+                <div class="w-20 h-20 mx-auto rounded-full bg-red-50 flex items-center justify-center mb-4">
+                    <i class="fas fa-heart-crack text-3xl text-red-400"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-2" style="font-family: 'Noto Kufi Arabic'">قائمة المفضلة فارغة</h3>
+                <p class="text-sm text-gray-500 mb-6">لم تقم بحفظ أي طبيب. اضغط على أيقونة القلب (❤️) بجانب اسم الطبيب لإضافته هنا والوصول إليه بسرعة.</p>
+                <button onclick="closeModal()" class="px-6 py-2.5 bg-blue-50 text-blue-600 rounded-lg text-sm font-semibold hover:bg-blue-100 transition-colors">تصفح الأطباء</button>
+            </div>
+        `;
+    } else {
+        // عرض بطاقات الأطباء المحفوظين
+        contentHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${favDoctorsData.map(createCard).join('')}</div>`;
+    }
+
+    // حقن المحتوى في النافذة المنبثقة الأساسية (Modal)
+    document.getElementById('modalContent').innerHTML = `
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6 pb-4 border-b" style="border-color: var(--border);">
+                <h3 class="text-xl font-bold" style="font-family: 'Noto Kufi Arabic'; color: var(--fg);">
+                    <i class="fas fa-heart text-red-500 ml-2"></i> قائمة المفضلة
+                </h3>
+                <button onclick="closeModal()" class="text-2xl hover:text-gray-400 leading-none">&times;</button>
+            </div>
+            ${contentHtml}
+        </div>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+    lockScroll();
+};
 window.toggleFavorite = (id, name, btnElement) => {
     const index = favoriteDoctors.indexOf(id);
     if (index > -1) {
@@ -711,7 +746,7 @@ window.toggleFavorite = (id, name, btnElement) => {
     }
     localStorage.setItem('lomedx_favorites', JSON.stringify(favoriteDoctors));
 
-    // تحديث شكل الزر فوراً
+    // تحديث شكل زر القلب فوراً
     const icon = btnElement.querySelector('i');
     if (index > -1) {
         icon.className = 'far fa-heart';
@@ -723,8 +758,16 @@ window.toggleFavorite = (id, name, btnElement) => {
         btnElement.classList.add('text-red-500');
     }
 
-    // تحديث قسم المفضلة في الصفحة الرئيسية
-    renderFavoritesSection();
+    // تحديث العداد (Badge) في زر المفضلة
+    const favBadge = document.getElementById('favCountBadge');
+    if (favBadge) {
+        if (favoriteDoctors.length > 0) {
+            favBadge.innerText = favoriteDoctors.length;
+            favBadge.classList.remove('hidden');
+        } else {
+            favBadge.classList.add('hidden');
+        }
+    }
 };
 
 // دالة لعرض قسم المفضلة
