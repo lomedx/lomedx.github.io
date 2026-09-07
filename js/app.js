@@ -350,6 +350,7 @@ window.addEventListener('DOMContentLoaded', () => {
     trackAndDisplayVisitors();
     // استدعاء دالة تحديد الموقع
     detectUserLocation();
+    window.updateFavBadge();
 }); // نهاية DOMContentLoaded
 
 async function fetchListings() {
@@ -415,8 +416,7 @@ function renderEmergencyPopup() {
     popupBody.innerHTML = html;
 }
 
-// استدعاء الدالة عند تحميل الصفحة (أضف هذا السطر داخل DOMContentLoaded في الأعلى)
-// fetchEmergencyContacts();
+
 async function fetchBookings() {
     const { data, error } = await supabase.from('bookings').select('*');
     if (error) return;
@@ -735,6 +735,17 @@ window.openFavoritesModal = () => {
     document.getElementById('modalOverlay').classList.add('active');
     lockScroll();
 };
+// دالة لتحديث عداد المفضلة في شريط التنقل
+window.updateFavBadge = () => {
+    const favBadge = document.getElementById('favCountBadge');
+    if (!favBadge) return;
+    if (favoriteDoctors.length > 0) {
+        favBadge.innerText = favoriteDoctors.length;
+        favBadge.classList.remove('hidden');
+    } else {
+        favBadge.classList.add('hidden');
+    }
+};
 window.toggleFavorite = (id, name, btnElement) => {
     const index = favoriteDoctors.indexOf(id);
     if (index > -1) {
@@ -746,7 +757,7 @@ window.toggleFavorite = (id, name, btnElement) => {
     }
     localStorage.setItem('lomedx_favorites', JSON.stringify(favoriteDoctors));
 
-    // تحديث شكل زر القلب فوراً
+    // تحديث شكل زر القلب في البطاقة
     const icon = btnElement.querySelector('i');
     if (index > -1) {
         icon.className = 'far fa-heart';
@@ -758,16 +769,8 @@ window.toggleFavorite = (id, name, btnElement) => {
         btnElement.classList.add('text-red-500');
     }
 
-    // تحديث العداد (Badge) في زر المفضلة
-    const favBadge = document.getElementById('favCountBadge');
-    if (favBadge) {
-        if (favoriteDoctors.length > 0) {
-            favBadge.innerText = favoriteDoctors.length;
-            favBadge.classList.remove('hidden');
-        } else {
-            favBadge.classList.add('hidden');
-        }
-    }
+    // تحديث العداد في شريط التنقل
+    window.updateFavBadge();
 };
 
 // دالة لعرض قسم المفضلة
