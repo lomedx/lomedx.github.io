@@ -502,22 +502,6 @@ function getOptimizedImageUrl(url, width = 400, height = 300) {
     // إرجاع الرابط كما هو إذا لم يتحقق أي شرط
     return url;
 }
-// دالة للتحقق من معدل الطلبات (منع السبام)
-function checkRateLimit(actionKey, hoursCooldown = 1) {
-    const lastAction = localStorage.getItem(`ratelimit_${actionKey}`);
-    if (!lastAction) return true;
-    
-    const diffHours = (Date.now() - parseInt(lastAction)) / (1000 * 60 * 60);
-    if (diffHours < hoursCooldown) {
-        showToast(`يرجى الانتظار. يمكنك إرسال طلب جديد بعد ${Math.ceil(hoursCooldown - diffHours)} ساعة.`);
-        return false;
-    }
-    return true;
-}
-
-function setRateLimit(actionKey) {
-    localStorage.setItem(`ratelimit_${actionKey}`, Date.now().toString());
-}
 function updateMetaTags(title, description, image) {
     document.title = title;
     
