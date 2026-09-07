@@ -4716,7 +4716,6 @@ window.submitAnswer = async (qId) => {
         showToast('تم نشر إجابتك!', 'success');
         fetchQuestions();
     } catch (err) { 
-            } catch (err) { 
         showToast('خطأ في إرسال الإجابة: ' + err.message, 'error'); 
    }
 }
