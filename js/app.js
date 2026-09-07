@@ -1272,7 +1272,7 @@ window.confirmBooking = async () => {
             <button onclick="closeModal()" class="w-full py-2 rounded-xl border font-bold text-sm" style="border-color: var(--border)">إغلاق</button>
         </div>`; 
     } catch (e) { 
-        showToast('خطأ: ' + e.message, 'error'); 
+        showToast('خطأ: ' + err.message, 'error'); 
         if(submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = 'تأكيد'; }
     } 
 };
@@ -2084,7 +2084,7 @@ window.generatePrescription = async (e, patientId, patientName) => {
         // إعادة فتح ملف المريض لعرض الروشتة الجديدة (المفرود عنها تشفيرها محلياً سيتم فكه تلقائياً)
         fetchPatientHealthFile(patientId, { specialty: 'general' }); 
     } catch (err) { 
-        showToast('خطأ في حفظ الروشتة: ' + error.message, 'error'); 
+        showToast('خطأ في حفظ الروشتة: ' + err.message, 'error'); 
         if(submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-save"></i> حفظ الروشتة في ملف المريض'; }
     }
 };
@@ -2394,7 +2394,7 @@ window.submitBloodRequest = async (e) => {
         showToast('تم نشر استغاثتك بنجاح! سيتم التواصل معك قريباً.', 'success');
         e.target.reset();
     } catch (err) { 
-        showToast('حدث خطأ اثناء النشر: ' + error.message, 'error'); 
+        showToast('حدث خطأ اثناء النشر: ' + err.message, 'error'); 
     } finally {
         submitBtn.disabled = false; 
         submitBtn.innerText = 'نشر الاستغاثة';
@@ -2564,7 +2564,7 @@ window.submitMedicineRequest = async (e) => {
         </div>`; 
     } catch (err) { 
         // === إظهار الخطأ للمستخدم وإعادة تفعيل الزر ===
-        showToast('حدث خطأ: ' + error.message, 'error'); 
+        showToast('حدث خطأ: ' + err.message, 'error'); 
         submitBtn.disabled = false; 
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال للصيدليات'; 
     } 
@@ -3434,7 +3434,7 @@ window.handleHealthRegister = async (e) => {
     
     const userId = data.user.id;
     
-        const { error: dbError } = await supabase.from('health_files').insert([{ id: userId, full_name: fullName, qr_token: generateSecureQrToken(64) }]);
+        const { error: dbError } = await supabase.from('health_files').insert([{ id: userId, full_name: fullName, qr_token: generateSecureToken(64) }]);
     if (dbError) { 
         showToast('تم إنشاء الحساب ولكن حدث خطأ في قاعدة البيانات'); 
         return; 
@@ -3468,7 +3468,7 @@ window.handleHealthLogin = async (e) => {
     
     if (!fileData) {
         const defaultName = data.user.email ? data.user.email.split('@')[0] : 'مريض';
-                const { data: newFile, error: insertError } = await supabase.from('health_files').insert([{ id: currentHealthFileId, full_name: defaultName, qr_token: generateSecureQrToken(64) }]).select().single();
+                const { data: newFile, error: insertError } = await supabase.from('health_files').insert([{ id: currentHealthFileId, full_name: defaultName, qr_token: generateSecureToken(64) }]).select().single();
         if (insertError) {
             
             showToast('تعذر إنشاء ملف صحي: ' + insertError.message, 'error');
@@ -3616,8 +3616,8 @@ window.regenerateQrToken = async () => {
         const oldKey = currentFile.qr_token;
         const decryptedData = decryptHealthFile(currentFile, oldKey);
 
-        // 2. توليد مفتاح جديد
-        const newKey = generateSecureQrToken(64);
+        // 2. توليد مفتاح جديد (تم تصحيح اسم الدالة هنا)
+        const newKey = generateSecureToken(64);
 
         // 3. إعادة تشفير البيانات الأساسية بالمفتاح الجديد
         const newEncryptedData = {
@@ -3636,12 +3636,10 @@ window.regenerateQrToken = async () => {
             emergency_phone: encryptField(decryptedData.emergency_phone, newKey)
         };
 
-        // 4. إعادة تشفير الروشتات القديمة بالمفتاح الجديد (هنا كان يكمن الخطر)
+        // 4. إعادة تشفير الروشتات القديمة بالمفتاح الجديد
         if (currentFile.prescriptions && currentFile.prescriptions.length > 0) {
             const reEncryptedPrescriptions = currentFile.prescriptions.map(rx => {
-                // فك تشفير نص الروشتة بالمفتاح القديم
                 const decryptedText = decryptField(rx.text, oldKey);
-                // إعادة تشفيره بالمفتاح الجديد
                 return {
                     ...rx,
                     text: encryptField(decryptedText, newKey)
@@ -3653,14 +3651,18 @@ window.regenerateQrToken = async () => {
         }
 
         // 5. حفظ كل شيء بالمفتاح الجديد
-        await supabase.from('health_files').update(newEncryptedData).eq('id', currentHealthFileId);
+        const { error: updateError } = await supabase.from('health_files').update(newEncryptedData).eq('id', currentHealthFileId);
+        if (updateError) throw updateError;
+        
         showToast('تم تغيير الرمز وإعادة تشفير الروشتات بنجاح!', 'success');
 
         // إعادة تحميل اللوحة
         const { data: updatedFile } = await supabase.from('health_files').select('*').eq('id', currentHealthFileId).maybeSingle();
         if (updatedFile) renderHealthDashboard(updatedFile);
     } catch (err) {
-        showToast('حدث خطأ أثناء تغيير الرمز', 'error');
+        console.error("QR Change Error:", err);
+        // إظهار الخطأ الفعلي للمستخدم بدلاً من رسالة عامة
+        showToast('حدث خطأ أثناء تغيير الرمز: ' + err.message, 'error');
     }
 };
 window.logoutHealthFile = async () => { 
