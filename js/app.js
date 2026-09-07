@@ -1638,8 +1638,9 @@ window.renderDoctorDashboard = async (doc) => {
         return;
     }
     
-    // === العداد التراكمي الذي لا يتنقص عند الحذف ===
-    const totalBookings = doc.total_bookings_count || 0;
+        // === جلب العدد الحقيقي من قاعدة البيانات عبر RPC ===
+    const { data: totalBookingsCount } = await supabase.rpc('get_doctor_bookings_count', { p_doctor_id: doc.id });
+    const totalBookings = totalBookingsCount || 0;
 
     const daysCheckboxes = daysOfWeek.map(day => `<label class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"><input type="checkbox" name="docWorkingDays" value="${day}" class="w-4 h-4 accent-blue-600" ${doc.workingdays?.includes(day) ? 'checked' : ''}><span class="text-xs font-semibold">${day}</span></label>`).join(''); 
     
@@ -2708,9 +2709,15 @@ window.renderAdminDashboard = async () => {
         return;
     }
 
-    const { data: recentPatients } = await supabase.from('health_files').select('full_name, blood_type, created_at').order('created_at', { ascending: false }).limit(5);
-    const { count: totalHealthFilesCount } = await supabase.from('health_files').select('*', { count: 'exact', head: true });
-    let patientsHtml = '';
+        // === استخدام الدالة الآمنة RPC لجلب الإحصاءات دفعة واحدة ===
+    const { data: adminStats } = await supabase.rpc('get_admin_dashboard_stats');
+    let recentPatients = [];
+    let totalHealthFilesCount = 0;
+    if (adminStats) {
+        totalHealthFilesCount = adminStats.total_health_files || 0;
+        recentPatients = adminStats.recent_files || [];
+    }
+      let patientsHtml = '';
     if (recentPatients && recentPatients.length > 0) {
         patientsHtml = recentPatients.map(p => `<div class="flex items-center justify-between p-2 rounded-lg border" style="border-color: var(--border)"><div class="flex items-center gap-2"><i class="fas fa-user-circle text-gray-400"></i><span class="text-sm font-semibold">${escapeHtml(p.full_name)}</span></div><span class="text-xs text-red-500 font-bold">${escapeHtml(p.blood_type || 'غير محدد')}</span></div>`).join('');
     } else {
