@@ -2260,7 +2260,7 @@ window.submitMedicineDonation = async (e) => {
         renderMedicineDonationsUI();
 
     } catch (err) {
-        showToast('حدث خطأ: ' + err.message, 'error');
+        showToast('حدث خطأ: ' + error.message, 'error');
     } finally {
         btn.disabled = false; 
         btn.innerHTML = '<i class="fas fa-bullhorn ml-2"></i> نشر الإعلان للمجتمع';
@@ -3607,20 +3607,19 @@ window.saveHealthProfile = async (e) => {
     } catch (err) { showToast('حدث خطأ', 'error'); }
 }
 window.regenerateQrToken = async () => {
-    if (!confirm("هل أنت متأكد من تغيير رمز QR؟ سيتم إعادة تشفير بياناتك بمفتاح جديد.")) return;
+    if (!confirm("هل أنت متأكد من تغيير رمز QR؟ سيتم إعادة تشفير بياناتك وروشتاتك السابقة بمفتاح جديد.")) return;
     try {
-        // 1. جلب المفتاح القديم والبيانات الحالية
+        // 1. جلب الملف والمفتاح القديم
         const { data: currentFile } = await supabase.from('health_files').select('*').eq('id', currentHealthFileId).maybeSingle();
         if (!currentFile) return;
         
         const oldKey = currentFile.qr_token;
-        // 2. فك تشفير البيانات القديمة
         const decryptedData = decryptHealthFile(currentFile, oldKey);
 
-        // 3. توليد مفتاح جديد
+        // 2. توليد مفتاح جديد
         const newKey = generateSecureQrToken(64);
 
-        // 4. إعادة تشفير البيانات بالمفتاح الجديد
+        // 3. إعادة تشفير البيانات الأساسية بالمفتاح الجديد
         const newEncryptedData = {
             qr_token: newKey,
             full_name: encryptField(decryptedData.full_name, newKey),
@@ -3637,18 +3636,33 @@ window.regenerateQrToken = async () => {
             emergency_phone: encryptField(decryptedData.emergency_phone, newKey)
         };
 
-        // 5. حفظ الرمز الجديد والبيانات المعاد تشفيرها
+        // 4. إعادة تشفير الروشتات القديمة بالمفتاح الجديد (هنا كان يكمن الخطر)
+        if (currentFile.prescriptions && currentFile.prescriptions.length > 0) {
+            const reEncryptedPrescriptions = currentFile.prescriptions.map(rx => {
+                // فك تشفير نص الروشتة بالمفتاح القديم
+                const decryptedText = decryptField(rx.text, oldKey);
+                // إعادة تشفيره بالمفتاح الجديد
+                return {
+                    ...rx,
+                    text: encryptField(decryptedText, newKey)
+                };
+            });
+            newEncryptedData.prescriptions = reEncryptedPrescriptions;
+        } else {
+            newEncryptedData.prescriptions = [];
+        }
+
+        // 5. حفظ كل شيء بالمفتاح الجديد
         await supabase.from('health_files').update(newEncryptedData).eq('id', currentHealthFileId);
-        showToast('تم تغيير الرمز وإعادة تشفير البيانات بنجاح!', 'success');
+        showToast('تم تغيير الرمز وإعادة تشفير الروشتات بنجاح!', 'success');
 
         // إعادة تحميل اللوحة
         const { data: updatedFile } = await supabase.from('health_files').select('*').eq('id', currentHealthFileId).maybeSingle();
         if (updatedFile) renderHealthDashboard(updatedFile);
     } catch (err) {
-        
         showToast('حدث خطأ أثناء تغيير الرمز', 'error');
     }
-}
+};
 window.logoutHealthFile = async () => { 
     await supabase.auth.signOut();
     localStorage.removeItem('healthFileId'); 
