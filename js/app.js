@@ -2211,9 +2211,15 @@ window.submitMedicineDonation = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('medDonationSubmitBtn');
     if (!btn) return;
+
+    const lastDonation = localStorage.getItem('last_donation_time');
+    if (lastDonation && (Date.now() - parseInt(lastDonation)) < 3600000) {
+        const minsLeft = Math.ceil((3600000 - (Date.now() - parseInt(lastDonation))) / 60000);
+        showToast(`يرجى الانتظار ${minsLeft} دقيقة قبل نشر إعلان جديد.`, 'error');
+        return;
+    }
     
-    btn.disabled = true; 
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري النشر...';
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري النشر...';
     
     try {
         const name = document.getElementById('medDonorName').value.trim();
@@ -2227,43 +2233,35 @@ window.submitMedicineDonation = async (e) => {
 
         if (!/^09\d{8}$/.test(phone)) { 
             phoneInput.classList.add('input-invalid'); 
-            showToast('رقم هاتف غير صحيح', 'error'); 
+            showToast('رقم الهاتف غير صحيح', 'error'); 
             return; 
         }
         phoneInput.classList.remove('input-invalid');
 
-        // === استدعاء الـ Edge Function الآمنة ===
         const { data: funcData, error: funcError } = await supabase.functions.invoke('submit-public-request', {
-            body: { 
-                type: 'donation',
-                patient_phone: phone,
-                payload: { 
-                    donor_name: name, 
-                    medicine_name: medName, 
-                    medicine_type: medType, 
-                    expiry_date: expiryDate, 
-                    quantity: quantity, 
-                    notes: notes, 
-                    status: 'active' 
-                }
-            }
+            body: { type: 'donation', patient_phone: phone, payload: { donor_name: name, medicine_name: medName, medicine_type: medType, expiry_date: expiryDate, quantity: quantity, notes: notes, status: 'active' } }
         });
 
-        if (funcError) throw funcError;
-        if (funcData.error) throw new Error(funcData.error);
+        if (funcError) {
+            let errMsg = funcError.message;
+            if (funcError.context && typeof funcError.context.json === 'function') {
+                try { const errBody = await funcError.context.json(); if (errBody.error) errMsg = errBody.error; } catch (e) {}
+            } else if (funcError.context && funcError.context.error) { errMsg = funcError.context.error; }
+            throw new Error(errMsg);
+        }
+        if (funcData && funcData.error) throw new Error(funcData.error);
         
-        // === إشعار لجميع المستخدمين بوجود جهاز طبي ===
+        localStorage.setItem('last_donation_time', Date.now().toString());
+        
         await sendPushNotification(null, "جهاز طبي متاح 🩺", `تم إضافة جهاز: ${medName}`, 'all');
         showToast('تم نشر إعلانك بنجاح !', 'success');
         document.querySelector('#ctrlContent form').reset();
         await fetchMedicineDonations();
         renderMedicineDonationsUI();
-
     } catch (err) {
-        showToast('حدث خطأ: ' + error.message, 'error');
+        showToast('حدث خطأ: ' + err.message, 'error');
     } finally {
-        btn.disabled = false; 
-        btn.innerHTML = '<i class="fas fa-bullhorn ml-2"></i> نشر الإعلان للمجتمع';
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-bullhorn ml-2"></i> نشر الإعلان للمجتمع';
     }
 };
 window.resolveMedicineDonation = async (id) => { 
@@ -2337,16 +2335,14 @@ window.submitBloodRequest = async (e) => {
     e.preventDefault();
     const submitBtn = e.target.querySelector('button[type="submit"]');
     
-    // 1. منع تكرار الطلب محلياً (حماية مزدوجة مع الخادم)
     const lastBloodRequest = localStorage.getItem('last_blood_request_time');
-    if (lastBloodRequest && (Date.now() - parseInt(lastBloodRequest)) < 3600000) { // ساعة = 3600000 مللي ثانية
+    if (lastBloodRequest && (Date.now() - parseInt(lastBloodRequest)) < 3600000) {
         const minsLeft = Math.ceil((3600000 - (Date.now() - parseInt(lastBloodRequest))) / 60000);
         showToast(`لقد أرسلت استغاثة مؤخراً. يرجى الانتظار ${minsLeft} دقيقة.`, 'error');
         return;
     }
 
-    submitBtn.disabled = true; 
-    submitBtn.innerText = 'جاري النشر...';
+    submitBtn.disabled = true; submitBtn.innerText = 'جاري النشر...';
     
     const name = document.getElementById('bloodPatient').value.trim();
     const bloodType = document.getElementById('bloodType').value;
@@ -2357,7 +2353,7 @@ window.submitBloodRequest = async (e) => {
 
     if (!/^09\d{8}$/.test(phone)) { 
         phoneInput.classList.add('input-invalid'); 
-        showToast('رقم هاتف غير صحيح', 'error'); 
+        showToast('رقم الهاتف غير صحيح', 'error'); 
         submitBtn.disabled = false; submitBtn.innerText = 'نشر الاستغاثة';
         return; 
     } 
@@ -2365,39 +2361,26 @@ window.submitBloodRequest = async (e) => {
 
     try {
         const { data: funcData, error: funcError } = await supabase.functions.invoke('submit-public-request', {
-            body: { 
-                type: 'blood',
-                patient_phone: phone,
-                payload: { 
-                    patient_name: name, 
-                    blood_type: bloodType, 
-                    hospital: hospital, 
-                    notes: notes, 
-                    status: 'active' 
-                }
-            }
+            body: { type: 'blood', patient_phone: phone, payload: { patient_name: name, blood_type: bloodType, hospital: hospital, notes: notes, status: 'active' } }
         });
 
         if (funcError) {
             let errMsg = funcError.message;
-            if (funcError.context && funcError.context.error) errMsg = funcError.context.error;
+            if (funcError.context && typeof funcError.context.json === 'function') {
+                try { const errBody = await funcError.context.json(); if (errBody.error) errMsg = errBody.error; } catch (e) {}
+            } else if (funcError.context && funcError.context.error) { errMsg = funcError.context.error; }
             throw new Error(errMsg);
         }
-        if (funcData.error) throw new Error(funcData.error);
+        if (funcData && funcData.error) throw new Error(funcData.error);
 
-        // === إشعار لجميع المستخدمين بوجود استغاثة دم ===
         await sendPushNotification(null, "استغاثة دم طارئة 🩸", `المريض ${name} يحتاج فصيلة ${bloodType} في ${hospital}`, 'all');
-        
-        // تسجيل وقت النشر محلياً لمنع التكرار
         localStorage.setItem('last_blood_request_time', Date.now().toString());
-        
-        showToast('تم نشر استغاثتك بنجاح! سيتم التواصل معك قريباً.', 'success');
+        showToast('تم نشر استغاثتك بنجاح!', 'success');
         e.target.reset();
     } catch (err) { 
         showToast('حدث خطأ اثناء النشر: ' + err.message, 'error'); 
     } finally {
-        submitBtn.disabled = false; 
-        submitBtn.innerText = 'نشر الاستغاثة';
+        submitBtn.disabled = false; submitBtn.innerText = 'نشر الاستغاثة';
     }
 };
 
@@ -2479,7 +2462,7 @@ window.previewMedicineImage = (event) => {
     reader.readAsDataURL(file); 
 }
 
-window.submitMedicineRequest = async (e) => { 
+ window.submitMedicineRequest = async (e) => { 
     e.preventDefault(); 
     
     const submitBtn = document.getElementById('medSubmitBtn'); 
@@ -2514,40 +2497,24 @@ window.submitMedicineRequest = async (e) => {
 
         const medRef = `MED-${Math.floor(Math.random() * 900000) + 100000}`;
         
-        // === استدعاء الـ Edge Function الآمنة ===
         const { data: reqData, error: reqError } = await supabase.functions.invoke('submit-public-request', {
             body: { 
-                type: 'medicine',
-                patient_phone: phone,
-                payload: { 
-                    med_ref: medRef, 
-                    med_list: medList,
-                    urgency: urgency,
-                    patient_name: name, 
-                    image_url: imageUrl, 
-                    status: 'searching', 
-                    notes: '', 
-                    available_pharmacy: '',
-                    patient_push_id: localStorage.getItem('patient_push_id')
-                }
+                type: 'medicine', patient_phone: phone, 
+                payload: { med_ref: medRef, med_list: medList, urgency: urgency, patient_name: name, image_url: imageUrl, status: 'searching', notes: '', available_pharmacy: '', patient_push_id: localStorage.getItem('patient_push_id') }
             }
         });
 
-        // === معالجة أخطاء الخادم بشكل صحيح (هنا كان التعليق يحدث) ===
         if (reqError) {
             let errorMsg = reqError.message;
-            // استخراج رسالة الخطأ المخصصة من الخادم (مثل رسالة الانتظار ساعة)
-            if (reqError.context && reqError.context.error) {
-                errorMsg = reqError.context.error;
-            }
+            if (reqError.context && typeof reqError.context.json === 'function') {
+                try { const errBody = await reqError.context.json(); if (errBody.error) errorMsg = errBody.error; } catch (e) {}
+            } else if (reqError.context && reqError.context.error) { errorMsg = reqError.context.error; }
             throw new Error(errorMsg);
         }
-        if (reqData.error) throw new Error(reqData.error);
+        if (reqData && reqData.error) throw new Error(reqData.error);
 
-        // === إشعار للصيدليات فقط ===
         sendPushNotification(null, "طلب دواء عاجل 💊", `المريض ${name} يبحث عن: ${medList}`, 'pharmacies');
         
-        // === شاشة النجاح الاحترافية (بدلاً من رسالة عادية) ===
         document.getElementById('modalContent').innerHTML = `
         <div class="p-8 text-center">
             <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style="background: var(--accent-light)">
@@ -2563,12 +2530,12 @@ window.submitMedicineRequest = async (e) => {
             <button onclick="closeModal()" class="w-full py-2 mt-2 rounded-xl border font-bold text-sm" style="border-color: var(--border)">إغلاق</button>
         </div>`; 
     } catch (err) { 
-        // === إظهار الخطأ للمستخدم وإعادة تفعيل الزر ===
         showToast('حدث خطأ: ' + err.message, 'error'); 
         submitBtn.disabled = false; 
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال للصيدليات'; 
     } 
 };
+
 window.quickLookup = async () => {
     let val = document.getElementById('quickLookupInput').value.trim().toUpperCase().replace(/#/g, '').replace(/\s/g, '');
     if (!val) { showToast('الرجاء إدخال رقم الاستعلام'); return; }
@@ -4683,58 +4650,48 @@ window.submitQuestion = async (e) => {
     e.preventDefault();
     const submitBtn = e.target.querySelector('button[type="submit"]');
     
-    // مصيدة البوتات (Honeypot)
-    const honeypotField = document.getElementById('website_url');
-    if (honeypotField && honeypotField.value !== '') {
-        showToast('تم رفض النشر.', 'error');
-        return; 
-    }
-
-    // مصيدة الوقت (Time Trap)
-    if (window.askDoctorOpenTime && (Date.now() - window.askDoctorOpenTime < 3000)) {
-        showToast('جاري المعالجة، يرجى الانتظار قليلاً قبل الإرسال.', 'error');
+    const lastQuestion = localStorage.getItem('last_question_time');
+    if (lastQuestion && (Date.now() - parseInt(lastQuestion)) < 3600000) {
+        const minsLeft = Math.ceil((3600000 - (Date.now() - parseInt(lastQuestion))) / 60000);
+        showToast(`يرجى الانتظار ${minsLeft} دقيقة قبل إرسال سؤال جديد.`, 'error');
         return;
     }
+
+    const honeypotField = document.getElementById('website_url');
+    if (honeypotField && honeypotField.value !== '') { showToast('تم رفض النشر.', 'error'); return; }
+    if (window.askDoctorOpenTime && (Date.now() - window.askDoctorOpenTime < 3000)) { showToast('جاري المعالجة، يرجى الانتظار قليلاً.', 'error'); return; }
 
     const name = document.getElementById('qaName').value.trim() || 'مجهول';
     const category = document.getElementById('qaCategory').value;
     const text = document.getElementById('qaText').value.trim();
-    
     if (!text) return;
 
-    submitBtn.disabled = true; 
-    submitBtn.innerText = 'جاري النشر...';
+    submitBtn.disabled = true; submitBtn.innerText = 'جاري النشر...';
     
     try {
-        // === استدعاء الـ Edge Function الآمنة ===
         const { data: funcData, error: funcError } = await supabase.functions.invoke('submit-public-request', {
-            body: { 
-                type: 'question',
-                patient_phone: null, // لا يوجد رقم هاتف في الأسئلة
-                payload: { 
-                    name: name, 
-                    category: category, 
-                    text: text, 
-                    status: 'open', 
-                    answers: [] 
-                }
-            }
+            body: { type: 'question', patient_phone: null, payload: { name, category, text, status: 'open', answers: [] } }
         });
 
-        if (funcError) throw funcError;
-        if (funcData.error) throw new Error(funcData.error);
+        if (funcError) {
+            let errMsg = funcError.message;
+            if (funcError.context && typeof funcError.context.json === 'function') {
+                try { const errBody = await funcError.context.json(); if (errBody.error) errMsg = errBody.error; } catch (e) {}
+            } else if (funcError.context && funcError.context.error) { errMsg = funcError.context.error; }
+            throw new Error(errMsg);
+        }
+        if (funcData && funcData.error) throw new Error(funcData.error);
         
-        // === إشعار للجميع بوجود سؤال طبي جديد ===
+        localStorage.setItem('last_question_time', Date.now().toString());
+        
         await sendPushNotification(null, "سؤال طبي جديد ❓", `تم طرح سؤال جديد: ${text.substring(0, 40)}...`, 'doctors');
-        
         showToast('تم نشر سؤالك بنجاح!', 'success');     
         e.target.reset();
         fetchQuestions();
     } catch (err) { 
-        showToast('حدث خطأ أثناء النشر: ' + error.message, 'error'); 
+        showToast('حدث خطأ: ' + err.message, 'error'); 
     } finally {
-        submitBtn.disabled = false; 
-        submitBtn.innerText = 'نشر السؤال';
+        submitBtn.disabled = false; submitBtn.innerText = 'نشر السؤال';
     }
 };
 window.submitAnswer = async (qId) => {
