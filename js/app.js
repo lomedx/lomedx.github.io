@@ -2296,6 +2296,7 @@ window.submitMedicineDonation = async (e) => {
     }
 };
 window.resolveMedicineDonation = async (id) => { 
+    if (!window.checkOnlineStatus()) return; 
     try { 
         await supabase.from('medicine_donations').update({ status: 'resolved' }).eq('id', id); 
         showToast('تمت الإزالة.', 'success'); 
