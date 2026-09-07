@@ -1259,8 +1259,14 @@ window.confirmBooking = async () => {
             }
         });
 
-        if (funcError) throw funcError;
-        if (funcData.error) throw new Error(funcData.error);
+                if (funcError) {
+            // إظهار رسالة الخطأ القادمة من Edge Function
+            let errMsg = funcError.message;
+            if (funcError.context && funcError.context.error) {
+                errMsg = funcError.context.error;
+            }
+            throw new Error(errMsg);
+        }
 
         const newId = funcData.booking[0].id;
         const ref = funcData.booking[0].ref; // جلب المرجع من قاعدة البيانات
