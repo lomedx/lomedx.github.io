@@ -1909,6 +1909,7 @@ window.saveWorkingHours = async (id) => {
     } catch (e) { showToast('خطأ في الحفظ', 'error'); }
 }
 window.sendDocMessage = async (bookingId) => {
+    if (!window.checkOnlineStatus()) return; 
     const input = document.getElementById(`docChat_${bookingId}`); 
     const text = input.value.trim(); 
     if (!text) return; 
