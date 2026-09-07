@@ -538,7 +538,19 @@
         </div>
                 <div class="absolute bottom-0 left-0 right-0"><svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H0Z" fill="var(--bg)"/></svg></div>
     </section> <!-- تم إغلاق قسم الهيرو هنا -->
-
+<!-- قسم المفضلة (يظهر فقط إذا كان هناك أطباء مفضلون) -->
+<section id="favoritesSection" class="hidden container mx-auto px-4 py-8">
+    <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+            <i class="fas fa-heart text-xl text-red-500"></i>
+        </div>
+        <div>
+            <h2 class="text-xl font-bold" style="font-family: 'Noto Kufi Arabic'; color: var(--fg);">قائمة المفضلة</h2>
+            <p class="text-xs text-gray-500">الأطباء والمشافي التي قمت بحفظها للرجوع إليها بسرعة</p>
+        </div>
+    </div>
+    <div id="favoritesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+</section>
        <!-- قسم الاستغاثات والتصفية (مستقل تماماً) -->
     <section class="z-30 py-10 shadow-sm relative" style="background: rgba(250, 248, 244, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border)">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -620,8 +632,8 @@
         <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-5">
             <i class="fas fa-city text-3xl text-gray-300"></i>
         </div>
-        <h3 class="text-xl font-bold mb-2" style="font-family: 'Noto Kufi Arabic'"> قريباً.. نوسع تغطيتنا لخدمتكم بشكل أفضل! </h3>
-        <p class="text-sm mb-6" style="color: var(--muted)">نعمل على توسيع تغطيتنا باستمرار لإضافة المزيد من المنشآت والخدمات. إذا كنت طبيباً أو صاحب منشأة طبية في هذه المنطقة، يمكنك إضافتها مجاناً!</p>
+        <h3 class="text-xl font-bold mb-2" style="font-family: 'Noto Kufi Arabic'">لا توجد نتائج مطابقة</h3>
+        <p class="text-sm mb-6" style="color: var(--muted)">لم نتمكن من العثور على أطباء أو مشافي تطابق بحثك في هذه المنطقة. جرب تغيير الكلمات الرئيسية أو إعادة ضبط الفلاتر. نعمل على توسيع تغطيتنا باستمرار، وإذا كنت طبيباً أو صاحب منشأة طبية هنا يمكنك إضافتها مجاناً!</p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
             <button onclick="resetSearch()" class="px-6 py-2.5 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90" style="background: var(--accent)">عرض المنشآت المتوفرة</button>
             <a href="#contact" onclick="resetSearch()" class="px-6 py-2.5 rounded-xl border text-sm font-semibold transition-all hover:bg-gray-50" style="border-color: var(--border); color: var(--accent)">سجل منشأتك مجاناً الآن</a>
