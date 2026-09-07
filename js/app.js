@@ -1239,8 +1239,6 @@ window.confirmBooking = async () => {
     if (!/^09\d{8}$/.test(phone)) { phoneInput.classList.add('input-invalid'); showToast('رقم هاتف غير صحيح'); return; } 
     phoneInput.classList.remove('input-invalid'); 
     
-    const ref = `R-${Math.floor(Math.random() * 900000) + 100000}`;
-    
     // إرفاق معرف إشعارات المريض
     const patientPushId = localStorage.getItem('patient_push_id') || null;
 
@@ -1252,6 +1250,7 @@ window.confirmBooking = async () => {
         const { data: funcData, error: funcError } = await supabase.functions.invoke('book-appointment', {
             body: { 
                 doctor_id: tempBooking.itemid,
+                doctor_name: tempBooking.itemname,
                 patient_name: name,
                 patient_phone: phone,
                 day: tempBooking.daystr,
@@ -1264,6 +1263,8 @@ window.confirmBooking = async () => {
         if (funcData.error) throw new Error(funcData.error);
 
         const newId = funcData.booking[0].id;
+        const ref = funcData.booking[0].ref; // جلب المرجع من قاعدة البيانات
+        
         const doctorData = allData.find(d => d.id === tempBooking.itemid);
         
         // إشعار للطبيب بوجود حجز جديد
