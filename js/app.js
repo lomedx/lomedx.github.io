@@ -4717,9 +4717,8 @@ window.submitAnswer = async (qId) => {
         fetchQuestions();
     } catch (err) { 
         showToast('خطأ في إرسال الإجابة: ' + err.message, 'error'); 
-   }
-}
-
+    }
+};
 // === Payment Modal ===
 window.openPaymentModal = (type, name) => {
     let featuresHtml = '';
