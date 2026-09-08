@@ -546,222 +546,277 @@
 
 
 
-    <!-- === قسم البطاقات المتراكمة بالصور (Stacked Image Cards) === -->
+
+<!-- === قسم البطاقات المتراكمة الاحترافية (Premium Stacked Cards) === -->
 <style>
-    .stacked-section {
+    .premium-stacked-section {
         position: relative;
         background: var(--bg);
         overflow: hidden;
-        padding: 4rem 1rem;
+        padding: 4rem 1rem 5rem;
     }
-    .stacked-container {
+    .stacked-wrap {
         position: relative;
-        height: 320px; /* ارتفاع مستطيل */
+        height: 380px;
         width: 100%;
-        max-width: 360px; /* عرض أصغر ليكون أنيقاً */
+        max-width: 320px;
         margin: 0 auto;
+        perspective: 1200px;
     }
-    .stacked-card {
+    .premium-card {
         position: absolute;
         width: 100%;
         height: 100%;
-        border-radius: 20px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        border-radius: 24px;
         overflow: hidden;
-        cursor: pointer;
-        transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.6s ease, box-shadow 0.3s ease;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        cursor: grab;
+        transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.4s ease, box-shadow 0.3s;
+        background: #000;
         -webkit-touch-callout: none;
         user-select: none;
-        background-color: #fff;
+        will-change: transform;
     }
+    .premium-card:active { cursor: grabbing; }
     
-    /* طبقة الصورة الخلفية */
-    .stacked-card .card-bg {
+    /* طبقة الصورة */
+    .pc-bg {
         position: absolute;
         inset: 0;
         background-size: cover;
         background-position: center;
         z-index: 1;
+        transition: transform 0.5s ease;
     }
     
-    /* التدرج اللوني لضوح النص */
-    .stacked-card .card-overlay {
+    /* تدرج داكن لزجاجي (Glassmorphism) أسفل البطاقة لضهور النص */
+    .pc-overlay {
         position: absolute;
         inset: 0;
         z-index: 2;
+        background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 40%, transparent 70%);
     }
     
-    /* محتوى البطاقة (النص والأيقونة) */
-    .stacked-card .card-content {
+    /* محتوى النص */
+    .pc-content {
         position: absolute;
         bottom: 0;
         right: 0;
         left: 0;
         z-index: 3;
-        padding: 1.5rem;
+        padding: 1.75rem;
         text-align: right;
         color: white;
     }
+    .pc-icon {
+        width: 48px; height: 48px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,0.2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; color: white;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .pc-title { font-family: 'Noto Kufi Arabic', sans-serif; font-weight: 800; font-size: 1.4rem; margin-bottom: 0.5rem; }
+    .pc-desc { font-size: 0.85rem; line-height: 1.5; opacity: 0.9; max-width: 260px; }
     
-    .stacked-card h3 { 
-        font-family: 'Noto Kufi Arabic', sans-serif; 
-        font-weight: 800; 
-        font-size: 1.25rem; 
-        margin-bottom: 0.5rem; 
-        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    }
-    .stacked-card p { 
-        font-size: 0.85rem; 
-        line-height: 1.5; 
-        opacity: 0.95; 
-        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    }
-    
-    .stacked-card .icon-badge {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 0.75rem;
-        font-size: 1.2rem;
-        backdrop-filter: blur(4px);
-        background: rgba(255,255,255,0.2);
-        border: 1px solid rgba(255,255,255,0.3);
-    }
-
-    .stacked-controls { 
-        text-align: center; 
-        margin-top: 2.5rem; 
-        display: flex; 
-        gap: 1rem; 
-        justify-content: center; 
-    }
-    .stack-btn { 
-        background: var(--accent); 
-        color: white; 
-        padding: 0.75rem 2rem; 
-        border-radius: 12px; 
-        font-weight: 700; 
-        font-size: 0.9rem; 
-        border: none; 
-        cursor: pointer; 
-        transition: transform 0.2s, background 0.2s; 
-    }
-    .stack-btn:hover { transform: translateY(-2px); background: #0a5a45; }
+    /* أزرار التحكم والمؤشرات */
+    .pc-controls { text-align: center; margin-top: 2.5rem; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+    .pc-dots { display: flex; gap: 0.5rem; }
+    .pc-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(0,0,0,0.1); transition: all 0.3s; }
+    .pc-dot.active { width: 24px; border-radius: 4px; background: var(--accent); }
+    .pc-btn { background: var(--accent); color: white; padding: 0.8rem 2.5rem; border-radius: 12px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(14, 124, 95, 0.2); }
+    .pc-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(14, 124, 95, 0.3); }
 </style>
 
-<section class="stacked-section">
+<section class="premium-stacked-section">
     <div class="max-w-7xl mx-auto px-4">
         <div class="text-center mb-10">
-            <h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">اكتشف عالم LomedX</h2>
-            <p class="text-sm" style="color: var(--muted)">اضغط على البطاقة أو استخدم الزر لاكتشاف ميزاتنا</p>
+            <div class="ornament-line mb-3"><i class="fas fa-wand-magic-sparkles text-sm" style="color: var(--accent)"></i></div>
+            <h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">عالم LomedX بين يديك</h2>
+            <p class="text-sm" style="color: var(--muted)">اسحب البطاقة أو اضغط الزر لاكتشاف ميزاتنا بشكل تفاعلي</p>
         </div>
 
-        <div class="stacked-container" id="stackedContainer">
+        <div class="stacked-wrap" id="stackedWrap">
             
-            <!-- بطاقة 1: الملف الصحي -->
-            <div class="stacked-card" style="z-index: 4;">
-                <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1576091160550-2187d80a18f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
-                <div class="card-overlay" style="background: linear-gradient(to top, rgba(236, 72, 153, 0.9) 0%, rgba(236, 72, 153, 0.2) 60%, transparent 100%);"></div>
-                <div class="card-content">
-                    <div class="icon-badge"><i class="fas fa-shield-heart"></i></div>
-                    <h3>ملفك الصحي الذكي</h3>
-                    <p>احفظ سجلك الطبي وروشتاتك مشفرة بالكامل، واستخرج رمز QR للطوارئ.</p>
+            <!-- بطاقة 1: الملف الصحي (ضع رابط صورتك في background-image) -->
+            <div class="premium-card" data-index="0" style="z-index: 4;">
+                <div class="pc-bg" style="background-image: url('https://images.unsplash.com/photo-1576091160399-5ba8f8e8e8f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
+                <div class="pc-overlay"></div>
+                <div class="pc-content">
+                    <div class="pc-icon" style="background: rgba(236, 72, 153, 0.3);"><i class="fas fa-shield-heart"></i></div>
+                    <h3 class="pc-title">ملفك الصحي الذكي</h3>
+                    <p class="pc-desc">احفظ سجلك الطبي وروشتاتك مشفرة بالكامل، واستخرج رمز QR للطوارئ.</p>
                 </div>
             </div>
 
             <!-- بطاقة 2: الحجز والدردشة -->
-            <div class="stacked-card" style="z-index: 3;">
-                <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1629909613654-28e377c37b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
-                <div class="card-overlay" style="background: linear-gradient(to top, rgba(37, 99, 235, 0.9) 0%, rgba(37, 99, 235, 0.2) 60%, transparent 100%);"></div>
-                <div class="card-content">
-                    <div class="icon-badge"><i class="fas fa-calendar-check"></i></div>
-                    <h3>حجز ودردشة لحظية</h3>
-                    <p>احجز موعدك إلكترونياً وتواصل مع طبيبك عبر الدردشة اللحظية بسهولة.</p>
+            <div class="premium-card" data-index="1" style="z-index: 3;">
+                <div class="pc-bg" style="background-image: url('https://images.unsplash.com/photo-1629909613654-28e377c37b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
+                <div class="pc-overlay"></div>
+                <div class="pc-content">
+                    <div class="pc-icon" style="background: rgba(37, 99, 235, 0.3);"><i class="fas fa-calendar-check"></i></div>
+                    <h3 class="pc-title">حجز ودردشة لحظية</h3>
+                    <p class="pc-desc">احجز موعدك إلكترونياً وتواصل مع طبيبك عبر الدردشة اللحظية بسهولة.</p>
                 </div>
             </div>
 
             <!-- بطاقة 3: بنك الدم -->
-            <div class="stacked-card" style="z-index: 2;">
-                <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1615461066841-6f6a1c404d4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
-                <div class="card-overlay" style="background: linear-gradient(to top, rgba(220, 38, 38, 0.9) 0%, rgba(220, 38, 38, 0.2) 60%, transparent 100%);"></div>
-                <div class="card-content">
-                    <div class="icon-badge"><i class="fas fa-droplet"></i></div>
-                    <h3>بنك الدم والمستلزمات</h3>
-                    <p>نظام تكافلي يربط المحتاجين للدم بالمتبرعين في منطقتك فوراً.</p>
+            <div class="premium-card" data-index="2" style="z-index: 2;">
+                <div class="pc-bg" style="background-image: url('https://images.unsplash.com/photo-1615461066841-6f6a1c404d4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
+                <div class="pc-overlay"></div>
+                <div class="pc-content">
+                    <div class="pc-icon" style="background: rgba(220, 38, 38, 0.3);"><i class="fas fa-droplet"></i></div>
+                    <h3 class="pc-title">بنك الدم والمستلزمات</h3>
+                    <p class="pc-desc">نظام تكافلي يربط المحتاجين للدم بالمتبرعين في منطقتك فوراً.</p>
                 </div>
             </div>
 
             <!-- بطاقة 4: لوحة الطبيب -->
-            <div class="stacked-card" style="z-index: 1;">
-                <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1666214280557-f1f5a17c1f3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
-                <div class="card-overlay" style="background: linear-gradient(to top, rgba(13, 148, 136, 0.9) 0%, rgba(13, 148, 136, 0.2) 60%, transparent 100%);"></div>
-                <div class="card-content">
-                    <div class="icon-badge"><i class="fas fa-user-doctor"></i></div>
-                    <h3>لوحة تحكم الطبيب</h3>
-                    <p>إدارة كاملة للحجوزات وإصدار روشتات إلكترونية موثقة بضغطة زر.</p>
+            <div class="premium-card" data-index="3" style="z-index: 1;">
+                <div class="pc-bg" style="background-image: url('https://images.unsplash.com/photo-1666214280557-f1f5a17c1f3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
+                <div class="pc-overlay"></div>
+                <div class="pc-content">
+                    <div class="pc-icon" style="background: rgba(13, 148, 136, 0.3);"><i class="fas fa-user-doctor"></i></div>
+                    <h3 class="pc-title">لوحة تحكم الطبيب</h3>
+                    <p class="pc-desc">إدارة كاملة للحجوزات وإصدار روشتات إلكترونية موثقة بضغطة زر.</p>
                 </div>
             </div>
         </div>
 
-        <div class="stacked-controls">
-            <button class="stack-btn" onclick="cycleStackedCards()">البطاقة التالية <i class="fas fa-arrow-left mr-2"></i></button>
+        <div class="pc-controls">
+            <div class="pc-dots" id="pcDots">
+                <div class="pc-dot active"></div><div class="pc-dot"></div><div class="pc-dot"></div><div class="pc-dot"></div>
+            </div>
+            <button class="pc-btn" onclick="cyclePremiumCards()">البطاقة التالية <i class="fas fa-arrow-left mr-2"></i></button>
         </div>
     </div>
 </section>
 
-<!-- السكريبت الخاص بالبطاقات المتراكمة -->
+<!-- السكريبت الاحترافي (يدعم السحب باللمس والماوس) -->
 <script>
-    let stackedCards = [];
-    let isStackedAnimating = false;
+    let pCards = [];
+    let pAnimating = false;
+    let startX = 0, currentX = 0, isDragging = false, activeCard = null;
+    let currentIndex = 0;
 
     window.addEventListener('DOMContentLoaded', () => {
-        const container = document.getElementById('stackedContainer');
-        if (container) {
-            stackedCards = Array.from(container.children);
-            updateStackedCards();
+        const container = document.getElementById('stackedWrap');
+        if (!container) return;
+        
+        pCards = Array.from(container.children);
+        updateStack();
 
-            container.addEventListener('click', (e) => {
-                if (e.target.closest('.stacked-card') === stackedCards[0]) {
-                    cycleStackedCards();
-                }
-            });
-        }
+        // دعم السحب (Drag & Swipe)
+        pCards.forEach(card => {
+            card.addEventListener('mousedown', startDrag);
+            card.addEventListener('touchstart', startDrag, {passive: true});
+            
+            card.addEventListener('mousemove', onDrag);
+            card.addEventListener('touchmove', onDrag, {passive: true});
+            
+            card.addEventListener('mouseup', endDrag);
+            card.addEventListener('mouseleave', endDrag);
+            card.addEventListener('touchend', endDrag);
+        });
     });
 
-    function updateStackedCards() {
-        stackedCards.forEach((card, index) => {
-            const offset = index * 15; // مسافة تراكب أصغر للتصميم المستطيل
-            const scale = 1 - (index * 0.04); // تصغير البطاقات الخلفية
+    function updateStack() {
+        pCards.forEach((card, i) => {
+            const offset = i * 12;
+            const scale = 1 - (i * 0.03);
             card.style.transform = `translateY(${offset}px) scale(${scale})`;
-            card.style.pointerEvents = index === 0 ? 'auto' : 'none';
+            card.style.zIndex = pCards.length - i;
+            card.style.pointerEvents = i === 0 ? 'auto' : 'none';
+        });
+        updateDots();
+    }
+
+    function updateDots() {
+        document.querySelectorAll('.pc-dot').forEach((dot, i) => {
+            dot.classList.toggle('active', i === 0);
         });
     }
 
-    function cycleStackedCards() {
-        if (isStackedAnimating) return;
-        isStackedAnimating = true;
+    function startDrag(e) {
+        if (pAnimating || e.target.closest('.premium-card') !== pCards[0]) return;
+        activeCard = pCards[0];
+        isDragging = true;
+        startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+        activeCard.style.transition = 'none';
+    }
 
-        const container = document.getElementById('stackedContainer');
-        const firstCard = stackedCards.shift();
+    function onDrag(e) {
+        if (!isDragging || !activeCard) return;
+        currentX = (e.type.includes('mouse') ? e.clientX : e.touches[0].clientX) - startX;
+        // السماح بالسحب لليسار فقط (لأن العربية RTL)
+        if (currentX > 0) currentX = currentX * 0.2; // مقاومة بسيطة للسحب العكسي
+        activeCard.style.transform = `translateX(${currentX}px) rotate(${currentX * 0.05}deg)`;
+    }
+
+    function endDrag() {
+        if (!isDragging || !activeCard) return;
+        isDragging = false;
+        activeCard.style.transition = 'transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1)';
         
-        // حركة انزلاق أفقية لليسار مع تصغير وخفوت
+        // إذا سحب المستخدم أكثر من 80 بكسل، قم بإزاحة البطاقة
+        if (currentX < -80) {
+            activeCard.style.transform = `translateX(-120%) rotate(-15deg)`;
+            activeCard.style.opacity = '0';
+            setTimeout(() => {
+                activeCard.style.transition = 'none';
+                activeCard.style.transform = 'translateX(0) rotate(0)';
+                activeCard.style.opacity = '0';
+                document.getElementById('stackedWrap').appendChild(activeCard);
+                pCards.push(pCards.shift());
+                
+                setTimeout(() => {
+                    pCards[0].style.opacity = '1';
+                    pCards[0].style.transition = 'transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.5s';
+                    pCards.forEach((c, i) => {
+                        const offset = i * 12;
+                        const scale = 1 - (i * 0.03);
+                        c.style.transform = `translateY(${offset}px) scale(${scale})`;
+                        c.style.zIndex = pCards.length - i;
+                        c.style.pointerEvents = i === 0 ? 'auto' : 'none';
+                        c.style.opacity = i === 0 ? '1' : '0';
+                    });
+                    setTimeout(() => {
+                        pCards.forEach(c => c.style.opacity = '1');
+                        updateDots();
+                        pAnimating = false;
+                    }, 50);
+                }, 20);
+            }, 400);
+        } else {
+            // العودة لمكانها إذا لم يسحب بشدة كافية
+            activeCard.style.transform = `translateY(0px) scale(1)`;
+        }
+        currentX = 0;
+        activeCard = null;
+    }
+
+    function cyclePremiumCards() {
+        if (pAnimating) return;
+        pAnimating = true;
+        
+        const firstCard = pCards.shift();
         firstCard.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
-        firstCard.style.transform = 'translateX(-120%) scale(0.8) rotate(-5deg)';
+        firstCard.style.transform = 'translateX(-120%) rotate(-10deg)';
         firstCard.style.opacity = '0';
 
         setTimeout(() => {
             firstCard.style.transition = 'none';
-            firstCard.style.transform = 'translateX(0) scale(1) rotate(0deg)';
+            firstCard.style.transform = 'translateY(0) scale(1) rotate(0)';
             firstCard.style.opacity = '0';
-            container.appendChild(firstCard);
-            stackedCards.push(firstCard);
+            document.getElementById('stackedWrap').appendChild(firstCard);
+            pCards.push(firstCard);
 
-            stackedCards.forEach((card, index) => {
-                card.style.zIndex = stackedCards.length - index;
-                if (index === stackedCards.length - 1) {
+            pCards.forEach((card, index) => {
+                card.style.zIndex = pCards.length - index;
+                if (index === pCards.length - 1) {
                     card.style.opacity = '0';
                 } else {
                     card.style.opacity = '1';
@@ -771,18 +826,15 @@
             void firstCard.offsetHeight;
 
             setTimeout(() => {
-                stackedCards.forEach((card, index) => {
-                    card.style.transition = 'transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.6s ease';
-                    card.style.opacity = '1';
+                pCards.forEach(card => {
+                    card.style.transition = 'transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.5s ease';
                 });
-                updateStackedCards();
-                isStackedAnimating = false;
-            }, 50);
-
+                updateStack();
+                pAnimating = false;
+            }, 30);
         }, 500);
     }
 </script>
-
 
 
     
