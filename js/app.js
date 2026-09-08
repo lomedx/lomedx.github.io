@@ -5900,4 +5900,66 @@ const PwaInstaller = (() => {
 })();
 
 window.installPwaApp = () => PwaInstaller.install();
+
+// === نظام القائمة الذكية: إبقاء القائمة مفتوحة بعد إغلاق الميزة ===
+document.addEventListener('DOMContentLoaded', () => {
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+    if (!mobileMenu) return;
+
+    let openedFromMenu = false;
+
+    // 1. تعديل أزرار الميزات داخل القائمة
+    mobileMenu.querySelectorAll('button').forEach(btn => {
+        const onclickVal = btn.getAttribute('onclick');
+        // نستهدف الأزرار التي تفتح ميزات (وليست روابط للتمرير في الصفحة)
+        if (onclickVal && onclickVal.includes('toggleMobileMenu()') && !btn.hasAttribute('href')) {
+            
+            // إزالة دالة الإغلاق القديمة من الزر
+            btn.setAttribute('onclick', onclickVal.replace(/toggleMobileMenu\(\);?\s*/g, ''));
+            
+            // إضافة منطقنا الذكي
+            btn.addEventListener('click', () => {
+                openedFromMenu = true; // تعليم أن الميزة فُتحت من القائمة
+                menuOverlay.classList.add('hidden'); // إخفاء الخلفية السوداء
+                mobileMenu.classList.remove('open'); // سحب القائمة جانبياً لإفساح المجال للميزة
+                unlockScroll();
+            });
+        }
+    });
+
+    // 2. اعتراض دالة إغلاق لوحة التحكم (CtrlPanel) لإعادة فتح القائمة
+    const originalCloseCtrl = window.closeCtrlPanel;
+    window.closeCtrlPanel = (event) => {
+        originalCloseCtrl(event); // تنفيذ الإغلاق العادي للميزة
+        
+        // إذا كانت الميزة قد فُتحت من قائمة الجوال، أعد فتح القائمة!
+        if (openedFromMenu) {
+            openedFromMenu = false;
+            setTimeout(() => {
+                mobileMenu.classList.add('open');
+                menuOverlay.classList.remove('hidden');
+                lockScroll();
+            }, 150); // تأخير بسيط جداً (0.15 ثانية) لضمان سلاسة الانتقال
+        }
+    };
+
+    // 3. اعتراض دالة إغلاق النافذة المنبثقة (Modal) لإعادة فتح القائمة
+    const originalCloseModal = window.closeModal;
+    window.closeModal = (event) => {
+        originalCloseModal(event); // تنفيذ الإغلاق العادي للميزة
+        
+        // التأكد أنه لا توجد لوحة تحكم مفتوحة في الخلفية
+        const isCtrlActive = document.getElementById('ctrlOverlay')?.classList.contains('active');
+        
+        if (openedFromMenu && !isCtrlActive) {
+            openedFromMenu = false;
+            setTimeout(() => {
+                mobileMenu.classList.add('open');
+                menuOverlay.classList.remove('hidden');
+                lockScroll();
+            }, 150);
+        }
+    };
+});
 // نهاية ملف app.js
