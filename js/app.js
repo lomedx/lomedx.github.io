@@ -2702,7 +2702,21 @@ window.quickLookup = async () => {
         } else { showToast('لم يتم العثور على طلب دواء', 'error'); }
     } else { showToast('صيغة غير صحيحة. استخدم R-XXX أو MED-XXX'); }
 };
-window.openAdminLogin = () => { 
+window.openAdminLogin = async () => { 
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+    const { data: isAdmin } = await supabase.rpc('is_admin');
+    if (isAdmin) {
+        
+            renderAdminDashboard(); 
+            return; 
+        } else {
+            // شخص عادي يحاول الدخول للوحة الإدارة
+            showToast('تم رفض الوصول: هذا الحساب لا يملك صلاحيات إدارية!', 'error');
+            return;
+        }
+    }
+    
     openCtrlPanel('لوحة الإدارة', `<div class="max-w-sm mx-auto py-8"><div class="text-center mb-6"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style="background: var(--accent-light)"><i class="fas fa-user-shield text-2xl" style="color: var(--accent)"></i></div><h3 class="font-bold text-lg">دخول الإدارة</h3></div><form onsubmit="handleAdminLogin(event)" class="flex flex-col gap-4"><input type="email" id="adminEmail" class="ctrl-input text-center" placeholder="البريد الإلكتروني" required><input type="password" id="adminPass" class="ctrl-input text-center" placeholder="كلمة المرور" required><button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: var(--accent)">دخول</button></form></div>`, '#073D2E'); 
 }
 window.handleAdminLogin = async (e) => { 
@@ -2718,6 +2732,12 @@ window.handleAdminLogin = async (e) => {
     if (error) { 
         showToast('الإيميل أو كلمة المرور غير صحيحة!', 'error'); 
         return; 
+    }
+    const { data: isAdmin, error: rpcError } = await supabase.rpc('is_admin');
+    if (rpcError || !isAdmin) {
+        await supabase.auth.signOut();
+        showToast('تم رفض الوصول: هذا الحساب لا يملك صلاحيات إدارية!', 'error');
+        return;
     }
     renderAdminDashboard(); 
 }
