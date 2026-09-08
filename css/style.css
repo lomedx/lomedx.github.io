@@ -1177,3 +1177,51 @@ html.dark .smart-arrow { color: #334155; }
 
 .smart-empty { padding: 24px; text-align: center; font-size: 0.875rem; color: #7A8B7A; }
 html.dark .smart-empty { color: #94a3b8; }
+
+
+
+
+/* === أنماط بطاقات الفلاش التفاعلية (Flashcards) === */
+.flashcard-container {
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.flashcard-container.is-flipped .flashcard-inner {
+    transform: rotateY(180deg);
+}
+
+.flashcard-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.flashcard-back {
+    transform: rotateY(180deg);
+}
+
+/* تأثير الرفع اللطيف عند مرور الماوس (للأجهزة التي تدعم الماوس) */
+@media (hover: hover) {
+    .flashcard-container:hover .flashcard-inner {
+        transform: translateY(-5px) rotateY(0deg);
+    }
+    .flashcard-container.is-flipped:hover .flashcard-inner {
+        transform: translateY(-5px) rotateY(180deg);
+    }
+}
