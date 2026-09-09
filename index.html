@@ -547,7 +547,291 @@
 
 
 
+<!-- بداية الكود المضاف (LomedX Pro Section) -->
+<style>
+  /* متغيرات الألوان الخاصة بهذا القسم */
+  .lomedx-pro-section {
+    --bg-dark:#02140f;
+    --bg-main:#031d17;
+    --primary-green:#0E7C5F;
+    --neon-green:#34D399;
+    --gold:#C4962C;
+    --text-white:#ffffff;
+    --text-muted:#8ea8a1;
+    font-family: "Noto Kufi Arabic",Arial,sans-serif;
+  }
 
+  /* خلفية القسم */
+  .lomedx-pro-section {
+    background:#02140F;
+    background-image: 
+      radial-gradient(circle at 75% 30%, rgba(14, 124, 95, 0.25) 0%, transparent 45%),
+      radial-gradient(circle at 20% 70%, rgba(196, 150, 44, 0.1) 0%, transparent 50%);
+    overflow: hidden;
+    position: relative;
+    direction: rtl;
+  }
+
+  /* خلفية النقط */
+  .bg-grid-pro {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.1;
+    background-image: radial-gradient(#34D399 1px, transparent 1px);
+    background-size: 24px 24px; z-index: 0;
+  }
+
+  /* الحاوية */
+  .container-pro{width:min(1280px,92%);margin:auto;position:relative;z-index:1}
+
+  /* القسم الرئيسي (Hero) */
+  .hero-pro{padding:80px 0 60px;position:relative}
+  .hero-grid-pro{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:40px}
+  .copy-pro{text-align:right;position:relative}
+  .copy-pro h1{font-size:56px;line-height:1.2;font-weight:900;margin-bottom:18px;color:var(--text-white)}
+  .copy-pro h1 .green-text{color:var(--neon-green)}
+  .copy-pro p{font-size:17px;line-height:1.8;color:var(--text-muted);max-width:520px;margin-bottom:35px}
+  .actions-pro{display:flex;align-items:center;gap:25px;margin-bottom:45px}
+  .btn-primary-pro{
+    background:var(--primary-green);color:#02140f;text-decoration:none;
+    padding:14px 32px;border-radius:30px;font-size:16px;font-weight:800;
+    display:inline-flex;align-items:center;gap:12px;box-shadow:0 8px 25px rgba(14, 124, 95, 0.4);
+    transition:0.3s;
+  }
+  .btn-primary-pro:hover{transform:translateY(-2px);background:var(--neon-green)}
+  .btn-secondary-pro{display:inline-flex;align-items:center;gap:10px;color:#ffffff;text-decoration:none;font-size:16px;font-weight:700;transition:0.3s}
+  .play-icon{width:32px;height:32px;border:2px solid rgba(255,255,255,0.6);border-radius:50%;display:grid;place-items:center;font-size:10px;}
+
+  .metrics-pro{
+    width:100%;max-width:540px;padding:16px 20px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(4, 30, 23, 0.65);border-radius:18px;
+    display:grid;grid-template-columns:repeat(4,1fr);backdrop-filter:blur(15px)
+  }
+  .metric-pro{display:flex;flex-direction:column;align-items:center;text-align:center;position:relative}
+  .metric-pro:not(:last-child):after{content:"";position:absolute;left:0;top:15%;height:70%;width:1px;background:rgba(255,255,255,0.1);}
+  .metric-header-pro{display:flex;align-items:center;gap:6px;margin-bottom:6px;color:var(--text-muted);font-size:11px;font-weight:600}
+  .metric-header-pro i{color:var(--gold);font-size:12px}
+  .metric-pro strong{font-size:17px;color:#fff;font-weight:800}
+
+  /* العمود الأيسر - الكروت */
+  .visual-pro{height:580px;position:relative;display:flex;align-items:center;justify-content:center}
+  .card-pro{
+    position:absolute;border-radius:24px;
+    backdrop-filter:blur(20px);
+    box-shadow:0 25px 50px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2);
+    transition:all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .card-pro.main{
+    width:320px;height:460px;right:20px;top:40px;z-index:3;
+    background:linear-gradient(160deg, rgba(8, 48, 37, 0.9), rgba(2, 24, 18, 0.95));
+    border:1px solid rgba(196, 150, 44, 0.4);
+    padding:32px 24px;text-align:center;
+    box-shadow:0 30px 60px rgba(0,0,0,0.6), 0 0 40px rgba(14, 124, 95, 0.15);
+  }
+  .card-pro.middle{
+    width:310px;height:430px;right:160px;top:70px;z-index:2;
+    background:linear-gradient(160deg, rgba(12, 53, 73, 0.8), rgba(4, 28, 41, 0.9));
+    border:1px solid rgba(78, 184, 239, 0.3);
+    padding:28px 22px;text-align:center;
+  }
+  .card-pro.back{
+    width:300px;height:400px;right:290px;top:100px;z-index:1;
+    background:linear-gradient(160deg, rgba(10, 42, 35, 0.7), rgba(2, 20, 16, 0.9));
+    border:1px solid rgba(255, 255, 255, 0.15);
+    padding:26px 20px;text-align:center;opacity:0.8;
+  }
+  .visual-pro:hover .card-pro.main{transform: translateX(-20px) scale(1.02);}
+  .visual-pro:hover .card-pro.middle{transform: translateX(-10px) scale(1.01); opacity: 0.95;}
+  .visual-pro:hover .card-pro.back{transform: translateX(0px) scale(1); opacity: 0.9;}
+  
+  .card-icon-box-pro{width:80px;height:80px;margin:0 auto 20px;border-radius:50%;display:grid;place-items:center;font-size:30px;}
+  .card-pro.main .card-icon-box-pro{border:1px solid rgba(196, 150, 44, 0.3);background:rgba(196, 150, 44, 0.05);color:var(--gold);}
+  .card-pro.middle .card-icon-box-pro{border-color:rgba(78, 184, 239, 0.3);background:rgba(78, 184, 239, 0.05);color:#4eb8ef;}
+  .card-pro.back .card-icon-box-pro{border-color:rgba(52, 211, 153, 0.3);background:rgba(52, 211, 153, 0.05);color:var(--neon-green); width:65px;height:65px; font-size:24px;}
+  
+  .card-pro h3{font-size:22px;font-weight:800;margin-bottom:8px;color:#fff;}
+  .card-divider-pro{width:8px;height:8px;border-radius:50%;margin:10px auto 16px}
+  .card-pro.main .card-divider-pro{background:var(--gold);}
+  .card-pro.middle .card-divider-pro{background:#4eb8ef;}
+  .card-pro.back .card-divider-pro{background:var(--neon-green);}
+  .card-pro p{font-size:14px;line-height:1.7;color:#b2c7c2;margin-bottom:25px}
+  .card-pill-pro{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;border:1px solid rgba(196, 150, 44, 0.3);background:rgba(196, 150, 44, 0.08);color:var(--gold);}
+
+  /* بطاقات الأقسام (Glass Cards) */
+  .glass-card-pro {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+  .glass-card-pro:hover { border-color: rgba(196, 150, 44, 0.3); transform: translateY(-5px); }
+
+  .section-pro{padding: 80px 0;}
+  .section-title-pro{text-align:center;margin-bottom:60px}
+  .section-title-pro span{font-size:14px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase}
+  .section-title-pro h2{font-size:40px;font-weight:900;color:#fff;margin-top:10px;margin-bottom:15px}
+  .section-title-pro p{color:var(--text-muted);max-width:600px;margin:0 auto;font-size:17px}
+
+  /* التجاوب */
+  @media(max-width:1100px){
+    .hero-grid-pro{grid-template-columns:1fr;text-align:center}
+    .copy-pro{text-align:center}
+    .copy-pro p{margin:0 auto 35px}
+    .actions-pro{justify-content:center}
+    .metrics-pro{margin:0 auto}
+    .visual-pro{transform:scale(0.85);margin-top:-30px}
+  }
+  @media(max-width:650px){
+    .copy-pro h1{font-size:38px}
+    .visual-pro{display:none;}
+    .metrics-pro{grid-template-columns:1fr 1fr;gap:15px}
+    .metric-pro:not(:last-child):after{display:none}
+  }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<section class="lomedx-pro-section">
+  <div class="bg-grid-pro"></div>
+
+  <!-- 1. قسم الرئيسية (Hero) -->
+  <div class="hero-pro" id="home-pro">
+    <div class="container-pro hero-grid-pro">
+      <div class="copy-pro">
+        <h1>رعاية ذكية<br><span class="green-text">لمستقبل صحي أفضل</span></h1>
+        <p>منصة لومدكس تمكّن المرضى من إدارة ملفاتهم الصحية بذكاء، وحجز المواعيد، والوصول للطوارئ بكل أمان وسهولة.</p>
+        <div class="actions-pro">
+          <a href="#features-pro" class="btn-primary-pro">اكتشف الحلول <i class="fas fa-arrow-left"></i></a>
+          <a href="#about-pro" class="btn-secondary-pro"><span class="play-icon"><i class="fas fa-play" style="margin-right:2px"></i></span> معرفة المزيد</a>
+        </div>
+        <div class="metrics-pro">
+          <div class="metric-pro"><div class="metric-header-pro"><i class="fas fa-shield-heart"></i> أمان البيانات</div><strong>100% مشفر</strong></div>
+          <div class="metric-pro"><div class="metric-header-pro"><i class="fas fa-user-md"></i> أطباء مسجلون</div><strong>+120 طبيب</strong></div>
+          <div class="metric-pro"><div class="metric-header-pro"><i class="fas fa-droplet"></i> بنك الدم</div><strong>تفاعلي 24/7</strong></div>
+          <div class="metric-pro"><div class="metric-header-pro"><i class="fas fa-clock"></i> توفير الوقت</div><strong>أكثر من 40%</strong></div>
+        </div>
+      </div>
+      
+      <div class="visual-pro">
+        <div class="card-pro back">
+          <div class="card-icon-box-pro"><i class="fas fa-calculator"></i></div>
+          <h3>أدوات طبية ذكية</h3>
+          <div class="card-divider-pro"></div>
+          <p>حاسبات جرعات، إسعافات أولية، ومواعيد لقاحات لتساعدك في المنزل.</p>
+        </div>
+        <div class="card-pro middle">
+          <div class="card-icon-box-pro"><i class="fas fa-droplet"></i></div>
+          <h3>بنك الدم الرقمي</h3>
+          <div class="card-divider-pro"></div>
+          <p>نظام تكافلي سريع يربط المحتاجين للدم بالمتبرعين في منطقتك فوراً.</p>
+        </div>
+        <div class="card-pro main">
+          <div class="card-icon-box-pro"><i class="fas fa-shield-heart"></i></div>
+          <h3>الملف الصحي الذكي</h3>
+          <div class="card-divider-pro"></div>
+          <p>ملف طبي متكامل وآمن يجمع كل بياناتك وروشتاتك، متاح للطبيب عبر QR في الطوارئ.</p>
+          <div class="card-pill-pro"><i class="fas fa-check-circle"></i> آمن • متكامل • فوري</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. قسم الحلول -->
+  <div class="section-pro" id="solutions-pro" style="background:#031d17">
+    <div class="container-pro">
+      <div class="section-title-pro">
+        <span>حلولنا</span>
+        <h2>حلول مخصصة لكل احتياجاتك</h2>
+        <p>سواء كنت مريضاً يبحث عن رعاية، أو طبيباً يبحث عن إدارة أفضل لعيادته، توفر لومدكس البيئة المثالية.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px">
+        <div class="glass-card-pro" style="padding:40px;border-radius:24px;">
+          <div style="width:56px;height:56px;border-radius:16px;background:rgba(236,72,153,0.1);display:grid;place-items:center;margin-bottom:20px;">
+            <i class="fas fa-user-injured" style="font-size:24px;color:#f472b6"></i>
+          </div>
+          <h3 style="font-size:24px;font-weight:800;margin-bottom:15px;color:#fff">للمرضى</h3>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;color:var(--text-muted)">
+            <li style="display:flex;align-items:center;gap:12px"><i class="fas fa-check" style="color:var(--neon-green)"></i> ملف صحي مشفر وآمن.</li>
+            <li style="display:flex;align-items:center;gap:12px"><i class="fas fa-check" style="color:var(--neon-green)"></i> حجز موعد ودردشة مع الطبيب.</li>
+            <li style="display:flex;align-items:center;gap:12px"><i class="fas fa-check" style="color:var(--neon-green)"></i> استغاثات دم وأدوية فورية.</li>
+          </ul>
+        </div>
+        <div class="glass-card-pro" style="padding:40px;border-radius:24px;">
+          <div style="width:56px;height:56px;border-radius:16px;background:rgba(13,148,136,0.1);display:grid;place-items:center;margin-bottom:20px;">
+            <i class="fas fa-user-doctor" style="font-size:24px;color:#34d399"></i>
+          </div>
+          <h3 style="font-size:24px;font-weight:800;margin-bottom:15px;color:#fff">للطاقم الطبي</h3>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;color:var(--text-muted)">
+            <li style="display:flex;align-items:center;gap:12px"><i class="fas fa-check" style="color:var(--neon-green)"></i> لوحة تحكم لإدارة الحجوزات.</li>
+            <li style="display:flex;align-items:center;gap:12px"><i class="fas fa-check" style="color:var(--neon-green)"></i> إصدار روشتات إلكترونية موثقة.</li>
+            <li style="display:flex;align-items:center;gap:12px"><i class="fas fa-check" style="color:var(--neon-green)"></i> قراءة الملف الصحي عبر QR.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. قسم المميزات -->
+  <div class="section-pro" id="features-pro" style="background:#02140F">
+    <div class="container-pro">
+      <div class="section-title-pro">
+        <span>مميزاتنا</span>
+        <h2>أدوات طبية ذكية بين يديك</h2>
+        <p>مجموعة متكاملة من الأدوات التفاعلية لمساعدتك في حياتك اليومية واتخاذ قرارات صحية صحيحة.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px">
+        <div class="glass-card-pro" style="padding:30px;border-radius:20px;text-align:center">
+          <i class="fas fa-calculator" style="font-size:32px;color:#60a5fa;margin-bottom:15px"></i>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;color:#fff">حاسبات طبية</h3>
+          <p style="font-size:14px;color:var(--text-muted)">جرعات أدوية، حساب حمل، ومؤشر كتلة الجسم.</p>
+        </div>
+        <div class="glass-card-pro" style="padding:30px;border-radius:20px;text-align:center">
+          <i class="fas fa-kit-medical" style="font-size:32px;color:#f87171;margin-bottom:15px"></i>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;color:#fff">إسعافات أولية</h3>
+          <p style="font-size:14px;color:var(--text-muted)">دليل شامل للتعامل مع حالات الطوارئ المنزلية.</p>
+        </div>
+        <div class="glass-card-pro" style="padding:30px;border-radius:20px;text-align:center">
+          <i class="fas fa-droplet" style="font-size:32px;color:#fb7185;margin-bottom:15px"></i>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;color:#fff">بنك الدم</h3>
+          <p style="font-size:14px;color:var(--text-muted)">ربط فوري بين المحتاجين للمتبرعين في منطقتك.</p>
+        </div>
+        <div class="glass-card-pro" style="padding:30px;border-radius:20px;text-align:center">
+          <i class="fas fa-qrcode" style="font-size:32px;color:var(--gold);margin-bottom:15px"></i>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;color:#fff">رمز QR طبي</h3>
+          <p style="font-size:14px;color:var(--text-muted)">وصول الأطباء لملفك في الطوارئ بثوانٍ معدودة.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. قسم عن لومدكس -->
+  <div class="section-pro" id="about-pro" style="background:#031d17">
+    <div class="container-pro" style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center">
+      <div>
+        <span style="font-size:14px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase">رؤيتنا</span>
+        <h2 style="font-size:40px;font-weight:900;color:#fff;margin-top:10px;margin-bottom:20px">نحو مستقبل صحي رقمي للجميع</h2>
+        <p style="color:#d1d5db;font-size:18px;line-height:1.8;margin-bottom:30px">انطلقت منصة لومدكس لسد الفجوة بين المريض ومقدم الرعاية الصحية. نؤمن بأن الوصول للبيانات الطبية، حجز المواعيد، وحتى التبرع بالدم، يجب أن يكون بسيطاً وآمناً ومتاحاً للجميع في منطقتنا.</p>
+        <div style="display:flex;gap:40px">
+          <div style="border-right:3px solid var(--primary-green);padding-right:15px">
+            <h4 style="font-size:32px;font-weight:900;color:var(--neon-green)">100%</h4>
+            <p style="color:var(--text-muted);font-size:14px">بيانات مشفرة بالكامل</p>
+          </div>
+          <div style="border-right:3px solid var(--gold);padding-right:15px">
+            <h4 style="font-size:32px;font-weight:900;color:var(--gold)">24/7</h4>
+            <p style="color:var(--text-muted);font-size:14px">دعم وتفاعل على مدار الساعة</p>
+          </div>
+        </div>
+      </div>
+      <div class="glass-card-pro" style="padding:40px;border-radius:24px;text-align:center">
+        <i class="fas fa-staff-snake" style="font-size:64px;color:var(--primary-green);margin-bottom:20px"></i>
+        <h3 style="font-size:24px;font-weight:800;margin-bottom:15px;color:#fff">رسالتنا</h3>
+        <p style="color:var(--text-muted)">تمكين المجتمع محلياً من خلال تكنولوجيا طبية ذكية، تربط الأطباء بالمرضى، والمحتاجين بالمتبرعين، في منظومة تكافلية واحدة.</p>
+      </div>
+    </div>
+  </div>
+
+</section>
+<!-- نهاية الكود المضاف -->
 
     
        <!-- قسم الاستغاثات والتصفية (مستقل تماماً) -->
