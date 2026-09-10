@@ -5864,15 +5864,6 @@ if ('serviceWorker' in navigator) {
     });
   });
 
-  // إعادة التحميل تحدث فقط إذا ضغط المستخدم على زر التحديث
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing) return;
-    refreshing = true;
-    window.location.reload();
-  });
-}
-
 // دالة إظهار رسالة التحديث (تظهر فقط إذا اختلف رقم الكاش)
 function showUpdateToast(newVersion) {
   const toast = document.getElementById('toast');
@@ -5910,43 +5901,6 @@ function showUpdateToast(newVersion) {
     refreshing = true;
     window.location.reload();
   });
-}
-
-// دالة إظهار رسالة التحديث (مطورة لمنع التكرار المزعج)
-function showUpdateToast() {
-  // إذا رفض المستخدم التحديث في هذه الجلسة، لا تظهر له الرسالة مجدداً
-  if (sessionStorage.getItem('update_dismissed') === 'true') return;
-
-  const toast = document.getElementById('toast');
-  // التحقق مما إذا كانت الرسالة معروضة بالفعل لمنع التكرار
-  if (toast.classList.contains('show') && toast.innerHTML.includes('يتوفر إصدار جديد')) return;
-
-  toast.innerHTML = `
-    <div class="flex flex-col items-center gap-3 w-full">
-      <div class="text-sm font-bold text-blue-800">🎉 يتوفر إصدار جديد من المنصة بميزات أسرع.</div>
-      <div class="flex gap-2">
-        <button id="updateBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">تحديث الآن</button>
-        <button id="dismissBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold">لاحقاً</button>
-      </div>
-    </div>`;
-  toast.style.backgroundColor = '#EFF6FF';
-  toast.classList.add('show');
-
-  // عند الضغط على زر التحديث
-    // عند الضغط على زر التحديث
-  document.getElementById('updateBtn').onclick = () => {
-    navigator.serviceWorker.getRegistration().then(reg => {
-      if (reg && reg.waiting) {
-        // إرسال أمر التفعيل للنسخة المنتظرة فقط
-        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-      }
-    });
-  };
-  // عند الضغط على زر "لاحقاً" (لمنع إزعاج المستخدم في هذه الجلسة)
-  document.getElementById('dismissBtn').onclick = () => {
-    sessionStorage.setItem('update_dismissed', 'true');
-    toast.classList.remove('show');
-  };
 }
 const PwaInstaller = (() => {
     let deferredPrompt = null;
