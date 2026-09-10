@@ -37,6 +37,13 @@ let adInterval = null;
 let allHomeAds = [];
 let currentCity = 'all';
 let activeQrScanner = null;
+let renderLimits = {
+    hospital: 4,
+    center: 4,
+    lab: 4,
+    doctor: 1,
+    pharmacy: 4
+};
 let allCities = ['كل المدن', 'الرحيبة']; // أضف أو عدل المدن كما تريد
 
 // === محرك الإشعارات المركزي ===
@@ -579,28 +586,55 @@ function renderData() {
         doctor: { el: document.getElementById('doctorsGrid'), section: document.getElementById('doctors'), data: allData.filter(d => d.type === 'doctor') }, 
         pharmacy: { el: document.getElementById('pharmaciesGrid'), section: document.getElementById('pharmacies'), data: allData.filter(d => d.type === 'pharmacy').sort((a,b) => (b.night === true) - (a.night === true)) } 
     };
-    let total = 0;
+    
+    let totalFiltered = 0;
+
     for (const [type, g] of Object.entries(grids)) { 
         let filtered = g.data.filter(matchItem); 
         filtered.sort((a, b) => (b.is_subscribed === true) - (a.is_subscribed === true));
+        totalFiltered += filtered.length;
+        
         const show = filtered.length > 0 && (currentFilter === 'all' || currentFilter === type); 
-        g.el.innerHTML = filtered.map(createCard).join(''); 
+        
+        // عرض البطاقات بناءً على الحد المخصص لكل قسم
+        const itemsToRender = filtered.slice(0, renderLimits[type]);
+        
+        g.el.innerHTML = itemsToRender.map(createCard).join(''); 
         g.section.style.display = show ? '' : 'none'; 
-        total += filtered.length; 
+        
+        // إظهار أو إخفاء زر "عرض المزيد" الخاص بهذا القسم
+        const loadBtn = document.getElementById(`loadMore_${type}`);
+        if (loadBtn) {
+            if (show && filtered.length > renderLimits[type]) {
+                loadBtn.classList.remove('hidden');
+            } else {
+                loadBtn.classList.add('hidden');
+            }
+        }
     }
     
     const noResultsDiv = document.getElementById('noResults');
     if (noResultsDiv) {
-        if (total === 0) {
-            noResultsDiv.classList.remove('hidden');
-            noResultsDiv.style.display = 'block'; 
-        } else {
-            noResultsDiv.classList.add('hidden');
-            noResultsDiv.style.display = 'none';
-        }
+        noResultsDiv.classList.toggle('hidden', totalFiltered !== 0);
+        noResultsDiv.style.display = totalFiltered === 0 ? 'block' : 'none';
     }
-    return total; 
+    
+    return totalFiltered; 
 }
+
+// === دالة زر عرض المزيد الخاص بكل قسم ===
+window.loadMoreSection = (type) => {
+    renderLimits[type] += 4; // أضف 4 بطاقات لهذا القسم فقط
+    renderData();
+    
+    // تمرير الصفحة بسلاسة للزر الذي ضغط عليه المستخدم
+    setTimeout(() => {
+        const loadBtn = document.getElementById(`loadMore_${type}`);
+        if(loadBtn && !loadBtn.classList.contains('hidden')) {
+            loadBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 100);
+};
 function matchItem(item) { 
     if (currentFilter !== 'all' && item.type !== currentFilter) return false; 
     
@@ -615,6 +649,7 @@ function matchItem(item) {
 }
 
 window.setFilter = (filter, btn) => { 
+    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 4, pharmacy: 4 }; // إعادة التصفير
     currentFilter = filter; 
     document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active'); b.style.background = ''; b.style.color = ''; b.style.borderColor = ''; }); 
     btn.classList.add('active'); 
@@ -623,6 +658,7 @@ window.setFilter = (filter, btn) => {
     renderData(); 
 }
 window.handleSearch = (value) => { 
+    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 4, pharmacy: 4 }; // إعادة التصفير
     searchQuery = value.trim(); 
     const heroSearch = document.getElementById('heroSearch'); 
     if(heroSearch) heroSearch.value = value; 
@@ -852,6 +888,7 @@ window.closeCitySelector = () => {
 };
 
 window.selectCity = (city) => {
+    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 4, pharmacy: 4 }; // إعادة التصفير
     currentCity = city;
     document.getElementById('currentCityText').innerText = city;
     closeCitySelector();
