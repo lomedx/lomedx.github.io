@@ -2616,7 +2616,7 @@ window.undoRespond = () => {
         window.activeDonateBtn = null;
     }
     
-    setTimeout(() => showToast('تم التراجع بنجاح.', 'success'), 300); 
+    setTimeout(() => showToast('تم التراجع بنجاح.', 'info'), 300); 
 };
 window.hideToast = () => { document.getElementById('toast').classList.remove('show'); }
 
@@ -5833,28 +5833,75 @@ window.checkOnlineStatus = () => {
   return true;
 };
 // === نظام التحديث النظيف (بدون إزعاج) ===
+// === نظام التحديث النظيف (يعتمد على رقم الإصدار الفعلي) ===
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('OneSignalSDKWorker.js').then(reg => {
-      
-      // 1. التحقق إذا كان هناك تحديث ينتظر من قبل
-      if (reg.waiting) {
-        showUpdateToast();
-      }
+      // 1. الاستماع للرسائل القادمة من الـ Service Worker
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type === 'SW_INSTALLED') {
+          const newVersion = event.data.version;
+          const savedVersion = localStorage.getItem('lomedx_sw_version');
+          
+          // 2. مقارنة الإصدار الجديد بالإصدار المحفوظ سابقاً
+          if (newVersion !== savedVersion) {
+            // الإصدار اختلف! اعرض رسالة التحديث
+            showUpdateToast(newVersion);
+          }
+        }
+      });
 
-      // 2. الاستماع للتحديثات الجديدة أثناء التصفح
+      // 2. الاستماع للتحديثات الجديدة أثناء التصفح (كحل احتياطي)
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
         if (!newWorker) return;
         newWorker.addEventListener('statechange', () => {
-          // إذا تم تثبيت نسخة جديدة بنجاح، أظهر الرسالة
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            showUpdateToast();
+             // سيتم إرسال رسالة SW_INSTALLED وسيتولاها الـ Listener أعلاه
           }
         });
       });
     });
   });
+
+  // إعادة التحميل تحدث فقط إذا ضغط المستخدم على زر التحديث
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
+}
+
+// دالة إظهار رسالة التحديث (تظهر فقط إذا اختلف رقم الكاش)
+function showUpdateToast(newVersion) {
+  const toast = document.getElementById('toast');
+  if (toast.classList.contains('show') && toast.innerHTML.includes('يتوفر إصدار جديد')) return;
+
+  toast.innerHTML = `
+    <div class="flex flex-col items-center gap-3 w-full">
+      <div class="text-sm font-bold text-blue-800">🎉 يتوفر إصدار جديد من المنصة (${newVersion}).</div>
+      <div class="flex gap-2">
+        <button id="updateBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">تحديث الآن</button>
+      </div>
+    </div>`;
+  toast.style.backgroundColor = '#EFF6FF';
+  toast.classList.add('show');
+
+  // عند الضغط على زر التحديث
+  document.getElementById('updateBtn').onclick = () => {
+    // حفظ الإصدار الجديد لمنع تكرار الرسالة مستقبلاً
+    localStorage.setItem('lomedx_sw_version', newVersion);
+    
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (reg && reg.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      } else {
+        window.location.reload();
+      }
+    });
+  };
+}
 
   // إعادة التحميل تحدث فقط إذا ضغط المستخدم على زر التحديث
   let refreshing = false;
