@@ -14,10 +14,10 @@ const CORE_ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)).then(() => {
-      // === الإضافة الجديدة: إرسال رقم الإصدار للمتصفح فور تثبيت النسخة الجديدة ===
+      // إرسال رقم الإصدار للمتصفح فور تثبيت النسخة الجديدة (للمستخدمين المتصلين حالياً)
       self.clients.matchAll({ type: 'window' }).then(clients => {
         clients.forEach(client => {
-          client.postMessage({ type: 'SW_INSTALLED', version: CACHE_NAME });
+          client.postMessage({ type: 'SW_VERSION_REPLY', version: CACHE_NAME });
         });
       });
     })
@@ -63,5 +63,12 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  
+  // الرد على الموقع عندما يسأل عن رقم الإصدار الحالي
+  if (event.data && event.data.type === 'GET_VERSION') {
+    if (event.source) {
+      event.source.postMessage({ type: 'SW_VERSION_REPLY', version: CACHE_NAME });
+    }
   }
 });
