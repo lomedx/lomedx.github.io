@@ -79,7 +79,7 @@ window.setupOneSignal = async () => {
         try {
             // التحقق من دعم المتصفح
             if (!OneSignal.Notifications.isPushSupported()) {
-                showToast("متصفحك لا يدعم الإشعارات.");
+                showToast("متصفحك لا يدعم الإشعارات., 'error'");
                 return;
             }
 
@@ -87,7 +87,7 @@ window.setupOneSignal = async () => {
             const granted = await OneSignal.Notifications.requestPermission();
             
             if (granted) {
-                showToast("تم تفعيل الإشعارات بنجاح ✅");
+                showToast("تم تفعيل الإشعارات بنجاح , 'success'");
                 
                 // التأكد من الاشتراك
                 if (!OneSignal.User.PushSubscription.optedIn) {
@@ -2616,7 +2616,7 @@ window.undoRespond = () => {
         window.activeDonateBtn = null;
     }
     
-    setTimeout(() => showToast('تم التراجع بنجاح.', 'info'), 300); 
+    setTimeout(() => showToast('تم التراجع بنجاح.', 'info', 'success'), 300); 
 };
 window.hideToast = () => { document.getElementById('toast').classList.remove('show'); }
 
