@@ -5832,14 +5832,18 @@ window.checkOnlineStatus = () => {
   }
   return true;
 };
-// === نظام التحديث النظيف (بدون إزعاج) ===
-// === نظام التحديث النظيف (يعتمد على رقم الإصدار الفعلي) ===
+
+
+
+
+// === نظام التحديث النظيف (يعتمد على سؤال الـ SW عن إصداره) ===
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('OneSignalSDKWorker.js').then(reg => {
-      // 1. الاستماع للرسائل القادمة من الـ Service Worker
+      
+      // 1. الاستماع لردود الـ Service Worker
       navigator.serviceWorker.addEventListener('message', event => {
-        if (event.data && event.data.type === 'SW_INSTALLED') {
+        if (event.data && event.data.type === 'SW_VERSION_REPLY') {
           const newVersion = event.data.version;
           const savedVersion = localStorage.getItem('lomedx_sw_version');
           
@@ -5851,48 +5855,53 @@ if ('serviceWorker' in navigator) {
         }
       });
 
-      // 2. الاستماع للتحديثات الجديدة أثناء التصفح (كحل احتياطي)
+      // 3. عند فتح الموقع، اسأل الـ SW النشط حالياً عن رقم إصداره
+      if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' });
+      }
+
+      // 4. الاستماع للتحديثات الجديدة أثناء التصفح (إذا حمّل المتصفح نسخة جديدة في الخلفية)
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
         if (!newWorker) return;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-             // سيتم إرسال رسالة SW_INSTALLED وسيتولاها الـ Listener أعلاه
+            // تم تثبيت إصدار جديد في الخلفية، أرسل له طلب معرفة الإصدار
+            newWorker.postMessage({ type: 'GET_VERSION' });
           }
         });
       });
     });
   });
 
-// دالة إظهار رسالة التحديث (تظهر فقط إذا اختلف رقم الكاش)
-function showUpdateToast(newVersion) {
-  const toast = document.getElementById('toast');
-  if (toast.classList.contains('show') && toast.innerHTML.includes('يتوفر إصدار جديد')) return;
+  // دالة إظهار رسالة التحديث
+  function showUpdateToast(newVersion) {
+    const toast = document.getElementById('toast');
+    if (toast.classList.contains('show') && toast.innerHTML.includes('يتوفر إصدار جديد')) return;
 
-  toast.innerHTML = `
-    <div class="flex flex-col items-center gap-3 w-full">
-      <div class="text-sm font-bold text-blue-800">🎉 يتوفر إصدار جديد من المنصة (${newVersion}).</div>
-      <div class="flex gap-2">
-        <button id="updateBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">تحديث الآن</button>
-      </div>
-    </div>`;
-  toast.style.backgroundColor = '#EFF6FF';
-  toast.classList.add('show');
+    toast.innerHTML = `
+      <div class="flex flex-col items-center gap-3 w-full">
+        <div class="text-sm font-bold text-blue-800">🎉 يتوفر إصدار جديد من المنصة (${newVersion}).</div>
+        <div class="flex gap-2">
+          <button id="updateBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">تحديث الآن</button>
+        </div>
+      </div>`;
+    toast.style.backgroundColor = '#EFF6FF';
+    toast.classList.add('show');
 
-  // عند الضغط على زر التحديث
-  document.getElementById('updateBtn').onclick = () => {
-    // حفظ الإصدار الجديد لمنع تكرار الرسالة مستقبلاً
-    localStorage.setItem('lomedx_sw_version', newVersion);
-    
-    navigator.serviceWorker.getRegistration().then(reg => {
-      if (reg && reg.waiting) {
-        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-      } else {
-        window.location.reload();
-      }
-    });
-  };
-}
+    document.getElementById('updateBtn').onclick = () => {
+      // حفظ الإصدار الجديد لمنع تكرار الرسالة مستقبلاً
+      localStorage.setItem('lomedx_sw_version', newVersion);
+      
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg && reg.waiting) {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        } else {
+          window.location.reload();
+        }
+      });
+    };
+  }
 
   // إعادة التحميل تحدث فقط إذا ضغط المستخدم على زر التحديث
   let refreshing = false;
@@ -5902,6 +5911,11 @@ function showUpdateToast(newVersion) {
     window.location.reload();
   });
 }
+
+
+
+
+
 const PwaInstaller = (() => {
     let deferredPrompt = null;
 
