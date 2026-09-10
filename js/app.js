@@ -2584,7 +2584,8 @@ window.respondToBloodRequest = (btnElement, reqId, patientName, phone) => {
         try {
             const req = bloodRequests.find(r => r.id === reqId);
             const newCount = (req?.responses_count || 0) + 1;
-            await supabase.from('blood_requests').update({ responses_count: newCount }).eq('id', reqId);
+            const { error } = await supabase.rpc('increment_blood_response', { p_req_id: reqId });
+             if (error) throw error;
             toast.innerHTML = `<div class="flex flex-col items-center gap-3"><div class="text-sm font-bold">بارك الله فيك! 🌹<br>تم تسجيل استجابتك.</div><a href="tel:${escapeHtml(phone)}" onclick="hideToast()" style="background:#2563EB; color:white; padding:8px 20px; border-radius:8px; font-size:14px; text-decoration:none; font-weight:bold; display:flex; align-items:center; gap:8px;"><i class="fas fa-phone-volume"></i> اتصال بالمريض</a></div>`;
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 10000);
