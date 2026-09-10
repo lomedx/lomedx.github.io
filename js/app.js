@@ -2491,18 +2491,19 @@ function renderBloodBankUI() {
             <div class="border rounded-xl p-4 flex flex-col sm:flex-row items-center gap-4" style="border-color: var(--border)">
                 <div class="blood-type-badge">${escapeHtml(req.blood_type)}</div>
                 <div class="flex-1 text-center sm:text-right">
-                    <div class="font-bold text-gray-800">${escapeHtml(req.patient_name)}</div>
+                    <div class="font-bold text-gray-800">
+                        ${escapeHtml(req.patient_name)} 
+                        ${req.responses_count > 0 ? `<span class="text-xs text-green-500 font-bold mr-2">(مستجيب: ${escapeHtml(req.responses_count)})</span>` : ''}
+                    </div>
                     <div class="text-xs text-gray-500 mt-1">
                         <i class="fas fa-hospital ml-1"></i> ${escapeHtml(req.hospital)} 
                         ${req.notes ? `| <i class="fas fa-notes-medical ml-1"></i> ${escapeHtml(req.notes)}` : ''}
                     </div>
                 </div>
                 <div class="flex gap-2 w-full sm:w-auto">
-                    <!-- زر الاتصال المباشر -->
                     <a href="tel:${escapeHtml(req.phone)}" class="flex-1 sm:flex-none bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors">
                         <i class="fas fa-phone"></i> اتصال
                     </a>
-                    <!-- زر التبرع (يبدأ المؤقت) -->
                     <button onclick="respondToBloodRequest(this, '${req.id}', '${escapeHtml(req.patient_name)}', '${escapeHtml(req.phone)}')" class="flex-1 sm:flex-none bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-red-600 transition-colors">
                         <i class="fas fa-hand-holding-heart"></i> سأتبرع
                     </button>
@@ -2575,21 +2576,32 @@ window.resolveBloodRequest = async (id) => {
     } catch (err) { showToast('حدث خطأ', 'error'); } 
 }
 window.respondToBloodRequest = (btnElement, reqId, patientName, phone) => {
-    btnElement.disabled = true; btnElement.innerText = 'جاري التسجيل...'; btnElement.classList.add('opacity-50', 'cursor-not-allowed');
+    btnElement.disabled = true; 
+    btnElement.innerText = 'جاري التسجيل...'; 
+    btnElement.classList.add('opacity-50', 'cursor-not-allowed');
     const toast = document.getElementById('toast');
     toast.innerHTML = `<div class="flex flex-col items-center gap-3"><div class="text-sm">سيتم تسجيل استجابتك خلال 6 ثوانٍ...</div><button onclick="undoRespond()" style="background:#ef4444; color:white; padding:6px 16px; border-radius:8px; font-size:12px; border:none; cursor:pointer; font-weight:bold;">تراجع الآن</button></div>`;
     toast.classList.add('show');
+    
     window.bloodUndoTimeout = setTimeout(async () => {
         toast.classList.remove('show');
         try {
-            const req = bloodRequests.find(r => r.id === reqId);
-            const newCount = (req?.responses_count || 0) + 1;
             const { error } = await supabase.rpc('increment_blood_response', { p_req_id: reqId });
-             if (error) throw error;
+            if (error) throw error;
+            const req = bloodRequests.find(r => r.id === reqId);
+            if (req) {
+                req.responses_count = (req.responses_count || 0) + 1;
+            }
+            renderBloodBankUI();
             toast.innerHTML = `<div class="flex flex-col items-center gap-3"><div class="text-sm font-bold">بارك الله فيك! 🌹<br>تم تسجيل استجابتك.</div><a href="tel:${escapeHtml(phone)}" onclick="hideToast()" style="background:#2563EB; color:white; padding:8px 20px; border-radius:8px; font-size:14px; text-decoration:none; font-weight:bold; display:flex; align-items:center; gap:8px;"><i class="fas fa-phone-volume"></i> اتصال بالمريض</a></div>`;
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 10000);
-        } catch (err) { showToast('حدث خطأ أثناء التسجيل', 'error'); btnElement.disabled = false; btnElement.innerText = 'استجبت'; btnElement.classList.remove('opacity-50', 'cursor-not-allowed'); }
+        } catch (err) { 
+            showToast('حدث خطأ أثناء التسجيل: ' + err.message, 'error'); 
+            btnElement.disabled = false; 
+            btnElement.innerText = 'سأتبرع'; 
+            btnElement.classList.remove('opacity-50', 'cursor-not-allowed'); 
+        }
     }, 6000);
 }
 window.undoRespond = () => { if (window.bloodUndoTimeout) clearTimeout(window.bloodUndoTimeout); document.getElementById('toast').classList.remove('show'); setTimeout(() => showToast('تم التراجع.'), 300); }
