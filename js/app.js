@@ -2485,22 +2485,32 @@ function renderBloodBankUI() {
         list.innerHTML = '<p class="text-center py-8 text-gray-400 text-sm">لا توجد استغاثات دم حالياً. شكراً لك.</p>';
         return;
     }
+    
     list.innerHTML = bloodRequests.map(req => {
         return `
             <div class="border rounded-xl p-4 flex flex-col sm:flex-row items-center gap-4" style="border-color: var(--border)">
                 <div class="blood-type-badge">${escapeHtml(req.blood_type)}</div>
                 <div class="flex-1 text-center sm:text-right">
                     <div class="font-bold text-gray-800">${escapeHtml(req.patient_name)}</div>
-                    <div class="text-xs text-gray-500 mt-1"><i class="fas fa-hospital ml-1"></i> ${escapeHtml(req.hospital)} ${req.notes ? `| <i class="fas fa-notes-medical ml-1"></i> ${escapeHtml(req.notes)}` : ''}</div>
+                    <div class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-hospital ml-1"></i> ${escapeHtml(req.hospital)} 
+                        ${req.notes ? `| <i class="fas fa-notes-medical ml-1"></i> ${escapeHtml(req.notes)}` : ''}
+                    </div>
                 </div>
-                <div class="flex gap-2">
-                    <a href="tel:${escapeHtml(req.phone)}" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-blue-600"><i class="fas fa-phone"></i> اتصال</a>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <!-- زر الاتصال المباشر -->
+                    <a href="tel:${escapeHtml(req.phone)}" class="flex-1 sm:flex-none bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-phone"></i> اتصال
+                    </a>
+                    <!-- زر التبرع (يبدأ المؤقت) -->
+                    <button onclick="respondToBloodRequest(this, '${req.id}', '${escapeHtml(req.patient_name)}', '${escapeHtml(req.phone)}')" class="flex-1 sm:flex-none bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-red-600 transition-colors">
+                        <i class="fas fa-hand-holding-heart"></i> سأتبرع
+                    </button>
                 </div>
             </div>
         `;
     }).join('');
 }
-
 window.submitBloodRequest = async (e) => {
     e.preventDefault();
     if (!window.checkOnlineStatus()) return;
