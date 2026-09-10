@@ -1,6 +1,6 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'lomedx-pro-v16'; // تم رفع الرقم لإجبار التحديث
+const CACHE_NAME = 'lomedx-pro-v16'; // عندما تعدل هذا الرقم، ستظهر رسالة التحديث تلقائياً
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -13,11 +13,18 @@ const CORE_ASSETS = [
 // 1. التثبيت
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)).then(() => {
+      // === الإضافة الجديدة: إرسال رقم الإصدار للمتصفح فور تثبيت النسخة الجديدة ===
+      self.clients.matchAll({ type: 'window' }).then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ type: 'SW_INSTALLED', version: CACHE_NAME });
+        });
+      });
+    })
   );
 });
 
-// 2. التفعيل ومسح الكاش القديم (تم إصلاح الأقواس هنا)
+// 2. التفعيل ومسح الكاش القديم
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -28,7 +35,7 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    }).then(() => self.clients.claim()) // هذه الطريقة الصحيحة لتفعيل التحديث فوراً
+    }).then(() => self.clients.claim())
   );
 });
 
