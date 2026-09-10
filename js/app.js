@@ -3555,7 +3555,7 @@ window.openHealthFile = async () => {
             return; 
         } else {
             const defaultName = session.user.email ? session.user.email.split('@')[0] : 'مريض';
-            const newQrToken = generateSecureQrToken(64);
+            const newQrToken = generateSecureToken(64);
             const { data: newFile, error: insertError } = await supabase.from('health_files').insert([{ id: currentHealthFileId, full_name: defaultName, qr_token: newQrToken }]).select().single();
             if (insertError) {
                 showToast('تعذر إنشاء ملف صحي جديد: ' + insertError.message, 'error');
