@@ -41,8 +41,8 @@ let renderLimits = {
     hospital: 4,
     center: 4,
     lab: 4,
-    doctor: 4,
-    pharmacy: 4
+    doctor: 8,
+    pharmacy: 8
 };
 let allCities = ['كل المدن', 'الرحيبة']; // أضف أو عدل المدن كما تريد
 
@@ -591,7 +591,25 @@ function renderData() {
 
     for (const [type, g] of Object.entries(grids)) { 
         let filtered = g.data.filter(matchItem); 
-        filtered.sort((a, b) => (b.is_subscribed === true) - (a.is_subscribed === true));
+        // نظام الترتيب الذكي متعدد الطبقات
+filtered.sort((a, b) => {
+    // 1. الأطباء المشتركون (المميزون) دائماً في المقدمة
+    if (b.is_subscribed !== a.is_subscribed) {
+        return (b.is_subscribed === true) - (a.is_subscribed === true);
+    }
+    
+    // 2. إذا كان كلاهما مشتركاً (أو كلاهما غير مشترك)، رتّب حسب التقييم (الأعلى أولاً)
+    const ratingA = a.rating || 0;
+    const ratingB = b.rating || 0;
+    if (ratingB !== ratingA) {
+        return ratingB - ratingA;
+    }
+    
+    // 3. إذا تساوى التقييم، رتّب حسب عدد الزيارات (الأكثر زيارة أولاً)
+    const viewsA = a.view_count || 0;
+    const viewsB = b.view_count || 0;
+    return viewsB - viewsA;
+});
         totalFiltered += filtered.length;
         
         const show = filtered.length > 0 && (currentFilter === 'all' || currentFilter === type); 
@@ -624,7 +642,7 @@ function renderData() {
 
 // === دالة زر عرض المزيد الخاص بكل قسم ===
 window.loadMoreSection = (type) => {
-    renderLimits[type] += 4; // أضف 4 بطاقات لهذا القسم فقط
+    renderLimits[type] += 8; // أضف 4 بطاقات لهذا القسم فقط
     renderData();
     
     // تمرير الصفحة بسلاسة للزر الذي ضغط عليه المستخدم
@@ -649,7 +667,7 @@ function matchItem(item) {
 }
 
 window.setFilter = (filter, btn) => { 
-    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 4, pharmacy: 4 }; // إعادة التصفير
+    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; // إعادة التصفير
     currentFilter = filter; 
     document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active'); b.style.background = ''; b.style.color = ''; b.style.borderColor = ''; }); 
     btn.classList.add('active'); 
@@ -658,7 +676,7 @@ window.setFilter = (filter, btn) => {
     renderData(); 
 }
 window.handleSearch = (value) => { 
-    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 4, pharmacy: 4 }; // إعادة التصفير
+    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; // إعادة التصفير
     searchQuery = value.trim(); 
     const heroSearch = document.getElementById('heroSearch'); 
     if(heroSearch) heroSearch.value = value; 
@@ -888,7 +906,7 @@ window.closeCitySelector = () => {
 };
 
 window.selectCity = (city) => {
-    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 4, pharmacy: 4 }; // إعادة التصفير
+    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; // إعادة التصفير
     currentCity = city;
     document.getElementById('currentCityText').innerText = city;
     closeCitySelector();
