@@ -41,7 +41,7 @@ let renderLimits = {
     hospital: 4,
     center: 4,
     lab: 4,
-    doctor: 1,
+    doctor: 4,
     pharmacy: 4
 };
 let allCities = ['كل المدن', 'الرحيبة']; // أضف أو عدل المدن كما تريد
@@ -491,7 +491,7 @@ function updateStats() {
     document.getElementById('stat-doctor').textContent = allData.filter(d => d.type === 'doctor').length;
     document.getElementById('stat-pharmacy').textContent = allData.filter(d => d.type === 'pharmacy').length;
 }
-// دالة تحسين الصور الخارجية (مثل ImgBB) لتسريع التحميل
+
 function getOptimizedImageUrl(url, width = 400, height = 300) {
     if (!url) return 'https://picsum.photos/seed/default/400/250';
     
