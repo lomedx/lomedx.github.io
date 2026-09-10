@@ -2579,6 +2579,7 @@ window.respondToBloodRequest = (btnElement, reqId, patientName, phone) => {
     btnElement.disabled = true; 
     btnElement.innerText = 'جاري التسجيل...'; 
     btnElement.classList.add('opacity-50', 'cursor-not-allowed');
+    window.activeDonateBtn = btnElement;
     const toast = document.getElementById('toast');
     toast.innerHTML = `<div class="flex flex-col items-center gap-3"><div class="text-sm">سيتم تسجيل استجابتك خلال 6 ثوانٍ...</div><button onclick="undoRespond()" style="background:#ef4444; color:white; padding:6px 16px; border-radius:8px; font-size:12px; border:none; cursor:pointer; font-weight:bold;">تراجع الآن</button></div>`;
     toast.classList.add('show');
@@ -2604,7 +2605,19 @@ window.respondToBloodRequest = (btnElement, reqId, patientName, phone) => {
         }
     }, 6000);
 }
-window.undoRespond = () => { if (window.bloodUndoTimeout) clearTimeout(window.bloodUndoTimeout); document.getElementById('toast').classList.remove('show'); setTimeout(() => showToast('تم التراجع.'), 300); }
+window.undoRespond = () => { 
+    if (window.bloodUndoTimeout) clearTimeout(window.bloodUndoTimeout);
+    const toast = document.getElementById('toast');
+    toast.classList.remove('show');
+    if (window.activeDonateBtn) {
+        window.activeDonateBtn.disabled = false; 
+        window.activeDonateBtn.innerText = 'سأتبرع'; 
+        window.activeDonateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        window.activeDonateBtn = null;
+    }
+    
+    setTimeout(() => showToast('تم التراجع بنجاح.', 'info'), 300); 
+};
 window.hideToast = () => { document.getElementById('toast').classList.remove('show'); }
 
 window.setStatus = async (id, status) => {
