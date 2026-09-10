@@ -2616,7 +2616,7 @@ window.undoRespond = () => {
         window.activeDonateBtn = null;
     }
     
-    setTimeout(() => showToast('تم التراجع بنجاح.', 'info', 'success'), 300); 
+    setTimeout(() => showToast('تم التراجع بنجاح.', 'success'), 300); 
 };
 window.hideToast = () => { document.getElementById('toast').classList.remove('show'); }
 
