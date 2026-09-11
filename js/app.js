@@ -1135,7 +1135,7 @@ window.openModal = (id) => {
         </div>`;
 
         extraHTML = `${queueWidget} ${item.bookingnotes ? `<div class="flex items-center gap-3 p-3 rounded-xl mt-3" style="background: var(--bg)"><i class="fas fa-info-circle" style="color: var(--doctor)"></i><div><div class="text-xs" style="color: var(--muted)">تفاصيل إضافية</div><div class="text-sm font-bold">${escapeHtml(item.bookingnotes)}</div></div></div>` : ''}`;
-           }
+           
     } else if (item.type === 'lab') {
         extraHTML = `${item.tests ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: #FEE2E2"><i class="fas fa-vials" style="color: var(--lab)"></i><div><div class="text-xs" style="color: var(--muted)">نوع التحاليل والخدمات</div><div class="text-sm font-bold" style="color: var(--lab)">${escapeHtml(item.tests)}</div></div></div>` : ''}${item.homesample && item.homesample !== 'لا' ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: #D1FAE5"><i class="fas fa-house-user" style="color: #059669"></i><div><div class="text-xs" style="color: var(--muted)">خدمة سحب العينات من المنزل</div><div class="text-sm font-bold" style="color: #059669">متوفرة</div></div></div>` : ''}`;
     } else if (item.type === 'pharmacy') {
@@ -6069,7 +6069,7 @@ window.installPwaApp = () => PwaInstaller.install();
 
 // === نظام القائمة الذكية: إبقاء القائمة مفتوحة بعد إغلاق الميزة ===
 document.addEventListener('DOMContentLoaded', () => {
-        // الاستماع للتحديثات اللحظية لعداد الأطباء
+                // الاستماع للتحديثات اللحظية لعداد الأطباء
     supabase
       .channel('public:listings_queue')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'listings' }, payload => {
@@ -6077,14 +6077,28 @@ document.addEventListener('DOMContentLoaded', () => {
           if (updatedItem) {
               updatedItem.current_queue = payload.new.current_queue;
               
-              // إذا كانت نافذة الطبيب مفتوحة، حدثها فوراً
+              // 1. تحديث العداد في لوحة تحكم الطبيب إذا كانت مفتوحة
+              const docQueueCountEl = document.getElementById('docQueueCount');
+              if (docQueueCountEl) {
+                  docQueueCountEl.innerText = payload.new.current_queue || 0;
+              }
+              
+              // 2. تحديث بطاقة الازدحام في نافذة المريض إذا كانت مفتوحة (بدون إعادة فتح المودال لمنع اللوب)
               const modalContent = document.getElementById('modalContent');
               if (modalContent && modalContent.innerHTML.includes(payload.new.id) && payload.new.type === 'doctor') {
-                  openModal(payload.new.id); 
+                  const lqCount = modalContent.querySelector('.lq-count');
+                  const lqTime = modalContent.querySelector('.lq-time');
+                  if (lqCount) {
+                      const qCount = payload.new.current_queue || 0;
+                      const waitTime = payload.new.avg_wait_time || 15;
+                      lqCount.innerHTML = `${qCount} <span style="font-size:12px; color:#8ea8a1;">منتظر</span>`;
+                      if(lqTime) lqTime.innerText = `~ ${qCount * waitTime} دقيقة`;
+                  }
               }
           }
       })
       .subscribe();
+    
     const mobileMenu = document.getElementById('mobileMenu');
     const menuOverlay = document.getElementById('menuOverlay');
     if (!mobileMenu) return;
