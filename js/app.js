@@ -110,11 +110,6 @@ window.setupOneSignal = async () => {
 };
 // دالة موحدة لتوليد الرموز الآمنة
 function generateSecureToken(length = 32) {
-    if (length <= 10) {
-        // للرموز القصيرة (مثل IDs)
-        return Math.random().toString(36).substring(2, 2 + length).toUpperCase();
-    }
-    // للرموز الطويلة الآمنة (مثل QR Tokens)
     const arr = new Uint8Array(length / 2);
     crypto.getRandomValues(arr);
     return Array.from(arr, byte => byte.toString(16).padStart(2, '0')).join('');
