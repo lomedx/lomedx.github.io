@@ -1459,15 +1459,7 @@ window.confirmBooking = async () => {
             <button onclick="closeModal()" class="w-full py-2 rounded-xl border font-bold text-sm" style="border-color: var(--border)">إغلاق</button>
         </div>`; 
          } catch (err) { 
-        console.error("Booking Error:", err);
-        let errorMsg = err.message;
-        
-        // ترجمة خطأ Edge Function إلى رسالة واضحة
-        if (errorMsg.includes("Failed to send a request to the Edge Function")) {
-            errorMsg = "تعذر الوصول لخادم الحجز. تأكد من نشر Edge Function باسم 'book-appointment' وتأكد من وجود عمود ip_address في قاعدة البيانات.";
-        }
-        
-        showToast('خطأ: ' + errorMsg, 'error'); 
+        showToast('خطأ: ' + err.message, 'error'); 
         if(submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = 'تأكيد'; }
     } 
 };
