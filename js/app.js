@@ -2083,53 +2083,58 @@ window.viewArchivedBookings = async (docId) => {
 };
 window.acceptBooking = async (bookingId) => { 
     if (!window.checkOnlineStatus()) return; 
-    const timeInput = document.getElementById(`time_${bookingId}`); 
-    
-    // 1. حماية: التأكد من أن حقل الإدخال موجود
-    if (!timeInput) {
-        showToast('تعذر العثور على حقل الوقت، يرجى المحاولة مجدداً.', 'error');
-        return;
-    }
-    
-    const time = timeInput.value.trim(); 
-    if (!time) { 
-        showToast('أدخل وقت الموعد أولاً', 'error'); 
-        return; 
-    } 
     
     const booking = bookings.find(b => b.id === bookingId); 
     if (!booking) {
         showToast('لم يتم العثور على بيانات الحجز', 'error');
         return;
     }
+
+    // تحديد الوقت: إذا كان موجوداً مسبقاً (نظام الدقيق) نستخدمه، وإلا نأخذه من الحقل (نظام يدوي)
+    let time = '';
+    if (booking.slot_time && booking.slot_time !== "بانتظار التحديد") {
+        time = booking.slot_time;
+    } else {
+        const timeInput = document.getElementById(`time_${bookingId}`);
+        if (!timeInput) {
+            showToast('تعذر العثور على حقل الوقت، يرجى المحاولة مجدداً.', 'error');
+            return;
+        }
+        time = timeInput.value.trim();
+    }
+
+    if (!time) { 
+        showToast('أدخل وقت الموعد أولاً', 'error'); 
+        return; 
+    } 
     
     try { 
-        // 2. تحديث حالة الحجز في قاعدة البيانات
+        // 1. تحديث حالة الحجز في قاعدة البيانات
         const { error: updateError } = await supabase.from('bookings')
             .update({ status: 'accepted', time: time })
             .eq('id', bookingId); 
             
         if (updateError) throw updateError;
         
-        // 3. إضافة رسالة الدردشة الآلية للمريض
+        // 2. إضافة رسالة الدردشة الآلية للمريض
         await supabase.rpc('append_chat_message', {
             p_booking_id: bookingId,
             p_sender: 'doctor',
             p_text: `تم تثبيت موعدك اليوم الساعة ${time}. نرحب بك في العيادة.`
         });
         
-        // 4. تحديث المصفوفة المحلية فوراً لمنع تكرار الإشعارات
+        // 3. تحديث المصفوفة المحلية فوراً لمنع تكرار الإشعارات
         booking.status = 'accepted';
         booking.time = time;
         
-        // 5. إرسال الإشعار للمريض
+        // 4. إرسال الإشعار للمريض
         if (booking.patient_push_id) {
             sendPushNotification(null, "تم تأكيد موعدك ✅", `تم تأكيد موعدك مع ${booking.itemname} الساعة ${time}`, 'player', booking.patient_push_id);
         }
 
         showToast('تم قبول الموعد بنجاح', 'success'); 
         
-        // 6. إعادة جلب الحجوزات لتحديث الواجهة فوراً
+        // 5. إعادة جلب الحجوزات لتحديث الواجهة فوراً
         fetchDocBookings(booking.itemid);
         
     } catch (e) { 
@@ -2139,14 +2144,19 @@ window.acceptBooking = async (bookingId) => {
 window.updateBookingStatus = async (bookingId, newStatus) => { 
     if (!window.checkOnlineStatus()) return; 
     try { 
-        // تصحيح الأرشفة: تحديث الحالة بدلاً من الحذف النهائي
         if (newStatus === 'archived') { 
             await supabase.from('bookings').update({ status: 'archived' }).eq('id', bookingId); 
             showToast('تمت أرشفة الطلب بنجاح', 'success'); 
-            return; 
-        } 
-        await supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId); 
-        showToast('تم التحديث', 'success'); 
+        } else {
+            await supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId); 
+            showToast('تم التحديث', 'success'); 
+        }
+        // تحديث الواجهة فوراً بإزالة الطلب من الشاشة
+        const booking = bookings.find(b => b.id === bookingId);
+        if (booking) {
+            const docId = booking.itemid;
+            fetchDocBookings(docId); // إعادة جلب الحجوزات لتحديث الشاشة
+        }
     } catch (e) { 
         showToast('حدث خطأ', 'error'); 
     } 
