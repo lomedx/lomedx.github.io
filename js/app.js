@@ -362,7 +362,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 async function fetchListings() {
     // حماية: جلب أعمدة محددة فقط لمنع تسريب كلمات المرور
-    const { data: freshData, error } = await supabase.from('listings').select('id, name, type, specialty, address, clinic, hours, consulthours, emergencyphone, departments, floors, services, tests, homesample, night, nightdetails, bookingnotes, rating, image, view_count, phone_clicks, phone, is_subscribed, isopen, workingdays, latlng, user_id, parent_id, capacity_info, facility_details, active_system, allowed_systems, working_hours, current_queue, avg_wait_time');
+    const { data: freshData, error } = await supabase.from('listings').select('id, name, type, specialty, address, clinic, hours, consulthours, emergencyphone, departments, floors, services, tests, homesample, night, nightdetails, bookingnotes, rating, image, view_count, phone_clicks, phone, is_subscribed, isopen, workingdays, latlng, user_id, parent_id, capacity_info, facility_details, active_system, allowed_systems, working_hours');
     if (error) return;
     
     const forceUpdate = localStorage.getItem('force_listings_update') === 'true';
@@ -1112,42 +1112,8 @@ window.openModal = (id) => {
             ${servicesHtml}
             ${phonesHtml}
         `;
-     } else if (item.type === 'doctor') { 
-        // مؤشر الازدحام المباشر
-        let queueWidget = '';
-        const queueCount = item.current_queue || 0;
-        const waitTime = item.avg_wait_time || 15;
-        const totalWait = queueCount * waitTime;
-        let queueStatusText = "العيادة فارغة الآن", queueColor = "#34D399";
-        if (queueCount > 0 && queueCount <= 3) { queueStatusText = "ازدحام خفيف"; queueColor = "#fbbf24"; }
-        else if (queueCount > 3) { queueStatusText = "ازدحام مرتفع"; queueColor = "#f87171"; }
-
-        queueWidget = `
-<div class="queue-tracker-card">
-    <div class="qt-header">
-        <div class="qt-icon" style="color: ${queueColor}; border-color: ${queueColor}40; background: ${queueColor}15;"><i class="fas fa-users"></i></div>
-        <div class="qt-info">
-            <span class="qt-title">حالة الازدحام المباشر</span>
-            <span class="qt-status" style="color: ${queueColor};">
-                <span class="qt-pulse-dot" style="background: ${queueColor};"></span> ${queueStatusText}
-            </span>
-        </div>
-    </div>
-    <div class="qt-stats">
-        <div class="qt-stat-box">
-            <span class="qt-num">${queueCount}</span>
-            <span class="qt-label">شخص في الانتظار</span>
-        </div>
-        <div class="qt-divider"></div>
-        <div class="qt-stat-box">
-            <span class="qt-num">${totalWait}</span>
-            <span class="qt-label">دقيقة متوقعة</span>
-        </div>
-    </div>
-</div>`;
-
-        extraHTML = `${queueWidget} ${item.bookingnotes ? `<div class="flex items-center gap-3 p-3 rounded-xl mt-3" style="background: var(--bg)"><i class="fas fa-info-circle" style="color: var(--doctor)"></i><div><div class="text-xs" style="color: var(--muted)">تفاصيل إضافية</div><div class="text-sm font-bold">${escapeHtml(item.bookingnotes)}</div></div></div>` : ''}`;
-           
+    } else if (item.type === 'doctor') { 
+        extraHTML = `${item.bookingnotes ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--bg)"><i class="fas fa-info-circle" style="color: var(--doctor)"></i><div><div class="text-xs" style="color: var(--muted)">تفاصيل إضافية</div><div class="text-sm font-bold">${escapeHtml(item.bookingnotes)}</div></div></div>` : ''}`;
     } else if (item.type === 'lab') {
         extraHTML = `${item.tests ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: #FEE2E2"><i class="fas fa-vials" style="color: var(--lab)"></i><div><div class="text-xs" style="color: var(--muted)">نوع التحاليل والخدمات</div><div class="text-sm font-bold" style="color: var(--lab)">${escapeHtml(item.tests)}</div></div></div>` : ''}${item.homesample && item.homesample !== 'لا' ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: #D1FAE5"><i class="fas fa-house-user" style="color: #059669"></i><div><div class="text-xs" style="color: var(--muted)">خدمة سحب العينات من المنزل</div><div class="text-sm font-bold" style="color: #059669">متوفرة</div></div></div>` : ''}`;
     } else if (item.type === 'pharmacy') {
@@ -1430,19 +1396,15 @@ window.confirmBooking = async () => {
             }
         });
 
-                                if (funcError) {
-                    // استخراج رسالة الخطأ العربية من جسم الاستجابة (Response Body)
-                    let errMsg = funcError.message;
-                    if (funcError.context && typeof funcError.context.json === 'function') {
-                        try { 
-                            const errBody = await funcError.context.json(); 
-                            if (errBody.error) errMsg = errBody.error; 
-                        } catch (e) {}
-                    } else if (funcError.context && funcError.context.error) { 
-                        errMsg = funcError.context.error; 
-                    }
-                    throw new Error(errMsg);
-                }
+                if (funcError) {
+            // إظهار رسالة الخطأ القادمة من Edge Function
+            let errMsg = funcError.message;
+            if (funcError.context && funcError.context.error) {
+                errMsg = funcError.context.error;
+            }
+            throw new Error(errMsg);
+        }
+
         const newId = funcData.booking[0].id;
         const ref = funcData.booking[0].ref; // جلب المرجع من قاعدة البيانات
         
@@ -1462,7 +1424,7 @@ window.confirmBooking = async () => {
             <button onclick="closeModal(); openBookingFollowup('${newId}')" class="w-full py-3 rounded-xl text-white font-bold text-sm mb-2" style="background: var(--doctor)">متابعة الحجز والدردشة</button>
             <button onclick="closeModal()" class="w-full py-2 rounded-xl border font-bold text-sm" style="border-color: var(--border)">إغلاق</button>
         </div>`; 
-         } catch (err) { 
+    } catch (err) { 
         showToast('خطأ: ' + err.message, 'error'); 
         if(submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = 'تأكيد'; }
     } 
@@ -1512,13 +1474,7 @@ window.renderFollowupChat = (bookingId) => {
     
     const existingInput = document.getElementById('chatInput');
     if (!existingInput) {
-        contentEl.innerHTML = `<div class="bg-white p-4 rounded-xl border" style="border-color: var(--border)"><div class="flex justify-between items-center mb-2"><div><div class="font-bold text-sm">${escapeHtml(b.itemname)}</div><div class="text-xs text-gray-500">${escapeHtml(b.daystr)}</div></div><div id="statusBadgeContainer">${statusBadge}</div></div><div class="text-xs text-yellow-600 font-bold mt-2">رقم المرجع: #${escapeHtml(b.ref)}</div></div><div class="bg-white p-4 rounded-xl border flex flex-col h-96" style="border-color: var(--border)"><div class="flex-1 overflow-y-auto flex flex-col gap-2 mb-3 pr-1" id="chatBox">${chatHtml}</div><div class="flex gap-2 border-t pt-3" style="border-color: var(--border)">
-    ${b.status === 'accepted' ? 
-        `<input type="text" id="chatInput" class="ctrl-input text-sm" placeholder="اكتب رسالتك للطبيب..." onkeydown="if(event.key==='Enter') sendChatMessage('${bookingId}')"><button onclick="sendChatMessage('${bookingId}')" class="px-4 rounded-xl text-white" style="background: var(--accent)"><i class="fas fa-paper-plane"></i></button>` 
-        : 
-        `<input type="text" class="ctrl-input text-sm" placeholder="الدردشة متاحة بعد تأكيد الموعد" disabled style="cursor: not-allowed; opacity: 0.5;"><button disabled class="px-4 rounded-xl text-white" style="background: #ccc; cursor: not-allowed;"><i class="fas fa-paper-plane"></i></button>`
-    }
-</div></div>`;
+        contentEl.innerHTML = `<div class="bg-white p-4 rounded-xl border" style="border-color: var(--border)"><div class="flex justify-between items-center mb-2"><div><div class="font-bold text-sm">${escapeHtml(b.itemname)}</div><div class="text-xs text-gray-500">${escapeHtml(b.daystr)}</div></div><div id="statusBadgeContainer">${statusBadge}</div></div><div class="text-xs text-yellow-600 font-bold mt-2">رقم المرجع: #${escapeHtml(b.ref)}</div></div><div class="bg-white p-4 rounded-xl border flex flex-col h-96" style="border-color: var(--border)"><div class="flex-1 overflow-y-auto flex flex-col gap-2 mb-3 pr-1" id="chatBox">${chatHtml}</div><div class="flex gap-2 border-t pt-3" style="border-color: var(--border)"><input type="text" id="chatInput" class="ctrl-input text-sm" placeholder="اكتب رسالتك للطبيب..." onkeydown="if(event.key==='Enter') sendChatMessage('${bookingId}')"><button onclick="sendChatMessage('${bookingId}')" class="px-4 rounded-xl text-white" style="background: var(--accent)"><i class="fas fa-paper-plane"></i></button></div></div>`;
     } else {
         const chatBox = document.getElementById('chatBox');
         const statusContainer = document.getElementById('statusBadgeContainer');
@@ -1531,27 +1487,25 @@ window.renderFollowupChat = (bookingId) => {
 
 window.sendChatMessage = async (bookingId) => {
     if (!window.checkOnlineStatus()) return; 
-    
-    // حماية أمنية: منع الإرسال إذا لم يكن الموعد مقبولاً
-    const booking = bookings.find(b => b.id === bookingId);
-    if (!booking || booking.status !== 'accepted') {
-        showToast('الدردشة متاحة فقط بعد تأكيد الموعد من العيادة', 'error');
-        return;
-    }
-
     const input = document.getElementById('chatInput'); 
     const text = input.value.trim(); 
     if (!text) return; 
     input.value = '';
     
+    const booking = bookings.find(b => b.id === bookingId);
+    if (!booking) return;
+
     try {
+        // استدعاء دالة SQL الآمنة لإضافة الرسالة
         const { error } = await supabase.rpc('append_chat_message', {
             p_booking_id: bookingId,
             p_sender: 'patient',
             p_text: text
         });
+        
         if (error) throw error;
         
+        // === إشعار للطبيب بوجود رسالة جديدة ===
         const doctorData = allData.find(d => d.id === booking.itemid);
         if (doctorData && doctorData.user_id) {
             sendPushNotification(doctorData.user_id, "رسالة جديدة 💬", `لديك رسالة جديدة من المريض ${booking.name}`);
@@ -1890,19 +1844,7 @@ window.renderDoctorDashboard = async (doc) => {
                 <i class="fas fa-comments"></i> قسم اسأل طبيب
             </button>
         </div>
-                <!-- إدارة ازدحام العيادة المباشر -->
-        <div class="bg-white p-5 rounded-2xl border shadow-sm" style="border-color: var(--border);">
-            <h4 class="font-bold mb-3 text-sm flex items-center gap-2"><i class="fas fa-users" style="color: var(--doctor)"></i> إدارة ازدحام العيادة</h4>
-            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl">
-                <button onclick="updateQueue('${doc.id}', -1)" class="w-12 h-12 rounded-full bg-red-100 text-red-600 font-bold text-2xl hover:bg-red-200 transition-all flex items-center justify-center">-</button>
-                <div class="text-center">
-                    <div class="text-4xl font-black text-gray-800" id="docQueueCount">${doc.current_queue || 0}</div>
-                    <div class="text-xs text-gray-500">منتظر حالياً</div>
-                </div>
-                <button onclick="updateQueue('${doc.id}', 1)" class="w-12 h-12 rounded-full bg-green-100 text-green-600 font-bold text-2xl hover:bg-green-200 transition-all flex items-center justify-center">+</button>
-            </div>
-            <p class="text-xs text-gray-400 mt-2 text-center">اضغط (+) عند دخول مريض جديد للصالة، و(-) عند خروج مريض للكشف.</p>
-        </div>
+
         <!-- 4. إعدادات الحجز وأيام العمل (تم تنسيقها بالكامل) -->
         <div class="bg-white p-5 rounded-2xl border shadow-sm" style="border-color: var(--border)">
             <h4 class="font-bold mb-4 text-sm flex items-center gap-2"><i class="fas fa-calendar-week" style="color: var(--doctor)"></i> أيام العمل ونظام الحجز</h4>
@@ -1998,13 +1940,7 @@ async function fetchDocBookings(docId) {
         let chatHtml = '';
         if (b.chat && b.chat.length > 0) { chatHtml = b.chat.map(msg => `<div class="text-xs p-2 rounded-lg mb-1 ${msg.sender === 'doctor' ? 'bg-blue-100 text-left' : 'bg-gray-100 text-right'}">${escapeHtml(msg.text)}</div>`).join(''); }
         
-        return `<div class="flex flex-col p-3 rounded-lg border mb-3" style="border-color: var(--border)"><div class="flex items-center justify-between mb-2"><div><span class="text-sm font-bold">${escapeHtml(b.name)}</span><br><span class="text-xs" style="color: var(--muted)">${escapeHtml(b.daystr)}</span></div><div>${statusBadge}<span class="text-[10px] text-gray-400">مرجع: #${escapeHtml(b.ref)}</span></div></div><div class="flex items-center justify-between border-t pt-2 mb-2" style="border-color: var(--border)"><a href="tel:${escapeHtml(b.phone)}" class="text-xs text-blue-600">${escapeHtml(b.phone)}</a><div class="flex gap-1">${actionButtons}</div></div><div class="border-t pt-2" style="border-color: var(--border)"><div class="text-xs font-bold text-gray-600 mb-1">المحادثة:</div><div class="max-h-32 overflow-y-auto mb-2 bg-gray-50 p-2 rounded-lg">${chatHtml || '<span class="text-xs text-gray-400">لا توجد رسائل</span>'}</div><div class="flex gap-1">
-    ${b.status === 'accepted' ? 
-        `<input type="text" id="docChat_${b.id}" placeholder="اكتب ردك..." class="ctrl-input text-sm py-1 flex-1"><button onclick="sendDocMessage('${b.id}')" class="text-xs text-white px-3 py-1 rounded bg-blue-500"><i class="fas fa-paper-plane"></i></button>` 
-        : 
-        `<input type="text" class="ctrl-input text-sm py-1 flex-1" placeholder="الدردشة متاحة بعد تأكيد الموعد" disabled style="cursor: not-allowed; opacity: 0.5;"><button disabled class="text-xs text-white px-3 py-1 rounded bg-blue-300 cursor-not-allowed"><i class="fas fa-paper-plane"></i></button>`
-    }
-</div></div></div>`; 
+        return `<div class="flex flex-col p-3 rounded-lg border mb-3" style="border-color: var(--border)"><div class="flex items-center justify-between mb-2"><div><span class="text-sm font-bold">${escapeHtml(b.name)}</span><br><span class="text-xs" style="color: var(--muted)">${escapeHtml(b.daystr)}</span></div><div>${statusBadge}<span class="text-[10px] text-gray-400">مرجع: #${escapeHtml(b.ref)}</span></div></div><div class="flex items-center justify-between border-t pt-2 mb-2" style="border-color: var(--border)"><a href="tel:${escapeHtml(b.phone)}" class="text-xs text-blue-600">${escapeHtml(b.phone)}</a><div class="flex gap-1">${actionButtons}</div></div><div class="border-t pt-2" style="border-color: var(--border)"><div class="text-xs font-bold text-gray-600 mb-1">المحادثة:</div><div class="max-h-32 overflow-y-auto mb-2 bg-gray-50 p-2 rounded-lg">${chatHtml || '<span class="text-xs text-gray-400">لا توجد رسائل</span>'}</div><div class="flex gap-1"><input type="text" id="docChat_${b.id}" placeholder="اكتب ردك..." class="ctrl-input text-sm py-1 flex-1"><button onclick="sendDocMessage('${b.id}')" class="text-xs text-white px-3 py-1 rounded bg-blue-500"><i class="fas fa-paper-plane"></i></button></div></div></div>`; 
     }).join('');
     
     container.innerHTML = bookingsListHtml;
@@ -2021,7 +1957,7 @@ async function fetchDocBookings(docId) {
             if (action === 'accept') acceptBooking(id);
             else if (action === 'cancel') updateBookingStatus(id, 'canceled');
             else if (action === 'restore') updateBookingStatus(id, 'pending');
-            else if (action === 'archive') updateBookingStatus(id, 'archived');
+            else if (action === 'archive') updateBookingStatus(id, 'deleted');
         });
         container.dataset.delegated = 'true'; 
     }
@@ -2084,18 +2020,16 @@ window.acceptBooking = async (bookingId) => {
 window.updateBookingStatus = async (bookingId, newStatus) => { 
     if (!window.checkOnlineStatus()) return; 
     try { 
-        // تصحيح الأرشفة: تحديث الحالة بدلاً من الحذف النهائي
-        if (newStatus === 'archived') { 
-            await supabase.from('bookings').update({ status: 'archived' }).eq('id', bookingId); 
-            showToast('تمت أرشفة الطلب بنجاح', 'success'); 
+    
+        if (newStatus === 'deleted') { 
+            await supabase.from('bookings').delete().eq('id', bookingId); 
+            showToast('تم حذف الطلب نهائياً', 'success'); 
             return; 
         } 
         await supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId); 
         showToast('تم التحديث', 'success'); 
-    } catch (e) { 
-        showToast('حدث خطأ', 'error'); 
-    } 
-};
+    } catch (e) { showToast('حدث خطأ', 'error'); } 
+}
 window.saveDoctorSettings = async (id) => { 
     if (!window.checkOnlineStatus()) return; 
     const workingDays = Array.from(document.querySelectorAll('input[name="docWorkingDays"]:checked')).map(cb => cb.value); 
@@ -2128,27 +2062,25 @@ window.saveWorkingHours = async (id) => {
 }
 window.sendDocMessage = async (bookingId) => {
     if (!window.checkOnlineStatus()) return; 
-    
-    // حماية أمنية: منع الإرسال إذا لم يكن الموعد مقبولاً
-    const booking = bookings.find(b => b.id === bookingId); 
-    if (!booking || booking.status !== 'accepted') {
-        showToast('لا يمكن الرد على موعد لم يتم تأكيده بعد', 'error');
-        return;
-    }
-
     const input = document.getElementById(`docChat_${bookingId}`); 
     const text = input.value.trim(); 
     if (!text) return; 
     input.value = '';
     
+    const booking = bookings.find(b => b.id === bookingId); 
+    if (!booking) return;
+
     try { 
+        // استدعاء دالة SQL الآمنة لإضافة الرسالة
         const { error } = await supabase.rpc('append_chat_message', {
             p_booking_id: bookingId,
             p_sender: 'doctor',
             p_text: text
         });
+        
         if (error) throw error;
         
+        // === إشعار للمريض بوجود رد من الطبيب ===
         if (booking.patient_push_id) {
             sendPushNotification(null, "رد من الطبيب 💬", `لديك رسالة جديدة من ${booking.itemname}: ${text.substring(0, 30)}`, 'player', booking.patient_push_id);
         }
@@ -2740,32 +2672,6 @@ window.setStatus = async (id, status) => {
         showToast('حدث خطأ', 'error'); 
     }
 }
-// دالة تحديث عداد الازدحام عبر RPC الآمن
-window.updateQueue = async (docId, change) => {
-    try {
-        // استدعاء دالة SQL الآمنة التي أنشأناها
-        const { error } = await supabase.rpc('update_doctor_queue', { 
-            doc_id: docId, 
-            change_amount: change 
-        });
-
-        if (error) throw error;
-
-        // تحديث الرقم في واجهة الطبيب فوراً
-        const doc = allData.find(d => d.id === docId);
-        if (doc) {
-            doc.current_queue = (doc.current_queue || 0) + change;
-            if (doc.current_queue < 0) doc.current_queue = 0;
-        }
-        
-        const countElement = document.getElementById('docQueueCount');
-        if (countElement) countElement.innerText = doc.current_queue;
-        
-        showToast('تم تحديث حالة الازدحام', 'success');
-    } catch (err) {
-        showToast('خطأ في التحديث', 'error');
-    }
-};
 window.openMedicineFinder = () => { 
     document.getElementById('modalContent').innerHTML = `<div class="p-6"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-pills ml-2" style="color: var(--gold)"></i> ابحث عن دوائك</h3><button onclick="closeModal()" class="text-2xl hover:text-gray-400 leading-none">&times;</button></div><div class="mb-4 p-3 rounded-xl text-sm bg-emerald-50 dark:bg-slate-700 text-emerald-800 dark:text-emerald-200 border border-emerald-100 dark:border-slate-600"><i class="fas fa-info-circle ml-1"></i> اكتب الأدوية المطلوبة وحدد مستوى الإلحاح، وسنتولى إرسالها للصيدليات. سيقوم أول صيدلية يتوفر فيها الدواء بالاتصال بك مباشرة!</div><form onsubmit="submitMedicineRequest(event)"><div class="mb-4"><label class="block text-sm font-semibold mb-2">الأدوية المطلوبة (نصياً)</label><textarea id="medList" class="ctrl-input" rows="3" placeholder="مثال: كريب ستوب، أبرة معينة، شراب سيتامول" required></textarea></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"><div><label class="block text-sm font-semibold mb-2">اسم المريض (اختياري)</label><input type="text" id="medName" class="ctrl-input" placeholder="اكتب اسمك"></div><div><label class="block text-sm font-semibold mb-2">رقم الهاتف للتواصل</label><input type="tel" id="medPhone" class="ctrl-input" placeholder="09XXXXXXXX" required></div></div><div class="mb-4"><label class="block text-sm font-semibold mb-2">مستوى الإلحاح</label><select id="medUrgency" class="ctrl-input"><option value="عاجل جداً (طوارئ)">عاجل جداً (طوارئ)</option><option value="عاجل (خلال اليوم)">عاجل (خلال اليوم)</option><option value="عادي" selected>عادي</option></select></div><div class="mb-6"><label class="block text-sm font-semibold mb-2">صورة الوصفة الطبية (اختياري)</label><div class="file-input-wrapper"><label class="file-input-label" for="medImage"><i class="fas fa-camera text-2xl mb-2"></i><span>اضغط لاختيار صورة الوصفة (إن وجدت)</span><img id="imagePreview" class="preview-image hidden" src="" alt="معاينة"></label><input type="file" id="medImage" accept="image/*" onchange="previewMedicineImage(event)"></div></div><button type="submit" id="medSubmitBtn" class="w-full py-3.5 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90 flex items-center justify-center gap-2" style="background: var(--accent)"><i class="fas fa-paper-plane"></i> إرسال للصيدليات</button></form></div>`; 
     document.getElementById('modalOverlay').classList.add('active'); 
@@ -6103,36 +6009,6 @@ window.installPwaApp = () => PwaInstaller.install();
 
 // === نظام القائمة الذكية: إبقاء القائمة مفتوحة بعد إغلاق الميزة ===
 document.addEventListener('DOMContentLoaded', () => {
-                // الاستماع للتحديثات اللحظية لعداد الأطباء
-    supabase
-      .channel('public:listings_queue')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'listings' }, payload => {
-          const updatedItem = allData.find(d => d.id === payload.new.id);
-          if (updatedItem) {
-              updatedItem.current_queue = payload.new.current_queue;
-              
-              // 1. تحديث العداد في لوحة تحكم الطبيب إذا كانت مفتوحة
-              const docQueueCountEl = document.getElementById('docQueueCount');
-              if (docQueueCountEl) {
-                  docQueueCountEl.innerText = payload.new.current_queue || 0;
-              }
-              
-              // 2. تحديث بطاقة الازدحام في نافذة المريض إذا كانت مفتوحة (بدون إعادة فتح المودال لمنع اللوب)
-              const modalContent = document.getElementById('modalContent');
-              if (modalContent && modalContent.innerHTML.includes(payload.new.id) && payload.new.type === 'doctor') {
-                  const lqCount = modalContent.querySelector('.lq-count');
-                  const lqTime = modalContent.querySelector('.lq-time');
-                  if (lqCount) {
-                      const qCount = payload.new.current_queue || 0;
-                      const waitTime = payload.new.avg_wait_time || 15;
-                      lqCount.innerHTML = `${qCount} <span style="font-size:12px; color:#8ea8a1;">منتظر</span>`;
-                      if(lqTime) lqTime.innerText = `~ ${qCount * waitTime} دقيقة`;
-                  }
-              }
-          }
-      })
-      .subscribe();
-    
     const mobileMenu = document.getElementById('mobileMenu');
     const menuOverlay = document.getElementById('menuOverlay');
     if (!mobileMenu) return;
@@ -6141,7 +6017,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. تعديل أزرار الميزات داخل القائمة
     mobileMenu.querySelectorAll('button').forEach(btn => {
-    
         const onclickVal = btn.getAttribute('onclick');
         // نستهدف الأزرار التي تفتح ميزات (وليست روابط للتمرير في الصفحة)
         if (onclickVal && onclickVal.includes('toggleMobileMenu()') && !btn.hasAttribute('href')) {
