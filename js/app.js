@@ -362,7 +362,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 async function fetchListings() {
     // حماية: جلب أعمدة محددة فقط لمنع تسريب كلمات المرور
-    const { data: freshData, error } = await supabase.from('listings').select('id, name, type, specialty, address, clinic, hours, consulthours, emergencyphone, departments, floors, services, tests, homesample, night, nightdetails, bookingnotes, rating, image, view_count, phone_clicks, phone, is_subscribed, isopen, workingdays, latlng, user_id, parent_id, capacity_info, facility_details, active_system, allowed_systems, working_hours');
+    const { data: freshData, error } = await supabase.from('listings').select('id, name, type, specialty, address, clinic, hours, consulthours, emergencyphone, departments, floors, services, tests, homesample, night, nightdetails, bookingnotes, rating, image, view_count, phone_clicks, phone, is_subscribed, isopen, workingdays, latlng, user_id, parent_id, capacity_info, facility_details, active_system, allowed_systems, working_hours, current_queue, avg_wait_time');
     if (error) return;
     
     const forceUpdate = localStorage.getItem('force_listings_update') === 'true';
@@ -1112,8 +1112,30 @@ window.openModal = (id) => {
             ${servicesHtml}
             ${phonesHtml}
         `;
-    } else if (item.type === 'doctor') { 
-        extraHTML = `${item.bookingnotes ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--bg)"><i class="fas fa-info-circle" style="color: var(--doctor)"></i><div><div class="text-xs" style="color: var(--muted)">تفاصيل إضافية</div><div class="text-sm font-bold">${escapeHtml(item.bookingnotes)}</div></div></div>` : ''}`;
+     } else if (item.type === 'doctor') { 
+        // مؤشر الازدحام المباشر
+        let queueWidget = '';
+        const queueCount = item.current_queue || 0;
+        const waitTime = item.avg_wait_time || 15;
+        const totalWait = queueCount * waitTime;
+        let queueStatusText = "العيادة فارغة الآن", queueColor = "#34D399";
+        if (queueCount > 0 && queueCount <= 3) { queueStatusText = "ازدحام خفيف"; queueColor = "#fbbf24"; }
+        else if (queueCount > 3) { queueStatusText = "ازدحام مرتفع"; queueColor = "#f87171"; }
+
+        queueWidget = `
+        <div class="live-queue-widget">
+            <div class="lq-status">
+                <div class="lq-dot" style="background: ${queueColor}; box-shadow: 0 0 10px ${queueColor};"></div>
+                <div class="lq-text">${queueStatusText}<br><span style="font-size:10px; color:#8ea8a1;">حالة مباشرة</span></div>
+            </div>
+            <div class="lq-numbers">
+                <div class="lq-count">${queueCount} <span style="font-size:12px; color:#8ea8a1;">منتظر</span></div>
+                <div class="lq-time">~ ${totalWait} دقيقة</div>
+            </div>
+        </div>`;
+
+        extraHTML = `${queueWidget} ${item.bookingnotes ? `<div class="flex items-center gap-3 p-3 rounded-xl mt-3" style="background: var(--bg)"><i class="fas fa-info-circle" style="color: var(--doctor)"></i><div><div class="text-xs" style="color: var(--muted)">تفاصيل إضافية</div><div class="text-sm font-bold">${escapeHtml(item.bookingnotes)}</div></div></div>` : ''}`;
+           }
     } else if (item.type === 'lab') {
         extraHTML = `${item.tests ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: #FEE2E2"><i class="fas fa-vials" style="color: var(--lab)"></i><div><div class="text-xs" style="color: var(--muted)">نوع التحاليل والخدمات</div><div class="text-sm font-bold" style="color: var(--lab)">${escapeHtml(item.tests)}</div></div></div>` : ''}${item.homesample && item.homesample !== 'لا' ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: #D1FAE5"><i class="fas fa-house-user" style="color: #059669"></i><div><div class="text-xs" style="color: var(--muted)">خدمة سحب العينات من المنزل</div><div class="text-sm font-bold" style="color: #059669">متوفرة</div></div></div>` : ''}`;
     } else if (item.type === 'pharmacy') {
@@ -1844,7 +1866,19 @@ window.renderDoctorDashboard = async (doc) => {
                 <i class="fas fa-comments"></i> قسم اسأل طبيب
             </button>
         </div>
-
+                <!-- إدارة ازدحام العيادة المباشر -->
+        <div class="bg-white p-5 rounded-2xl border shadow-sm" style="border-color: var(--border);">
+            <h4 class="font-bold mb-3 text-sm flex items-center gap-2"><i class="fas fa-users" style="color: var(--doctor)"></i> إدارة ازدحام العيادة</h4>
+            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl">
+                <button onclick="updateQueue('${doc.id}', -1)" class="w-12 h-12 rounded-full bg-red-100 text-red-600 font-bold text-2xl hover:bg-red-200 transition-all flex items-center justify-center">-</button>
+                <div class="text-center">
+                    <div class="text-4xl font-black text-gray-800" id="docQueueCount">${doc.current_queue || 0}</div>
+                    <div class="text-xs text-gray-500">منتظر حالياً</div>
+                </div>
+                <button onclick="updateQueue('${doc.id}', 1)" class="w-12 h-12 rounded-full bg-green-100 text-green-600 font-bold text-2xl hover:bg-green-200 transition-all flex items-center justify-center">+</button>
+            </div>
+            <p class="text-xs text-gray-400 mt-2 text-center">اضغط (+) عند دخول مريض جديد للصالة، و(-) عند خروج مريض للكشف.</p>
+        </div>
         <!-- 4. إعدادات الحجز وأيام العمل (تم تنسيقها بالكامل) -->
         <div class="bg-white p-5 rounded-2xl border shadow-sm" style="border-color: var(--border)">
             <h4 class="font-bold mb-4 text-sm flex items-center gap-2"><i class="fas fa-calendar-week" style="color: var(--doctor)"></i> أيام العمل ونظام الحجز</h4>
@@ -2672,6 +2706,32 @@ window.setStatus = async (id, status) => {
         showToast('حدث خطأ', 'error'); 
     }
 }
+// دالة تحديث عداد الازدحام عبر RPC الآمن
+window.updateQueue = async (docId, change) => {
+    try {
+        // استدعاء دالة SQL الآمنة التي أنشأناها
+        const { error } = await supabase.rpc('update_doctor_queue', { 
+            doc_id: docId, 
+            change_amount: change 
+        });
+
+        if (error) throw error;
+
+        // تحديث الرقم في واجهة الطبيب فوراً
+        const doc = allData.find(d => d.id === docId);
+        if (doc) {
+            doc.current_queue = (doc.current_queue || 0) + change;
+            if (doc.current_queue < 0) doc.current_queue = 0;
+        }
+        
+        const countElement = document.getElementById('docQueueCount');
+        if (countElement) countElement.innerText = doc.current_queue;
+        
+        showToast('تم تحديث حالة الازدحام', 'success');
+    } catch (err) {
+        showToast('خطأ في التحديث', 'error');
+    }
+};
 window.openMedicineFinder = () => { 
     document.getElementById('modalContent').innerHTML = `<div class="p-6"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-pills ml-2" style="color: var(--gold)"></i> ابحث عن دوائك</h3><button onclick="closeModal()" class="text-2xl hover:text-gray-400 leading-none">&times;</button></div><div class="mb-4 p-3 rounded-xl text-sm bg-emerald-50 dark:bg-slate-700 text-emerald-800 dark:text-emerald-200 border border-emerald-100 dark:border-slate-600"><i class="fas fa-info-circle ml-1"></i> اكتب الأدوية المطلوبة وحدد مستوى الإلحاح، وسنتولى إرسالها للصيدليات. سيقوم أول صيدلية يتوفر فيها الدواء بالاتصال بك مباشرة!</div><form onsubmit="submitMedicineRequest(event)"><div class="mb-4"><label class="block text-sm font-semibold mb-2">الأدوية المطلوبة (نصياً)</label><textarea id="medList" class="ctrl-input" rows="3" placeholder="مثال: كريب ستوب، أبرة معينة، شراب سيتامول" required></textarea></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"><div><label class="block text-sm font-semibold mb-2">اسم المريض (اختياري)</label><input type="text" id="medName" class="ctrl-input" placeholder="اكتب اسمك"></div><div><label class="block text-sm font-semibold mb-2">رقم الهاتف للتواصل</label><input type="tel" id="medPhone" class="ctrl-input" placeholder="09XXXXXXXX" required></div></div><div class="mb-4"><label class="block text-sm font-semibold mb-2">مستوى الإلحاح</label><select id="medUrgency" class="ctrl-input"><option value="عاجل جداً (طوارئ)">عاجل جداً (طوارئ)</option><option value="عاجل (خلال اليوم)">عاجل (خلال اليوم)</option><option value="عادي" selected>عادي</option></select></div><div class="mb-6"><label class="block text-sm font-semibold mb-2">صورة الوصفة الطبية (اختياري)</label><div class="file-input-wrapper"><label class="file-input-label" for="medImage"><i class="fas fa-camera text-2xl mb-2"></i><span>اضغط لاختيار صورة الوصفة (إن وجدت)</span><img id="imagePreview" class="preview-image hidden" src="" alt="معاينة"></label><input type="file" id="medImage" accept="image/*" onchange="previewMedicineImage(event)"></div></div><button type="submit" id="medSubmitBtn" class="w-full py-3.5 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90 flex items-center justify-center gap-2" style="background: var(--accent)"><i class="fas fa-paper-plane"></i> إرسال للصيدليات</button></form></div>`; 
     document.getElementById('modalOverlay').classList.add('active'); 
@@ -6009,6 +6069,22 @@ window.installPwaApp = () => PwaInstaller.install();
 
 // === نظام القائمة الذكية: إبقاء القائمة مفتوحة بعد إغلاق الميزة ===
 document.addEventListener('DOMContentLoaded', () => {
+        // الاستماع للتحديثات اللحظية لعداد الأطباء
+    supabase
+      .channel('public:listings_queue')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'listings' }, payload => {
+          const updatedItem = allData.find(d => d.id === payload.new.id);
+          if (updatedItem) {
+              updatedItem.current_queue = payload.new.current_queue;
+              
+              // إذا كانت نافذة الطبيب مفتوحة، حدثها فوراً
+              const modalContent = document.getElementById('modalContent');
+              if (modalContent && modalContent.innerHTML.includes(payload.new.id) && payload.new.type === 'doctor') {
+                  openModal(payload.new.id); 
+              }
+          }
+      })
+      .subscribe();
     const mobileMenu = document.getElementById('mobileMenu');
     const menuOverlay = document.getElementById('menuOverlay');
     if (!mobileMenu) return;
@@ -6017,6 +6093,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. تعديل أزرار الميزات داخل القائمة
     mobileMenu.querySelectorAll('button').forEach(btn => {
+    
         const onclickVal = btn.getAttribute('onclick');
         // نستهدف الأزرار التي تفتح ميزات (وليست روابط للتمرير في الصفحة)
         if (onclickVal && onclickVal.includes('toggleMobileMenu()') && !btn.hasAttribute('href')) {
