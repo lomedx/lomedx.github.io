@@ -1508,7 +1508,13 @@ window.renderFollowupChat = (bookingId) => {
     
     const existingInput = document.getElementById('chatInput');
     if (!existingInput) {
-        contentEl.innerHTML = `<div class="bg-white p-4 rounded-xl border" style="border-color: var(--border)"><div class="flex justify-between items-center mb-2"><div><div class="font-bold text-sm">${escapeHtml(b.itemname)}</div><div class="text-xs text-gray-500">${escapeHtml(b.daystr)}</div></div><div id="statusBadgeContainer">${statusBadge}</div></div><div class="text-xs text-yellow-600 font-bold mt-2">رقم المرجع: #${escapeHtml(b.ref)}</div></div><div class="bg-white p-4 rounded-xl border flex flex-col h-96" style="border-color: var(--border)"><div class="flex-1 overflow-y-auto flex flex-col gap-2 mb-3 pr-1" id="chatBox">${chatHtml}</div><div class="flex gap-2 border-t pt-3" style="border-color: var(--border)"><input type="text" id="chatInput" class="ctrl-input text-sm" placeholder="اكتب رسالتك للطبيب..." onkeydown="if(event.key==='Enter') sendChatMessage('${bookingId}')"><button onclick="sendChatMessage('${bookingId}')" class="px-4 rounded-xl text-white" style="background: var(--accent)"><i class="fas fa-paper-plane"></i></button></div></div>`;
+        contentEl.innerHTML = `<div class="bg-white p-4 rounded-xl border" style="border-color: var(--border)"><div class="flex justify-between items-center mb-2"><div><div class="font-bold text-sm">${escapeHtml(b.itemname)}</div><div class="text-xs text-gray-500">${escapeHtml(b.daystr)}</div></div><div id="statusBadgeContainer">${statusBadge}</div></div><div class="text-xs text-yellow-600 font-bold mt-2">رقم المرجع: #${escapeHtml(b.ref)}</div></div><div class="bg-white p-4 rounded-xl border flex flex-col h-96" style="border-color: var(--border)"><div class="flex-1 overflow-y-auto flex flex-col gap-2 mb-3 pr-1" id="chatBox">${chatHtml}</div><div class="flex gap-2 border-t pt-3" style="border-color: var(--border)">
+    ${b.status === 'accepted' ? 
+        `<input type="text" id="chatInput" class="ctrl-input text-sm" placeholder="اكتب رسالتك للطبيب..." onkeydown="if(event.key==='Enter') sendChatMessage('${bookingId}')"><button onclick="sendChatMessage('${bookingId}')" class="px-4 rounded-xl text-white" style="background: var(--accent)"><i class="fas fa-paper-plane"></i></button>` 
+        : 
+        `<input type="text" class="ctrl-input text-sm" placeholder="الدردشة متاحة بعد تأكيد الموعد" disabled style="cursor: not-allowed; opacity: 0.5;"><button disabled class="px-4 rounded-xl text-white" style="background: #ccc; cursor: not-allowed;"><i class="fas fa-paper-plane"></i></button>`
+    }
+</div></div>`;
     } else {
         const chatBox = document.getElementById('chatBox');
         const statusContainer = document.getElementById('statusBadgeContainer');
@@ -1986,7 +1992,13 @@ async function fetchDocBookings(docId) {
         let chatHtml = '';
         if (b.chat && b.chat.length > 0) { chatHtml = b.chat.map(msg => `<div class="text-xs p-2 rounded-lg mb-1 ${msg.sender === 'doctor' ? 'bg-blue-100 text-left' : 'bg-gray-100 text-right'}">${escapeHtml(msg.text)}</div>`).join(''); }
         
-        return `<div class="flex flex-col p-3 rounded-lg border mb-3" style="border-color: var(--border)"><div class="flex items-center justify-between mb-2"><div><span class="text-sm font-bold">${escapeHtml(b.name)}</span><br><span class="text-xs" style="color: var(--muted)">${escapeHtml(b.daystr)}</span></div><div>${statusBadge}<span class="text-[10px] text-gray-400">مرجع: #${escapeHtml(b.ref)}</span></div></div><div class="flex items-center justify-between border-t pt-2 mb-2" style="border-color: var(--border)"><a href="tel:${escapeHtml(b.phone)}" class="text-xs text-blue-600">${escapeHtml(b.phone)}</a><div class="flex gap-1">${actionButtons}</div></div><div class="border-t pt-2" style="border-color: var(--border)"><div class="text-xs font-bold text-gray-600 mb-1">المحادثة:</div><div class="max-h-32 overflow-y-auto mb-2 bg-gray-50 p-2 rounded-lg">${chatHtml || '<span class="text-xs text-gray-400">لا توجد رسائل</span>'}</div><div class="flex gap-1"><input type="text" id="docChat_${b.id}" placeholder="اكتب ردك..." class="ctrl-input text-sm py-1 flex-1"><button onclick="sendDocMessage('${b.id}')" class="text-xs text-white px-3 py-1 rounded bg-blue-500"><i class="fas fa-paper-plane"></i></button></div></div></div>`; 
+        return `<div class="flex flex-col p-3 rounded-lg border mb-3" style="border-color: var(--border)"><div class="flex items-center justify-between mb-2"><div><span class="text-sm font-bold">${escapeHtml(b.name)}</span><br><span class="text-xs" style="color: var(--muted)">${escapeHtml(b.daystr)}</span></div><div>${statusBadge}<span class="text-[10px] text-gray-400">مرجع: #${escapeHtml(b.ref)}</span></div></div><div class="flex items-center justify-between border-t pt-2 mb-2" style="border-color: var(--border)"><a href="tel:${escapeHtml(b.phone)}" class="text-xs text-blue-600">${escapeHtml(b.phone)}</a><div class="flex gap-1">${actionButtons}</div></div><div class="border-t pt-2" style="border-color: var(--border)"><div class="text-xs font-bold text-gray-600 mb-1">المحادثة:</div><div class="max-h-32 overflow-y-auto mb-2 bg-gray-50 p-2 rounded-lg">${chatHtml || '<span class="text-xs text-gray-400">لا توجد رسائل</span>'}</div><div class="flex gap-1">
+    ${b.status === 'accepted' ? 
+        `<input type="text" id="docChat_${b.id}" placeholder="اكتب ردك..." class="ctrl-input text-sm py-1 flex-1"><button onclick="sendDocMessage('${b.id}')" class="text-xs text-white px-3 py-1 rounded bg-blue-500"><i class="fas fa-paper-plane"></i></button>` 
+        : 
+        `<input type="text" class="ctrl-input text-sm py-1 flex-1" placeholder="الدردشة متاحة بعد تأكيد الموعد" disabled style="cursor: not-allowed; opacity: 0.5;"><button disabled class="text-xs text-white px-3 py-1 rounded bg-blue-300 cursor-not-allowed"><i class="fas fa-paper-plane"></i></button>`
+    }
+</div></div></div>`; 
     }).join('');
     
     container.innerHTML = bookingsListHtml;
@@ -2066,16 +2078,18 @@ window.acceptBooking = async (bookingId) => {
 window.updateBookingStatus = async (bookingId, newStatus) => { 
     if (!window.checkOnlineStatus()) return; 
     try { 
-    
-        if (newStatus === 'deleted') { 
-            await supabase.from('bookings').delete().eq('id', bookingId); 
-            showToast('تم حذف الطلب نهائياً', 'success'); 
+        // تصحيح الأرشفة: تحديث الحالة بدلاً من الحذف النهائي
+        if (newStatus === 'archived') { 
+            await supabase.from('bookings').update({ status: 'archived' }).eq('id', bookingId); 
+            showToast('تمت أرشفة الطلب بنجاح', 'success'); 
             return; 
         } 
         await supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId); 
         showToast('تم التحديث', 'success'); 
-    } catch (e) { showToast('حدث خطأ', 'error'); } 
-}
+    } catch (e) { 
+        showToast('حدث خطأ', 'error'); 
+    } 
+};
 window.saveDoctorSettings = async (id) => { 
     if (!window.checkOnlineStatus()) return; 
     const workingDays = Array.from(document.querySelectorAll('input[name="docWorkingDays"]:checked')).map(cb => cb.value); 
