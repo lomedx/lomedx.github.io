@@ -1183,7 +1183,7 @@ html.dark .smart-empty { color: #94a3b8; }
 .live-queue-widget {
     background: linear-gradient(135deg, rgba(14, 124, 95, 0.1), rgba(2, 20, 16, 0.4));
     border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 16px;
-    padding: 15px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center;
+    padding: 15px; margin-top: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;
 }
 .lq-status { display: flex; align-items: center; gap: 10px; }
 .lq-dot { width: 10px; height: 10px; border-radius: 50%; animation: lq-pulse 1.5s infinite; }
@@ -1192,15 +1192,3 @@ html.dark .smart-empty { color: #94a3b8; }
 .lq-numbers { text-align: left; }
 .lq-count { font-size: 20px; font-weight: 900; color: #fff; }
 .lq-time { font-size: 11px; color: #C4962C; font-weight: 700; }
-
-/* أزرار التحكم للطبيب */
-.queue-control-box { background: white; padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-top: 20px; }
-.queue-control-box h4 { font-size: 14px; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-.queue-buttons { display: flex; align-items: center; justify-content: space-between; background: #f9fafb; padding: 15px; border-radius: 12px; }
-.q-btn { width: 48px; height: 48px; border-radius: 50%; font-size: 24px; font-weight: bold; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-.q-btn.minus { background: #fee2e2; color: #ef4444; }
-.q-btn.plus { background: #d1fae5; color: #10b981; }
-.q-btn:hover { transform: scale(1.1); }
-.q-count-display { text-align: center; }
-.q-count-display h5 { font-size: 32px; font-weight: 900; color: #1f2937; margin: 0; }
-.q-count-display p { font-size: 12px; color: #6b7280; margin: 0; }
