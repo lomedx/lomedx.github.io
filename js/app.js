@@ -1527,25 +1527,27 @@ window.renderFollowupChat = (bookingId) => {
 
 window.sendChatMessage = async (bookingId) => {
     if (!window.checkOnlineStatus()) return; 
+    
+    // حماية أمنية: منع الإرسال إذا لم يكن الموعد مقبولاً
+    const booking = bookings.find(b => b.id === bookingId);
+    if (!booking || booking.status !== 'accepted') {
+        showToast('الدردشة متاحة فقط بعد تأكيد الموعد من العيادة', 'error');
+        return;
+    }
+
     const input = document.getElementById('chatInput'); 
     const text = input.value.trim(); 
     if (!text) return; 
     input.value = '';
     
-    const booking = bookings.find(b => b.id === bookingId);
-    if (!booking) return;
-
     try {
-        // استدعاء دالة SQL الآمنة لإضافة الرسالة
         const { error } = await supabase.rpc('append_chat_message', {
             p_booking_id: bookingId,
             p_sender: 'patient',
             p_text: text
         });
-        
         if (error) throw error;
         
-        // === إشعار للطبيب بوجود رسالة جديدة ===
         const doctorData = allData.find(d => d.id === booking.itemid);
         if (doctorData && doctorData.user_id) {
             sendPushNotification(doctorData.user_id, "رسالة جديدة 💬", `لديك رسالة جديدة من المريض ${booking.name}`);
@@ -2015,7 +2017,7 @@ async function fetchDocBookings(docId) {
             if (action === 'accept') acceptBooking(id);
             else if (action === 'cancel') updateBookingStatus(id, 'canceled');
             else if (action === 'restore') updateBookingStatus(id, 'pending');
-            else if (action === 'archive') updateBookingStatus(id, 'deleted');
+            else if (action === 'archive') updateBookingStatus(id, 'archived');
         });
         container.dataset.delegated = 'true'; 
     }
@@ -2122,25 +2124,27 @@ window.saveWorkingHours = async (id) => {
 }
 window.sendDocMessage = async (bookingId) => {
     if (!window.checkOnlineStatus()) return; 
+    
+    // حماية أمنية: منع الإرسال إذا لم يكن الموعد مقبولاً
+    const booking = bookings.find(b => b.id === bookingId); 
+    if (!booking || booking.status !== 'accepted') {
+        showToast('لا يمكن الرد على موعد لم يتم تأكيده بعد', 'error');
+        return;
+    }
+
     const input = document.getElementById(`docChat_${bookingId}`); 
     const text = input.value.trim(); 
     if (!text) return; 
     input.value = '';
     
-    const booking = bookings.find(b => b.id === bookingId); 
-    if (!booking) return;
-
     try { 
-        // استدعاء دالة SQL الآمنة لإضافة الرسالة
         const { error } = await supabase.rpc('append_chat_message', {
             p_booking_id: bookingId,
             p_sender: 'doctor',
             p_text: text
         });
-        
         if (error) throw error;
         
-        // === إشعار للمريض بوجود رد من الطبيب ===
         if (booking.patient_push_id) {
             sendPushNotification(null, "رد من الطبيب 💬", `لديك رسالة جديدة من ${booking.itemname}: ${text.substring(0, 30)}`, 'player', booking.patient_push_id);
         }
