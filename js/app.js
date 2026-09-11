@@ -1970,7 +1970,7 @@ async function fetchDocBookings(docId) {
         return; 
     }
     
-    const { data: docBookings, error } = await supabase.from('bookings')
+    const { data: docBookings, error } = await supabase.from('bookings').select('id, itemid, itemname, name, phone, daystr, slot_time, time, status, ref, chat')
         .select('*').eq('itemid', docId).neq('status', 'archived').order('created_at', { ascending: false });
         
     if (error || !docBookings) { container.innerHTML = '<p class="text-sm text-center py-4 text-red-500">خطأ في تحميل الحجوزات.</p>'; return; }
@@ -2038,7 +2038,7 @@ async function fetchDocBookings(docId) {
 }
 window.viewArchivedBookings = async (docId) => {
     // جلب الحجوزات التي حالتها 'archived' فقط
-    const { data: archivedBookings, error } = await supabase.from('bookings')
+    const { data: archivedBookings, error } = await supabase.from('bookings').select('id, name, daystr, time')
         .select('*').eq('itemid', docId).eq('status', 'archived').order('created_at', { ascending: false });
         
     if (error) { showToast('خطأ في جلب المؤرشفة', 'error'); return; }
