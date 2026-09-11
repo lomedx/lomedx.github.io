@@ -1986,15 +1986,25 @@ async function fetchDocBookings(docId) {
             actionButtons = `<button data-action="restore" data-id="${b.id}" class="text-xs text-white px-2 py-1 rounded bg-gray-500">استعادة</button><button data-action="archive" data-id="${b.id}" class="text-xs text-white px-2 py-1 rounded bg-gray-800">أرشفة</button>`; 
         } else { 
             statusBadge = '<span class="text-xs px-2 py-1 rounded block mb-1" style="background: #FEF3C7; color: #92400E">طلب جديد</span>'; 
+            
+            // تحديد ما إذا كان الوقت محدداً مسبقاً (نظام المواعيد الدقيقة)
+            let timeHtml = '';
+            if (b.slot_time && b.slot_time !== "بانتظار التحديد") {
+                // النظام الدقيق: إظهار الوقت الذي اختاره المريض
+                timeHtml = `<div class="text-xs font-bold text-blue-600 mb-1 bg-blue-50 p-1 rounded text-center">الوقت المحدد: ${escapeHtml(b.slot_time)}</div>`;
+         } else {
+                // النظام اليدوي: إظهار حقل إدخال الوقت للطبيب
+                timeHtml = `<input type="time" id="time_${b.id}" placeholder="حدد الموعد" class="ctrl-input text-sm py-1 mb-1">`;
+            }
+
             actionButtons = `<div class="flex flex-col gap-1 w-full">
-                <input type="time" id="time_${b.id}" placeholder="حدد الموعد" class="ctrl-input text-sm py-1">
+                ${timeHtml}
                 <div class="flex gap-1">
                     <button data-action="accept" data-id="${b.id}" class="text-xs text-white px-2 py-1 rounded bg-green-600 flex-1">قبول</button>
-                    <button data-action="cancel" data-id="${b.id}" class="text-xs text-white px-2 py-1 rounded bg-red-500">رفض</button>
+                    <button data-action="cancel" data-id="${b.id}" class="text-xs text-white px-2 py-1 rounded bg-red-500 flex-1">رفض</button>
                 </div>
             </div>`; 
         }
-        
         let chatHtml = '';
         if (b.chat && b.chat.length > 0) { chatHtml = b.chat.map(msg => `<div class="text-xs p-2 rounded-lg mb-1 ${msg.sender === 'doctor' ? 'bg-blue-100 text-left' : 'bg-gray-100 text-right'}">${escapeHtml(msg.text)}</div>`).join(''); }
         
