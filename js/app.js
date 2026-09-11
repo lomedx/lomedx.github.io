@@ -1430,15 +1430,19 @@ window.confirmBooking = async () => {
             }
         });
 
-                if (funcError) {
-            // إظهار رسالة الخطأ القادمة من Edge Function
-            let errMsg = funcError.message;
-            if (funcError.context && funcError.context.error) {
-                errMsg = funcError.context.error;
-            }
-            throw new Error(errMsg);
-        }
-
+                                if (funcError) {
+                    // استخراج رسالة الخطأ العربية من جسم الاستجابة (Response Body)
+                    let errMsg = funcError.message;
+                    if (funcError.context && typeof funcError.context.json === 'function') {
+                        try { 
+                            const errBody = await funcError.context.json(); 
+                            if (errBody.error) errMsg = errBody.error; 
+                        } catch (e) {}
+                    } else if (funcError.context && funcError.context.error) { 
+                        errMsg = funcError.context.error; 
+                    }
+                    throw new Error(errMsg);
+                }
         const newId = funcData.booking[0].id;
         const ref = funcData.booking[0].ref; // جلب المرجع من قاعدة البيانات
         
