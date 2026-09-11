@@ -1933,9 +1933,14 @@ window.renderDoctorDashboard = async (doc) => {
             </button>
         </div>
 
-        <!-- 5. طلبات الحجز الواردة -->
+                <!-- 5. طلبات الحجز الواردة -->
         <div class="bg-white p-5 rounded-2xl border shadow-sm" style="border-color: var(--border)">
-            <h4 class="font-bold mb-4 text-sm flex items-center gap-2"><i class="fas fa-calendar-check" style="color: var(--doctor)"></i> طلبات الحجز الواردة</h4>
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="font-bold text-sm flex items-center gap-2"><i class="fas fa-calendar-check" style="color: var(--doctor)"></i> طلبات الحجز الواردة</h4>
+                <button onclick="viewArchivedBookings('${doc.id}')" class="text-xs text-gray-500 hover:text-gray-800 flex items-center gap-1 border px-2 py-1 rounded-lg">
+                    <i class="fas fa-archive"></i> عرض المؤرشفة
+                </button>
+            </div>
             <div id="docBookingsContainer" class="flex flex-col gap-3">
                 <p class="text-sm text-center py-4 text-gray-400">جاري تحميل الحجوزات...</p>
             </div>
@@ -2036,6 +2041,46 @@ async function fetchDocBookings(docId) {
         container.dataset.delegated = 'true'; 
     }
 }
+window.viewArchivedBookings = async (docId) => {
+    // جلب الحجوزات التي حالتها 'archived' فقط
+    const { data: archivedBookings, error } = await supabase.from('bookings')
+        .select('*').eq('itemid', docId).eq('status', 'archived').order('created_at', { ascending: false });
+        
+    if (error) { showToast('خطأ في جلب المؤرشفة', 'error'); return; }
+
+    let html = '';
+    if (archivedBookings && archivedBookings.length > 0) {
+        html = archivedBookings.map(b => `
+            <div class="border rounded-lg p-3 mb-3 opacity-70" style="border-color: var(--border)">
+                <div class="flex justify-between items-center mb-2">
+                    <div>
+                        <span class="text-sm font-bold">${escapeHtml(b.name)}</span><br>
+                        <span class="text-xs text-gray-500">${escapeHtml(b.daystr)} ${b.time ? 'عند الساعة ' + escapeHtml(b.time) : ''}</span>
+                    </div>
+                    <span class="text-xs px-2 py-1 rounded bg-gray-200 text-gray-600">مؤرشف</span>
+                </div>
+                <div class="flex justify-end gap-1 mt-2 border-t pt-2" style="border-color: var(--border)">
+                    <button onclick="updateBookingStatus('${b.id}', 'pending'); closeModal();" class="text-xs text-white px-2 py-1 rounded bg-blue-500">استعادة كطلب جديد</button>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        html = '<p class="text-sm text-center py-10 text-gray-400">لا توجد حجوزات مؤرشفة حالياً.</p>';
+    }
+
+    // فتح نافذة منبثقة (Modal) لعرض القائمة
+    document.getElementById('modalContent').innerHTML = `
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6 pb-4 border-b" style="border-color: var(--border);">
+                <h3 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-archive"></i> الحجوزات المؤرشفة</h3>
+                <button onclick="closeModal()" class="text-2xl hover:text-gray-400 leading-none">&times;</button>
+            </div>
+            <div>${html}</div>
+        </div>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+    lockScroll();
+};
 window.acceptBooking = async (bookingId) => { 
     if (!window.checkOnlineStatus()) return; 
     const timeInput = document.getElementById(`time_${bookingId}`); 
