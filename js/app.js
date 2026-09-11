@@ -1123,16 +1123,28 @@ window.openModal = (id) => {
         else if (queueCount > 3) { queueStatusText = "ازدحام مرتفع"; queueColor = "#f87171"; }
 
         queueWidget = `
-        <div class="live-queue-widget">
-            <div class="lq-status">
-                <div class="lq-dot" style="background: ${queueColor}; box-shadow: 0 0 10px ${queueColor};"></div>
-                <div class="lq-text">${queueStatusText}<br><span style="font-size:10px; color:#8ea8a1;">حالة مباشرة</span></div>
-            </div>
-            <div class="lq-numbers">
-                <div class="lq-count">${queueCount} <span style="font-size:12px; color:#8ea8a1;">منتظر</span></div>
-                <div class="lq-time">~ ${totalWait} دقيقة</div>
-            </div>
-        </div>`;
+<div class="queue-tracker-card">
+    <div class="qt-header">
+        <div class="qt-icon" style="color: ${queueColor}; border-color: ${queueColor}40; background: ${queueColor}15;"><i class="fas fa-users"></i></div>
+        <div class="qt-info">
+            <span class="qt-title">حالة الازدحام المباشر</span>
+            <span class="qt-status" style="color: ${queueColor};">
+                <span class="qt-pulse-dot" style="background: ${queueColor};"></span> ${queueStatusText}
+            </span>
+        </div>
+    </div>
+    <div class="qt-stats">
+        <div class="qt-stat-box">
+            <span class="qt-num">${queueCount}</span>
+            <span class="qt-label">شخص في الانتظار</span>
+        </div>
+        <div class="qt-divider"></div>
+        <div class="qt-stat-box">
+            <span class="qt-num">${totalWait}</span>
+            <span class="qt-label">دقيقة متوقعة</span>
+        </div>
+    </div>
+</div>`;
 
         extraHTML = `${queueWidget} ${item.bookingnotes ? `<div class="flex items-center gap-3 p-3 rounded-xl mt-3" style="background: var(--bg)"><i class="fas fa-info-circle" style="color: var(--doctor)"></i><div><div class="text-xs" style="color: var(--muted)">تفاصيل إضافية</div><div class="text-sm font-bold">${escapeHtml(item.bookingnotes)}</div></div></div>` : ''}`;
            
