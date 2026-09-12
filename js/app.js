@@ -356,19 +356,14 @@ window.addEventListener('DOMContentLoaded', () => {
 }); // نهاية DOMContentLoaded
 
 async function fetchListings() {
-    // حماية: جلب أعمدة محددة فقط لمنع تسريب كلمات المرور
-    const { data: freshData, error } = await supabase.from('listings').select('id, name, type, specialty, address, clinic, hours, consulthours, emergencyphone, departments, floors, services, tests, homesample, night, nightdetails, bookingnotes, rating, image, view_count, phone_clicks, phone, is_subscribed, isopen, workingdays, latlng, user_id, parent_id, capacity_info, facility_details, active_system, allowed_systems, working_hours, current_queue, avg_wait_time');
+    // تغيير اسم الجدول إلى public_listings
+    const { data: freshData, error } = await supabase.from('public_listings').select('*');
     if (error) return;
-    
     const forceUpdate = localStorage.getItem('force_listings_update') === 'true';
     if (JSON.stringify(freshData) !== JSON.stringify(allData) || forceUpdate) {
         allData = freshData || [];
-        renderData(); 
-        updateStats();
-        try {
-            localStorage.setItem('cached_listings', JSON.stringify(allData));
-            localStorage.removeItem('force_listings_update');
-        } catch (e) {}
+        renderData(); updateStats();
+        try { localStorage.setItem('cached_listings', JSON.stringify(allData)); localStorage.removeItem('force_listings_update'); } catch (e) {}
     }
 }
 // === نظام الطوارئ الجديد المعتمد على النافذة المنبثقة ===
@@ -1413,18 +1408,17 @@ window.confirmBooking = async () => {
 
     try { 
         // === استدعاء الـ Edge Function الآمنة بدلاً من الإدراج المباشر ===
-        const { data: funcData, error: funcError } = await supabase.functions.invoke('book-appointment', {
-            body: { 
-                doctor_id: tempBooking.itemid,
-                doctor_name: tempBooking.itemname,
-                patient_name: name,
-                patient_phone: phone,
-                day: tempBooking.daystr,
-                time: tempBooking.slot_time || "بانتظار التحديد",
-                patient_push_id: patientPushId
-            }
-        });
-
+        const { data: funcData, error: funcError } = await supabase.functions.invoke('manage-public-requests', {
+    body: { 
+        action: 'book',
+        doctor_id: tempBooking.itemid,
+        patient_name: name,
+        patient_phone: phone,
+        day: tempBooking.daystr,
+        time: tempBooking.slot_time || "بانتظار التحديد",
+        patient_push_id: patientPushId
+    }
+});
                                 if (funcError) {
                     // استخراج رسالة الخطأ العربية من جسم الاستجابة (Response Body)
                     let errMsg = funcError.message;
@@ -2373,15 +2367,8 @@ window.generatePrescription = async (e, patientId, patientName) => {
     try {
         // === استدعاء الـ Edge Function الآمنة لتقوم بالتشفير في الخادم ===
         const { error: funcError } = await supabase.functions.invoke('save-prescription', {
-            body: { 
-                patient_id: patientId,
-                doctor: docInfo.name,
-                specialty: docInfo.specialty,
-                vercode: verCode,
-                text: rxText, // النص الصريح يُرسل عبر HTTPS آمن
-                date: date.toISOString()
-            }
-        });
+    body: { patient_id: patientId, text: rxText, date: date.toISOString() }
+             });
 
         if (funcError) {
             let errMsg = funcError.message;
@@ -3715,12 +3702,11 @@ window.openHealthFile = async () => {
         // إذا وصلنا إلى هنا، فالمستخدم ليس أدمن ولا طبيب/صيدلي => هو مريض
         currentHealthFileId = session.user.id;
         
-        const { data: docSnap, error: fetchError } = await supabase.from('health_files').select('*').eq('id', currentHealthFileId).maybeSingle();
-        
-        if (fetchError) { 
-            showToast('خطأ في جلب البيانات: ' + fetchError.message); 
-            return; 
-        }
+        const { data: fileData, error: funcError } = await supabase.functions.invoke('manage-health-file', {
+    body: { action: 'get' }
+});
+if (funcError || !fileData) { showToast('خطأ في جلب الملف', 'error'); return; }
+renderHealthDashboard(fileData);
         
         if (docSnap) { 
             renderHealthDashboard(docSnap); 
@@ -3813,7 +3799,7 @@ window.handleHealthRegister = async (e) => {
     
         const { error: dbError } = await supabase.from('health_files').insert([{ id: userId, full_name: fullName, qr_token: generateSecureToken(64) }]);
     if (dbError) { 
-        showToast('تم إنشاء الحساب ولكن حدث خطأ في قاعدة البيانات'); 
+        showToast('تم إنشاء الحساب ولكن حدث خطأ في الخادم'); 
         return; 
     }
 
@@ -3835,13 +3821,11 @@ window.handleHealthLogin = async (e) => {
     currentHealthFileId = data.user.id;
     localStorage.setItem('healthFileId', currentHealthFileId);
     
-    let { data: fileData, error: fileError } = await supabase.from('health_files').select('*').eq('id', currentHealthFileId).maybeSingle();
-    
-    if (fileError) { 
-        
-         showToast('خطأ في جلب الملف: ' + fileError.message, 'error');
-        return; 
-    }
+    const { data: fileData, error: funcError } = await supabase.functions.invoke('manage-health-file', {
+    body: { action: 'get' }
+});
+if (funcError || !fileData) { showToast('خطأ في جلب الملف', 'error'); return; }
+
     
     if (!fileData) {
         const defaultName = data.user.email ? data.user.email.split('@')[0] : 'مريض';
@@ -3857,9 +3841,6 @@ window.handleHealthLogin = async (e) => {
     renderHealthDashboard(fileData);
 };
  window.renderHealthDashboard = (data) => {
-    // فك تشفير البيانات قبل عرضها للمريض
-    const encryptionKey = data.qr_token || currentHealthFileId;
-    data = decryptHealthFile(data, encryptionKey);
 
     openCtrlPanel(`الملف الصحي: ${data.full_name || 'مريض'}`,  `
         <div class="bg-white p-6 rounded-2xl border-2 flex flex-col items-center" style="border-color: #EC4899;">
@@ -3953,35 +3934,36 @@ window.handleHealthLogin = async (e) => {
 
 window.saveHealthProfile = async (e) => {
     e.preventDefault();
-    
-    // 1. جلب الرمز السري لاستخدامه في التشفير
-    const { data: userData } = await supabase.from('health_files').select('qr_token').eq('id', currentHealthFileId).single();
-    const key = userData?.qr_token || currentHealthFileId;
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...'; }
 
-    // 2. قراءة البيانات من الحقول وتشفيرها
-    const encryptedData = {
-        full_name: encryptField(document.getElementById('hfFullName').value, key),
-        age: encryptField(document.getElementById('hfAge').value, key),
-        gender: encryptField(document.getElementById('hfGender').value, key),
-        blood_type: encryptField(document.getElementById('hfBloodType').value, key),
-        weight: encryptField(document.getElementById('hfWeight').value, key),
-        diseases: encryptField(document.getElementById('hfDiseases').value, key),
-        allergies: encryptField(document.getElementById('hfAllergies').value, key),
-        medications: encryptField(document.getElementById('hfMedications').value, key),
-        dental: encryptField(document.getElementById('hfDental').value, key),
-        eye: encryptField(document.getElementById('hfEye').value, key),
-        emergency_name: encryptField(document.getElementById('hfEmergencyName').value, key),
-        emergency_phone: encryptField(document.getElementById('hfEmergencyPhone').value, key)
+    const plainData = {
+        full_name: document.getElementById('hfFullName').value,
+        age: document.getElementById('hfAge').value,
+        gender: document.getElementById('hfGender').value,
+        blood_type: document.getElementById('hfBloodType').value,
+        weight: document.getElementById('hfWeight').value,
+        diseases: document.getElementById('hfDiseases').value,
+        allergies: document.getElementById('hfAllergies').value,
+        medications: document.getElementById('hfMedications').value,
+        dental: document.getElementById('hfDental').value,
+        eye: document.getElementById('hfEye').value,
+        emergency_name: document.getElementById('hfEmergencyName').value,
+        emergency_phone: document.getElementById('hfEmergencyPhone').value
     };
 
     try { 
-        await supabase.from('health_files').update(encryptedData).eq('id', currentHealthFileId); 
+        const { error: funcError } = await supabase.functions.invoke('manage-health-file', { body: { action: 'update', data: plainData } });
+        if (funcError) throw funcError;
         showToast('تم الحفظ والتشفير بنجاح!', 'success'); 
         
-        // إعادة جلب البيانات وفك تشفيرها لعرضها للمريض
-        const { data: updatedFile } = await supabase.from('health_files').select('*').eq('id', currentHealthFileId).maybeSingle();
+        const { data: updatedFile } = await supabase.functions.invoke('manage-health-file', { body: { action: 'get' } });
         if (updatedFile) renderHealthDashboard(updatedFile);
-    } catch (err) { showToast('حدث خطأ', 'error'); }
+    } catch (err) { 
+        showToast('حدث خطأ: ' + err.message, 'error'); 
+    } finally {
+        if(submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-save ml-2"></i> حفظ التحديثات'; }
+    }
 }
 window.regenerateQrToken = async () => {
     if (!window.checkOnlineStatus()) return; 
