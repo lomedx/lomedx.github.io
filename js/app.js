@@ -688,6 +688,7 @@ window.setFilter = (filter, btn) => {
     renderData(); 
 }
 let searchDebounceTimer;
+let searchDropdown = null;
 window.handleSearch = (value) => { 
     clearTimeout(searchDebounceTimer); // مسح أي بحث سابق
     
