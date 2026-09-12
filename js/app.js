@@ -1321,7 +1321,17 @@ window.handleContactSubmit = (e) => {
     e.target.reset(); 
 }
 
-window.addEventListener('scroll', () => { document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 80); document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 500); });
+let scrollTicking = false;
+window.addEventListener('scroll', () => {
+    if (!scrollTicking) {
+        window.requestAnimationFrame(() => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 80);
+            document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 500);
+            scrollTicking = false;
+        });
+        scrollTicking = true;
+    }
+});
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (document.getElementById('lightbox').classList.contains('active')) { document.getElementById('lightbox').classList.remove('active'); unlockScroll(); } if (document.getElementById('modalOverlay').classList.contains('active')) closeModal(); if (document.getElementById('ctrlOverlay').classList.contains('active')) closeCtrlPanel(); if (document.getElementById('mobileMenu').classList.contains('open')) toggleMobileMenu(); } });
 
 const allBtn = document.querySelector('[data-filter="all"]'); 
@@ -6266,5 +6276,40 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 150);
         }
     };
+});
+// === إدارة الموارد في الخلفية (لتقليل الحرارة واستهلاك البطارية) ===
+let pageVisibilityTimers = {};
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // المستخدم خرج من الصفحة: أوقف كل شيء لتبريد الهاتف
+        if (window.activeFollowupInterval) { clearInterval(window.activeFollowupInterval); pageVisibilityTimers.followup = currentFollowupBookingId; }
+        if (tipInterval) { clearInterval(tipInterval); pageVisibilityTimers.tips = true; }
+        if (window.activeHealthFileSub) { supabase.removeChannel(window.activeHealthFileSub); }
+        
+    } else if (pageVisibilityTimers.followup || pageVisibilityTimers.tips) {
+        // المستخدم عاد للصفحة: حدث البيانات فوراً ثم أعد المؤقتات
+        
+        // 1. تحديث الدردشة فوراً بدون انتظار
+        if (pageVisibilityTimers.followup) {
+            supabase.rpc('get_booking_by_id', { p_booking_id: pageVisibilityTimers.followup }).then(({ data }) => {
+                if (data) renderFollowupChat(pageVisibilityTimers.followup);
+            });
+            // إعادة تشغيل المؤقت
+            window.activeFollowupInterval = setInterval(async () => {
+                if (!document.getElementById('followupContent')) { clearInterval(window.activeFollowupInterval); return; }
+                const { data: freshBooking } = await supabase.rpc('get_booking_by_id', { p_booking_id: currentFollowupBookingId }).maybeSingle();
+                if (freshBooking) renderFollowupChat(currentFollowupBookingId);
+            }, 3000);
+        }
+        
+        // 2. إعادة مؤقت النصائح
+        if (pageVisibilityTimers.tips) {
+            updateTipDisplay();
+            tipInterval = setInterval(updateTipDisplay, 12000);
+        }
+        
+        pageVisibilityTimers = {};
+    }
 });
 // نهاية ملف app.js
