@@ -2294,24 +2294,6 @@ window.sendDocMessage = async (bookingId) => {
         showToast('خطأ في الإرسال', 'error'); 
     }
 };
-// === نظام حماية الطلبات عند انقطاع الإنترنت ===
-window.addEventListener('offline', () => {
-  showToast('⚠️ يبدو أنك فقدت اتصالك بالإنترنت. التصفح متاح، لكن الحجز والدردشة وأستغاثة معطلة حتى عودة الاتصال.', 'error');
-});
-
-// === إضافة سحرية: إخبار المستخدم بعودة الإنترنت ===
-window.addEventListener('online', () => {
-  showToast('✅ عاد الاتصال بالإنترنت! يمكنك الآن استخدام جميع الميزات بسلام.', 'success');
-});
-
-// دالة مساعدة لفحص الإنترنت قبل أي عملية حساسة
-window.checkOnlineStatus = () => {
-  if (!navigator.onLine) {
-    showToast('لا يمكن إتمام هذه العملية. أنت غير متصل بالإنترنت حالياً.', 'error');
-    return false;
-  }
-  return true;
-};
 window.openDoctorScanner = (docId) => {
     const docData = allData.find(d => d.id === docId) || {};
     openCtrlPanel('قارئ الملفات الصحية للمريض', `<div class="flex flex-col gap-4"><div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm flex items-center gap-3"><i class="fas fa-camera text-xl"></i><span>وجه كاميرا الهاتف نحو رمز QR الخاص بالمريض.</span></div><div id="qr-reader" style="width:100%"></div></div>`, '#2563EB');
@@ -5997,7 +5979,10 @@ window.selectBlogCategory = (cat) => {
 window.addEventListener('offline', () => {
   showToast('⚠️ يبدو أنك فقدت اتصالك بالإنترنت. التصفح متاح، لكن الحجز والدردشة وأستغاثة معطلة حتى عودة الاتصال.', 'error');
 });
-
+// === إضافة سحرية: إخبار المستخدم بعودة الإنترنت ===
+window.addEventListener('online', () => {
+  showToast('✅ عاد الاتصال بالإنترنت! يمكنك الآن استخدام جميع الميزات بسلام.', 'success');
+});
 // دالة مساعدة لفحص الإنترنت قبل أي عملية حساسة
 window.checkOnlineStatus = () => {
   if (!navigator.onLine) {
