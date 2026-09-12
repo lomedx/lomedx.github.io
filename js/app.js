@@ -1289,7 +1289,7 @@ window.openCtrlPanel = (title, contentHtml, headerColor = '#073D2E', preventClos
 window.closeCtrlPanel = (event) => { 
     const overlay = document.getElementById('ctrlOverlay');
     if (event && event.target.id === 'ctrlOverlay' && overlay.dataset.preventClose === 'true') return; 
-    
+    if (window.activeHealthFileSub) { supabase.removeChannel(window.activeHealthFileSub); window.activeHealthFileSub = null; }
     // === إيقاف الكاميرا إجبارياً عند إغلاق اللوحة ===
     if (activeQrScanner) {
         activeQrScanner.stop().then(() => {
