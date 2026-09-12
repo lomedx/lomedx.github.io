@@ -101,8 +101,22 @@
     setTimeout(function() {
         var splash = document.getElementById('appSplashScreen');
         if (splash) {
+            // 1. إيقاف جميع الحركات فوراً لتبريد المعالج
+            splash.style.animation = 'none';
+            var animatedElements = splash.querySelectorAll('*');
+            animatedElements.forEach(function(el) {
+                el.style.animation = 'none';
+            });
+            
+            // 2. بدء تأثير الاختفاء
             splash.classList.add('hidden');
-            setTimeout(function() { splash.style.display = 'none'; }, 800);
+            
+            // 3. حذف الشاشة نهائياً من الذاكرة (DOM) بعد انتهاء التأثير
+            setTimeout(function() { 
+                if (splash.parentNode) {
+                    splash.parentNode.removeChild(splash);
+                }
+            }, 800);
         }
     }, 3000);
 </script>
