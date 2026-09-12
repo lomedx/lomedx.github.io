@@ -1965,10 +1965,9 @@ async function fetchDocBookings(docId) {
     if (activeElement && activeElement.id && activeElement.id.startsWith('docChat_')) {
         return; 
     }
+    const { data: docBookings, error } = await supabase.from('bookings').select('id, itemid, itemname, name, phone, daystr, slot_time, time, status, ref, chat, patient_push_id, created_at')
+        .eq('itemid', docId).neq('status', 'archived').order('created_at', { ascending: false });
     
-    const { data: docBookings, error } = await supabase.from('bookings').select('id, itemid, itemname, name, phone, daystr, slot_time, time, status, ref, chat')
-        .select('*').eq('itemid', docId).neq('status', 'archived').order('created_at', { ascending: false });
-        
     if (error || !docBookings) { container.innerHTML = '<p class="text-sm text-center py-4 text-red-500">خطأ في تحميل الحجوزات.</p>'; return; }
     if (docBookings.length === 0) { container.innerHTML = '<p class="text-sm text-center py-4" style="color: var(--muted)">لا توجد طلبات حجز حالياً.</p>'; return; }
         bookings = docBookings; // تحديث المصفوفة المحلية لكي يجدها كود القبول
