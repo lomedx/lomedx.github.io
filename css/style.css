@@ -1278,8 +1278,3 @@ body.stop-animations *::after {
 .hero-bg.paused-anim *::after {
     animation-play-state: paused !important;
 }
-/* تفريغ الذاكرة للبطاقات التي لا يراها المستخدم (تحسين سرعة رهيب) */
-.card, .spa-legendary-card, .accordion-item, .premium-card {
-    content-visibility: auto;
-    contain-intrinsic-size: 240px; /* ارتفاع افتراضي للبطاقة حتى لا تقفز الشاشة */
-}
