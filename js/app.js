@@ -275,15 +275,21 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const splash = document.getElementById('appSplashScreen');
+        const splash = document.getElementById('appSplashScreen');
     if (splash) {
         if (sessionStorage.getItem('splashShown')) {
-            splash.style.display = 'none';
+            splash.remove(); // حذف فوري إذا كان المستخدم قد شاهدها مسبقاً في نفس الجلسة
         } else {
             setTimeout(() => {
+                // إيقاف الأنيميشن فوراً قبل الاختفاء
+                splash.style.animation = 'none';
+                splash.querySelectorAll('*').forEach(el => el.style.animation = 'none');
+                
                 splash.classList.add('hidden');
-                setTimeout(() => { splash.style.display = 'none'; }, 1000);
                 sessionStorage.setItem('splashShown', 'true'); 
+                
+                // حذف نهائي من الذاكرة
+                setTimeout(() => { splash.remove(); }, 1000);
             }, 1200);
         }
     }
