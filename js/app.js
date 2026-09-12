@@ -122,9 +122,23 @@ function escapeHtml(text) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
-function lockScroll() { scrollLockCount++; document.body.style.overflow = 'hidden'; }
-function unlockScroll() { scrollLockCount = Math.max(0, scrollLockCount - 1); if (scrollLockCount === 0) { document.body.style.overflow = ''; } }
+// دالة قفل التمرير مع إيقاف الحركات في الخلفية لتقليل حرارة الهاتف
+function lockScroll() { 
+    scrollLockCount++; 
+    document.body.style.overflow = 'hidden'; 
+    // إيقاف جميع حركات الـ CSS لتبريد المعالج أثناء فتح النوافذ
+    document.body.classList.add('stop-animations'); 
+}
 
+// دالة فتح التمرير مع إعادة الحركات
+function unlockScroll() { 
+    scrollLockCount = Math.max(0, scrollLockCount - 1); 
+    if (scrollLockCount === 0) { 
+        document.body.style.overflow = ''; 
+        // إعادة تشغيل الحركات عند إغلاق كل النوافذ
+        document.body.classList.remove('stop-animations'); 
+    } 
+}
 // === فلتر الكلمات المسيئة (شامل) ===
 const badWords = [
   "ahole", "anus", "ash0le", "ash0les", "asholes", "asshole", "assholes", "assholz", "asswipe", "azzhole",
