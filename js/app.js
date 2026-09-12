@@ -2035,8 +2035,7 @@ async function fetchDocBookings(docId) {
 window.viewArchivedBookings = async (docId) => {
     // جلب الحجوزات التي حالتها 'archived' فقط
     const { data: archivedBookings, error } = await supabase.from('bookings').select('id, name, daystr, time')
-        .select('*').eq('itemid', docId).eq('status', 'archived').order('created_at', { ascending: false });
-        
+        .eq('itemid', docId).eq('status', 'archived').order('created_at', { ascending: false });
     if (error) { showToast('خطأ في جلب المؤرشفة', 'error'); return; }
 
     let html = '';
@@ -6040,7 +6039,7 @@ const PwaInstaller = (() => {
 
                 showToast('التثبيت المباشر غير متاح حالياً. يمكنك إضافته من قائمة المتصفح (ثلاث نقاط) -> "إضافة إلى الشاشة الرئيسية".', 'warning');
             } catch (error) {
-                console.error('PWA Installation Error:', error);
+        
                 showToast('تعذر تعقب طلب التثبيت، يرجى المحاولة لاحقاً.', 'error');
             }
         }
