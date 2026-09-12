@@ -3723,6 +3723,7 @@ window.openHealthFile = async () => {
         
         renderHealthDashboard(fileData);
         return;
+    }
     // إذا لم يكن مسجل دخول أبداً، اعرض له شاشة الدخول
     openCtrlPanel('الملف الصحي الذكي', `
         <div class="flex flex-col gap-4 max-w-md mx-auto w-full">
