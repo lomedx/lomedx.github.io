@@ -1252,12 +1252,7 @@ html.dark .qt-stats { background: rgba(0,0,0,0.3); }
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
 }
-/* إيقاف الحركات في الخلفية عند فتح النوافذ، مع إبقاء حركات قائمة الجوال تعمل */
-body.stop-animations *:not(.mobile-menu-premium):not(.mobile-menu-premium *),
-body.stop-animations *::before,
-body.stop-animations *::after {
-    animation-play-state: paused !important;
-}
+
 /* تحسين أداء التمرير ورسم البطاقات لتقليل حرارة كرت الشاشة */
 .card, .premium-card, .spa-legendary-card, .accordion-item {
     content-visibility: auto;
@@ -1323,4 +1318,16 @@ body.stop-animations *::after {
     40% { transform: scale(1) !important; }
     60% { transform: scale(1.15) !important; }
     80% { transform: scale(1) !important; }
+}
+
+
+
+/* إيقاف حركات الهيرو الثقيلة فقط عند فتح القوائم لتقليل الحرارة */
+body.stop-animations .hero-bg::before,
+body.stop-animations .hero-bg::after,
+body.stop-animations .hero-medical-logo,
+body.stop-animations .hero-medical-logo::before,
+body.stop-animations .hero-medical-logo::after,
+body.stop-animations .hero-medical-logo img {
+    animation-play-state: paused !important;
 }
