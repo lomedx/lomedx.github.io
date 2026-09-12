@@ -1556,7 +1556,10 @@ window.openPharmacyLogin = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session && session.user.email && session.user.email.endsWith('@lomedx.app')) {
         const userId = session.user.id;
-        const listing = allData.find(d => d.user_id === userId && d.type === 'pharmacy');
+        const { data: listing } = await supabase.from('listings')
+            .select('id, name, image, is_subscribed, isopen, night, phone_clicks, view_count')
+            .eq('user_id', userId).eq('type', 'pharmacy').maybeSingle();
+
         if (listing) {
             if (listing.is_subscribed) {
                 renderPharmacyDashboard(listing); 
@@ -1718,7 +1721,11 @@ window.openDoctorLogin = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session && session.user.email && session.user.email.endsWith('@lomedx.app')) {
         const userId = session.user.id;
-        const listing = allData.find(d => d.user_id === userId && d.type === 'doctor');
+        // جلب البيانات مباشرة
+        const { data: listing } = await supabase.from('listings')
+            .select('id, name, specialty, image, is_subscribed, active_system, allowed_systems, working_hours, workingdays, current_queue, avg_wait_time, phone_clicks, view_count')
+            .eq('user_id', userId).eq('type', 'doctor').maybeSingle();
+
         if (listing) {
             if (listing.is_subscribed) {
                 renderDoctorDashboard(listing); 
@@ -1738,7 +1745,6 @@ window.handleDoctorLogin = async (e) => {
     const loginInput = document.getElementById('docPhone');
     const passInput = document.getElementById('docPass');
     
-    // 1. تنظيف المُعرف للسماح بالحروف الإنجليزية والأرقام فقط
     const loginId = loginInput.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
     const pass = passInput.value.trim();
     
@@ -1747,18 +1753,19 @@ window.handleDoctorLogin = async (e) => {
         return;
     }
     
-    // 2. تكوين الإيميل بناءً على المُعرف
     const dummyEmail = `doc_${loginId}@lomedx.app`;
     
-    // 3. تسجيل الدخول
     const { data, error } = await supabase.auth.signInWithPassword({ email: dummyEmail, password: pass });
     if (error) { 
         showToast('بيانات الدخول غير صحيحة. تأكد من مُعرف الدخول وكلمة المرور.', 'error'); 
         return; 
     }
 
-    // 4. التحقق من الملف
-    const docData = allData.find(d => d.user_id === data.user.id && d.type === 'doctor'); 
+    // === التعديل هنا: جلب بيانات الطبيب مباشرة من listings بدلاً من allData ===
+    const { data: docData, error: fetchError } = await supabase.from('listings')
+        .select('id, name, specialty, image, is_subscribed, active_system, allowed_systems, working_hours, workingdays, current_queue, avg_wait_time, phone_clicks, view_count')
+        .eq('user_id', data.user.id).eq('type', 'doctor').maybeSingle();
+
     if (docData) { 
         if (!docData.is_subscribed) {
             await supabase.auth.signOut();
@@ -1787,7 +1794,6 @@ window.handlePharmacyLogin = async (e) => {
     const loginInput = document.getElementById('pharmPhone');
     const passInput = document.getElementById('pharmPass');
     
-    // 1. تنظيف المُعرف للسماح بالحروف الإنجليزية والأرقام فقط
     const loginId = loginInput.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
     const pass = passInput.value.trim();
     
@@ -1796,7 +1802,6 @@ window.handlePharmacyLogin = async (e) => {
         return;
     }
     
-    // 2. تكوين الإيميل بناءً على المُعرف
     const dummyEmail = `pharm_${loginId}@lomedx.app`;
 
     const { data, error } = await supabase.auth.signInWithPassword({ email: dummyEmail, password: pass });
@@ -1805,7 +1810,11 @@ window.handlePharmacyLogin = async (e) => {
         return; 
     }
 
-    const pharmData = allData.find(d => d.user_id === data.user.id && d.type === 'pharmacy'); 
+    // === التعديل هنا: جلب بيانات الصيدلية مباشرة من listings ===
+    const { data: pharmData, error: fetchError } = await supabase.from('listings')
+        .select('id, name, image, is_subscribed, isopen, night, phone_clicks, view_count')
+        .eq('user_id', data.user.id).eq('type', 'pharmacy').maybeSingle();
+
     if (pharmData) { 
         if (!pharmData.is_subscribed) {
             await supabase.auth.signOut();
@@ -3530,13 +3539,14 @@ window.saveFacility = async (e) => {
     
     // قراءة كلمة المرور التي أدخلها الأدمن يدوياً
     const customPassword = document.getElementById('new_custom_password').value.trim();
-        // === تحديث كلمة المرور إذا كنا في وضع التعديل وأدخل الأدمن كلمة جديدة ===
+        // تحديث كلمة المرور إذا كنا في وضع التعديل وأدخل الأدمن كلمة جديدة
     if (id && (type === 'doctor' || type === 'pharmacy') && customPassword.length >= 6) {
-        const item = allData.find(d => d.id === id);
-        if (item && item.user_id) {
+        // === التعديل هنا: جلب user_id من قاعدة البيانات لأنه غير موجود في allData ===
+        const { data: facilityData } = await supabase.from('listings').select('user_id').eq('id', id).single();
+        if (facilityData && facilityData.user_id) {
             try {
                 await supabase.functions.invoke('create-user', {
-                    body: { action: 'update', user_id: item.user_id, password: customPassword , type: type}
+                    body: { action: 'update', user_id: facilityData.user_id, password: customPassword }
                 });
                 showToast('تم تحديث كلمة المرور بنجاح', 'success');
             } catch (err) {
