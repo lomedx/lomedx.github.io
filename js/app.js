@@ -1192,11 +1192,34 @@ window.closeModal = (event) => {
     }
 }
 window.copyNumber = (phone) => { navigator.clipboard.writeText(phone).then(() => showToast('تم نسخ رقم الهاتف بنجاح')).catch(() => showToast('تعذر النسخ')); }
-window.trackPhoneClick = (id) => {
-    const item = allData.find(d => d.id === id);
-    if (!item) return;
-    item.phone_clicks = (item.phone_clicks || 0) + 1;
-    supabase.rpc('increment_phone_click', { listing_id: id }).catch(() => {});
+window.trackPhoneClick = async (id) => {
+    if (!id) return;
+    try {
+        // 1. استدعاء الدالة في قاعدة البيانات
+        const { error } = await supabase.rpc('increment_phone_click', { p_listing_id: id });
+        if (error) throw error;
+
+        // 2. تحديث الرقم في الذاكرة المحلية
+        const item = allData.find(d => d.id === id);
+        if (item) {
+            item.phone_clicks = (item.phone_clicks || 0) + 1;
+        }
+
+        // 3. تحديث الواجهة فوراً (بدون انتظار Realtime)
+        const docPhoneClicksEl = document.getElementById('docPhoneClicks');
+        if (docPhoneClicksEl && window.currentDashboardData?.id === id) {
+            docPhoneClicksEl.innerText = item.phone_clicks;
+        }
+        
+        // تحديث حقل الصيدلية إذا كانت مفتوحة
+        const pharmPhoneClicksEl = document.getElementById('pharmPhoneClicks');
+        if (pharmPhoneClicksEl && window.currentDashboardData?.id === id) {
+            pharmPhoneClicksEl.innerText = item.phone_clicks;
+        }
+
+    } catch (err) {
+        console.error('خطأ في عداد الهاتف:', err.message);
+    }
 };
 window.copyText = (text) => { navigator.clipboard.writeText(text).then(() => showToast('تم نسخ الكود بنجاح')).catch(() => showToast('تعذر النسخ')); }
 
@@ -1593,7 +1616,17 @@ const { count: providedCount } = await supabase
     
     const providedMeds = providedCount || 0;
     
-    openCtrlPanel(`لوحة تحكم: ${pharm.name}`, `<div class="flex flex-col gap-5"><div class="bg-white p-5 rounded-xl border flex items-center justify-between flex-col sm:flex-row gap-4" style="border-color: var(--border)"><div class="flex items-center gap-4"><img src="${escapeHtml(pharm.image)}" class="w-20 h-20 rounded-2xl object-cover"><div><h3 class="font-bold text-lg">${escapeHtml(pharm.name)}</h3><p class="text-sm" style="color: var(--pharmacy)">صيدلية</p></div></div><div class="bg-white p-3 rounded-xl border flex items-center justify-between gap-2 mb-3" style="border-color: var(--border);"><span class="text-sm font-bold text-gray-700">حالة العمل:</span><div class="flex gap-1 bg-gray-50 p-1 rounded-lg"><button onclick="setStatus('${pharm.id}', true)" class="px-4 py-1.5 rounded-md text-xs font-bold transition-all ${pharm.isopen === true ? 'bg-green-500 text-white shadow' : 'text-gray-500 hover:bg-gray-100'}">مفتوح</button><button onclick="setStatus('${pharm.id}', false)" class="px-4 py-1.5 rounded-md text-xs font-bold transition-all ${pharm.isopen === false ? 'bg-red-500 text-white shadow' : 'text-gray-500 hover:bg-gray-100'}">مغلق</button><button onclick="setStatus('${pharm.id}', null)" class="px-4 py-1.5 rounded-md text-xs font-bold transition-all ${pharm.isopen == null ? 'bg-gray-700 text-white shadow' : 'text-gray-500 hover:bg-gray-100'}">لا شيء</button></div></div><button onclick="toggleNightShift('${pharm.id}', ${!pharm.night})" class="w-full px-4 py-2 rounded-xl font-bold text-sm ${pharm.night ? 'bg-yellow-500 text-white' : 'bg-gray-200'}">${pharm.night ? 'إيقاف المناوبة الليلية' : 'تفعيل المناوبة الليلية'}</button></div> <div class="grid grid-cols-3 gap-3"><div class="bg-white p-4 rounded-xl border text-center" style="border-color: var(--border);"><i class="fas fa-eye text-blue-500 text-xl mb-1"></i><div class="text-2xl font-black text-gray-800">${pharm.view_count || 0}</div><div class="text-xs text-gray-500">زيارة الملف</div></div><div class="bg-white p-4 rounded-xl border text-center" style="border-color: var(--border);"><i class="fas fa-hand-holding-medical text-green-500 text-xl mb-1"></i><div class="text-2xl font-black text-gray-800">${providedMeds}</div><div class="text-xs text-gray-500">أدوية موفرة</div></div><div class="bg-white p-4 rounded-xl border text-center" style="border-color: var(--border);"><i class="fas fa-phone-alt text-purple-500 text-xl mb-1"></i><div class="text-2xl font-black text-gray-800">${pharm.phone_clicks || 0}</div><div class="text-xs text-gray-500">نقرات الهاتف</div></div></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm">طلبات الأدوية الواردة</h4><div id="requestsContainer" class="flex flex-col gap-3"><p class="text-center py-10" style="color: var(--muted)">جاري تحميل الطلبات...</p></div></div> <button onclick="logoutPharmacy()" class="w-full py-3 rounded-xl border font-bold text-sm mt-3" style="border-color: #EF4444; color: #EF4444;"><i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج</button></div>`, '#0E7C5F', true); 
+    openCtrlPanel(`لوحة تحكم: ${pharm.name}`, `<div class="flex flex-col gap-5"><div class="bg-white p-5 rounded-xl border flex items-center justify-between flex-col sm:flex-row gap-4" style="border-color: var(--border)"><div class="flex items-center gap-4"><img src="${escapeHtml(pharm.image)}" class="w-20 h-20 rounded-2xl object-cover"><div><h3 class="font-bold text-lg">${escapeHtml(pharm.name)}</h3><p class="text-sm" style="color: var(--pharmacy)">صيدلية</p></div></div><div class="bg-white p-3 rounded-xl border flex items-center justify-between gap-2 mb-3" style="border-color: var(--border);"><span class="text-sm font-bold text-gray-700">حالة العمل:</span><div class="flex gap-1 bg-gray-50 p-1 rounded-lg"><button onclick="setStatus('${pharm.id}', true)" class="px-4 py-1.5 rounded-md text-xs font-bold transition-all ${pharm.isopen === true ? 'bg-green-500 text-white shadow' : 'text-gray-500 hover:bg-gray-100'}">مفتوح</button><button onclick="setStatus('${pharm.id}', false)" class="px-4 py-1.5 rounded-md text-xs font-bold transition-all ${pharm.isopen === false ? 'bg-red-500 text-white shadow' : 'text-gray-500 hover:bg-gray-100'}">مغلق</button><button onclick="setStatus('${pharm.id}', null)" class="px-4 py-1.5 rounded-md text-xs font-bold transition-all ${pharm.isopen == null ? 'bg-gray-700 text-white shadow' : 'text-gray-500 hover:bg-gray-100'}">لا شيء</button></div></div><button onclick="toggleNightShift('${pharm.id}', ${!pharm.night})" class="w-full px-4 py-2 rounded-xl font-bold text-sm ${pharm.night ? 'bg-yellow-500 text-white' : 'bg-gray-200'}">${pharm.night ? 'إيقاف المناوبة الليلية' : 'تفعيل المناوبة الليلية'}</button></div>         <div class="grid grid-cols-3 gap-3">
+            <div class="bg-white p-4 rounded-xl border text-center" style="border-color: var(--border);">
+                <i class="fas fa-eye text-blue-500 text-xl mb-1"></i><div class="text-2xl font-black text-gray-800" id="pharmViewCount">${pharm.view_count || 0}</div><div class="text-xs text-gray-500">زيارة الملف</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border text-center" style="border-color: var(--border);">
+                <i class="fas fa-hand-holding-medical text-green-500 text-xl mb-1"></i><div class="text-2xl font-black text-gray-800">${providedMeds}</div><div class="text-xs text-gray-500">أدوية موفرة</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border text-center" style="border-color: var(--border);">
+                <i class="fas fa-phone-alt text-purple-500 text-xl mb-1"></i><div class="text-2xl font-black text-gray-800" id="pharmPhoneClicks">${pharm.phone_clicks || 0}</div><div class="text-xs text-gray-500">نقرات الهاتف</div>
+            </div>
+        </div><div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm">طلبات الأدوية الواردة</h4><div id="requestsContainer" class="flex flex-col gap-3"><p class="text-center py-10" style="color: var(--muted)">جاري تحميل الطلبات...</p></div></div> <button onclick="logoutPharmacy()" class="w-full py-3 rounded-xl border font-bold text-sm mt-3" style="border-color: #EF4444; color: #EF4444;"><i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج</button></div>`, '#0E7C5F', true); 
     
         // إيقاف أي تحديث سابق
     if (unsubscribeMedRequests) { supabase.removeChannel(unsubscribeMedRequests); }
