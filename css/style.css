@@ -1322,12 +1322,3 @@ html.dark .qt-stats { background: rgba(0,0,0,0.3); }
 
 
 
-/* إيقاف حركات الهيرو الثقيلة فقط عند فتح القوائم لتقليل الحرارة */
-body.stop-animations .hero-bg::before,
-body.stop-animations .hero-bg::after,
-body.stop-animations .hero-medical-logo,
-body.stop-animations .hero-medical-logo::before,
-body.stop-animations .hero-medical-logo::after,
-body.stop-animations .hero-medical-logo img {
-    animation-play-state: paused !important;
-}
