@@ -1280,113 +1280,187 @@ html.dark .qt-stats { background: rgba(0,0,0,0.3); }
 
 /* 1. إصلاح حركة الوهج للزر */
 /* === التنسيق الفاخر لزر الملف الصحي الذكي === */
+/* =========================================================
+   تنسيق الزر الفاخر المتقدم (Ultra-Pro Cyber-Medical Button)
+   ========================================================= */
 
 .btn-health-glow {
     position: relative !important;
     overflow: hidden !important;
-    background: linear-gradient(135deg, #095E47 0%, #0E7C5F 50%, #064D3A 100%) !important;
-    border: 1px solid rgba(240, 215, 123, 0.6) !important;
-    box-shadow: 0 6px 20px rgba(14, 124, 95, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    background: rgba(8, 28, 22, 0.75) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    border: 1px solid rgba(240, 215, 123, 0.3) !important;
+    border-radius: 18px !important;
+    box-shadow: 
+        0 10px 30px -10px rgba(0, 0, 0, 0.5),
+        0 0 20px 0 rgba(14, 124, 95, 0.2),
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4) !important;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
     z-index: 1 !important;
+    transform: translateZ(0); /* تسريع عبر GPU */
 }
 
-/* طبقة الإضاءة النبضية الخلفية (تمنع تموج الخلفية القاسي) */
+/* 1. حلقة الهالة الحيوية المتوهجة المترددة (Bio-Plasma Mesh Glow) */
 .btn-health-glow::before {
     content: '' !important;
     position: absolute !important;
-    inset: 0 !important;
-    background: linear-gradient(135deg, rgba(196, 150, 44, 0.8) 0%, rgba(240, 215, 123, 0.95) 100%) !important;
-    opacity: 0;
-    z-index: -1 !important;
-    animation: goldPulseGlow 3s ease-in-out infinite alternate !important;
-    transition: opacity 0.4s ease !important;
+    inset: -2px !important;
+    border-radius: 20px !important;
+    background: linear-gradient(
+        135deg, 
+        rgba(196, 150, 44, 0.8), 
+        rgba(14, 124, 95, 0.9), 
+        rgba(16, 185, 129, 0.8), 
+        rgba(240, 215, 123, 0.8)
+    ) !important;
+    background-size: 300% 300% !important;
+    z-index: -2 !important;
+    opacity: 0.4;
+    filter: blur(10px) !important;
+    animation: plasmaBorderShift 6s ease infinite alternate !important;
+    transition: opacity 0.5s ease !important;
 }
 
-/* خط مسح ضوئي ذكي ليزري (Smart Scan Effect) */
+/* 2. خط المسح الضوئي الزجاجي الهولوجرافي (Holographic Prism Sweep) */
 .btn-health-glow::after {
     content: '' !important;
     position: absolute !important;
-    top: -50% !important;
-    left: -150% !important;
-    width: 60% !important;
-    height: 200% !important;
+    top: 0 !important;
+    left: -200% !important;
+    width: 100% !important;
+    height: 100% !important;
     background: linear-gradient(
-        90deg, 
-        transparent 0%, 
-        rgba(255, 255, 255, 0.4) 50%, 
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.03) 20%,
+        rgba(240, 215, 123, 0.25) 50%,
+        rgba(255, 255, 255, 0.6) 55%,
+        rgba(16, 185, 129, 0.2) 70%,
         transparent 100%
     ) !important;
-    transform: rotate(25deg) !important;
-    animation: laserScan 4s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+    transform: skewX(-25deg) !important;
+    animation: holoSweep 4s cubic-bezier(0.25, 1, 0.5, 1) infinite !important;
     z-index: 2 !important;
     pointer-events: none !important;
 }
 
-/* ضبط النصوص والأيقونات لتبدو حادة ومتناسقة */
+/* === تنسيق النصوص والعناصر الداخلية === */
 .btn-health-glow span {
-    color: #FFFFFF !important;
-    font-weight: 700 !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
-    transition: color 0.3s ease !important;
+    position: relative !important;
+    z-index: 3 !important;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F0D77B 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.3px !important;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6)) !important;
 }
 
+/* === تأثير تحويم الماوس واللمس (Interactive Hover & Touch) === */
 .btn-health-glow:hover {
-    transform: translateY(-3px) scale(1.02) !important;
-    border-color: #FFFFFF !important;
-    box-shadow: 0 12px 28px rgba(196, 150, 44, 0.4), 0 0 15px rgba(240, 215, 123, 0.5) !important;
+    transform: translateY(-4px) scale(1.025) !important;
+    border-color: rgba(240, 215, 123, 0.9) !important;
+    box-shadow: 
+        0 20px 40px -12px rgba(14, 124, 95, 0.5),
+        0 0 30px 2px rgba(196, 150, 44, 0.4),
+        inset 0 1px 2px rgba(255, 255, 255, 0.6) !important;
 }
 
-/* === نبض الأيقونة الطبية الاحترافي (ECG Pulse) === */
+.btn-health-glow:hover::before {
+    opacity: 1 !important;
+    filter: blur(14px) !important;
+}
+
+.btn-health-glow:active {
+    transform: translateY(-1px) scale(0.98) !important;
+}
+
+/* =========================================================
+   نبض الأيقونة الطبية المعقد (Cyber ECG Pulse)
+   ========================================================= */
+
 .icon-heartbeat {
-    display: inline-block !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    z-index: 3 !important;
     color: #F0D77B !important;
-    filter: drop-shadow(0 0 6px rgba(240, 215, 123, 0.8)) !important;
-    animation: ecgHeartbeat 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
-    will-change: transform;
+    filter: drop-shadow(0 0 8px rgba(240, 215, 123, 0.8)) !important;
+    animation: clinicalECG 3s cubic-bezier(0.22, 1, 0.36, 1) infinite !important;
+    will-change: transform, filter;
 }
 
-/* === الحركة والأنيميشن === */
-
-/* نبض التوهج الذهبي الناعم */
-@keyframes goldPulseGlow {
-    0% { 
-        opacity: 0; 
-    }
-    50% { 
-        opacity: 0.85; 
-    }
-    100% { 
-        opacity: 0; 
-    }
+/* حلقة موجات الرادار الخلفية للأيقونة */
+.icon-heartbeat::after {
+    content: '' !important;
+    position: absolute !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 50% !important;
+    border: 1.5px solid rgba(16, 185, 129, 0.8) !important;
+    opacity: 0;
+    z-index: -1 !important;
+    animation: radarPulseRing 3s ease-out infinite !important;
 }
 
-/* حركات خط المسح الليزري */
-@keyframes laserScan {
-    0%, 30% { 
-        left: -150%; 
-    }
-    70%, 100% { 
-        left: 200%; 
-    }
+/* =========================================================
+   الإنيميشن والمؤثرات الحركية (GPU Optimized Animations)
+   ========================================================= */
+
+/* حركة تموج التدرج الزمردي والذهبي */
+@keyframes plasmaBorderShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-/* نبض تخطيط القلب الطبي الحقيقي */
-@keyframes ecgHeartbeat {
-    0%, 60%, 100% { 
-        transform: scale(1); 
-        filter: drop-shadow(0 0 4px rgba(240, 215, 123, 0.6));
+/* مسح شعاع الهولوجرام */
+@keyframes holoSweep {
+    0%, 40% { left: -200%; }
+    75%, 100% { left: 200%; }
+}
+
+/* نمط تخطيط القلب الطبي الحقيقي (ECG Sequence) */
+@keyframes clinicalECG {
+    0%, 65%, 100% {
+        transform: scale(1) rotate(0deg);
+        color: #F0D77B;
+        filter: drop-shadow(0 0 8px rgba(240, 215, 123, 0.8));
     }
-    68% { 
-        transform: scale(1.32) rotate(-4deg); 
+    70% {
+        transform: scale(1.35) rotate(-6deg);
         color: #FFFFFF;
-        filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9));
+        filter: drop-shadow(0 0 16px rgba(255, 255, 255, 1)) drop-shadow(0 0 25px rgba(16, 185, 129, 0.9));
     }
-    76% { 
-        transform: scale(0.95); 
+    76% {
+        transform: scale(0.9) rotate(2deg);
+        color: #10B981;
     }
-    84% { 
-        transform: scale(1.18) rotate(2deg); 
-        filter: drop-shadow(0 0 8px rgba(240, 215, 123, 0.9));
+    82% {
+        transform: scale(1.22) rotate(-3deg);
+        color: #F0D77B;
+        filter: drop-shadow(0 0 12px rgba(240, 215, 123, 0.9));
+    }
+    88% {
+        transform: scale(0.98);
+    }
+}
+
+/* موجة الرادار المنبثقة خلف الأيقونة */
+@keyframes radarPulseRing {
+    0%, 65% {
+        transform: scale(0.6);
+        opacity: 0;
+    }
+    70% {
+        opacity: 0.9;
+    }
+    90%, 100% {
+        transform: scale(2.4);
+        opacity: 0;
     }
 }
