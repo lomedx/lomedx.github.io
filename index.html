@@ -65,7 +65,32 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript" ></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- ربط ملف التنسيقات المنفصل -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=2">
+
+
+    <!-- كود حركة زر الملف الصحي (مدمج مؤقتاً لحل مشكلة الكاش) -->
+<style>
+.btn-health-glow {
+    animation: health-blink 1.5s infinite !important;
+}
+@keyframes health-blink {
+    0%, 100% { 
+        background: linear-gradient(135deg, #92610A, #C4962C) !important; 
+        box-shadow: 0 0 5px rgba(196, 150, 44, 0.3) !important;
+    }
+    50% { 
+        background: linear-gradient(135deg, #F0D77B, #ffffff) !important; 
+        box-shadow: 0 0 25px rgba(255, 255, 255, 0.8) !important; 
+    }
+}
+.icon-heartbeat {
+    animation: heart-beat 1s infinite !important;
+}
+@keyframes heart-beat {
+    0%, 100% { transform: scale(1) !important; }
+    50% { transform: scale(1.3) !important; }
+}
+</style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" ></script>
 </head>
 <body>
