@@ -2247,12 +2247,13 @@ window.openDoctorScanner = (docId) => {
 
 window.fetchPatientHealthFile = async (userId, doctorData) => {
     try {
-        const { data: p, error } = await supabase
-  .rpc('get_patient_file_by_qr', { qr_token_param: userId })
-  .maybeSingle();
+                // استدعاء دالة الخادم لفك التشفير بأمان
+        const { data: p, error } = await supabase.functions.invoke('get-patient-file', {
+            body: { qr_token: userId }
+        });
         
-        // فك تشفير البيانات للطبيب باستخدام رمز QR
-        const decryptedP = decryptHealthFile(p, userId);
+        // البيانات تصل مفكوك تشفيرها وجاهزة للعرض
+        const decryptedP = p;
         
         if (error || !decryptedP) { showToast("لم يتم العثور على ملف بهذا الرمز.", 'error'); return; }
         closeCtrlPanel();
