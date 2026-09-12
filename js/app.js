@@ -1357,7 +1357,7 @@ window.closeCtrlPanel = (event) => {
     }
     overlay.classList.remove('active'); 
     unlockScroll(); 
-    
+    document.getElementById('ctrlContent').innerHTML = ''; 
     if (doctorDashboardInterval) { clearInterval(doctorDashboardInterval); doctorDashboardInterval = null; } 
     if (unsubscribeMedRequests) { supabase.removeChannel(unsubscribeMedRequests); unsubscribeMedRequests = null; } 
     if (unsubscribeMedRequestsInterval) { clearInterval(unsubscribeMedRequestsInterval); unsubscribeMedRequestsInterval = null; } 
