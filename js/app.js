@@ -2398,13 +2398,19 @@ window.deletePrescription = async (rxDate) => {
     if (!window.checkOnlineStatus()) return; 
     if (!confirm("هل أنت متأكد من حذف هذه الروشتة؟")) return;
     try {
-        const { data: docSnap, error } = await supabase.from('health_files').select('*').eq('id', currentHealthFileId).maybeSingle();
-        if (error) return;
-        const updatedRx = (docSnap.prescriptions || []).filter(p => p.date !== rxDate);
-        await supabase.from('health_files').update({ prescriptions: updatedRx }).eq('id', currentHealthFileId);
+        const { error: funcError } = await supabase.functions.invoke('manage-health-file', {
+            body: { action: 'delete_prescription', date: rxDate }
+        });
+        if (funcError) throw funcError;
+
         showToast('تم حذف الروشتة بنجاح', 'success');
-        renderHealthDashboard({ ...docSnap, prescriptions: updatedRx });
-    } catch (err) { showToast('حدث خطأ أثناء الحذف', 'error'); }
+        
+        // إعادة جلب الملف لتحديث الواجهة
+        const { data: updatedFile } = await supabase.functions.invoke('manage-health-file', { body: { action: 'get' } });
+        if (updatedFile) renderHealthDashboard(updatedFile);
+    } catch (err) { 
+        showToast('حدث خطأ أثناء الحذف: ' + err.message, 'error'); 
+    }
 };
             
 window.openMedicineDonation = () => {
@@ -3969,59 +3975,17 @@ window.regenerateQrToken = async () => {
     if (!window.checkOnlineStatus()) return; 
     if (!confirm("هل أنت متأكد من تغيير رمز QR؟ سيتم إعادة تشفير بياناتك وروشتاتك السابقة بمفتاح جديد.")) return;
     try {
-        // 1. جلب الملف والمفتاح القديم
-        const { data: currentFile } = await supabase.from('health_files').select('*').eq('id', currentHealthFileId).maybeSingle();
-        if (!currentFile) return;
-        
-        const oldKey = currentFile.qr_token;
-        const decryptedData = decryptHealthFile(currentFile, oldKey);
-
-        // 2. توليد مفتاح جديد (تم تصحيح اسم الدالة هنا)
-        const newKey = generateSecureToken(64);
-
-        // 3. إعادة تشفير البيانات الأساسية بالمفتاح الجديد
-        const newEncryptedData = {
-            qr_token: newKey,
-            full_name: encryptField(decryptedData.full_name, newKey),
-            age: encryptField(decryptedData.age, newKey),
-            gender: encryptField(decryptedData.gender, newKey),
-            blood_type: encryptField(decryptedData.blood_type, newKey),
-            weight: encryptField(decryptedData.weight, newKey),
-            diseases: encryptField(decryptedData.diseases, newKey),
-            allergies: encryptField(decryptedData.allergies, newKey),
-            medications: encryptField(decryptedData.medications, newKey),
-            dental: encryptField(decryptedData.dental, newKey),
-            eye: encryptField(decryptedData.eye, newKey),
-            emergency_name: encryptField(decryptedData.emergency_name, newKey),
-            emergency_phone: encryptField(decryptedData.emergency_phone, newKey)
-        };
-
-        // 4. إعادة تشفير الروشتات القديمة بالمفتاح الجديد
-        if (currentFile.prescriptions && currentFile.prescriptions.length > 0) {
-            const reEncryptedPrescriptions = currentFile.prescriptions.map(rx => {
-                const decryptedText = decryptField(rx.text, oldKey);
-                return {
-                    ...rx,
-                    text: encryptField(decryptedText, newKey)
-                };
-            });
-            newEncryptedData.prescriptions = reEncryptedPrescriptions;
-        } else {
-            newEncryptedData.prescriptions = [];
-        }
-
-        // 5. حفظ كل شيء بالمفتاح الجديد
-        const { error: updateError } = await supabase.from('health_files').update(newEncryptedData).eq('id', currentHealthFileId);
-        if (updateError) throw updateError;
+        const { error: funcError } = await supabase.functions.invoke('manage-health-file', {
+            body: { action: 'regenerate_token' }
+        });
+        if (funcError) throw funcError;
         
         showToast('تم تغيير الرمز وإعادة تشفير الروشتات بنجاح!', 'success');
 
-        // إعادة تحميل اللوحة
-        const { data: updatedFile } = await supabase.from('health_files').select('*').eq('id', currentHealthFileId).maybeSingle();
+        // إعادة جلب البيانات المفكوك تشفيرها لتحديث الواجهة
+        const { data: updatedFile } = await supabase.functions.invoke('manage-health-file', { body: { action: 'get' } });
         if (updatedFile) renderHealthDashboard(updatedFile);
     } catch (err) {
-        console.error("QR Change Error:", err);
-        // إظهار الخطأ الفعلي للمستخدم بدلاً من رسالة عامة
         showToast('حدث خطأ أثناء تغيير الرمز: ' + err.message, 'error');
     }
 };
