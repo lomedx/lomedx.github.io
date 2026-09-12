@@ -1258,3 +1258,16 @@ body.stop-animations *::before,
 body.stop-animations *::after {
     animation-play-state: paused !important;
 }
+/* تحسين أداء التمرير ورسم البطاقات لتقليل حرارة كرت الشاشة */
+.card, .premium-card, .spa-legendary-card, .accordion-item {
+    content-visibility: auto;
+    contain-intrinsic-size: 200px; /* المتصفح سيحجز مسحة افتراضية حتى لا تقفز الصفحة */
+}
+/* احترام إعداد "توفير البطارية" في الهاتف لإيقاف الحركات تلقائياً */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
