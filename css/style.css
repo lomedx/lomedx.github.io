@@ -1276,31 +1276,40 @@ html.dark .qt-stats { background: rgba(0,0,0,0.3); }
 
 
 
-/* === الحل النهائي لزر الملف الصحي بناءً على تحليلك الدقيق === */
+/* === إصلاح حركة وزر الملف الصحي الذكي === */
+
+/* 1. إصلاح حركة الوهج للزر */
 .btn-health-glow {
-    /* استخدام التوهج الخارجي بدلاً من تغيير الخلفية لتجنب تعارض التدرجات */
-    animation: btn-glow-pulse 2s ease-in-out infinite !important;
+    position: relative !important;
+    overflow: hidden !important;
+    animation: health-blink 2s ease-in-out infinite !important;
+    border-color: #F0D77B !important;
 }
 
-@keyframes btn-glow-pulse {
+@keyframes health-blink {
     0%, 100% { 
-        box-shadow: 0 4px 10px rgba(196, 150, 44, 0.3), 0 0 0 0 rgba(240, 215, 123, 0.5) !important; 
+        background: linear-gradient(135deg, rgba(146, 97, 10, 0.4), rgba(196, 150, 44, 0.6)) !important; 
+        box-shadow: 0 0 8px rgba(196, 150, 44, 0.4), inset 0 0 5px rgba(240, 215, 123, 0.3) !important;
     }
     50% { 
-        box-shadow: 0 4px 20px rgba(196, 150, 44, 0.6), 0 0 25px 6px rgba(240, 215, 123, 0) !important; 
+        background: linear-gradient(135deg, rgba(240, 215, 123, 0.9), rgba(255, 255, 255, 0.95)) !important; 
+        box-shadow: 0 0 22px rgba(240, 215, 123, 0.9), 0 0 35px rgba(255, 255, 255, 0.6) !important;
+        border-color: #FFFFFF !important;
     }
 }
 
+/* 2. إصلاح حركة نبض الأيقونة (تحويلها لـ inline-block لتعمل خاصية scale) */
 .icon-heartbeat {
-    /* إجبار الأيقونة على أن تكون block لكي تقبل خاصية transform */
-    display: inline-block !important; 
-    animation: heart-beat 1.2s ease-in-out infinite !important;
+    display: inline-block !important; /* ضروري جداً لعمل التكبير والتصغير */
+    animation: heart-beat 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite !important;
+    will-change: transform;
 }
 
 @keyframes heart-beat {
-    0%, 100% { transform: scale(1) !important; }
-    15% { transform: scale(1.25) !important; }
-    30% { transform: scale(1) !important; }
-    45% { transform: scale(1.15) !important; }
-    60% { transform: scale(1) !important; }
+    0% { transform: scale(1); }
+    14% { transform: scale(1.25); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.25); }
+    70%, 100% { transform: scale(1); }
 }
+
