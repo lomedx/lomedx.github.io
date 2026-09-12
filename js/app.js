@@ -1192,33 +1192,39 @@ window.closeModal = (event) => {
     }
 }
 window.copyNumber = (phone) => { navigator.clipboard.writeText(phone).then(() => showToast('تم نسخ رقم الهاتف بنجاح')).catch(() => showToast('تعذر النسخ')); }
-window.trackPhoneClick = async (id) => {
-    if (!id) return;
+window.trackPhoneClick = async (event, id, phoneNumber) => {
+    if (event) {
+        event.preventDefault(); // 1. منع فتح واجهة الاتصال فوراً
+        event.stopPropagation();
+    }
+
     try {
-        // 1. استدعاء الدالة في قاعدة البيانات
+        // 2. إرسال طلب زيادة العداد للخادم والانتظار حتى يكتمل
         const { error } = await supabase.rpc('increment_phone_click', { p_listing_id: id });
         if (error) throw error;
 
-        // 2. تحديث الرقم في الذاكرة المحلية
+        // 3. تحديث الرقم في الذاكرة وفي الواجهة فوراً
         const item = allData.find(d => d.id === id);
         if (item) {
             item.phone_clicks = (item.phone_clicks || 0) + 1;
+            
+            const docPhoneClicksEl = document.getElementById('docPhoneClicks');
+            if (docPhoneClicksEl && window.currentDashboardData?.id === id) {
+                docPhoneClicksEl.innerText = item.phone_clicks;
+            }
+            
+            const pharmPhoneClicksEl = document.getElementById('pharmPhoneClicks');
+            if (pharmPhoneClicksEl && window.currentDashboardData?.id === id) {
+                pharmPhoneClicksEl.innerText = item.phone_clicks;
+            }
         }
-
-        // 3. تحديث الواجهة فوراً (بدون انتظار Realtime)
-        const docPhoneClicksEl = document.getElementById('docPhoneClicks');
-        if (docPhoneClicksEl && window.currentDashboardData?.id === id) {
-            docPhoneClicksEl.innerText = item.phone_clicks;
-        }
-        
-        // تحديث حقل الصيدلية إذا كانت مفتوحة
-        const pharmPhoneClicksEl = document.getElementById('pharmPhoneClicks');
-        if (pharmPhoneClicksEl && window.currentDashboardData?.id === id) {
-            pharmPhoneClicksEl.innerText = item.phone_clicks;
-        }
-
     } catch (err) {
-        console.error('خطأ في عداد الهاتف:', err.message);
+        console.error('Phone click RPC error:', err.message);
+    } finally {
+        // 4. الآن، بعد أن تأكدنا من إرسال الطلب، افتح واجهة الاتصال
+        if (phoneNumber) {
+            window.location.href = `tel:${phoneNumber}`;
+        }
     }
 };
 window.copyText = (text) => { navigator.clipboard.writeText(text).then(() => showToast('تم نسخ الكود بنجاح')).catch(() => showToast('تعذر النسخ')); }
