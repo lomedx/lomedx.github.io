@@ -2514,7 +2514,7 @@ window.openMedicineDonation = () => {
 }
     window.submitMedicineDonation = async (e) => {
     e.preventDefault();
-    if (!window.checkOnlineStatus()) return; // حماية انقطاع الإنترنت
+    if (!window.checkOnlineStatus()) return; 
     
     const btn = document.getElementById('medDonationSubmitBtn');
     if (!btn) return;
@@ -2546,8 +2546,9 @@ window.openMedicineDonation = () => {
         }
         phoneInput.classList.remove('input-invalid');
 
-        const { data: funcData, error: funcError } = await supabase.functions.invoke('submit-public-request', {
-            body: { type: 'donation', patient_phone: phone, payload: { donor_name: name, medicine_name: medName, medicine_type: medType, expiry_date: expiryDate, quantity: quantity, notes: notes, status: 'active' } }
+        // === التعديل هنا: استخدام الدالة الموحدة ===
+        const { data: funcData, error: funcError } = await supabase.functions.invoke('manage-public-requests', {
+            body: { action: 'submit_request', type: 'donation', patient_phone: phone, payload: { donor_name: name, medicine_name: medName, medicine_type: medType, expiry_date: expiryDate, quantity: quantity, notes: notes } }
         });
 
         if (funcError) {
@@ -2682,8 +2683,9 @@ window.submitBloodRequest = async (e) => {
     phoneInput.classList.remove('input-invalid');
 
     try {
-        const { data: funcData, error: funcError } = await supabase.functions.invoke('submit-public-request', {
-            body: { type: 'blood', patient_phone: phone, payload: { patient_name: name, blood_type: bloodType, hospital: hospital, notes: notes, status: 'active' } }
+        
+        const { data: funcData, error: funcError } = await supabase.functions.invoke('manage-public-requests', {
+            body: { action: 'submit_request', type: 'blood', patient_phone: phone, payload: { patient_name: name, blood_type: bloodType, hospital: hospital, notes: notes } }
         });
 
         if (funcError) {
@@ -2839,7 +2841,7 @@ window.previewMedicineImage = (event) => {
 
   window.submitMedicineRequest = async (e) => { 
     e.preventDefault(); 
-    if (!window.checkOnlineStatus()) return; // حماية انقطاع الإنترنت
+    if (!window.checkOnlineStatus()) return; 
     
     const submitBtn = document.getElementById('medSubmitBtn'); 
     const medList = document.getElementById('medList').value.trim();
@@ -2854,7 +2856,7 @@ window.previewMedicineImage = (event) => {
     if (!/^09\d{8}$/.test(phone)) { 
         phoneInput.classList.add('input-invalid'); 
         showToast('الرجاء إدخال رقم هاتف صحيح'); 
-        submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال للصيدليات'; // إصلاح حبس الزر
+        submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال للصيدليات'; 
         return; 
     } 
     phoneInput.classList.remove('input-invalid'); 
@@ -2874,10 +2876,12 @@ window.previewMedicineImage = (event) => {
 
         const medRef = `MED-${Math.floor(Math.random() * 900000) + 100000}`;
         
-        const { data: reqData, error: reqError } = await supabase.functions.invoke('submit-public-request', {
+        // === التعديل هنا: استخدام الدالة الموحدة ===
+        const { data: reqData, error: reqError } = await supabase.functions.invoke('manage-public-requests', {
             body: { 
+                action: 'submit_request',
                 type: 'medicine', patient_phone: phone, 
-                payload: { med_ref: medRef, med_list: medList, urgency: urgency, patient_name: name, image_url: imageUrl, status: 'searching', notes: '', available_pharmacy: '', patient_push_id: localStorage.getItem('patient_push_id') }
+                payload: { med_ref: medRef, med_list: medList, urgency: urgency, patient_name: name, image_url: imageUrl, patient_push_id: localStorage.getItem('patient_push_id') }
             }
         });
 
@@ -5008,8 +5012,9 @@ window.submitQuestion = async (e) => {
     submitBtn.disabled = true; submitBtn.innerText = 'جاري النشر...';
     
     try {
-        const { data: funcData, error: funcError } = await supabase.functions.invoke('submit-public-request', {
-            body: { type: 'question', patient_phone: null, payload: { name, category, text, status: 'open', answers: [] } }
+        // === التعديل هنا: استخدام الدالة الموحدة ===
+        const { data: funcData, error: funcError } = await supabase.functions.invoke('manage-public-requests', {
+            body: { action: 'submit_request', type: 'question', patient_phone: null, payload: { name, category, text } }
         });
 
         if (funcError) {
