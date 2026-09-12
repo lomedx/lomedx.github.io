@@ -5172,54 +5172,6 @@ window.toggleSubscription = async (id, currentStatus) => {
         renderAdminDashboard();
     } catch (e) { showToast('حدث خطأ', 'error'); }
 }
-// دالة لتشفير النص
-function encryptField(text, key) {
-    if (!text) return text; // إذا كان الحقل فارغاً اتركه كما هو
-    try {
-        return CryptoJS.AES.encrypt(String(text), key).toString();
-    } catch (e) { return text; }
-}
-
-// دالة لفك تشفير النص
-function decryptField(ciphertext, key) {
-    if (!ciphertext || typeof ciphertext !== 'string' || !ciphertext.startsWith('U2FsdGVk')) return ciphertext; 
-    try {
-        const bytes = CryptoJS.AES.decrypt(ciphertext, key);
-        const originalText = bytes.toString(CryptoJS.enc.Utf8);
-        return originalText || ciphertext;
-    } catch (e) { return ciphertext; }
-}
-
-// دالة لفك تشفير ملف المريض بالكامل
-function decryptHealthFile(data, key) {
-    if (!data) return data;
-    
-    // فك تشفير مصفوفة الروشتات الطبية
-    let decryptedPrescriptions = [];
-    if (data.prescriptions && Array.isArray(data.prescriptions)) {
-        decryptedPrescriptions = data.prescriptions.map(rx => ({
-            ...rx,
-            text: decryptField(rx.text, key) // فك تشفير نص الروشتة فقط
-        }));
-    }
-
-    return {
-        ...data,
-        full_name: decryptField(data.full_name, key),
-        age: decryptField(data.age, key),
-        gender: decryptField(data.gender, key),
-        blood_type: decryptField(data.blood_type, key),
-        weight: decryptField(data.weight, key),
-        diseases: decryptField(data.diseases, key),
-        allergies: decryptField(data.allergies, key),
-        medications: decryptField(data.medications, key),
-        dental: decryptField(data.dental, key),
-        eye: decryptField(data.eye, key),
-        emergency_name: decryptField(data.emergency_name, key),
-        emergency_phone: decryptField(data.emergency_phone, key),
-        prescriptions: decryptedPrescriptions // إضافة الروشتات المفكوك تشفيرها
-    };
-}
 // دالة لتحديد موقع المستخدم تلقائياً
 function detectUserLocation() {
     const locationBadge = document.getElementById('userLocationBadge');
