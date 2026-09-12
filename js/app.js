@@ -1882,16 +1882,16 @@ window.renderDoctorDashboard = async (doc) => {
             </div>
         </div>
 
-        <!-- 2. الإحصائيات -->
+                <!-- 2. الإحصائيات -->
         <div class="grid grid-cols-3 gap-3">
             <div class="bg-white p-4 rounded-xl border text-center shadow-sm" style="border-color: var(--border);">
-                <i class="fas fa-eye text-blue-500 text-xl mb-1"></i><div class="text-2xl font-black text-gray-800">${doc.view_count || 0}</div><div class="text-[10px] text-gray-500">زيارة الملف</div>
+                <i class="fas fa-eye text-blue-500 text-xl mb-1"></i><div class="text-2xl font-black text-gray-800" id="docViewCount">${doc.view_count || 0}</div><div class="text-[10px] text-gray-500">زيارة الملف</div>
             </div>
             <div class="bg-white p-4 rounded-xl border text-center shadow-sm" style="border-color: var(--border);">
                 <i class="fas fa-calendar-check text-green-500 text-xl mb-1"></i><div class="text-2xl font-black text-gray-800">${totalBookings || 0}</div><div class="text-[10px] text-gray-500">إجمالي الحجوزات</div>
             </div>
             <div class="bg-white p-4 rounded-xl border text-center shadow-sm" style="border-color: var(--border);">
-                <i class="fas fa-phone-alt text-purple-500 text-xl mb-1"></i><div class="text-2xl font-black text-gray-800">${doc.phone_clicks || 0}</div><div class="text-[10px] text-gray-500">نقرات الهاتف</div>
+                <i class="fas fa-phone-alt text-purple-500 text-xl mb-1"></i><div class="text-2xl font-black text-gray-800" id="docPhoneClicks">${doc.phone_clicks || 0}</div><div class="text-[10px] text-gray-500">نقرات الهاتف</div>
             </div>
         </div>
 
@@ -6085,20 +6085,27 @@ window.installPwaApp = () => PwaInstaller.install();
 // === نظام القائمة الذكية: إبقاء القائمة مفتوحة بعد إغلاق الميزة ===
 document.addEventListener('DOMContentLoaded', () => {
                 // الاستماع للتحديثات اللحظية لعداد الأطباء
+        // الاستماع للتحديثات اللحظية لعداد الأطباء والنقرات والزيارات
     supabase
-      .channel('public:listings_queue')
+      .channel('public:listings_updates')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'listings' }, payload => {
           const updatedItem = allData.find(d => d.id === payload.new.id);
           if (updatedItem) {
               updatedItem.current_queue = payload.new.current_queue;
+              updatedItem.phone_clicks = payload.new.phone_clicks;
+              updatedItem.view_count = payload.new.view_count;
               
-              // 1. تحديث العداد في لوحة تحكم الطبيب إذا كانت مفتوحة
+              // 1. تحديث العدادات في لوحة تحكم الطبيب إذا كانت مفتوحة
               const docQueueCountEl = document.getElementById('docQueueCount');
-              if (docQueueCountEl) {
-                  docQueueCountEl.innerText = payload.new.current_queue || 0;
-              }
+              if (docQueueCountEl) docQueueCountEl.innerText = updatedItem.current_queue || 0;
               
-              // 2. تحديث بطاقة الازدحام في نافذة المريض إذا كانت مفتوحة (بدون إعادة فتح المودال لمنع اللوب)
+              const docViewCountEl = document.getElementById('docViewCount');
+              if (docViewCountEl) docViewCountEl.innerText = updatedItem.view_count || 0;
+              
+              const docPhoneClicksEl = document.getElementById('docPhoneClicks');
+              if (docPhoneClicksEl) docPhoneClicksEl.innerText = updatedItem.phone_clicks || 0;
+              
+              // 2. تحديث بطاقة الازدحام في نافذة المريض إذا كانت مفتوحة
               const modalContent = document.getElementById('modalContent');
               if (modalContent && modalContent.innerHTML.includes(payload.new.id) && payload.new.type === 'doctor') {
                   const lqCount = modalContent.querySelector('.lq-count');
