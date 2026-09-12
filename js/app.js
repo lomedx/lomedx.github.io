@@ -70,7 +70,7 @@ window.setupOneSignal = async () => {
     
     // تأكد أن المكتبة قيد التحميل
     if (!window.OneSignalDeferred) {
-        showToast("جاري تهيئة النظام، انتظر لحظة...");
+        showToast('جاري تهيئة النظام، انتظر لحظة...');
         return;
     }
 
@@ -78,7 +78,7 @@ window.setupOneSignal = async () => {
         try {
             // التحقق من دعم المتصفح
             if (!OneSignal.Notifications.isPushSupported()) {
-                showToast("متصفحك لا يدعم الإشعارات., 'error'");
+                showToast('متصفحك لا يدعم الإشعارات.', 'error');
                 return;
             }
 
@@ -86,7 +86,7 @@ window.setupOneSignal = async () => {
             const granted = await OneSignal.Notifications.requestPermission();
             
             if (granted) {
-                showToast("تم تفعيل الإشعارات بنجاح , 'success'");
+                showToast('تم تفعيل الإشعارات بنجاح' , 'success' );
                 
                 // التأكد من الاشتراك
                 if (!OneSignal.User.PushSubscription.optedIn) {
@@ -100,7 +100,7 @@ window.setupOneSignal = async () => {
                     
                 }
             } else {
-                showToast("تم رفض الإذن، لن تصلك إشعارات.");
+                showToast('تم رفض الإذن، لن تصلك إشعارات.');
             }
         } catch (err) {
         }   
@@ -1521,7 +1521,7 @@ window.openBookingFollowup = async (bookingId) => {
             return;
         }
         await fetchFollowupData();
-    }, 3000);
+    }, 2000);
 };
 window.renderFollowupChat = (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId); 
