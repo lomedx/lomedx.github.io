@@ -1661,8 +1661,22 @@ async function fetchMedRequests(pharmName) {
 
 window.toggleNightShift = async (id, currentStatus) => { 
     if (!window.checkOnlineStatus()) return; 
-    try { await supabase.from('listings').update({ night: currentStatus }).eq('id', id); showToast(currentStatus ? 'تم تفعيل المناوبة!' : 'تم إيقاف المناوبة.'); localStorage.setItem('force_listings_update', 'true'); } catch (e) { showToast('خطأ في التحديث'); } }
-// دالة تحديث الحالة (متوففر/غير متوفر/قيد البحث)
+    try { 
+        await supabase.from('listings').update({ night: currentStatus }).eq('id', id); 
+        
+        // تحديث البيانات في الذاكرة
+        const item = allData.find(d => d.id === id);
+        if (item) item.night = currentStatus;
+        
+        // إعادة رسم اللوحة فوراً
+        const ctrlContent = document.getElementById('ctrlContent');
+        const scrollTop = ctrlContent ? ctrlContent.scrollTop : 0;
+        renderPharmacyDashboard(item);
+        if (ctrlContent) ctrlContent.scrollTop = scrollTop;
+        
+        showToast(currentStatus ? 'تم تفعيل المناوبة!' : 'تم إيقاف المناوبة.'); 
+    } catch (e) { showToast('خطأ في التحديث', 'error'); } 
+}
 window.updateMedStatus = async (id, status) => { 
     if (!window.checkOnlineStatus()) return; 
     try { 
