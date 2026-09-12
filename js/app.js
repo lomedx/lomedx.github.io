@@ -1,6 +1,5 @@
 import { supabase } from './supabase.js';
 
-
 const daysOfWeek = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
 
 let currentAnnouncement = null;
