@@ -3709,29 +3709,16 @@ window.openHealthFile = async () => {
         currentHealthFileId = session.user.id;
         
         const { data: fileData, error: funcError } = await supabase.functions.invoke('manage-health-file', {
-    body: { action: 'get' }
-});
-if (funcError || !fileData) { showToast('خطأ في جلب الملف', 'error'); return; }
-renderHealthDashboard(fileData);
+            body: { action: 'get' }
+        });
         
-        if (docSnap) { 
-            renderHealthDashboard(docSnap); 
+        if (funcError) { 
+            showToast('خطأ في جلب الملف الصحي', 'error'); 
             return; 
-        } else {
-            const defaultName = session.user.email ? session.user.email.split('@')[0] : 'مريض';
-            const newQrToken = generateSecureToken(64);
-            const { data: newFile, error: insertError } = await supabase.from('health_files').insert([{ id: currentHealthFileId, full_name: defaultName, qr_token: newQrToken }]).select().single();
-            if (insertError) {
-                showToast('تعذر إنشاء ملف صحي جديد: ' + insertError.message, 'error');
-                return;
-            }
-            if (newFile) { 
-                renderHealthDashboard(newFile); 
-                return; 
-            }
         }
-    }
-
+        
+        renderHealthDashboard(fileData);
+        return;
     // إذا لم يكن مسجل دخول أبداً، اعرض له شاشة الدخول
     openCtrlPanel('الملف الصحي الذكي', `
         <div class="flex flex-col gap-4 max-w-md mx-auto w-full">
@@ -3819,7 +3806,6 @@ window.handleHealthLogin = async (e) => {
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) { 
-        
         showToast('بيانات الدخول غير صحيحة. يرجى التحقق من البريد وكلمة المرور.', 'error'); 
         return; 
     }
@@ -3827,23 +3813,17 @@ window.handleHealthLogin = async (e) => {
     currentHealthFileId = data.user.id;
     localStorage.setItem('healthFileId', currentHealthFileId);
     
+    // استدعاء دالة الخادم لجلب الملف الصحي (الخادم سيتكفل بإنشائه إذا لم يكن موجوداً)
     const { data: fileData, error: funcError } = await supabase.functions.invoke('manage-health-file', {
-    body: { action: 'get' }
-});
-if (funcError || !fileData) { showToast('خطأ في جلب الملف', 'error'); return; }
-
+        body: { action: 'get' }
+    });
     
-    if (!fileData) {
-        const defaultName = data.user.email ? data.user.email.split('@')[0] : 'مريض';
-                const { data: newFile, error: insertError } = await supabase.from('health_files').insert([{ id: currentHealthFileId, full_name: defaultName, qr_token: generateSecureToken(64) }]).select().single();
-        if (insertError) {
-            
-            showToast('تعذر إنشاء ملف صحي: ' + insertError.message, 'error');
-            return;
-        }
-        fileData = newFile;
+    if (funcError) { 
+        showToast('خطأ في جلب الملف: ' + funcError.message, 'error'); 
+        return; 
     }
     
+    // عرض البيانات مباشرة (بدون أي فك تشفير في الواجهة)
     renderHealthDashboard(fileData);
 };
  window.renderHealthDashboard = (data) => {
