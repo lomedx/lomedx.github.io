@@ -687,29 +687,23 @@ window.setFilter = (filter, btn) => {
     btn.style.background = colors[filter]; btn.style.color = 'white'; btn.style.borderColor = colors[filter]; 
     renderData(); 
 }
-window.handleSearch = (value) => { 
-    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; // إعادة التصفير
-    searchQuery = value.trim(); 
-    const heroSearch = document.getElementById('heroSearch'); 
-    if(heroSearch) heroSearch.value = value; 
-    
-    const totalResults = renderData(); 
-    
-    if (totalResults === 0 && searchQuery !== '') {
-        showToast('لا توجد نتائج مطابقة لبحثك. جرب كلمة أخرى أو عرض كل المدن');
-    }
-}
-// === نظام البحث الذكي (Autocomplete) المعزول ===
 let searchDebounceTimer;
-let searchDropdown = null;
-
-// دالة Debounce مساعدة لتأخير البحث
-function debounce(func, delay) { 
-    let timeout; 
-    return function(...args) { 
-        clearTimeout(timeout); 
-        timeout = setTimeout(() => func.apply(this, args), delay); 
-    }; 
+window.handleSearch = (value) => { 
+    clearTimeout(searchDebounceTimer); // مسح أي بحث سابق
+    
+    // إظهار مؤشر تحميل بسيط أو ترك الواجهة كما هي حتى يبدأ البحث
+    searchDebounceTimer = setTimeout(() => {
+        renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 };
+        searchQuery = value.trim(); 
+        const heroSearch = document.getElementById('heroSearch'); 
+        if(heroSearch) heroSearch.value = value; 
+        
+        const totalResults = renderData(); 
+        
+        if (totalResults === 0 && searchQuery !== '') {
+            showToast('لا توجد نتائج مطابقة لبحثك. جرب كلمة أخرى أو عرض كل المدن');
+        }
+    }, 300); // انتظر 300 مللي ثانية بعد توقف المستخدم عن الكتابة
 }
 
 function initSmartSearch() {
