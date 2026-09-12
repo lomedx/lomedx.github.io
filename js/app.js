@@ -1106,15 +1106,17 @@ window.openModal = (id) => {
         `;
      } else if (item.type === 'doctor') { 
         // مؤشر الازدحام المباشر
+                // مؤشر الازدحام المباشر
         let queueWidget = '';
-        const queueCount = item.current_queue || 0;
-        const waitTime = item.avg_wait_time || 15;
-        const totalWait = queueCount * waitTime;
-        let queueStatusText = "العيادة فارغة الآن", queueColor = "#34D399";
-        if (queueCount > 0 && queueCount <= 3) { queueStatusText = "ازدحام خفيف"; queueColor = "#fbbf24"; }
-        else if (queueCount > 3) { queueStatusText = "ازدحام مرتفع"; queueColor = "#f87171"; }
+        if (item.current_queue !== -1) { // لا تعرض المؤشر إذا كان معطلاً (-1)
+            const queueCount = item.current_queue || 0;
+            const waitTime = item.avg_wait_time || 15;
+            const totalWait = queueCount * waitTime;
+            let queueStatusText = "العيادة فارغة الآن", queueColor = "#34D399";
+            if (queueCount > 0 && queueCount <= 3) { queueStatusText = "ازدحام خفيف"; queueColor = "#fbbf24"; }
+            else if (queueCount > 3) { queueStatusText = "ازدحام مرتفع"; queueColor = "#f87171"; }
 
-        queueWidget = `
+            queueWidget = `
 <div class="queue-tracker-card">
     <div class="qt-header">
         <div class="qt-icon" style="color: ${queueColor}; border-color: ${queueColor}40; background: ${queueColor}15;"><i class="fas fa-users"></i></div>
@@ -1137,6 +1139,7 @@ window.openModal = (id) => {
         </div>
     </div>
 </div>`;
+        
 
         extraHTML = `${queueWidget} ${item.bookingnotes ? `<div class="flex items-center gap-3 p-3 rounded-xl mt-3" style="background: var(--bg)"><i class="fas fa-info-circle" style="color: var(--doctor)"></i><div><div class="text-xs" style="color: var(--muted)">تفاصيل إضافية</div><div class="text-sm font-bold">${escapeHtml(item.bookingnotes)}</div></div></div>` : ''}`;
            
@@ -1943,18 +1946,29 @@ window.renderDoctorDashboard = async (doc) => {
                 <i class="fas fa-comments"></i> قسم اسأل طبيب
             </button>
         </div>
-                <!-- إدارة ازدحام العيادة المباشر -->
+                        <!-- إدارة ازدحام العيادة المباشر -->
         <div class="bg-white p-5 rounded-2xl border shadow-sm" style="border-color: var(--border);">
-            <h4 class="font-bold mb-3 text-sm flex items-center gap-2"><i class="fas fa-users" style="color: var(--doctor)"></i> إدارة ازدحام العيادة</h4>
-            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl">
-                <button onclick="updateQueue('${doc.id}', -1)" class="w-12 h-12 rounded-full bg-red-100 text-red-600 font-bold text-2xl hover:bg-red-200 transition-all flex items-center justify-center">-</button>
-                <div class="text-center">
-                    <div class="text-4xl font-black text-gray-800" id="docQueueCount">${doc.current_queue || 0}</div>
-                    <div class="text-xs text-gray-500">منتظر حالياً</div>
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="font-bold text-sm flex items-center gap-2"><i class="fas fa-users" style="color: var(--doctor)"></i> إدارة ازدحام العيادة</h4>
+                <div class="flex gap-1 bg-gray-100 p-1 rounded-lg">
+                    <button onclick="toggleQueueStatus('${doc.id}', true)" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all ${(doc.current_queue !== -1) ? 'bg-green-500 text-white shadow' : 'text-gray-500 hover:bg-gray-50'}">مفعل</button>
+                    <button onclick="toggleQueueStatus('${doc.id}', false)" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all ${(doc.current_queue === -1) ? 'bg-gray-500 text-white shadow' : 'text-gray-500 hover:bg-gray-50'}">معطل</button>
                 </div>
-                <button onclick="updateQueue('${doc.id}', 1)" class="w-12 h-12 rounded-full bg-green-100 text-green-600 font-bold text-2xl hover:bg-green-200 transition-all flex items-center justify-center">+</button>
             </div>
-            <p class="text-xs text-gray-400 mt-2 text-center">اضغط (+) عند دخول مريض جديد للصالة، و(-) عند خروج مريض للكشف.</p>
+            
+            ${(doc.current_queue === -1) ? 
+                `<div class="text-center py-4 text-gray-400 text-sm">تم تعطيل نظام الازدحام. لن يظهر المؤشر للمرضى.</div>`
+                : 
+                `<div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl">
+                    <button onclick="updateQueue('${doc.id}', -1)" class="w-12 h-12 rounded-full bg-red-100 text-red-600 font-bold text-2xl hover:bg-red-200 transition-all flex items-center justify-center">-</button>
+                    <div class="text-center">
+                        <div class="text-4xl font-black text-gray-800" id="docQueueCount">${doc.current_queue || 0}</div>
+                        <div class="text-xs text-gray-500">منتظر حالياً</div>
+                    </div>
+                    <button onclick="updateQueue('${doc.id}', 1)" class="w-12 h-12 rounded-full bg-green-100 text-green-600 font-bold text-2xl hover:bg-green-200 transition-all flex items-center justify-center">+</button>
+                </div>
+                <p class="text-xs text-gray-400 mt-2 text-center">اضغط (+) عند دخول مريض جديد للصالة، و(-) عند خروج مريض للكشف.</p>`
+            }
         </div>
         <!-- 4. إعدادات الحجز وأيام العمل (تم تنسيقها بالكامل) -->
         <div class="bg-white p-5 rounded-2xl border shadow-sm" style="border-color: var(--border)">
@@ -2861,7 +2875,9 @@ window.setStatus = async (id, status) => {
 // دالة تحديث عداد الازدحام عبر RPC الآمن
 window.updateQueue = async (docId, change) => {
     try {
-        // استدعاء دالة SQL الآمنة التي أنشأناها
+        const doc = allData.find(d => d.id === docId);
+        if (!doc || doc.current_queue === -1) return; // لا تقم بأي شيء إذا كان النظام معطلاً
+
         const { error } = await supabase.rpc('update_doctor_queue', { 
             doc_id: docId, 
             change_amount: change 
@@ -2869,12 +2885,8 @@ window.updateQueue = async (docId, change) => {
 
         if (error) throw error;
 
-        // تحديث الرقم في واجهة الطبيب فوراً
-        const doc = allData.find(d => d.id === docId);
-        if (doc) {
-            doc.current_queue = (doc.current_queue || 0) + change;
-            if (doc.current_queue < 0) doc.current_queue = 0;
-        }
+        // تحديث الرقم محلياً (ويقف عند  كحد أدنى)
+        doc.current_queue = Math.max(0, (doc.current_queue || 0) + change);
         
         const countElement = document.getElementById('docQueueCount');
         if (countElement) countElement.innerText = doc.current_queue;
@@ -2882,6 +2894,28 @@ window.updateQueue = async (docId, change) => {
         showToast('تم تحديث حالة الازدحام', 'success');
     } catch (err) {
         showToast('خطأ في التحديث', 'error');
+    }
+};
+    // دالة تفعيل وتعطيل نظام الازدحام (نعتمد على -1 كرمز للتعطيل)
+window.toggleQueueStatus = async (id, enable) => {
+    if (!window.checkOnlineStatus()) return; 
+    try {
+        // إذا تفعيل، نضع العداد 0. إذا تعطيل، نضع العداد -1
+        const newValue = enable ? 0 : -1;
+        await supabase.from('listings').update({ current_queue: newValue }).eq('id', id);
+        
+        if (window.currentDashboardData && window.currentDashboardData.id === id) {
+            window.currentDashboardData.current_queue = newValue;
+            
+            // إعادة رسم اللوحة فوراً لتغيير الواجهة
+            const ctrlContent = document.getElementById('ctrlContent');
+            const scrollTop = ctrlContent ? ctrlContent.scrollTop : 0;
+            renderDoctorDashboard(window.currentDashboardData);
+            if (ctrlContent) ctrlContent.scrollTop = scrollTop;
+        }
+        showToast(enable ? 'تم تفعيل نظام الازدحام' : 'تم تعطيل نظام الازدحام', 'success');
+    } catch (e) { 
+        showToast('حدث خطأ', 'error'); 
     }
 };
 window.openMedicineFinder = () => { 
