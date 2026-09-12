@@ -1469,12 +1469,15 @@ window.confirmBooking = async () => {
         const newId = funcData.booking[0].id;
         const ref = funcData.booking[0].ref; // جلب المرجع من قاعدة البيانات
         
-        const doctorData = allData.find(d => d.id === tempBooking.itemid);
-        
-        // إشعار للطبيب بوجود حجز جديد
-        if (doctorData && doctorData.user_id) {
-            sendPushNotification(doctorData.user_id, "موعد جديد 🗓️", `المريض ${name} طلب موعداً يوم ${tempBooking.daystr}`);
-        }
+        const { data: doctorData } = await supabase
+    .from('listings')
+    .select('user_id')
+    .eq('id', tempBooking.itemid)
+    .single();
+
+if (doctorData && doctorData.user_id) {
+    sendPushNotification(doctorData.user_id, "موعد جديد 🗓️", `المريض ${name} طلب موعداً يوم ${tempBooking.daystr}`);
+}
 
         document.getElementById('step2').innerHTML = `
         <div class="text-center py-6 flex flex-col items-center">
@@ -1575,10 +1578,15 @@ window.sendChatMessage = async (bookingId) => {
         });
         if (error) throw error;
         
-        const doctorData = allData.find(d => d.id === booking.itemid);
-        if (doctorData && doctorData.user_id) {
-            sendPushNotification(doctorData.user_id, "رسالة جديدة 💬", `لديك رسالة جديدة من المريض ${booking.name}`);
-        }
+        const { data: doctorData } = await supabase
+    .from('listings')
+    .select('user_id')
+    .eq('id', booking.itemid)
+    .single();
+
+if (doctorData && doctorData.user_id) {
+    sendPushNotification(doctorData.user_id, "رسالة جديدة 💬", `لديك رسالة جديدة من المريض ${booking.name}`);
+}
     } catch (err) {
         showToast('خطأ في الإرسال', 'error');
     }   
