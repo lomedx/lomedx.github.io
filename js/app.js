@@ -6312,4 +6312,19 @@ document.addEventListener('visibilitychange', () => {
         pageVisibilityTimers = {};
     }
 });
+// === إيقاف أنيميشن الهيرو عند التمرير لأسفل ===
+const heroSection = document.getElementById('home');
+const heroBg = document.querySelector('.hero-bg');
+if (heroSection && heroBg) {
+    const heroObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                heroBg.classList.remove('paused-anim'); // الشاشة ظاهرة: شغل الحركة
+            } else {
+                heroBg.classList.add('paused-anim'); // الشاشة مخفية: أوقف الحركة
+            }
+        });
+    }, { threshold: 0.1 });
+    heroObserver.observe(heroSection);
+}
 // نهاية ملف app.js
