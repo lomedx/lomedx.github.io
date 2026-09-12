@@ -414,7 +414,8 @@ function renderEmergencyPopup() {
 
 
 async function fetchBookings() {
-    const { data, error } = await supabase.from('bookings').select('*');
+    // استبدل select('*')
+const { data, error } = await supabase.from('bookings').select('id, itemid, itemname, name, phone, daystr, slot_time, time, status, ref, chat, patient_push_id, created_at');
     if (error) return;
     bookings = data || [];
     if (currentFollowupBookingId) renderFollowupChat(currentFollowupBookingId);
@@ -422,14 +423,16 @@ async function fetchBookings() {
 
 async function fetchBloodRequests() {
     const twentyHoursAgo = new Date(Date.now() - (20 * 60 * 60 * 1000)).toISOString();
-    const { data, error } = await supabase.from('blood_requests').select('*').gt('created_at', twentyHoursAgo).neq('status', 'resolved');
+    // استبدل select('*')
+const { data, error } = await supabase.from('blood_requests').select('id, patient_name, blood_type, hospital, phone, notes, created_at, status, responses_count').gt('created_at', twentyHoursAgo).neq('status', 'resolved');
     if (error) return;
     bloodRequests = data || [];
     renderHomeBloodAlerts();
 }
 
 async function fetchMedicineDonations() {
-    const { data, error } = await supabase.from('medicine_donations').select('*').eq('status', 'active');
+    // استبدل select('*')
+const { data, error } = await supabase.from('medicine_donations').select('id, donor_name, medicine_name, medicine_type, expiry_date, quantity, phone, notes, created_at, status').eq('status', 'active');
     if (error) return;
     medicineDonations = data || [];
     renderHomeMedicines();
@@ -2929,7 +2932,8 @@ window.quickLookup = async () => {
             showToast('لم يتم العثور على حجز', 'error'); 
         }
     } else if (val.startsWith('MED-')) {
-        const { data, error } = await supabase.from('medicine_requests').select('*').eq('med_ref', val);
+        // استبدل select('*')
+const { data, error } = await supabase.from('medicine_requests').select('id, med_ref, med_list, urgency, patient_name, image_url, status, notes, created_at').eq('med_ref', val);
         if (data && data.length > 0) {
             const m = data[0];
             let statusText = '', statusColor = '', statusIcon = '';
