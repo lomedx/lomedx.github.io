@@ -1252,8 +1252,8 @@ html.dark .qt-stats { background: rgba(0,0,0,0.3); }
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
 }
-/* إيقاف جميع الحركات عند فتح نافذة منبثقة لتقليل الحرارة */
-body.stop-animations *,
+/* إيقاف الحركات في الخلفية عند فتح النوافذ، مع إبقاء حركات قائمة الجوال تعمل */
+body.stop-animations *:not(.mobile-menu-premium):not(.mobile-menu-premium *),
 body.stop-animations *::before,
 body.stop-animations *::after {
     animation-play-state: paused !important;
