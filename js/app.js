@@ -1844,9 +1844,9 @@ window.renderDoctorDashboard = async (doc) => {
     }
     
         // === جلب العدد الحقيقي من قاعدة البيانات عبر RPC ===
-    const { data: totalBookingsCount } = await supabase.rpc('get_doctor_bookings_count', { p_doctor_id: doc.id });
+            // === جلب العدد الحقيقي من قاعدة البيانات مباشرة ===
+    const { count: totalBookingsCount } = await supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('itemid', doc.id);
     const totalBookings = totalBookingsCount || 0;
-
     const daysCheckboxes = daysOfWeek.map(day => `<label class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"><input type="checkbox" name="docWorkingDays" value="${day}" class="w-4 h-4 accent-blue-600" ${doc.workingdays?.includes(day) ? 'checked' : ''}><span class="text-xs font-semibold">${day}</span></label>`).join(''); 
     
     openCtrlPanel(`لوحة: ${doc.name}`, `
@@ -3933,6 +3933,17 @@ window.handleHealthLogin = async (e) => {
         const qrToken = data.qr_token || currentHealthFileId; 
         new QRCode(qrContainer, { text: qrToken, width: 180, height: 180, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
     }
+         // === التحديث اللحظي للملف الصحي ===
+    if (window.activeHealthFileSub) supabase.removeChannel(window.activeHealthFileSub);
+    window.activeHealthFileSub = supabase
+      .channel(`health_files_${data.id}`)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'health_files', filter: `id=eq.${data.id}` }, payload => {
+          // إعادة جلب الملف وفك تشفيره لعرض الروشتة الجديدة فوراً
+          supabase.functions.invoke('manage-health-file', { body: { action: 'get' } }).then(({ data: freshData }) => {
+              if (freshData) renderHealthDashboard(freshData);
+          });
+      })
+      .subscribe();
 }
 
 window.saveHealthProfile = async (e) => {
