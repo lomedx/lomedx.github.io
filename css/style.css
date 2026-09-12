@@ -1235,3 +1235,26 @@ html.dark .smart-empty { color: #94a3b8; }
 /* الوضع المظلم الداعم */
 html.dark .queue-tracker-card { background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2)); }
 html.dark .qt-stats { background: rgba(0,0,0,0.3); }
+
+
+/* ==========================================
+   تفعيل تسريع كرت الشاشة (GPU) لتقليل الحرارة مع بقاء الحركات
+========================================== */
+.hero-bg::after,
+.hero-bg::before,
+.hero-medical-logo img,
+.hero-medical-logo::before,
+.hero-medical-logo::after,
+.animate-ping,
+.pulse-register {
+    /* إجبار المتصفح على استخدام كرت الشاشة لرسم هذه العناصر */
+    will-change: transform, box-shadow, opacity;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+/* إيقاف جميع الحركات عند فتح نافذة منبثقة لتقليل الحرارة */
+body.stop-animations *,
+body.stop-animations *::before,
+body.stop-animations *::after {
+    animation-play-state: paused !important;
+}
