@@ -1335,6 +1335,7 @@ body.stop-animations .btn-health-glow span::before {
 /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
+/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 @property --border-angle {
     syntax: '<angle>';
     initial-value: 0deg;
@@ -1348,12 +1349,11 @@ body.stop-animations .btn-health-glow span::before {
     isolation: isolate;
     overflow: hidden !important;
     
-    /* نبض التوهج المستمر */
     animation: btnMedicalPulse 3s ease-in-out infinite !important;
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
-/* 1. طبقة التدرج الدوارة (حواف سميكة ومتوهجة) */
+/* 1. طبقة التدرج الدوارة */
 .btn-health-glow::before {
     content: '' !important;
     position: absolute !important;
@@ -1380,22 +1380,25 @@ body.stop-animations .btn-health-glow span::before {
     border-radius: calc(1rem - 2px) !important;
     z-index: -1 !important;
 
-    /* فصل الخصائص لضمان عمل الحركة بشكل صحيح */
     background-image: 
-        linear-gradient(110deg, 
-            transparent 30%, 
-            rgba(255, 255, 255, 0.15) 40%, 
-            rgba(255, 255, 255, 0.85) 50%, 
-            rgba(255, 255, 255, 0.15) 60%, 
-            transparent 70%
+        linear-gradient(
+            105deg,
+            transparent 0%,
+            transparent 40%,
+            rgba(255, 255, 255, 0.1) 45%,
+            rgba(255, 255, 255, 0.55) 50%,
+            rgba(255, 255, 255, 0.1) 55%,
+            transparent 60%,
+            transparent 100%
         ),
         linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #92610A 100%);
     
-    background-size: 60% 100%, 100% 100%;
+    background-size: 70% 100%, 100% 100%;
     background-repeat: no-repeat, no-repeat;
-    background-position: 150% 0, 0 0; /* البداية من خارج اليمين */
+    background-position: 200% 0, 0 0;
     
-    animation: shineMoveRTL 3s ease-in-out infinite !important;
+    /* حركة سلسة ودقيقة */
+    animation: shineMoveRTL 4s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
 }
 
 /* 3. النص الداخلي */
@@ -1411,14 +1414,14 @@ body.stop-animations .btn-health-glow span::before {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* حركة دوران التدرج اللوني للحدود */
+/* دوران الحدود */
 @keyframes rotateGlowBorder {
     to {
         --border-angle: 360deg;
     }
 }
 
-/* حركة نبض التوهج */
+/* نبض التوهج */
 @keyframes btnMedicalPulse {
     0%, 100% {
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 15px rgba(196, 150, 44, 0.6), 0 0 10px rgba(16, 185, 129, 0.4);
@@ -1428,15 +1431,15 @@ body.stop-animations .btn-health-glow span::before {
     }
 }
 
-/* حركة اللمعة من اليمين إلى اليسار */
+/* حركة اللمعة السلسة والدقيقة من اليمين لليسار */
 @keyframes shineMoveRTL {
     0% {
-        background-position: 160% 0, 0 0;
+        background-position: 200% 0, 0 0;
     }
-    50% {
-        background-position: -60% 0, 0 0;
+    45% {
+        background-position: -100% 0, 0 0;
     }
     100% {
-        background-position: -60% 0, 0 0;
+        background-position: -100% 0, 0 0;
     }
 }
