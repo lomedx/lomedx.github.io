@@ -1325,6 +1325,13 @@ body.stop-animations .btn-health-glow span::before {
 /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 /* خاصية زاوية التدرج */
+
+
+/* حركة المسح من اليمين إلى اليسار (RTL) معالجة عبر Transform */
+/* =========================================================
+   زر الملف الصحي المتوهج مع اللمعة الزجاجية (RTL) - مصحح
+   ========================================================= */
+
 @property --border-angle {
     syntax: '<angle>';
     initial-value: 0deg;
@@ -1342,6 +1349,7 @@ body.stop-animations .btn-health-glow span::before {
     background: transparent !important;
     overflow: hidden !important; /* لقص اللمعة عند الأطراف */
     cursor: pointer !important;
+    isolation: isolate !important; /* لضمان طبقات المزج واللمعان */
     
     /* نبض التوهج المستمر */
     animation: btnMedicalPulse 3s ease-in-out infinite !important;
@@ -1391,28 +1399,26 @@ body.stop-animations .btn-health-glow span::before {
     pointer-events: none !important;
 }
 
-/* 4. شريط المسح واللمعان الزجاجي (تم إصلاحه) */
-.btn-health-glow::inner-shine, 
+/* 4. شريط اللمعان الزجاجي المائل (يمين إلى يسار) */
 .btn-health-glow span::before {
     content: '' !important;
     position: absolute !important;
-    top: -50% !important;
-    left: -50% !important;
-    width: 200% !important;
-    height: 200% !important;
+    top: -100% !important;
+    left: -100% !important;
+    width: 300% !important;
+    height: 300% !important;
     background: linear-gradient(
         115deg,
-        transparent 20%,
+        rgba(255, 255, 255, 0) 0%,
         rgba(255, 255, 255, 0) 40%,
-        rgba(255, 255, 255, 0.9) 50%, /* لمعة بيضاء ساطعة */
+        rgba(255, 255, 255, 0.85) 50%, /* لمعة زجاجية ساطعة */
         rgba(255, 255, 255, 0) 60%,
-        transparent 80%
+        rgba(255, 255, 255, 0) 100%
     ) !important;
-    z-index: 2 !important; /* الطبقة بين الخلفية الذهبية والنص */
-    transform: translateX(100%) rotate(0deg) !important;
+    z-index: 2 !important;
+    transform: translateX(100%) !important;
     animation: appInstallSweepRTL 3.5s cubic-bezier(0.25, 1, 0.5, 1) infinite !important;
     pointer-events: none !important;
-    mix-blend-mode: overlay !important; /* يعطي لمعاناً زجاجياً حقيقياً فوق الذهب */
 }
 
 /* حركة دوران التدرج اللوني للحدود */
@@ -1432,20 +1438,20 @@ body.stop-animations .btn-health-glow span::before {
     }
 }
 
-/* حركة المسح من اليمين إلى اليسار (RTL) معالجة عبر Transform */
+/* حركة المسح من اليمين إلى اليسار (RTL) */
 @keyframes appInstallSweepRTL {
     0% {
         transform: translateX(100%);
         opacity: 0;
     }
-    10% {
+    15% {
         opacity: 1;
     }
-    45% {
+    50% {
         transform: translateX(-100%);
         opacity: 1;
     }
-    50%, 100% {
+    55%, 100% {
         transform: translateX(-100%);
         opacity: 0;
     }
