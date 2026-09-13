@@ -1323,6 +1323,7 @@ body.stop-animations .btn-health-glow span::before {
         /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
+/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 @property --border-angle {
     syntax: '<angle>';
     initial-value: 0deg;
@@ -1341,37 +1342,37 @@ body.stop-animations .btn-health-glow span::before {
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
-/* 1. طبقة التدرج الدوارة والحدود المتوهجة (حواف متدرجة) */
+/* 1. طبقة التدرج الدوارة (حواف سميكة ومتوهجة) */
 .btn-health-glow::before {
     content: '' !important;
     position: absolute !important;
-    inset: -2px !important;
+    inset: -4px !important; /* تعريض الحافة المتدرجة لتصبح 4px */
     border-radius: 1rem !important;
     background: conic-gradient(
         from var(--border-angle, 0deg),
         #F0D77B,
-        #10B981,  /* أخضر زمردي */
-        #C4962C,  /* ذهبي داكن */
-        #FFFFFF,  /* أبيض ساطع */
-        #F0D77B   /* ذهبي فاتح */
+        #10B981,  
+        #C4962C,  
+        #FFFFFF,  
+        #F0D77B   
     ) !important;
     z-index: -2 !important;
-    filter: drop-shadow(0 0 8px rgba(240, 215, 123, 0.8)) !important; /* توهج خارجي قوي */
+    filter: drop-shadow(0 0 8px rgba(240, 215, 123, 0.8)) !important;
     animation: rotateGlowBorder 3s linear infinite !important;
 }
 
-/* 2. طبقة الحقل الذهبي المعدني (Medical Gold Field) */
+/* 2. طبقة الحقل الذهبي المعدني */
 .btn-health-glow::after {
     content: '' !important;
     position: absolute !important;
-    inset: 1.5px !important;
-    border-radius: calc(1rem - 1.5px) !important;
-    /* خلفية ذهبية لامعة تشبه السبيكة المعدنية الفاخرة */
-    background: linear-gradient(135deg, #F0D77B 0%, #C4962C 40%, #92610A 100%) !important;
+    inset: 2px !important; /* تعديل المسافة لتتناسب مع الحافة السميكة */
+    border-radius: calc(1rem - 2px) !important;
+    /* خلفية ذهبية مصقولة */
+    background: linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #92610A 100%) !important;
     z-index: -1 !important;
 }
 
-/* 3. النص الداخلي */
+/* 3. النص الداخلي (أبيض ومعرّض بظل داكن) */
 .btn-health-glow span {
     position: relative !important;
     display: inline-flex !important;
@@ -1381,33 +1382,34 @@ body.stop-animations .btn-health-glow span::before {
     width: 100% !important;
     height: 100% !important;
     z-index: 1 !important;
-    color: #1B2A1B !important; /* لون نص داكن (أخضر مسود) ليبرز فوق الذهب */
-    font-weight: 700 !important;
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4); /* ظل أبيض خفيف لإعطاء عمق للنص */
+    color: #FFFFFF !important; /* نص أبيض ناصع */
+    font-weight: 700 !important; /* تعريض الخط */
+    /* تعريض بصري عبر الظل لضمان ظهور النص الأبيض فوق الذهب بوضوح */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* 4. شريط المسح واللمعان الزجاجي (Sweeper) */
+/* 4. شريط المسح واللمعان الزجاجي (ظاهر بقوة) */
 .btn-health-glow span::before {
     content: '' !important;
     position: absolute !important;
     top: -50% !important;
     left: 150% !important;
-    width: 40% !important;
+    width: 50% !important; /* عرض أوسع قليلاً لللمعة */
     height: 200% !important;
     background: linear-gradient(
         90deg,
         rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.3) 20%,
-        rgba(255, 255, 255, 1) 50%, /* لمعة بيضاء قوية جداً */
-        rgba(255, 255, 255, 0.3) 80%,
+        rgba(255, 255, 255, 0.4) 20%,
+        rgba(255, 255, 255, 1) 50%, /* لمعة بيضاء مكثفة */
+        rgba(255, 255, 255, 0.4) 80%,
         rgba(255, 255, 255, 0) 100%
     ) !important;
     transform: rotate(25deg) !important;
     animation: appInstallSweepRTL 3.5s cubic-bezier(0.25, 1, 0.5, 1) infinite !important;
     pointer-events: none !important;
     z-index: 2 !important;
-    /* التغيير هنا: overlay يجعل اللمعة تعكس الضوء على السطح المعدني الذهبي ببراعة */
-    mix-blend-mode: overlay; 
+    /* التغيير الأهم: screen يجبر اللمعة البيضاء على التوهج فوق السطح الذهبي */
+    mix-blend-mode: screen !important; 
 }
 
 /* حركة دوران التدرج اللوني للحدود */
