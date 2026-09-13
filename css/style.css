@@ -1320,73 +1320,6 @@ body.stop-animations .btn-health-glow span::before {
    الزر المتوهج باستمرار مع اللمعان الزجاجي (يمين إلى يسار)
    ========================================================= */
 
-.btn-health-glow {
-    position: relative !important;
-    border: none !important;
-    z-index: 1 !important;
-    isolation: isolate;
-    overflow: hidden !important; /* لقص اللمعان داخل حدود الزر */
-    /* مهم جداً: جعل خلفية الزر الأساسية شفافة لتظهر طبقات الزجاج والتوهج */
-    background: transparent !important; 
-    box-shadow: 0 0 20px rgba(240, 215, 123, 0.65), 0 0 12px rgba(16, 185, 129, 0.45), 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
-}
-
-/* 1. طبقة التدرج الدوارة والحدود المتوهجة (دائمة) */
-.btn-health-glow::before {
-    content: '' !important;
-    position: absolute !important;
-    inset: -2px !important;
-    border-radius: 1rem !important;
-    background: conic-gradient(
-        from var(--border-angle, 0deg),
-        #F0D77B,
-        #10B981,
-        #C4962C,
-        #FFFFFF,
-        #F0D77B
-    ) !important;
-    z-index: -2 !important; /* تعديل Z-index */
-    filter: drop-shadow(0 0 8px rgba(240, 215, 123, 0.8)) !important;
-    animation: rotateGlowBorder 3s linear infinite !important;
-}
-
-/* 2. طبقة الخلفية الداخلية مع تأثير التغبيش الزجاجي */
-.btn-health-glow::after {
-    content: '' !important;
-    position: absolute !important;
-    inset: 1.5px !important;
-    border-radius: calc(1rem - 1.5px) !important;
-    /* استخدام شفافية بدلاً من inherit لضمان ظهور اللمعة فوقها */
-    background: rgba(16, 185, 129, 0.25) !important; 
-    backdrop-filter: blur(8px) saturate(140%) !important;
-    -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
-    z-index: -1 !important; /* تعديل Z-index لتكون فوق الحدود المتوهجة */
-}
-
-/* 3. حاوي النص الداخلي */
-.btn-health-glow span {
-    position: relative !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-    height: 100% !important;
-    z-index: 1 !important; /* وضع النص في المقدمة */
-}
-
-/* 4. خط اللمعان الزجاجي الساطع (حركة من اليمين إلى اليسار) */
-.btn-health-glow span::before {
-    content: '' !important;
-    position: absolute !important;
-    top: -50% !important;
-    left: 150% !important; /* البداية من خارج الجهة اليمنى */
-    width: 35px !important; 
-    height: 200% !important;
-    background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0) 0%,
         rgba(255, 255, 255, 0.9) 50%, 
         rgba(255, 255, 255, 0) 100%
     ) !important;
@@ -1401,65 +1334,96 @@ body.stop-animations .btn-health-glow span::before {
    نبض الأيقونة (Smooth Medical Heartbeat)
    ========================================================= */
 
-.icon-heartbeat {
-    display: inline-block !important;
-    color: #F0D77B !important;
-    filter: drop-shadow(0 0 6px rgba(240, 215, 123, 0.8)) !important;
-    animation: smoothMedicalPulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
-    will-change: transform;
+.btn-health-glow {
+    position: relative !important;
+    border: none !important;
+    z-index: 1 !important;
+    isolation: isolate;
+    overflow: hidden !important; /* لقص اللمعان المائل عند الحواف */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 12px rgba(240, 215, 123, 0.3) !important;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
 }
 
-/* خاصية تدوير زاوية التدرج */
-@property --border-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
+/* 1. طبقة التدرج الدوارة والحدود المتوهجة */
+.btn-health-glow::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: -2px !important;
+    border-radius: 1rem !important;
+    background: conic-gradient(
+        from var(--border-angle, 0deg),
+        #F0D77B,
+        #10B981,
+        #C4962C,
+        #FFFFFF,
+        #F0D77B
+    ) !important;
+    z-index: -3 !important;
+    filter: drop-shadow(0 0 6px rgba(240, 215, 123, 0.6)) !important;
+    animation: rotateGlowBorder 3s linear infinite !important;
 }
 
-@keyframes rotateGlowBorder {
-    to {
-        --border-angle: 360deg;
-    }
+/* 2. طبقة الخلفية الداخلية مع تأثير التغبيش الزجاجي */
+.btn-health-glow::after {
+    content: '' !important;
+    position: absolute !important;
+    inset: 1.5px !important;
+    border-radius: calc(1rem - 1.5px) !important;
+    background: inherit !important;
+    backdrop-filter: blur(8px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+    z-index: -2 !important;
 }
 
-/* حركة اللمعان من اليمين إلى اليسار باستخدام left */
-@keyframes glassSheenRTL {
+/* 3. ضمان تموضع الـ span الداخلي ليشمل كامل مساحة الزر */
+.btn-health-glow span {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 2 !important; /* رفعه فوق كل الطبقات الخلفية */
+}
+
+/* 4. شريط المسح واللمعان الزجاجي (Sweeper) */
+.btn-health-glow span::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -50% !important;
+    left: -150% !important;
+    width: 60% !important;
+    height: 200% !important;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.15) 20%,
+        rgba(255, 255, 255, 0.85) 50%, /* لمعة ساطعة متباينة */
+        rgba(240, 215, 123, 0.5) 75%,
+        rgba(255, 255, 255, 0) 100%
+    ) !important;
+    transform: rotate(25deg) !important;
+    animation: appInstallSweep 3.5s cubic-bezier(0.25, 1, 0.5, 1) infinite !important;
+    pointer-events: none !important;
+    z-index: 10 !important; /* ضمان الظهور فوق خلفية الزر */
+}
+
+/* حركة المسح السريعة */
+@keyframes appInstallSweep {
     0% {
-        left: 150%; /* تبدأ من خارج الزر يميناً */
-        opacity: 0;
-    }
-    15% {
-        opacity: 1;
-    }
-    45% {
-        left: -150%; /* تعبر بالكامل إلى خارج الزر يساراً */
-        opacity: 1;
-    }
-    50%, 100% {
         left: -150%;
         opacity: 0;
     }
-}
-
-@keyframes smoothMedicalPulse {
-    0%, 100% {
-        transform: scale(1);
-        filter: drop-shadow(0 0 4px rgba(240, 215, 123, 0.5));
+    10% {
+        opacity: 1;
     }
-    12% {
-        transform: scale(1.22);
-        color: #FFFFFF;
-        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+    40% {
+        left: 200%; /* تحريك اللمعة بالكامل لخارج الطرف الآخر */
+        opacity: 1;
     }
-    24% {
-        transform: scale(0.95);
-    }
-    36% {
-        transform: scale(1.12);
-        color: #F0D77B;
-        filter: drop-shadow(0 0 6px rgba(240, 215, 123, 0.8));
-    }
-    48% {
-        transform: scale(1);
+    45%, 100% {
+        left: 200%;
+        opacity: 0;
     }
 }
