@@ -1333,6 +1333,7 @@ body.stop-animations .btn-health-glow span::before {
    ========================================================= */
 
 /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
+/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 @property --border-angle {
     syntax: '<angle>';
     initial-value: 0deg;
@@ -1355,7 +1356,7 @@ body.stop-animations .btn-health-glow span::before {
 .btn-health-glow::before {
     content: '' !important;
     position: absolute !important;
-    inset: -4px !important; 
+    inset: -4px !important; /* تعريض الحافة المتدرجة */
     border-radius: 1rem !important;
     background: conic-gradient(
         from var(--border-angle, 0deg),
@@ -1370,50 +1371,41 @@ body.stop-animations .btn-health-glow span::before {
     animation: rotateGlowBorder 3s linear infinite !important;
 }
 
-/* 2. طبقة الحقل الذهبي المعدني */
+/* 2. طبقة الحقل الذهبي مع دمج اللمعة الزجاجية مباشرة فيه لضمان ظهورها */
 .btn-health-glow::after {
     content: '' !important;
     position: absolute !important;
     inset: 2px !important; 
     border-radius: calc(1rem - 2px) !important;
-    background: linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #92610A 100%) !important;
+    /* 
+       الخلفية هنا تحتوي على طبقتين:
+       الطبقة الأولى: اللمعة الزجاجية البيضاء المتحركة (تمثل 50% من عرض الزر وتتحرك)
+       الطبقة الثانية: التدرج الذهبي الطبي الثابت
+    */
+    background: 
+        linear-gradient(110deg, 
+            transparent 35%, 
+            rgba(255, 255, 255, 0.4) 45%, 
+            rgba(255, 255, 255, 0.95) 50%, /* مركز اللمعة الناصعة */
+            rgba(255, 255, 255, 0.4) 55%, 
+            transparent 65%
+        ) 150% 0 / 50% 100% no-repeat,
+        linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #92610A 100%) !important;
     z-index: -1 !important;
+    animation: shineMoveRTL 3.5s cubic-bezier(0.25, 1, 0.5, 1) infinite !important;
 }
 
-/* 3. حاوي النص (تم جعله يغطي الزر بالكامل بتموضع مطلق لضمان مرور اللمعة) */
+/* 3. النص الداخلي */
 .btn-health-glow span {
-    position: absolute !important;
-    inset: 0 !important;
-    display: flex !important;
+    position: relative !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 8px !important;
-    z-index: 2 !important; /* النص في المقدمة دائماً */
+    z-index: 1 !important; /* النص يبقى في المقدمة دائماً */
     color: #FFFFFF !important; 
     font-weight: 700 !important; 
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
-}
-
-/* 4. شريط المسح واللمعان الزجاجي (تم إصلاح ظهوره) */
-.btn-health-glow span::before {
-    content: '' !important;
-    position: absolute !important;
-    top: -50% !important;
-    left: 150% !important; 
-    width: 50% !important; 
-    height: 200% !important;
-    background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.4) 20%,
-        rgba(255, 255, 255, 0.95) 50%, /* لمعة بيضاء مكثفة جداً وغير شفافة تماماً لكي تظهر */
-        rgba(255, 255, 255, 0.4) 80%,
-        rgba(255, 255, 255, 0) 100%
-    ) !important;
-    transform: rotate(25deg) !important;
-    animation: appInstallSweepRTL 3.5s cubic-bezier(0.25, 1, 0.5, 1) infinite !important;
-    pointer-events: none !important;
-    z-index: 1 !important; /* فوق الخلفية الذهبية، وخلف النص الأبيض */
 }
 
 /* حركة دوران التدرج اللوني للحدود */
@@ -1423,7 +1415,7 @@ body.stop-animations .btn-health-glow span::before {
     }
 }
 
-/* حركة نبض التوهج الذهبي والأخضر */
+/* حركة نبض التوهج */
 @keyframes btnMedicalPulse {
     0%, 100% {
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 15px rgba(196, 150, 44, 0.6), 0 0 10px rgba(16, 185, 129, 0.4);
@@ -1433,21 +1425,21 @@ body.stop-animations .btn-health-glow span::before {
     }
 }
 
-/* حركة المسح من اليمين إلى اليسار (RTL) */
-@keyframes appInstallSweepRTL {
+/* حركة تحريك اللمعة الزجاجية من اليمين إلى اليسار */
+@keyframes shineMoveRTL {
     0% {
-        left: 150%; 
+        background-position: 150% 0, 0 0; /* اللمعة تبدأ من خارج اليمين */
         opacity: 0;
     }
     10% {
         opacity: 1;
     }
     40% {
-        left: -150%; 
+        background-position: -150% 0, 0 0; /* اللمعة تعبر إلى خارج اليسار */
         opacity: 1;
     }
     45%, 100% {
-        left: -150%;
+        background-position: -150% 0, 0 0;
         opacity: 0;
     }
 }
