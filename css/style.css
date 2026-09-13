@@ -1393,13 +1393,19 @@ body.stop-animations .btn-health-glow span::before {
 }
 
 /* 4. طبقة الخلفية الداكنة */
+/* 2. طبقة الخلفية الداخلية مع تأثير التغبيش الزجاجي */
 .btn-health-glow::after {
-    content: '';
-    position: absolute;
-    inset: 1.5px;
-    border-radius: var(--btn-radius);
-    background: var(--btn-bg);
-    z-index: -1;
+    content: '' !important;
+    position: absolute !important;
+    inset: 1.5px !important;
+    border-radius: calc(1rem - 1.5px) !important;
+    
+    /* خلفية طبية داكنة (أخضر زمردي عميق) تبرز التوهج الذهبي والأخضر */
+    background: rgba(7, 61, 46, 0.9) !important; 
+    
+    backdrop-filter: blur(8px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+    z-index: -1 !important;
 }
 
 /* 5. المحتوى الداخلي وشريط اللمعان */
