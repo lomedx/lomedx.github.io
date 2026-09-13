@@ -1334,6 +1334,7 @@ body.stop-animations .btn-health-glow span::before {
 
 /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
+/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 @property --border-angle {
     syntax: '<angle>';
     initial-value: 0deg;
@@ -1371,28 +1372,30 @@ body.stop-animations .btn-health-glow span::before {
     animation: rotateGlowBorder 3s linear infinite !important;
 }
 
-/* 2. طبقة الحقل الذهبي + اللمعة الزجاجية (بدون opacity على العنصر نفسه) */
+/* 2. طبقة الحقل الذهبي + اللمعة الزجاجية */
 .btn-health-glow::after {
     content: '' !important;
     position: absolute !important;
     inset: 2px !important; 
     border-radius: calc(1rem - 2px) !important;
-    /* 
-       الطبقة الأولى: اللمعة الزجاجية المتحركة
-       الطبقة الثانية: التدرج الذهبي الثابت (دائماً ظاهر)
-    */
-    background: 
-        linear-gradient(110deg, 
-            transparent 35%, 
-            rgba(255, 255, 255, 0.25) 42%, 
-            rgba(255, 255, 255, 0.7) 50%, 
-            rgba(255, 255, 255, 0.25) 58%, 
-            transparent 65%
-        ) 150% 0 / 55% 100% no-repeat,
-        linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #92610A 100%) !important;
     z-index: -1 !important;
-    /* فقط تحريك موضع اللمعة، بدون تغيير opacity للعنصر */
-    animation: shineMoveRTL 3.5s cubic-bezier(0.25, 1, 0.5, 1) infinite !important;
+
+    /* فصل الخصائص لضمان عمل الحركة بشكل صحيح */
+    background-image: 
+        linear-gradient(110deg, 
+            transparent 30%, 
+            rgba(255, 255, 255, 0.15) 40%, 
+            rgba(255, 255, 255, 0.85) 50%, 
+            rgba(255, 255, 255, 0.15) 60%, 
+            transparent 70%
+        ),
+        linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #92610A 100%);
+    
+    background-size: 60% 100%, 100% 100%;
+    background-repeat: no-repeat, no-repeat;
+    background-position: 150% 0, 0 0; /* البداية من خارج اليمين */
+    
+    animation: shineMoveRTL 3s ease-in-out infinite !important;
 }
 
 /* 3. النص الداخلي */
@@ -1425,15 +1428,15 @@ body.stop-animations .btn-health-glow span::before {
     }
 }
 
-/* حركة تحريك اللمعة الزجاجية من اليمين إلى اليسار (بدون إخفاء الخلفية الذهبية) */
+/* حركة اللمعة من اليمين إلى اليسار */
 @keyframes shineMoveRTL {
     0% {
-        background-position: 150% 0, 0 0;
+        background-position: 160% 0, 0 0;
     }
-    40% {
-        background-position: -150% 0, 0 0;
+    50% {
+        background-position: -60% 0, 0 0;
     }
-    40.1%, 100% {
-        background-position: -150% 0, 0 0;
+    100% {
+        background-position: -60% 0, 0 0;
     }
 }
