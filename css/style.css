@@ -1273,12 +1273,20 @@ html.dark .qt-stats { background: rgba(0,0,0,0.3); }
 .hero-bg.paused-anim *::after {
     animation-play-state: paused !important;
 }
-/* إيقاف الحركات في الخلفية عند فتح النوافذ، مع إبقاء حركات قائمة الجوال تعمل */
-body.stop-animations *:not(.mobile-menu-premium):not(.mobile-menu-premium *),
+/* إيقاف الحركات في الخلفية عند فتح النوافذ مع استثناء قائمة الجوال وزر الملف الصحي */
+body.stop-animations *:not(.mobile-menu-premium):not(.mobile-menu-premium *):not(.btn-health-glow):not(.btn-health-glow *),
 body.stop-animations *::before,
 body.stop-animations *::after {
     animation-play-state: paused !important;
 }
+
+/* إعادة تفعيل الحركات الخاصة بالطبقات الوهمية للزر (::before و ::after) */
+body.stop-animations .btn-health-glow::before,
+body.stop-animations .btn-health-glow::after,
+body.stop-animations .btn-health-glow span::before {
+    animation-play-state: running !important;
+}
+
 
 
 /* =========================================================
