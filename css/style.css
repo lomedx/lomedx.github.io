@@ -1333,9 +1333,6 @@ body.stop-animations .btn-health-glow span::before {
    ========================================================= */
 
 /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 @property --border-angle {
     syntax: '<angle>';
     initial-value: 0deg;
@@ -1372,7 +1369,7 @@ body.stop-animations .btn-health-glow span::before {
     animation: rotateGlowBorder 3s linear infinite !important;
 }
 
-/* 2. طبقة الحقل الذهبي + اللمعة الزجاجية */
+/* 2. طبقة الحقل الذهبي + اللمعة الزجاجية الواقعية */
 .btn-health-glow::after {
     content: '' !important;
     position: absolute !important;
@@ -1382,23 +1379,24 @@ body.stop-animations .btn-health-glow span::before {
 
     background-image: 
         linear-gradient(
-            105deg,
+            115deg,
             transparent 0%,
-            transparent 40%,
-            rgba(255, 255, 255, 0.1) 45%,
-            rgba(255, 255, 255, 0.55) 50%,
-            rgba(255, 255, 255, 0.1) 55%,
-            transparent 60%,
+            transparent 42%,
+            rgba(255, 255, 255, 0.05) 46%,
+            rgba(255, 255, 255, 0.25) 49%,
+            rgba(255, 255, 255, 0.7) 50%,
+            rgba(255, 255, 255, 0.25) 51%,
+            rgba(255, 255, 255, 0.05) 54%,
+            transparent 58%,
             transparent 100%
         ),
         linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #92610A 100%);
     
-    background-size: 70% 100%, 100% 100%;
+    background-size: 80% 100%, 100% 100%;
     background-repeat: no-repeat, no-repeat;
-    background-position: 200% 0, 0 0;
+    background-position: 220% 0, 0 0; /* يبدأ خارج اليمين تماماً */
     
-    /* حركة سلسة ودقيقة */
-    animation: shineMoveRTL 4s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+    animation: shineMoveRTL 4.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite !important;
 }
 
 /* 3. النص الداخلي */
@@ -1431,15 +1429,15 @@ body.stop-animations .btn-health-glow span::before {
     }
 }
 
-/* حركة اللمعة السلسة والدقيقة من اليمين لليسار */
+/* حركة واقعية: تبدأ خارج اليمين وتنتهي خارج اليسار */
 @keyframes shineMoveRTL {
     0% {
-        background-position: 200% 0, 0 0;
+        background-position: 220% 0, 0 0;   /* خارج اليمين تماماً */
     }
-    45% {
-        background-position: -100% 0, 0 0;
+    60% {
+        background-position: -120% 0, 0 0;  /* خارج اليسار تماماً */
     }
     100% {
-        background-position: -100% 0, 0 0;
+        background-position: -120% 0, 0 0;  /* تبقى خارج حتى نهاية الدورة */
     }
 }
