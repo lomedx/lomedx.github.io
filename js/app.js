@@ -6367,15 +6367,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let openedFromMenu = false;
 
-    // 1. تعديل أزرار الميزات داخل القائمة
+        // 1. تعديل أزرار الميزات داخل القائمة
     mobileMenu.querySelectorAll('a, button').forEach(btn => {
-    
         const onclickVal = btn.getAttribute('onclick');
-        // نستهدف الأزرار التي تفتح ميزات (وليست روابط للتمرير في الصفحة)
-        if (onclickVal && onclickVal.includes('toggleMobileMenu()') && !btn.hasAttribute('href')) {
+        // نستهدف أي زر أو رابط يقوم بفتح نافذة (يحتوي على كلمة open أو show أو toggleEmergency)
+        if (onclickVal && (onclickVal.includes('open') || onclickVal.includes('show') || onclickVal.includes('toggleEmergency'))) {
             
-            // إزالة دالة الإغلاق القديمة من الزر
-            btn.setAttribute('onclick', onclickVal.replace(/toggleMobileMenu\(\);?\s*/g, ''));
+            // إزالة دالة الإغلاق القديمة إذا كانت موجودة لمنع التضارب
+            if (onclickVal.includes('toggleMobileMenu()')) {
+                btn.setAttribute('onclick', onclickVal.replace(/toggleMobileMenu\(\);?\s*/g, ''));
+            }
             
             // إضافة منطقنا الذكي
             btn.addEventListener('click', () => {
