@@ -1400,7 +1400,7 @@ body.stop-animations .btn-health-glow span::before {
     will-change: background-position;
     
     /* حركة أنيقة: تمرير سلس يتوقف قليلاً قبل التكرار لإضفاء الواقعية */
-    animation: shineMoveRTL 5s cubic-bezier(0.65, 0.05, 0.36, 1) infinite !important;
+    animation: shineMoveRTL 6.5s cubic-bezier(0.65, 0.05, 0.36, 1) infinite !important;
 }
 
 /* حركة واقعية محسنة: تمر سريعة وتتوقف في المنتصف قليلاً ثم تعود */
@@ -1408,7 +1408,7 @@ body.stop-animations .btn-health-glow span::before {
     0% {
         background-position: 200% 0, 0 0;   /* تبدأ خارج اليمين تماماً */
     }
-    40% {
+    60% {
         background-position: -100% 0, 0 0;  /* تنتهي خارج اليسار تماماً */
     }
     100% {
