@@ -1325,11 +1325,7 @@ body.stop-animations .btn-health-glow span::before {
         bottom: calc(30px + env(safe-area-inset-bottom)) !important; /* يرفع الأزرار فوق الشريط السفلي للهاتف */
     }
 
-    /* رفع النوافذ المنبثقة السفلية (مثل قائمة المدن) فوق لوحة المفاتيح أو الشريط السفلي */
-    .city-selector-panel {
-        padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
-    }
-}
+    
 /* ضمان حجم لمس مريح للإبهام في الجوال */
 @media (max-width: 768px) {
     .accordion-header, .day-btn, .tools-dropdown-item {
@@ -1364,23 +1360,7 @@ body.stop-animations .btn-health-glow span::before {
     -webkit-overflow-scrolling: touch; /* تمرير سلس باللمس (مهم جداً للآيفون) */
     scroll-behavior: smooth;
 }
-/* جعل النوافذ تنزلق من الأسفل للأعلى في الجوال */
-@media (max-width: 768px) {
-    .modal-overlay {
-        align-items: flex-end !important; /* رفع المحتوى للأسفل */
-        padding: 0 !important;
-    }
-    .modal-content {
-        border-radius: 24px 24px 0 0 !important; /* تدوير الحواف العلوية فقط */
-        margin-top: auto;
-        max-height: 92vh;
-        animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-    }
-}
-@keyframes slideUpModal {
-    from { transform: translateY(100%); opacity: 0.5; }
-    to { transform: translateY(0); opacity: 1; }
-}
+
 /* تغيير لون تحديد النص ليتناسب مع هوية المنصة */
 ::selection {
     background: rgba(14, 124, 95, 0.2); /* أخضر زمردي شفاف */
