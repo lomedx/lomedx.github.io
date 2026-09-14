@@ -1364,6 +1364,65 @@ body.stop-animations .btn-health-glow span::before {
     -webkit-overflow-scrolling: touch; /* تمرير سلس باللمس (مهم جداً للآيفون) */
     scroll-behavior: smooth;
 }
+/* جعل النوافذ تنزلق من الأسفل للأعلى في الجوال */
+@media (max-width: 768px) {
+    .modal-overlay {
+        align-items: flex-end !important; /* رفع المحتوى للأسفل */
+        padding: 0 !important;
+    }
+    .modal-content {
+        border-radius: 24px 24px 0 0 !important; /* تدوير الحواف العلوية فقط */
+        margin-top: auto;
+        max-height: 92vh;
+        animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
+}
+@keyframes slideUpModal {
+    from { transform: translateY(100%); opacity: 0.5; }
+    to { transform: translateY(0); opacity: 1; }
+}
+/* تغيير لون تحديد النص ليتناسب مع هوية المنصة */
+::selection {
+    background: rgba(14, 124, 95, 0.2); /* أخضر زمردي شفاف */
+    color: #0E7C5F;
+    text-shadow: none;
+}
+::-moz-selection {
+    background: rgba(14, 124, 95, 0.2);
+    color: #0E7C5F;
+}
+/* إزالة الحدود الافتراضية وإضافة حلقة تركيز أنيقة */
+input:focus, select:focus, textarea:focus, .ctrl-input:focus {
+    outline: none !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 4px rgba(14, 124, 95, 0.1) !important;
+    transition: box-shadow 0.2s ease;
+}
+/* تأثير التحميل الوهمي (Skeleton Loading) */
+.skeleton-loader {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+    height: 20px;
+    width: 100%;
+}
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+/* ظهور الشعار والنص بقوة عند تحميل الصفحة */
+.hero-medical-logo, #hero-content h1, #hero-content p {
+    animation: heroFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+#hero-content h1 { animation-delay: 0.2s; opacity: 0; }
+#hero-content p { animation-delay: 0.4s; opacity: 0; }
+
+@keyframes heroFadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* =========================================================
    الزر المتوهج باستمرار مع الشريط الزجاجي المائل (RTL)
    ========================================================= */
