@@ -1255,6 +1255,10 @@ window.closeModal = (event) => {
     'Lomedx منصة الطبية الشاملة في سوريا. ابحث عن أقرب المشفى، الطبيب، الصيدلية، المركز الطبي أو مخبر.',
     'https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg'
 );
+        // تنظيف الـ Schema الخاص بالمقال عند الإغلاق
+    const articleSchema = document.getElementById('dynamicArticleSchema');
+    if (articleSchema) articleSchema.remove();
+};
     }
 }
 window.copyNumber = (phone) => { navigator.clipboard.writeText(phone).then(() => showToast('تم نسخ رقم الهاتف بنجاح')).catch(() => showToast('تعذر النسخ')); }
