@@ -258,6 +258,49 @@ function updateTipDisplay() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+// === نظام توجيه الروابط الشامل (SPA Hash Router) ===
+const urlHash = window.location.hash;
+if (urlHash && urlHash !== '#home' && !urlHash.includes('article=')) {
+    // جدول التوجيه (يربط الهاش باسم الدالة)
+    const routes = {
+        '#blog': 'openMedicalBlog',
+        '#blood-bank': 'openBloodBank',
+        '#first-aid': 'openFirstAid',
+        '#ask-doctor': 'openAskDoctor',
+        '#medicine-finder': 'openMedicineFinder',
+        '#health-file': 'openHealthFile',
+        '#doctor-login': 'openDoctorLogin',
+        '#pharmacy-login': 'openPharmacyLogin',
+        '#admin-login': 'openAdminLogin',
+        '#burn-calculator': 'openBurnCalculator',
+        '#seasonal-diseases': 'openSeasonalDiseases',
+        '#pregnancy-calc': 'openPregnancyCalc',
+        '#dose-calc': 'openDoseCalc',
+        '#vaccine-scheduler': 'openVaccineScheduler',
+        '#health-calc': 'openHealthCalc',
+        '#water-calc': 'openWaterCalc',
+        '#med-renewal-calc': 'openMedRenewalCalc',
+        '#med-symbols': 'openMedSymbols',
+        '#chronic-nutrition': 'openChronicNutrition',
+        '#pre-visit-guide': 'openPreVisitGuide',
+        '#pre-test-guide': 'openPreTestGuide',
+        '#events-first-aid': 'openEventsFirstAid',
+        '#food-interactions': 'openFoodInteractions',
+        '#patient-reminder': 'openPatientReminder',
+        '#medical-map': 'openMedicalMap',
+        '#raheba-radar': 'openRahebaRadar',
+        '#medicine-donation': 'openMedicineDonation'
+    };
+
+    // إذا كان الرابط موجوداً في الجدول، قم بتنفيذ الدالة الخاصة به
+    const functionName = routes[urlHash];
+    if (functionName && typeof window[functionName] === 'function') {
+        // نستخدم setTimeout لانتظار تحميل المكتبات (مثل QrCode و Supabase) قبل فتح الأداة
+        setTimeout(() => {
+            window[functionName]();
+        }, 1500); 
+    }
+}
     const isOAuthRedirect = window.location.href.includes('code=') || window.location.href.includes('access_token=');
     const isGoogleIntent = sessionStorage.getItem('google_login_intent') === 'true';
     
