@@ -5905,40 +5905,6 @@ window.openArticleReader = async (id) => {
 };
     
 
-    // === إضافة الـ Schema الخاص بالمقال الطبي ===
-    const articleSchema = {
-        "@context": "https://schema.org",
-        "@type": "MedicalWebPage",
-        "headline": article.title,
-        "description": article.excerpt || article.content.substring(0, 150),
-        "datePublished": article.created_at,
-        "image": {
-            "@type": "ImageObject",
-            "url": article.image_url || "https://i.ibb.co/d09VBmky/37414.png"
-        },
-        "author": {
-            "@type": "Physician",
-            "name": article.author_name || "Lomedx Medical Team",
-            "jobTitle": article.author_credential || "طبيب مختص"
-        },
-        "publisher": {
-            "@type": "Organization",
-            "name": "Lomedx",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://i.ibb.co/d09VBmky/37414.png"
-            }
-        },
-        "text": article.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-    };
-
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.id = 'dynamicArticleSchema';
-    script.textContent = JSON.stringify(articleSchema);
-    document.head.appendChild(script);
-};
-
 // دالة التقييم مع منع التكرار
 window.rateArticle = async (id, isHelpful) => {
     id = String(id);
