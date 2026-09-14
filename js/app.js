@@ -292,15 +292,30 @@ if (urlHash && urlHash !== '#home' && !urlHash.includes('article=')) {
         '#medicine-donation': 'openMedicineDonation'
     };
 
-        const functionName = routes[urlHash];
+            const functionName = routes[urlHash];
     if (functionName && typeof window[functionName] === 'function') {
-        // === تنظيف الرابط فوراً لمنع إعادة فتح الأداة عند تحديث الصفحة ===
+        // 1. تنظيف الرابط فوراً
         history.replaceState(null, '', window.location.pathname + window.location.search);
 
-        // نستخدم setTimeout لانتظار تحميل المكتبات (مثل QrCode و Supabase) قبل فتح الأداة
-        setTimeout(() => {
-            window[functionName]();
-        }, 1500); 
+        // 2. التحقق مما إذا كان المستخدم يقوم بتحديث الصفحة (Refresh)
+        let isPageReload = false;
+        if (window.performance && window.performance.getEntriesByType) {
+            const navEntries = window.performance.getEntriesByType('navigation');
+            if (navEntries.length > 0 && navEntries[0].type === 'reload') {
+                isPageReload = true;
+            }
+        } else if (window.performance && window.performance.navigation) {
+            if (window.performance.navigation.type === 1) {
+                isPageReload = true;
+            }
+        }
+
+        // 3. لا تفتح الأداة إذا كان المستخدم قد قام فقط بتحديث الصفحة
+        if (!isPageReload) {
+            setTimeout(() => {
+                window[functionName]();
+            }, 1200); 
+        }
     }
 }
     const isOAuthRedirect = window.location.href.includes('code=') || window.location.href.includes('access_token=');
@@ -352,13 +367,36 @@ if (urlHash && urlHash !== '#home' && !urlHash.includes('article=')) {
         }
     }
     
-        if (window.location.hash.includes('article=')) {
+            if (window.location.hash.includes('article=')) {
         const artId = window.location.hash.split('=')[1];
         
-        // === تنظيف الرابط فوراً لمنع إعادة فتح المقال عند تحديث الصفحة ===
+        // 1. تنظيف الرابط فوراً
         history.replaceState(null, '', window.location.pathname + window.location.search);
     
-        setTimeout(async () => {
+        // 2. التحقق مما إذا كان المستخدم يقوم بتحديث الصفحة (Refresh)
+        let isPageReload = false;
+        if (window.performance && window.performance.getEntriesByType) {
+            const navEntries = window.performance.getEntriesByType('navigation');
+            if (navEntries.length > 0 && navEntries[0].type === 'reload') {
+                isPageReload = true;
+            }
+        } else if (window.performance && window.performance.navigation) {
+            if (window.performance.navigation.type === 1) {
+                isPageReload = true;
+            }
+        }
+
+        // 3. لا تفتح المقال إذا كان المستخدم قد قام فقط بتحديث الصفحة
+        if (!isPageReload) {
+            setTimeout(async () => {
+                const { data, error } = await supabase.from('medical_articles').select('*').eq('id', artId).single();
+                if (data) {
+                    allArticles = [data]; // وضع المقال في المصفوفة ليتمكن الكود من إيجاده
+                    openArticleReader(artId);
+                }
+            }, 1000);
+        }
+    }
             const { data, error } = await supabase.from('medical_articles').select('*').eq('id', artId).single();
             if (data) {
                 allArticles = [data]; // وضع المقال في المصفوفة ليتمكن الكود من إيجاده
@@ -6336,7 +6374,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let openedFromMenu = false;
 
     // 1. تعديل أزرار الميزات داخل القائمة
-    mobileMenu.querySelectorAll('button').forEach(btn => {
+    mobileMenu.querySelectorAll('a, button').forEach(btn => {
     
         const onclickVal = btn.getAttribute('onclick');
         // نستهدف الأزرار التي تفتح ميزات (وليست روابط للتمرير في الصفحة)
