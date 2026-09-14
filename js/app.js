@@ -3379,7 +3379,9 @@ window.renderAdminDashboard = async () => {
         <div class="grid grid-cols-2 gap-3">
            <input type="text" id="artCategory" class="ctrl-input text-sm" placeholder="التصنيف (مثال: أطفال، باطنة)">
            <input type="text" id="artImage" class="ctrl-input text-sm" placeholder="رابط الصورة (URL)">
-        
+           
+           <input type="text" id="artAuthorName" class="ctrl-input text-sm" placeholder="اسم الطبيب الكاتب (مثال: د. أحمد)" required>
+           <input type="text" id="artAuthorCredential" class="ctrl-input text-sm" placeholder="الاختصاص (مثال: استشاري باطنة)" required>
         </div>
         <textarea id="artExcerpt" class="ctrl-input text-sm" rows="2" placeholder="ملخص قصير يظهر في بطاقة المقال (اختياري)"></textarea>
         <textarea id="artContent" class="ctrl-input text-sm" rows="6" placeholder="محتوى المقال..." required></textarea>
@@ -5652,6 +5654,17 @@ window.openArticleReader = async (id) => {
     supabase.from('medical_articles').update({ views: (article.views || 0) + 1 }).eq('id', id).then();
 
     const dateStr = new Date(article.created_at).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
+    
+const authorDisplay = article.author_name ? 
+    `<div class="flex items-center gap-2 mt-2 mb-4 p-3 bg-blue-50 rounded-xl">
+        <i class="fas fa-user-md text-blue-600"></i>
+        <div>
+            <span class="font-bold text-sm text-gray-800">${escapeHtml(article.author_name)}</span>
+            <span class="text-xs text-gray-500 block">${escapeHtml(article.author_credential || 'طبيب مختص')}</span>
+        </div>
+    </div>` : '';
+
+// ثم ضع المتغير ${authorDisplay} في الـ HTML الخاص بـ modalContent فوق محتوى المقال
     const wordCount = article.content.split(/\s+/).length;
     const readingTime = Math.max(1, Math.ceil(wordCount / 200));
     const processedContent = parseArticleContent(article.content);
@@ -5800,7 +5813,40 @@ window.rateArticle = async (id, isHelpful) => {
         const span = ratingBox.querySelector('span');
         if(span) span.innerText = 'شكراً لتقييمك!';
     }
+// في نهاية دالة openArticleReader() في ملف app.js
+const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "MedicalWebPage", // نوع الصفحة: صفحة طبية
+    "headline": article.title, // عنوان المقال
+    "description": article.excerpt || article.content.substring(0, 150), // ملخص المقال
+    "datePublished": article.created_at, // تاريخ النشر
+    "image": {
+        "@type": "ImageObject",
+        "url": article.image_url || "https://i.ibb.co/d09VBmky/37414.png" // صورة المقال
+    },
+    "author": {
+        "@type": "Physician", // نوع الكاتب: طبيب (هذا يرفع الـ E-E-A-T بقوة)
+        "name": article.author_name || "Lomedx Medical Team",
+        "jobTitle": article.author_credential || "طبيب مختص" // الاختصاص الطبي
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Lomedx",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "https://i.ibb.co/d09VBmky/37414.png"
+        }
+    },
+    // نص المقال الكامل (نزيل منه أكواد HTML لكي يكون نصاً نقياً مقروءاً للعناكب)
+    "text": article.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+};
 
+// حقن الكود في رأس الصفحة
+const script = document.createElement('script');
+script.type = 'application/ld+json';
+script.id = 'dynamicArticleSchema';
+script.textContent = JSON.stringify(articleSchema);
+document.head.appendChild(script);
     // تحديث قاعدة البيانات
     const { data } = await supabase.from('medical_articles').select('likes, dislikes').eq('id', id).single();
     if (!data) return;
@@ -5881,7 +5927,13 @@ window.saveArticle = async (e) => {
     const image = document.getElementById('artImage').value.trim();
     const content = document.getElementById('artContent').value.trim();
     const excerpt = document.getElementById('artExcerpt').value.trim() || content.substring(0, 150);
-
+const authorName = document.getElementById('artAuthorName').value.trim();
+const authorCredential = document.getElementById('artAuthorCredential').value.trim();
+await supabase.from('medical_articles').insert([{ 
+    title, category, image_url: image, content, excerpt, 
+    author_name: authorName, 
+    author_credential: authorCredential 
+}]);
     try {
         if (id) {
             // وضع التعديل
