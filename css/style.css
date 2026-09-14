@@ -1338,23 +1338,9 @@ body.stop-animations .btn-health-glow span::before {
         height: 36px;
     }
 }
-/* إخفاء أشرطة التمرير في كامل تطبيق الجوال مع إبقاء خاصية السحب */
-@media (max-width: 768px) {
-    ::-webkit-scrollbar {
-        width: 0px;
-        background: transparent;
-    }
+
     
-    .ctrl-content, .modal-content {
-        scrollbar-width: none; /* إخفاء في فايرفكس */
-        -ms-overflow-style: none; /* إخفاء في إنترنت إكسبلورر */
-    }
     
-    /* تقليل تأثير الـ Blur للحفاظ على أداء البطارية وسرعة الجوال */
-    .backdrop-blur-sm, .backdrop-blur-md {
-        backdrop-filter: blur(8px) !important; /* تقليل درجة الضبابية لتخفيف العبء عن المعالج */
-    }
-}
 /* تفعيل التمرير الطبيعي للتطبيقات في العناصر المنبثقة */
 .ctrl-content, .mobile-menu-premium, .city-selector-panel {
     -webkit-overflow-scrolling: touch; /* تمرير سلس باللمس (مهم جداً للآيفون) */
