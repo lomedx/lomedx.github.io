@@ -5532,7 +5532,30 @@ let currentBlogCategory = 'all';
 let savedArticleIds = JSON.parse(localStorage.getItem('lomedx_saved_articles') || '[]');
 let ratedArticleIds = JSON.parse(localStorage.getItem('lomedx_rated_articles') || '[]');
 // 1. فتح لوحة المدونة
+// 1. فتح لوحة المدونة
 window.openMedicalBlog = () => {
+    // إنشاء هيكل التحميل الوهمي (Skeleton)
+    const skeletonHtml = `
+        <div class="flex flex-col gap-4">
+            <div class="flex flex-col sm:flex-row-reverse bg-white border rounded-2xl overflow-hidden" style="border-color: var(--border);">
+                <div class="w-full sm:w-44 h-40 sm:h-auto flex-shrink-0 bg-gray-100"><div class="skeleton-loader w-full h-full"></div></div>
+                <div class="p-4 flex flex-col flex-1 justify-center gap-3">
+                    <div class="skeleton-loader" style="width: 75%; height: 24px;"></div>
+                    <div class="skeleton-loader" style="width: 100%; height: 12px;"></div>
+                    <div class="skeleton-loader" style="width: 50%; height: 12px;"></div>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row-reverse bg-white border rounded-2xl overflow-hidden" style="border-color: var(--border);">
+                <div class="w-full sm:w-44 h-40 sm:h-auto flex-shrink-0 bg-gray-100"><div class="skeleton-loader w-full h-full"></div></div>
+                <div class="p-4 flex flex-col flex-1 justify-center gap-3">
+                    <div class="skeleton-loader" style="width: 60%; height: 24px;"></div>
+                    <div class="skeleton-loader" style="width: 100%; height: 12px;"></div>
+                    <div class="skeleton-loader" style="width: 40%; height: 12px;"></div>
+                </div>
+            </div>
+        </div>
+    `;
+
     openCtrlPanel('المدونة والمقالات الطبية', `
         <div class="flex flex-col gap-4">
             <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm flex items-center gap-3">
@@ -5544,12 +5567,20 @@ window.openMedicalBlog = () => {
             <div class="bg-gradient-to-l from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-200">
                 <h4 class="font-bold text-sm text-amber-800 mb-3 flex items-center gap-2"><i class="fas fa-fire"></i> الأكثر قراءةً</h4>
                 <div id="trendingArticlesList" class="flex gap-3 overflow-x-auto pb-2">
-                    <p class="text-center text-gray-400 text-sm py-4 w-full">جاري التحميل...</p>
+                    <div class="flex-shrink-0 w-40">
+                        <div class="skeleton-loader w-full h-24 mb-2"></div>
+                        <div class="skeleton-loader w-full h-3 mb-1"></div>
+                        <div class="skeleton-loader w-3/4 h-3"></div>
+                    </div>
+                    <div class="flex-shrink-0 w-40">
+                        <div class="skeleton-loader w-full h-24 mb-2"></div>
+                        <div class="skeleton-loader w-full h-3 mb-1"></div>
+                        <div class="skeleton-loader w-3/4 h-3"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- حقل البحث والأزرار -->
-                        <!-- حقل البحث والأزرار بصف واحد -->
             <div class="flex items-center gap-2">
                 <button onclick="openBlogCategory()" class="flex-shrink-0 w-12 h-12 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center transition-all" title="التصنيفات">
                     <i class="fas fa-filter text-blue-500"></i>
@@ -5561,12 +5592,14 @@ window.openMedicalBlog = () => {
                     <input type="text" id="blogSearchInput" class="ctrl-input pr-10 w-full" placeholder="ابحث في المقالات..." oninput="searchArticles()">
                     <i class="fas fa-search absolute top-1/2 -translate-y-1/2 left-4 text-gray-400"></i>
                 </div>
-                </div>
+            </div>
             <div class="text-xs text-gray-500 mt-2">
                 التصنيف الحالي: <span id="currentBlogCategoryText" class="font-bold text-blue-600">كل التصنيفات</span>
             </div>
+            
+            <!-- استبدال نص التحميل بالهيكل الوهمي -->
             <div id="blogArticlesList" class="flex flex-col gap-4">
-                <p class="text-center py-10 text-gray-400 text-sm">جاري تحميل المقالات...</p>
+                ${skeletonHtml}
             </div>
         </div>
     `, '#0E7C5F');
