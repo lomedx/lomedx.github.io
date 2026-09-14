@@ -1520,3 +1520,36 @@ input:focus, select:focus, textarea:focus, .ctrl-input:focus {
     }
 }
 
+/* === إصلاح عمى النصوص في القوائم المنسدلة وحقول الإدخال === */
+
+/* 1. إجبار حقول الإدخال والقوائم المنسدلة على استخدام ألوان المنصة */
+.ctrl-input, 
+input, 
+select, 
+textarea, 
+.city-option {
+    color: var(--fg) !important;
+    background-color: var(--card) !important;
+}
+
+/* 2. إجبار خيارات القائمة المنسدلة (Options) على الظهور بشكل صحيح */
+select option {
+    background-color: var(--card) !important;
+    color: var(--fg) !important;
+}
+
+/* 3. إجبار النوافذ المنبثقة بلوحة التحكم على وراثة اللون الأساسي */
+.ctrl-content, .modal-content {
+    color: var(--fg) !important;
+}
+
+/* 4. لون النص داخل لوحة اختيار المدينة */
+.city-selector-panel {
+    color: var(--fg) !important;
+}
+
+/* 5. عند تحديد مدينة (الحالة المفعلة) */
+.city-option.selected {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+}
