@@ -179,93 +179,91 @@
                             <i class="fas fa-toolbox"></i> أدوات طبية <i class="fas fa-chevron-down text-xs"></i>
                         </button>
                         <div class="tools-dropdown-menu">
-                        <div onclick="openMedicineDonation()" class="tools-dropdown-item">
-                               <i style="background: #0D9488;"><i class="fas fa-laptop-medical"></i></i>
-                            <div><div class="text-sm font-bold text-gray-800">الأجهزة والمستلزمات الطبية</div><div class="text-xs text-gray-500">تبرع أو استعير جهازاً</div></div>
-                           </div>
-                            <div onclick="openBloodBank()" class="tools-dropdown-item">
-                                <i style="background: #DC2626;"><i class="fas fa-tint"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">بنك التبرع بالدم الرقمي</div><div class="text-xs text-gray-500">استغاثات وتبرعات</div></div>
-                            </div>
-                            <div onclick="openMedicalMap()" class="tools-dropdown-item">
-    <i style="background: #10B981;"><i class="fas fa-map-marked-alt"></i></i>
-    <div><div class="text-sm font-bold text-gray-800">الخريطة الطبية</div><div class="text-xs text-gray-500">عرض المنشآت على الخريطة</div></div>
+    <a href="#medicine-donation" onclick="event.preventDefault(); window.location.hash='medicine-donation'; openMedicineDonation()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #0D9488;"><i class="fas fa-laptop-medical"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">الأجهزة والمستلزمات الطبية</div><div class="text-xs text-gray-500">تبرع أو استعير جهازاً</div></div>
+    </a>
+    <a href="#blood-bank" onclick="event.preventDefault(); window.location.hash='blood-bank'; openBloodBank()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #DC2626;"><i class="fas fa-tint"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">بنك التبرع بالدم الرقمي</div><div class="text-xs text-gray-500">استغاثات وتبرعات</div></div>
+    </a>
+    <a href="#medical-map" onclick="event.preventDefault(); window.location.hash='medical-map'; openMedicalMap()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #10B981;"><i class="fas fa-map-marked-alt"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">الخريطة الطبية</div><div class="text-xs text-gray-500">عرض المنشآت على الخريطة</div></div>
+    </a>
+    <a href="#ask-doctor" onclick="event.preventDefault(); window.location.hash='ask-doctor'; openAskDoctor()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #0EA5E9;"><i class="fas fa-comments"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">اسأل طبيب</div><div class="text-xs text-gray-500">استشارة طبية مجانية</div></div>
+    </a>
+    <a href="#burn-calculator" onclick="event.preventDefault(); window.location.hash='burn-calculator'; openBurnCalculator()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #F97316;"><i class="fas fa-fire-extinguisher"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">مُسعف الحروق الذكي</div><div class="text-xs text-gray-500">حاسبة الحروق المنزلية</div></div>
+    </a>
+    <a href="#seasonal-diseases" onclick="event.preventDefault(); window.location.hash='seasonal-diseases'; openSeasonalDiseases()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #8B5CF6;"><i class="fas fa-virus-covid"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">أمراض الرحيبة الموسمية</div><div class="text-xs text-gray-500">الدليل الوقاية المحلي</div></div>
+    </a>
+    <a href="#raheba-radar" onclick="event.preventDefault(); window.location.hash='raheba-radar'; openRahebaRadar()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #4F46E5;"><i class="fas fa-satellite-dish"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">رادار الصحي(التفاعلي)</div><div class="text-xs text-gray-500">تسجيل الحالات والتنبيهات</div></div>
+    </a>
+    <a href="#pregnancy-calc" onclick="event.preventDefault(); window.location.hash='pregnancy-calc'; openPregnancyCalc()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #EC4899;"><i class="fas fa-baby"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">حاسبة الحمل والولادة</div><div class="text-xs text-gray-500">تطور الجنين أسبوعياً</div></div>
+    </a>
+    <a href="#dose-calc" onclick="event.preventDefault(); window.location.hash='dose-calc'; openDoseCalc()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #2563EB;"><i class="fas fa-syringe"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">حاسبة جرعات الأطفال</div><div class="text-xs text-gray-500">سيتامول وبروفين آمن</div></div>
+    </a>
+    <a href="#vaccine-scheduler" onclick="event.preventDefault(); window.location.hash='vaccine-scheduler'; openVaccineScheduler()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #F97316;"><i class="fas fa-syringe"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">جدول لقاحات الطفل</div><div class="text-xs text-gray-500">حاسبة مواعيد التطعيم</div></div>
+    </a>
+    <a href="#health-calc" onclick="event.preventDefault(); window.location.hash='health-calc'; openHealthCalc()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #4F46E5;"><i class="fas fa-weight-scale"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">حاسبة الصحة (BMI والسعرات)</div><div class="text-xs text-gray-500">وزنك المثالي واحتياجك</div></div>
+    </a>
+    <a href="#water-calc" onclick="event.preventDefault(); window.location.hash='water-calc'; openWaterCalc()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #0891B2;"><i class="fas fa-glass-water"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">حاسبة الماء اليومية</div><div class="text-xs text-gray-500">حسب الوزن والطقس</div></div>
+    </a>
+    <a href="#med-renewal-calc" onclick="event.preventDefault(); window.location.hash='med-renewal-calc'; openMedRenewalCalc()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #06B6D4;"><i class="fas fa-calendar-check"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">حاسبة تجديد الدواء</div><div class="text-xs text-gray-500">أسبوعي/شهري</div></div>
+    </a>
+    <a href="#first-aid" onclick="event.preventDefault(); window.location.hash='first-aid'; openFirstAid()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #DC2626;"><i class="fas fa-kit-medical"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">الإسعافات الأولية</div><div class="text-xs text-gray-500">دليل شامل للطوارئ</div></div>
+    </a>
+    <a href="#med-symbols" onclick="event.preventDefault(); window.location.hash='med-symbols'; openMedSymbols()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #0D9488;"><i class="fas fa-file-medical"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">رموز التحاليل والروشتات</div><div class="text-xs text-gray-500">الدليل فهم المصطلحات</div></div>
+    </a>
+    <a href="#chronic-nutrition" onclick="event.preventDefault(); window.location.hash='chronic-nutrition'; openChronicNutrition()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #10B981;"><i class="fas fa-bowl-food"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">تغذية الأمراض المزمنة</div><div class="text-xs text-gray-500">نظام غذائي خاص</div></div>
+    </a>
+    <a href="#pre-visit-guide" onclick="event.preventDefault(); window.location.hash='pre-visit-guide'; openPreVisitGuide()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #3B82F6;"><i class="fas fa-clipboard-list"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">إرشادات قبل الزيارة</div><div class="text-xs text-gray-500">دليل الطبيب والمخبر</div></div>
+    </a>
+    <a href="#pre-test-guide" onclick="event.preventDefault(); window.location.hash='pre-test-guide'; openPreTestGuide()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #0EA5E9;"><i class="fas fa-vial"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">تعليمات قبل التحاليل</div><div class="text-xs text-gray-500">دليل الفحوصات والأشعة</div></div>
+    </a>
+    <a href="#events-first-aid" onclick="event.preventDefault(); window.location.hash='events-first-aid'; openEventsFirstAid()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #B91C1C;"><i class="fas fa-people-group"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">إسعافات المناسبات</div><div class="text-xs text-gray-500">التعامل مع حوادث التجمعات</div></div>
+    </a>
+    <a href="#food-interactions" onclick="event.preventDefault(); window.location.hash='food-interactions'; openFoodInteractions()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #D97706;"><i class="fas fa-utensils"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">تعارضات الأدوية والطعام</div><div class="text-xs text-gray-500">جدول الصيدلية</div></div>
+    </a>
+    <a href="#patient-reminder" onclick="event.preventDefault(); window.location.hash='patient-reminder'; openPatientReminder()" class="tools-dropdown-item" style="text-decoration:none;">
+        <i style="background: #6366F1;"><i class="fas fa-bell"></i></i>
+        <div><div class="text-sm font-bold text-gray-800">دفتر التذكير الذاتي</div><div class="text-xs text-gray-500">مواعيد الأدوية والزيارات</div></div>
+    </a>
 </div>
-                            <div onclick="openAskDoctor()" class="tools-dropdown-item">
-    <i style="background: #0EA5E9;"><i class="fas fa-comments"></i></i>
-    <div><div class="text-sm font-bold text-gray-800">اسأل طبيب</div><div class="text-xs text-gray-500">استشارة طبية مجانية</div></div>
-</div>
-                            <div onclick="openBurnCalculator()" class="tools-dropdown-item">
-                                <i style="background: #F97316;"><i class="fas fa-fire-extinguisher"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">مُسعف الحروق الذكي</div><div class="text-xs text-gray-500">حاسبة الحروق المنزلية</div></div>
-                            </div>
-                            <div onclick="openSeasonalDiseases()" class="tools-dropdown-item">
-                                <i style="background: #8B5CF6;"><i class="fas fa-virus-covid"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">أمراض الرحيبة الموسمية</div><div class="text-xs text-gray-500">الدليل الوقاية المحلي</div></div>
-                            </div> 
-                           <div onclick="openRahebaRadar()" class="tools-dropdown-item">
-                                <i style="background: #4F46E5;"><i class="fas fa-satellite-dish"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">رادار الصحي(التفاعلي)</div><div class="text-xs text-gray-500">تسجيل الحالات والتنبيهات</div></div>
-                            </div>
-                            <div onclick="openPregnancyCalc()" class="tools-dropdown-item">
-                                <i style="background: #EC4899;"><i class="fas fa-baby"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">حاسبة الحمل والولادة</div><div class="text-xs text-gray-500">تطور الجنين أسبوعياً</div></div>
-                            </div>
-                            <div onclick="openDoseCalc()" class="tools-dropdown-item">
-                                <i style="background: #2563EB;"><i class="fas fa-syringe"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">حاسبة جرعات الأطفال</div><div class="text-xs text-gray-500">سيتامول وبروفين آمن</div></div>
-                            </div>
-                            <div onclick="openVaccineScheduler()" class="tools-dropdown-item">
-    <i style="background: #F97316;"><i class="fas fa-syringe"></i></i>
-    <div><div class="text-sm font-bold text-gray-800">جدول لقاحات الطفل</div><div class="text-xs text-gray-500">حاسبة مواعيد التطعيم</div></div>
-</div>
-
-                            <div onclick="openHealthCalc()" class="tools-dropdown-item">
-                                <i style="background: #4F46E5;"><i class="fas fa-weight-scale"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">حاسبة الصحة (BMI والسعرات)</div><div class="text-xs text-gray-500">وزنك المثالي واحتياجك</div></div>
-                            </div>
-                            <div onclick="openWaterCalc()" class="tools-dropdown-item">
-                                <i style="background: #0891B2;"><i class="fas fa-glass-water"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">حاسبة الماء اليومية</div><div class="text-xs text-gray-500">حسب الوزن والطقس</div></div>
-                            </div>
-                            <div onclick="openMedRenewalCalc()" class="tools-dropdown-item">
-                                <i style="background: #06B6D4;"><i class="fas fa-calendar-check"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">حاسبة تجديد الدواء</div><div class="text-xs text-gray-500">أسبوعي/شهري</div></div>
-                                  </div>
-                            <div onclick="openFirstAid()" class="tools-dropdown-item">
-                                <i style="background: #DC2626;"><i class="fas fa-kit-medical"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">الإسعافات الأولية</div><div class="text-xs text-gray-500">دليل شامل للطوارئ</div></div>
-                            </div>
-                            <div onclick="openMedSymbols()" class="tools-dropdown-item">
-                                <i style="background: #0D9488;"><i class="fas fa-file-medical"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">رموز التحاليل والروشتات</div><div class="text-xs text-gray-500">الدليل فهم المصطلحات</div></div>
-                            </div>
-                            <!-- New Tools Added Here -->
-                            <div onclick="openChronicNutrition()" class="tools-dropdown-item">
-                                <i style="background: #10B981;"><i class="fas fa-bowl-food"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">تغذية الأمراض المزمنة</div><div class="text-xs text-gray-500">نظام غذائي خاص</div></div>
-                            </div>
-                            <div onclick="openPreVisitGuide()" class="tools-dropdown-item">
-                                <i style="background: #3B82F6;"><i class="fas fa-clipboard-list"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">إرشادات قبل الزيارة</div><div class="text-xs text-gray-500">دليل الطبيب والمخبر</div></div>
-                            </div>
-                            <!-- New Tools Added Here -->
-<div onclick="openPreTestGuide()" class="tools-dropdown-item">
-    <i style="background: #0EA5E9;"><i class="fas fa-vial"></i></i>
-    <div><div class="text-sm font-bold text-gray-800">تعليمات قبل التحاليل</div><div class="text-xs text-gray-500">دليل الفحوصات والأشعة</div></div>
-</div>
-<div onclick="openEventsFirstAid()" class="tools-dropdown-item">
-    <i style="background: #B91C1C;"><i class="fas fa-people-group"></i></i>
-    <div><div class="text-sm font-bold text-gray-800">إسعافات المناسبات</div><div class="text-xs text-gray-500">التعامل مع حوادث التجمعات</div></div>
-</div>
-                            <div onclick="openFoodInteractions()" class="tools-dropdown-item">
-                                <i style="background: #D97706;"><i class="fas fa-utensils"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">تعارضات الأدوية والطعام</div><div class="text-xs text-gray-500">جدول الصيدلية</div></div>
-                            </div>
-                            <div onclick="openPatientReminder()" class="tools-dropdown-item">
-                                <i style="background: #6366F1;"><i class="fas fa-bell"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">دفتر التذكير الذاتي</div><div class="text-xs text-gray-500">مواعيد الأدوية والزيارات</div></div>
-                            </div>
                         </div>
                     </div>
 
