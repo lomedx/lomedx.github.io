@@ -400,7 +400,13 @@
                     <i class="fas fa-calculator text-xs"></i>  الحاسبات والأدوات الطبية
                 </h2>
                 <div class="flex flex-col">
-                    <button onclick="toggleMobileMenu(); openPregnancyCalc()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg text-right"><i class="fas fa-baby w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">حاسبة الحمل والولادة</span></button>
+                    <!-- بدلاً من -->
+
+<!-- استخدم هذا -->
+<a href="#pregnancy-calc" onclick="event.preventDefault(); window.location.hash='pregnancy-calc'; toggleMobileMenu(); openPregnancyCalc()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg text-right cursor-pointer" style="text-decoration: none;">
+    <i class="fas fa-baby w-6 text-center text-base icon-gold-gradient"></i>
+    <span class="text-white/90 text-sm font-semibold">حاسبة الحمل والولادة</span>
+</a>
                     <button onclick="toggleMobileMenu(); openDoseCalc()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg text-right"><i class="fas fa-syringe w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">حاسبة جرعات الأطفال</span></button>
                     <button onclick="toggleMobileMenu(); openVaccineScheduler()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg text-right"><i class="fas fa-syringe w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">جدول لقاحات الطفل</span></button>
                     <button onclick="toggleMobileMenu(); openHealthCalc()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg text-right"><i class="fas fa-weight-scale w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">حاسبة الصحة (BMI والسعرات)</span></button>
