@@ -589,7 +589,49 @@ function createCard(item) {
     ` : ''}
 </div><div class="flex items-center gap-1 text-[11px]" style="color: ${t.color};">${starsHTML}<span class="mr-1 font-semibold">${escapeHtml(item.rating || 0)}</span></div></div></div><div class="flex flex-col gap-1.5 mb-4">${detailsHTML}</div><div class="flex items-center gap-2"> ${item.phone ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); trackPhoneClick(event, '${escapeHtml(item.id)}', '${escapeHtml(item.phone)}')" class="call-btn flex-1 py-2.5 rounded-xl text-white text-xs font-semibold text-center flex items-center justify-center gap-2" style="background: ${t.color}"><i class="fas fa-phone-alt"></i><span dir="ltr">${escapeHtml(item.phone)}</span></a>` : (['doctor', 'pharmacy', 'lab'].includes(item.type) ? `<div class="flex-1 py-2.5 rounded-xl text-gray-400 text-xs font-semibold text-center flex items-center justify-center gap-2 bg-gray-100 cursor-not-allowed"><i class="fas fa-phone-slash"></i><span>لا يوجد رقم</span></div>` : '')}${bookingBtn}<button onclick="event.stopPropagation(); openModal('${escapeHtml(item.id)}')" class="w-10 h-10 rounded-xl border flex items-center justify-center transition-all hover:bg-gray-50" style="border-color: var(--border); color: var(--muted);" aria-label="تفاصيل"><i class="fas fa-info-circle"></i></button></div></div></div>`;
 }
+// دالة توليد الـ Schema للقائمة الطبية
+function generateItemListSchema(items) {
+    // إزالة أي Schema قديم
+    const oldSchema = document.getElementById('dynamicItemListSchema');
+    if (oldSchema) oldSchema.remove();
 
+    const itemListElement = items.slice(0, 10).map((item, index) => {
+        let itemType = "Physician"; // افتراضياً طبيب
+        if (item.type === 'hospital') itemType = "Hospital";
+        else if (item.type === 'pharmacy') itemType = "Pharmacy";
+        else if (item.type === 'lab') itemType = "MedicalClinic";
+
+        return {
+            "@type": "ListItem",
+            "position": index + 1,
+            "item": {
+                "@type": itemType,
+                "name": item.name,
+                "telephone": item.phone || "",
+                "image": item.image || "",
+                "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": item.address || item.clinic || "",
+                    "addressLocality": "سوريا"
+                },
+                "url": `https://lomedx.github.io/#${item.id}` // رابط الصفحة (تعديل الرابط حسب دومينك)
+            }
+        };
+    });
+
+    const schemaData = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "دليل الأطباء والمنشآت الطبية في سوريا - Lomedx",
+        "itemListElement": itemListElement
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'dynamicItemListSchema';
+    script.textContent = JSON.stringify(schemaData);
+    document.head.appendChild(script);
+}
 function renderData() {
     const grids = { 
         hospital: { el: document.getElementById('hospitalsGrid'), section: document.getElementById('hospitals'), data: allData.filter(d => d.type === 'hospital') }, 
@@ -630,6 +672,7 @@ filtered.sort((a, b) => {
         const itemsToRender = filtered.slice(0, renderLimits[type]);
         
         g.el.innerHTML = itemsToRender.map(createCard).join(''); 
+        generateItemListSchema(itemsToRender);
         g.section.style.display = show ? '' : 'none'; 
         
         // إظهار أو إخفاء زر "عرض المزيد" الخاص بهذا القسم
