@@ -5736,7 +5736,7 @@ window.openArticleReader = async (id) => {
         showToast('جاري فتح المقال...', 'info');
         const { data, error } = await supabase.from('medical_articles').select('*').eq('id', id).single();
         if (data) {
-            allArticles.push(data); // أضفه للذاكرة لمرات قادمة
+            allArticles.push(data);
             article = data;
         } else {
             showToast('تعذر العثور على المقال', 'error');
@@ -5746,15 +5746,16 @@ window.openArticleReader = async (id) => {
 
     window.location.hash = `article=${id}`;
     updateMetaTags(
-    `${article.title} | Lomedx`, 
-    article.excerpt || article.content.substring(0, 150), 
-    article.image_url || 'https://i.ibb.co/d09VBmky/37414.png'
-);
+        `${article.title} | Lomedx`, 
+        article.excerpt || article.content.substring(0, 150), 
+        article.image_url || 'https://i.ibb.co/d09VBmky/37414.png'
+    );
+    
     supabase.from('medical_articles').update({ views: (article.views || 0) + 1 }).eq('id', id).then();
 
     const dateStr = new Date(article.created_at).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
     
-const authorDisplay = article.author_name ? 
+    const authorDisplay = article.author_name ? 
     `<div class="flex items-center gap-2 mt-2 mb-4 p-3 bg-blue-50 rounded-xl">
         <i class="fas fa-user-md text-blue-600"></i>
         <div>
@@ -5763,14 +5764,12 @@ const authorDisplay = article.author_name ?
         </div>
     </div>` : '';
 
-// ثم ضع المتغير ${authorDisplay} في الـ HTML الخاص بـ modalContent فوق محتوى المقال
     const wordCount = article.content.split(/\s+/).length;
     const readingTime = Math.max(1, Math.ceil(wordCount / 200));
     const processedContent = parseArticleContent(article.content);
     currentFontSize = 1;
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 
-    // جلب المقالات ذات الصلة
     const { data: related } = await supabase.from('medical_articles').select('*').eq('category', article.category).neq('id', id).limit(3);
     let relatedHtml = '';
     if (related && related.length > 0) {
@@ -5790,9 +5789,8 @@ const authorDisplay = article.author_name ?
         </div>`;
     }
 
-        document.getElementById('modalContent').innerHTML = `
+    document.getElementById('modalContent').innerHTML = `
         <div class="flex flex-col h-full">
-            <!-- شريط أدوات القراءة الذكي (ثابت دائماً في الأعلى) -->
             <div class="sticky top-0 z-20 bg-white/95 backdrop-blur-md p-3 border-b flex flex-wrap items-center justify-between gap-2 shadow-sm" style="border-color: var(--border);">
                 <div class="flex items-center gap-2">
                     <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-all"><i class="fas fa-times text-sm"></i></button>
@@ -5808,12 +5806,9 @@ const authorDisplay = article.author_name ?
                     <button onclick="shareArticle('${escapeHtml(article.title)}')" class="w-7 h-7 rounded-lg hover:bg-gray-100 text-emerald-600 flex items-center justify-center" title="مشاركة"><i class="fas fa-share-alt text-sm"></i></button>
                 </div>
             </div>
-
-            <!-- شريط تقدم القراءة -->
             <div class="absolute top-[52px] right-0 left-0 h-1 bg-gray-200 z-10 overflow-hidden">
                 <div id="readingProgressBar" class="h-full bg-emerald-500" style="width: 0%; transition: width 0.2s;"></div>
             </div>
-
             <div class="overflow-y-auto" id="modalScrollArea">
                 ${article.image_url ? `
                 <div class="relative h-56 sm:h-64 overflow-hidden">
@@ -5831,10 +5826,9 @@ const authorDisplay = article.author_name ?
                </div>
             <div class="p-6 sm:p-8">
                 ${!article.image_url ? `<h2 class="text-2xl sm:text-3xl font-black text-gray-800 mb-3" style="font-family: 'Noto Kufi Arabic';">${escapeHtml(article.title)}</h2>` : ''}
-                
+                ${authorDisplay}
                 <div id="articleContentText" class="prose max-w-none text-gray-700 leading-loose space-y-4 transition-all" style="font-family: 'IBM Plex Sans Arabic'; font-size: ${currentFontSize}rem;">${processedContent}</div>
                 
-                                <!-- صندوق توجيه للطبيب (احترافي وربط ذكي) -->
                 <div class="mt-8 p-6 bg-gradient-to-l from-blue-50 to-sky-50 rounded-2xl border border-blue-200 text-center">
                     <div class="w-12 h-12 mx-auto rounded-full bg-blue-100 flex items-center justify-center mb-3">
                         <i class="fas fa-user-md text-2xl text-blue-600"></i>
@@ -5842,17 +5836,15 @@ const authorDisplay = article.author_name ?
                     <h4 class="font-bold text-base text-blue-900 mb-2">هل تحتاج إلى استشارة طبية؟</h4>
                     <p class="text-xs text-blue-700 mb-4 max-w-md mx-auto">لا تعتمد على المقالات فقط. تواصل مباشرةً مع أطباء متخصصين عبر منصة لوميديكس.</p>
                     <div class="flex flex-col sm:flex-row gap-3 justify-center w-full max-w-md mx-auto">
-    <!-- الزر الأول -->
-    <button onclick="closeModal(); openAskDoctor()" class="flex-1 min-w-[160px] bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center gap-1">
-        <i class="fas fa-comments"></i> اسأل طبيباً الآن
-    </button>
-    <!-- الزر الثاني -->
-    <button onclick="closeModal(); redirectToDoctorsSearch('${escapeHtml(article.category || '')}')" class="flex-1 min-w-[160px] bg-white border border-blue-200 text-blue-700 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors shadow-sm flex items-center justify-center gap-1">
-        <i class="fas fa-search"></i> ابحث عن طبيب مختص
-    </button>
-</div>
-      </div>
-                                <!-- نظام التقييم (Helpful) ومنع التكرار -->
+                        <button onclick="closeModal(); openAskDoctor()" class="flex-1 min-w-[160px] bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center gap-1">
+                            <i class="fas fa-comments"></i> اسأل طبيباً الآن
+                        </button>
+                        <button onclick="closeModal(); redirectToDoctorsSearch('${escapeHtml(article.category || '')}')" class="flex-1 min-w-[160px] bg-white border border-blue-200 text-blue-700 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors shadow-sm flex items-center justify-center gap-1">
+                            <i class="fas fa-search"></i> ابحث عن طبيب مختص
+                        </button>
+                    </div>
+                </div>
+                
                 <div id="ratingBox" class="mt-8 p-4 bg-gray-50 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
                     <span class="text-sm font-semibold text-gray-600">${ratedArticleIds.includes(String(id)) ? 'شكراً لتقييمك!' : 'هل كان هذا المقال مفيداً؟'}</span>
                     <div class="flex gap-2">
@@ -5868,9 +5860,8 @@ const authorDisplay = article.author_name ?
     document.getElementById('modalOverlay').classList.add('active');
     lockScroll();
     
-    // تفعيل مستمع التمرير لشريط التقدم
     const modalContent = document.getElementById('modalContent');
-        modalContent.addEventListener('scroll', () => {
+    modalContent.addEventListener('scroll', () => {
         const scrollBar = document.getElementById('readingProgressBar');
         if (scrollBar) {
             const scrollTop = modalContent.scrollTop;
@@ -5879,6 +5870,40 @@ const authorDisplay = article.author_name ?
             scrollBar.style.width = `${progress}%`;
         }
     });
+
+    const articleSchema = {
+        "@context": "https://schema.org",
+        "@type": "MedicalWebPage",
+        "headline": article.title,
+        "description": article.excerpt || article.content.substring(0, 150),
+        "datePublished": article.created_at,
+        "image": {
+            "@type": "ImageObject",
+            "url": article.image_url || "https://i.ibb.co/d09VBmky/37414.png"
+        },
+        "author": {
+            "@type": "Physician",
+            "name": article.author_name || "Lomedx Medical Team",
+            "jobTitle": article.author_credential || "طبيب مختص"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Lomedx",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://i.ibb.co/d09VBmky/37414.png"
+            }
+        },
+        "text": article.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'dynamicArticleSchema';
+    script.textContent = JSON.stringify(articleSchema);
+    document.head.appendChild(script);
+};
+    
 
     // === إضافة الـ Schema الخاص بالمقال الطبي ===
     const articleSchema = {
