@@ -5727,8 +5727,20 @@ let currentFontSize = 1;
 let isSpeaking = false;
 
 window.openArticleReader = async (id) => {
-    const article = allArticles.find(a => a.id == id);
-    if (!article) return;
+    let article = allArticles.find(a => a.id == id);
+    
+    // إذا لم يجد المقال في الذاكرة، قم بجلبه من قاعدة البيانات فوراً
+    if (!article) {
+        showToast('جاري فتح المقال...', 'info');
+        const { data, error } = await supabase.from('medical_articles').select('*').eq('id', id).single();
+        if (data) {
+            allArticles.push(data); // أضفه للذاكرة لمرات قادمة
+            article = data;
+        } else {
+            showToast('تعذر العثور على المقال', 'error');
+            return;
+        }
+    }
 
     window.location.hash = `article=${id}`;
     updateMetaTags(
