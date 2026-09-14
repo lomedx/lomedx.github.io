@@ -107,6 +107,19 @@ window.setupOneSignal = async () => {
         
     });
 };
+// دالة تحميل المكتبات عند الطلب
+function loadChartJs() {
+    return new Promise((resolve) => {
+        if (window.Chart) {
+            resolve(); // إذا كانت المكتبة محملة مسبقاً
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        script.onload = () => resolve();
+        document.head.appendChild(script);
+    });
+}
 // دالة موحدة لتوليد الرموز الآمنة
 function generateSecureToken(length = 32) {
     const arr = new Uint8Array(length / 2);
@@ -3409,8 +3422,12 @@ window.renderAdminDashboard = async () => {
     updateAdminFormFields('doctor');
     fetchAdminArticles();
             // === رسم الرسوم البيانية التحليلية ===
-    setTimeout(() => {
-        // 1. رسم توزيع المنشآت
+                // === رسم الرسوم البيانية التحليلية ===
+    setTimeout(async () => {
+        // 1. ننتظر تحميل مكتبة Chart.js أولاً (لتحسين سرعة الموقع)
+        await loadChartJs();
+        
+        // 2. رسم توزيع المنشآت
         const ctxFac = document.getElementById('facilitiesChart');
         if (ctxFac) {
             const existingFacChart = Chart.getChart(ctxFac);
@@ -3429,7 +3446,7 @@ window.renderAdminDashboard = async () => {
             });
         }
 
-        // 2. رسم استغاثات الدم
+        // 3. رسم استغاثات الدم
         const ctxBlood = document.getElementById('bloodChart');
         if (ctxBlood) {
             const existingBloodChart = Chart.getChart(ctxBlood);
@@ -3448,68 +3465,27 @@ window.renderAdminDashboard = async () => {
             });
         }
 
-        // 3. رسم أكثر المقالات قراءةً
+        // 4. رسم أكثر المقالات قراءةً
         const ctxArt = document.getElementById('articlesChart');
         if (ctxArt) {
             const existingArtChart = Chart.getChart(ctxArt);
             if (existingArtChart) existingArtChart.destroy();
             
             if (topArticles && topArticles.length > 0) {
-                const labels = topArticles.map(a => {
-                    const words = a.title.split(' ').slice(0, 3).join(' ');
-                    return words + (a.title.split(' ').length > 3 ? '...' : '');
-                });
+                const labels = topArticles.map(a => a.title.split(' ').slice(0, 3).join(' ') + (a.title.split(' ').length > 3 ? '...' : ''));
                 const data = topArticles.map(a => a.views || 0);
 
                 new Chart(ctxArt, {
                     type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'عدد المشاهدات',
-                            data: data,
-                            backgroundColor: [
-                                'rgba(14, 124, 95, 0.9)',
-                                'rgba(196, 150, 44, 0.9)',
-                                'rgba(37, 99, 235, 0.9)',
-                                'rgba(147, 51, 234, 0.9)',
-                                'rgba(220, 38, 38, 0.9)'
-                            ],
-                            borderRadius: 8,
-                            borderSkipped: false,
-                            barThickness: 24,
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true, 
-                        maintainAspectRatio: false, 
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                backgroundColor: 'rgba(7, 61, 46, 0.95)',
-                                titleFont: { family: 'Noto Kufi Arabic', size: 14 },
-                                bodyFont: { family: 'IBM Plex Sans Arabic', size: 12 },
-                                padding: 12,
-                                cornerRadius: 8,
-                                callbacks: {
-                                    title: (context) => topArticles[context[0].dataIndex].title,
-                                    label: (context) => `قراءة: ${context.raw} مرة`
-                                }
-                            }
-                        },
-                        scales: {
-                            x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'IBM Plex Sans Arabic' }, color: '#7A8B7A', stepSize: 1 } },
-                            y: { grid: { display: false }, ticks: { font: { family: 'Noto Kufi Arabic', weight: 'bold' }, color: '#1B2A1B' } }
-                        }
-                    }
+                    data: { labels: labels, datasets: [{ label: 'عدد المشاهدات', data: data, backgroundColor: ['rgba(14, 124, 95, 0.9)', 'rgba(196, 150, 44, 0.9)', 'rgba(37, 99, 235, 0.9)', 'rgba(147, 51, 234, 0.9)', 'rgba(220, 38, 38, 0.9)'], borderRadius: 8, borderSkipped: false, barThickness: 24 }] },
+                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(7, 61, 46, 0.95)', titleFont: { family: 'Noto Kufi Arabic', size: 14 }, bodyFont: { family: 'IBM Plex Sans Arabic', size: 12 }, padding: 12, cornerRadius: 8, callbacks: { title: (context) => topArticles[context[0].dataIndex].title, label: (context) => `قراءة: ${context.raw} مرة` } } }, scales: { x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'IBM Plex Sans Arabic' }, color: '#7A8B7A', stepSize: 1 } }, y: { grid: { display: false }, ticks: { font: { family: 'Noto Kufi Arabic', weight: 'bold' }, color: '#1B2A1B' } } } }
                 });
             } else {
                 ctxArt.parentElement.innerHTML = '<p style="text-align:center; color:var(--muted); padding: 50px 0; font-size: 0.875rem;">لا توجد مقالات منشورة بعد.</p>';
             }
         }
 
-        // 4. رسم توزيع المستلزمات الطبية
+        // 5. رسم توزيع المستلزمات الطبية
         const ctxMedEq = document.getElementById('medEquivChart');
         if (ctxMedEq) {
             const existingMedChart = Chart.getChart(ctxMedEq);
@@ -3525,15 +3501,12 @@ window.renderAdminDashboard = async () => {
             
             new Chart(ctxMedEq, {
                 type: 'doughnut',
-                data: {
-                    labels: ['تبرع', 'إعارة', 'طلبات', 'مستلزمات للتبادل'],
-                    datasets: [{ data: [typeCounts['تبرع'], typeCounts['إعارة'], typeCounts['طلب'], typeCounts['مستلزمات']], backgroundColor: ['#10B981', '#F59E0B', '#3B82F6', '#9333EA'], borderWidth: 0 }]
-                },
+                data: { labels: ['تبرع', 'إعارة', 'طلبات', 'مستلزمات للتبادل'], datasets: [{ data: [typeCounts['تبرع'], typeCounts['إعارة'], typeCounts['طلب'], typeCounts['مستلزمات']], backgroundColor: ['#10B981', '#F59E0B', '#3B82F6', '#9333EA'], borderWidth: 0 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'IBM Plex Sans Arabic' } } } } }
             });
         }
 
-        // 5. رسم نشاط رادار الرحيبة
+        // 6. رسم نشاط رادار الرحيبة
         const ctxRadar = document.getElementById('radarChart');
         if (ctxRadar) {
             const existingRadarChart = Chart.getChart(ctxRadar);
@@ -3550,16 +3523,12 @@ window.renderAdminDashboard = async () => {
                 
                 new Chart(ctxRadar, {
                     type: 'bar',
-                    data: {
-                        labels: Object.keys(counts),
-                        datasets: [{ label: 'عدد الحالات المسجلة', data: Object.values(counts), backgroundColor: '#4F46E5', borderRadius: 8 }]
-                    },
+                    data: { labels: Object.keys(counts), datasets: [{ label: 'عدد الحالات المسجلة', data: Object.values(counts), backgroundColor: '#4F46E5', borderRadius: 8 }] },
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } } }
                 });
             });
         }
-    }, 500);
-}
+    }, 500); // نهاية الـ setTimeout
 window.saveAnnouncement = async (e) => {
     e.preventDefault(); 
     const text = document.getElementById('annText').value.trim(); 
