@@ -397,13 +397,7 @@ if (urlHash && urlHash !== '#home' && !urlHash.includes('article=')) {
             }, 1000);
         }
     }
-            const { data, error } = await supabase.from('medical_articles').select('*').eq('id', artId).single();
-            if (data) {
-                allArticles = [data]; // وضع المقال في المصفوفة ليتمكن الكود من إيجاده
-                openArticleReader(artId);
-            }
-        }, 1000);
-    }
+            
     
     const langToggle = document.getElementById('langToggle');
        let isEnglish = document.cookie.includes('googtrans=/ar/en');
