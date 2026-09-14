@@ -1307,7 +1307,63 @@ body.stop-animations .btn-health-glow span::before {
 /* =========================================================
    الزر المتوهج باستمرار مع اللمعان الزجاجي الظاهر
    ========================================================= */
+/* تأثير الضغط على الأزرار والبطاقات في الجوال */
+@media (max-width: 768px) {
+    .btn, .call-btn, .filter-btn, .portal-grid-btn, .mobile-grid-btn {
+        transition: transform 0.1s ease-out, box-shadow 0.2s ease; /* حركة أسرع لللمس */
+    }
+    
+    /* عندما يضغط الإصبع على الزر */
+    .btn:active, .call-btn:active, .filter-btn:active, .card:active {
+        transform: scale(0.96) !important; /* يصغر قليلاً لي给人的 إحساس بالضغط */
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important; /* يخف الظل */
+    }
+}
+/* حماية الأزرار العائمة من الضغط خلف شريط الهاتف السفلي */
+@media (max-width: 768px) {
+    .back-to-top, .emergency-fab-wrapper, .ui-controls {
+        bottom: calc(30px + env(safe-area-inset-bottom)) !important; /* يرفع الأزرار فوق الشريط السفلي للهاتف */
+    }
 
+    /* رفع النوافذ المنبثقة السفلية (مثل قائمة المدن) فوق لوحة المفاتيح أو الشريط السفلي */
+    .city-selector-panel {
+        padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+    }
+}
+/* ضمان حجم لمس مريح للإبهام في الجوال */
+@media (max-width: 768px) {
+    .accordion-header, .day-btn, .tools-dropdown-item {
+        min-height: 44px; /* مساحة لمس كافية لا تسبب الضغط الخاطئ */
+    }
+
+    /* تكبير أيقونات الإغلاق والإعجاب قليلاً لتسهيل لمسها */
+    .modal-content > div > button:first-child {
+        width: 36px;
+        height: 36px;
+    }
+}
+/* إخفاء أشرطة التمرير في كامل تطبيق الجوال مع إبقاء خاصية السحب */
+@media (max-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+    }
+    
+    .ctrl-content, .modal-content {
+        scrollbar-width: none; /* إخفاء في فايرفكس */
+        -ms-overflow-style: none; /* إخفاء في إنترنت إكسبلورر */
+    }
+    
+    /* تقليل تأثير الـ Blur للحفاظ على أداء البطارية وسرعة الجوال */
+    .backdrop-blur-sm, .backdrop-blur-md {
+        backdrop-filter: blur(8px) !important; /* تقليل درجة الضبابية لتخفيف العبء عن المعالج */
+    }
+}
+/* تفعيل التمرير الطبيعي للتطبيقات في العناصر المنبثقة */
+.ctrl-content, .mobile-menu-premium, .city-selector-panel {
+    -webkit-overflow-scrolling: touch; /* تمرير سلس باللمس (مهم جداً للآيفون) */
+    scroll-behavior: smooth;
+}
 /* =========================================================
    الزر المتوهج باستمرار مع الشريط الزجاجي المائل (RTL)
    ========================================================= */
