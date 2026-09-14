@@ -1406,14 +1406,17 @@ body.stop-animations .btn-health-glow span::before {
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
-/* 1. طبقة التدرج الدوارة */
+/* طبقة الحدود المتوهجة الدوارة (تعمل على جميع الهواتف) */
 .btn-health-glow::before {
     content: '' !important;
     position: absolute !important;
-    inset: -4px !important;
-    border-radius: 1rem !important;
+    width: 200% !important;
+    height: 200% !important;
+    top: -50% !important;
+    left: -50% !important;
+    border-radius: 50% !important; /* جعله دائرة كبيرة */
     background: conic-gradient(
-        from var(--border-angle, 0deg),
+        from 0deg,
         #F0D77B,
         #10B981,  
         #C4962C,  
@@ -1422,7 +1425,13 @@ body.stop-animations .btn-health-glow span::before {
     ) !important;
     z-index: -2 !important;
     filter: drop-shadow(0 0 8px rgba(240, 215, 123, 0.8)) !important;
-    animation: rotateGlowBorder 3s linear infinite !important;
+    animation: rotateGlowBorder 4s linear infinite !important;
+}
+
+/* حركة الدوران للحدود */
+@keyframes rotateGlowBorder {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* 2. طبقة الحقل الذهبي + اللمعة الزجاجية الواقعية الاحترافية */
@@ -1485,12 +1494,7 @@ body.stop-animations .btn-health-glow span::before {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* دوران الحدود */
-@keyframes rotateGlowBorder {
-    to {
-        --border-angle: 360deg;
-    }
-}
+
 
 /* نبض التوهج */
 @keyframes btnMedicalPulse {
