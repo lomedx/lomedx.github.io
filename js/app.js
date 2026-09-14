@@ -1253,8 +1253,6 @@ window.openModal = (id) => {
     document.getElementById('modalOverlay').classList.add('active'); 
     lockScroll(); 
 }
-
-window.openLightbox = (src) => { const lightbox = document.getElementById('lightbox'); lightbox.querySelector('img').src = src.includes('picsum.photos') ? src.replace('/400/250', '/1200/800') : src; lightbox.classList.add('active'); lockScroll(); }
 window.closeModal = (event) => { 
     if (event && event.target !== document.getElementById('modalOverlay')) return; 
     document.getElementById('modalOverlay').classList.remove('active'); 
@@ -1262,18 +1260,18 @@ window.closeModal = (event) => {
     
     // إعادة رابط الموقع وعنوان التبويب لوضعهما الطبيعي (SEO)
     if (window.location.hash.includes('article=')) {
-        history.replaceState(null, '', window.location.pathname); // مسح #article=5 من الرابط
+        history.replaceState(null, '', window.location.pathname);
         updateMetaTags(
-    'LomedX | مشافي، أطباء، صيدليات، مراكز طبية، مخابر', 
-    'Lomedx منصة الطبية الشاملة في سوريا. ابحث عن أقرب المشفى، الطبيب، الصيدلية، المركز الطبي أو مخبر.',
-    'https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg'
-);
+            'LomedX | مشافي، أطباء، صيدليات، مراكز طبية، مخابر', 
+            'Lomedx منصة الطبية الشاملة في سوريا. ابحث عن أقرب المشفى، الطبيب، الصيدلية، المركز الطبي أو مخبر.',
+            'https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg'
+        );
         // تنظيف الـ Schema الخاص بالمقال عند الإغلاق
-    const articleSchema = document.getElementById('dynamicArticleSchema');
-    if (articleSchema) articleSchema.remove();
-};
+        const articleSchema = document.getElementById('dynamicArticleSchema');
+        if (articleSchema) articleSchema.remove();
     }
-}
+};
+window.openLightbox = (src) => { const lightbox = document.getElementById('lightbox'); lightbox.querySelector('img').src = src.includes('picsum.photos') ? src.replace('/400/250', '/1200/800') : src; lightbox.classList.add('active'); lockScroll(); }
 window.copyNumber = (phone) => { navigator.clipboard.writeText(phone).then(() => showToast('تم نسخ رقم الهاتف بنجاح')).catch(() => showToast('تعذر النسخ')); }
 window.trackPhoneClick = async (event, id, phoneNumber) => {
     if (event) {
@@ -3529,6 +3527,7 @@ window.renderAdminDashboard = async () => {
             });
         }
     }, 500); // نهاية الـ setTimeout
+}
 window.saveAnnouncement = async (e) => {
     e.preventDefault(); 
     const text = document.getElementById('annText').value.trim(); 
@@ -5725,11 +5724,7 @@ const authorDisplay = article.author_name ?
         <i class="fas fa-search"></i> ابحث عن طبيب مختص
     </button>
 </div>
-
-                </div>
-
-
-
+      </div>
                                 <!-- نظام التقييم (Helpful) ومنع التكرار -->
                 <div id="ratingBox" class="mt-8 p-4 bg-gray-50 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
                     <span class="text-sm font-semibold text-gray-600">${ratedArticleIds.includes(String(id)) ? 'شكراً لتقييمك!' : 'هل كان هذا المقال مفيداً؟'}</span>
@@ -5748,7 +5743,7 @@ const authorDisplay = article.author_name ?
     
     // تفعيل مستمع التمرير لشريط التقدم
     const modalContent = document.getElementById('modalContent');
-    modalContent.addEventListener('scroll', () => {
+        modalContent.addEventListener('scroll', () => {
         const scrollBar = document.getElementById('readingProgressBar');
         if (scrollBar) {
             const scrollTop = modalContent.scrollTop;
@@ -5757,7 +5752,40 @@ const authorDisplay = article.author_name ?
             scrollBar.style.width = `${progress}%`;
         }
     });
-}
+
+    // === إضافة الـ Schema الخاص بالمقال الطبي ===
+    const articleSchema = {
+        "@context": "https://schema.org",
+        "@type": "MedicalWebPage",
+        "headline": article.title,
+        "description": article.excerpt || article.content.substring(0, 150),
+        "datePublished": article.created_at,
+        "image": {
+            "@type": "ImageObject",
+            "url": article.image_url || "https://i.ibb.co/d09VBmky/37414.png"
+        },
+        "author": {
+            "@type": "Physician",
+            "name": article.author_name || "Lomedx Medical Team",
+            "jobTitle": article.author_credential || "طبيب مختص"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Lomedx",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://i.ibb.co/d09VBmky/37414.png"
+            }
+        },
+        "text": article.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'dynamicArticleSchema';
+    script.textContent = JSON.stringify(articleSchema);
+    document.head.appendChild(script);
+};
 
 // دالة التقييم مع منع التكرار
 window.rateArticle = async (id, isHelpful) => {
@@ -5786,40 +5814,7 @@ window.rateArticle = async (id, isHelpful) => {
         const span = ratingBox.querySelector('span');
         if(span) span.innerText = 'شكراً لتقييمك!';
     }
-// في نهاية دالة openArticleReader() في ملف app.js
-const articleSchema = {
-    "@context": "https://schema.org",
-    "@type": "MedicalWebPage", // نوع الصفحة: صفحة طبية
-    "headline": article.title, // عنوان المقال
-    "description": article.excerpt || article.content.substring(0, 150), // ملخص المقال
-    "datePublished": article.created_at, // تاريخ النشر
-    "image": {
-        "@type": "ImageObject",
-        "url": article.image_url || "https://i.ibb.co/d09VBmky/37414.png" // صورة المقال
-    },
-    "author": {
-        "@type": "Physician", // نوع الكاتب: طبيب (هذا يرفع الـ E-E-A-T بقوة)
-        "name": article.author_name || "Lomedx Medical Team",
-        "jobTitle": article.author_credential || "طبيب مختص" // الاختصاص الطبي
-    },
-    "publisher": {
-        "@type": "Organization",
-        "name": "Lomedx",
-        "logo": {
-            "@type": "ImageObject",
-            "url": "https://i.ibb.co/d09VBmky/37414.png"
-        }
-    },
-    // نص المقال الكامل (نزيل منه أكواد HTML لكي يكون نصاً نقياً مقروءاً للعناكب)
-    "text": article.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-};
 
-// حقن الكود في رأس الصفحة
-const script = document.createElement('script');
-script.type = 'application/ld+json';
-script.id = 'dynamicArticleSchema';
-script.textContent = JSON.stringify(articleSchema);
-document.head.appendChild(script);
     // تحديث قاعدة البيانات
     const { data } = await supabase.from('medical_articles').select('likes, dislikes').eq('id', id).single();
     if (!data) return;
@@ -5900,21 +5895,23 @@ window.saveArticle = async (e) => {
     const image = document.getElementById('artImage').value.trim();
     const content = document.getElementById('artContent').value.trim();
     const excerpt = document.getElementById('artExcerpt').value.trim() || content.substring(0, 150);
-const authorName = document.getElementById('artAuthorName').value.trim();
-const authorCredential = document.getElementById('artAuthorCredential').value.trim();
-await supabase.from('medical_articles').insert([{ 
-    title, category, image_url: image, content, excerpt, 
-    author_name: authorName, 
-    author_credential: authorCredential 
-}]);
+    const authorName = document.getElementById('artAuthorName').value.trim();
+    const authorCredential = document.getElementById('artAuthorCredential').value.trim();
+
     try {
         if (id) {
             // وضع التعديل
-            await supabase.from('medical_articles').update({ title, category, image_url: image, content, excerpt }).eq('id', id);
+            await supabase.from('medical_articles').update({ 
+                title, category, image_url: image, content, excerpt, 
+                author_name: authorName, author_credential: authorCredential 
+            }).eq('id', id);
             showToast('تم حفظ التعديلات بنجاح!', 'success');
         } else {
             // وضع الإضافة
-            await supabase.from('medical_articles').insert([{ title, category, image_url: image, content, excerpt }]);
+            await supabase.from('medical_articles').insert([{ 
+                title, category, image_url: image, content, excerpt, 
+                author_name: authorName, author_credential: authorCredential 
+            }]);
             showToast('تم نشر المقال بنجاح!', 'success');
         }
         resetArticleForm();
@@ -5923,7 +5920,6 @@ await supabase.from('medical_articles').insert([{
         showToast('خطأ في الحفظ', 'error');
     }
 };
-
 // 2. تعبئة النموذج ببيانات المقال للتعديل
 window.editArticle = (id) => {
     const art = adminArticlesCache.find(a => a.id == id);
