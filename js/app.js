@@ -43,7 +43,7 @@ let renderLimits = {
     doctor: 8,
     pharmacy: 8
 };
-let allCities = ['كل المدن', 'الرحيبة']; // أضف أو عدل المدن كما تريد
+let allCities = ['كل المدن', 'الرحيبة','القطيفة','جيرود','المعضمية','النبك','ديرعطيه']; // أضف أو عدل المدن كما تريد
 
 // === محرك الإشعارات المركزي ===
 // === محرك الإشعارات المركزي ===
@@ -292,9 +292,11 @@ if (urlHash && urlHash !== '#home' && !urlHash.includes('article=')) {
         '#medicine-donation': 'openMedicineDonation'
     };
 
-    // إذا كان الرابط موجوداً في الجدول، قم بتنفيذ الدالة الخاصة به
-    const functionName = routes[urlHash];
+        const functionName = routes[urlHash];
     if (functionName && typeof window[functionName] === 'function') {
+        // === تنظيف الرابط فوراً لمنع إعادة فتح الأداة عند تحديث الصفحة ===
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+
         // نستخدم setTimeout لانتظار تحميل المكتبات (مثل QrCode و Supabase) قبل فتح الأداة
         setTimeout(() => {
             window[functionName]();
@@ -350,8 +352,11 @@ if (urlHash && urlHash !== '#home' && !urlHash.includes('article=')) {
         }
     }
     
-    if (window.location.hash.includes('article=')) {
+        if (window.location.hash.includes('article=')) {
         const artId = window.location.hash.split('=')[1];
+        
+        // === تنظيف الرابط فوراً لمنع إعادة فتح المقال عند تحديث الصفحة ===
+        history.replaceState(null, '', window.location.pathname + window.location.search);
     
         setTimeout(async () => {
             const { data, error } = await supabase.from('medical_articles').select('*').eq('id', artId).single();
