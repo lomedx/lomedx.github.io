@@ -1432,12 +1432,12 @@ body.stop-animations .btn-health-glow span::before {
 /* حركة واقعية: تبدأ خارج اليمين وتنتهي خارج اليسار */
 @keyframes shineMoveRTL {
     0% {
-        background-position: 220% 0, 0 0;   /* تبدأ بعيداً خارج اليمين */
+        background-position: 220% 0, 0 0;   /* خارج اليمين تماماً */
     }
     60% {
-        background-position: -120% 0, 0 0;  /* تخرج بالكامل خارج اليسار */
+        background-position: -120% 0, 0 0;  /* خارج اليسار تماماً */
     }
     100% {
-        background-position: -120% 0, 0 0;  /* تبقى خارج اليسار فترة قصيرة */
+        background-position: -120% 0, 0 0;  /* تبقى خارج حتى نهاية الدورة */
     }
 }
