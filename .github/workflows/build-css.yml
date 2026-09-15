@@ -19,8 +19,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Tailwind CSS
-        run: npm install -D tailwindcss
+      - name: Initialize package.json and install Tailwind v3
+        run: |
+          npm init -y
+          npm install -D tailwindcss@3.4.13
 
       - name: Build CSS
         run: npx tailwindcss -i ./src/input.css -o ./css/style.css --minify
