@@ -1651,3 +1651,46 @@ html.dark #slotsContainer button:hover {
     background: #134e4a !important;
     color: #ffffff !important;
 }
+/* === إصلاح المتغيرات المفقودة في الوضع المظلم لمنع النص الأعمى === */
+html.dark {
+    --accent-dark: #10B981 !important; /* أخضر فاتح ليظهر على الخلفية الداكنة */
+    --gold-light: #422006 !important;   /* بني داكن ليظهر خلفية للنصوص الذهبية */
+    --gold: #F0D77B !important;         /* تفتيح اللون الذهبي في الليل */
+}
+
+/* إجبار النصوص داخل نافذة الحجز على الظهور في الوضع المظلم */
+html.dark .booking-step {
+    color: var(--fg) !important;
+}
+
+/* إجبار حقول الإدخال في الحجز على الظهور بوضوح في كلا الوضعين */
+.ctrl-input {
+    background-color: var(--card) !important;
+    color: var(--fg) !important;
+    border-color: var(--border) !important;
+}
+
+/* إجبار خيارات الأوقات (Slots) على الظهور بوضوح */
+#slotsContainer button {
+    background-color: var(--bg-deep) !important;
+    color: var(--accent) !important;
+}
+
+#slotsContainer button[style*="bg-blue-600"],
+#slotsContainer button[style*="background-color: var(--accent)"] {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+}
+
+/* إجبار أزرار الأيام على الظهور بوضوح */
+.day-btn {
+    background-color: var(--card) !important;
+    color: var(--fg) !important;
+    border-color: var(--border) !important;
+}
+
+.day-btn.active {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+    border-color: var(--accent) !important;
+}
