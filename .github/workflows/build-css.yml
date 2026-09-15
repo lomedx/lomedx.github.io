@@ -20,7 +20,7 @@ jobs:
           node-version: 18
 
       - name: Install Tailwind CLI
-        run: npm install -g tailwindcss
+        run: npm install -g @tailwindcss/cli
 
       - name: Build CSS
         run: |
@@ -34,3 +34,4 @@ jobs:
           git add css/style.css
           git commit -m "Auto compile Tailwind CSS" || echo "No changes to commit"
           git push
+          
