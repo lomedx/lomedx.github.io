@@ -19,11 +19,13 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Tailwind CSS
-        run: npm install -D tailwindcss
+      - name: Install Tailwind CLI
+        run: npm install -g tailwindcss
 
       - name: Build CSS
-        run: npx tailwindcss -i ./src/input.css -o ./css/style.css --config tailwind-config.js --minify
+        run: |
+          mkdir -p css
+          tailwindcss -i ./src/input.css -o ./css/style.css --config tailwind-config.js --minify
 
       - name: Commit and Push changes
         run: |
