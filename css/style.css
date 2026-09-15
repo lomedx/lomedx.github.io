@@ -257,7 +257,7 @@ h1, h2, h3, h4, h5 { font-family: 'Noto Kufi Arabic', sans-serif; }
         .filters-scroll::-webkit-scrollbar { display: none; }
 
         .booking-step { display: none; }
-        .booking-step.active { display: block; animation: fadeIn 0.4s ease; }
+        .booking-step.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .day-btn { transition: all 0.2s; border: 2px solid var(--border); }
         .day-btn.active { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); }
