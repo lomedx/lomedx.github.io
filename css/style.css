@@ -1519,3 +1519,135 @@ input:focus, select:focus, textarea:focus, .ctrl-input:focus {
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 30px rgba(196, 150, 44, 1), 0 0 20px rgba(16, 185, 129, 0.8);
     }
 }
+/* === تحسينات نافذة الحجز الاحترافية (الوضع النهاري والليلي) === */
+
+/* 1. تحسين حقول الإدخال (الاسم، الهاتف، الملاحظات) */
+.ctrl-input {
+    background-color: var(--bg-deep) !important; /* خلفية رمادية خفيفة لإبراز الحقل */
+    border: 1.5px solid var(--border) !important;
+    color: var(--fg) !important;
+    padding: 14px 16px !important;
+    border-radius: 14px !important;
+    font-size: 0.95rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.ctrl-input:focus {
+    background-color: var(--card) !important; /* خلفية بيضاء عند الكتابة */
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 4px rgba(14, 124, 95, 0.1) !important;
+}
+
+.ctrl-input::placeholder {
+    color: var(--muted) !important;
+    font-weight: 400 !important;
+}
+
+/* 2. تحسين أزرار اختيار اليوم (Day Buttons) */
+.day-btn {
+    background: var(--card) !important;
+    border: 2px solid var(--border) !important;
+    color: var(--fg) !important;
+    border-radius: 16px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.day-btn:hover {
+    border-color: var(--accent) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 12px -4px rgba(14, 124, 95, 0.15) !important;
+}
+
+.day-btn.active {
+    background: var(--accent) !important;
+    color: #ffffff !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 10px 20px -5px rgba(14, 124, 95, 0.4) !important;
+    transform: translateY(-3px) !important;
+}
+
+.day-btn.active span {
+    color: #ffffff !important;
+}
+
+/* 3. تحسين أزرار الأوقات (Slots) */
+#slotsContainer button {
+    background: var(--bg-deep) !important;
+    color: var(--accent) !important;
+    border: 1px solid transparent !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease !important;
+}
+
+#slotsContainer button:hover {
+    background: var(--accent-light) !important;
+    transform: scale(1.05) !important;
+}
+
+#slotsContainer button[style*="bg-blue-600"], 
+#slotsContainer button[style*="background-color: var(--accent)"] {
+    background: var(--accent) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(14, 124, 95, 0.3) !important;
+}
+
+#slotsContainer button:disabled {
+    background: var(--bg-deep) !important;
+    color: var(--muted) !important;
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    text-decoration: line-through !important;
+}
+
+/* 4. تحسين زر "التالي" و "تأكيد" */
+#step1Next, .btn-confirm-booking {
+    background: var(--accent) !important;
+    color: white !important;
+    border-radius: 14px !important;
+    font-weight: 800 !important;
+    padding: 14px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 8px 20px -5px rgba(14, 124, 95, 0.4) !important;
+}
+
+#step1Next:disabled {
+    background: var(--muted) !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+}
+
+#step1Next:not(:disabled):hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 25px -5px rgba(14, 124, 95, 0.5) !important;
+}
+
+/* === تحسينات الوضع المظلم (Dark Mode) === */
+html.dark .ctrl-input {
+    background-color: #0f172a !important; /* خلفية داكنة جداً */
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+html.dark .ctrl-input:focus {
+    background-color: #1e293b !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15) !important;
+}
+html.dark .day-btn {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+html.dark .day-btn.active {
+    background: var(--accent) !important;
+    color: white !important;
+    border-color: var(--accent) !important;
+}
+html.dark #slotsContainer button {
+    background: #1e293b !important;
+    color: #10B981 !important;
+}
+html.dark #slotsContainer button:hover {
+    background: #134e4a !important;
+    color: #ffffff !important;
+}
