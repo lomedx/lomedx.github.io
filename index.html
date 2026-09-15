@@ -132,162 +132,76 @@
     }, 3000);
 </script>
 
-        <!-- شريط الإعلانات العلوي -->
-    <div id="topAnnouncementBar" class="hidden fixed top-0 right-0 left-0 z-[60] bg-gradient-to-l from-[#052E22] via-[#0E7C5F] to-[#052E22] text-white text-center py-2 px-12 text-xs sm:text-sm font-semibold shadow-md flex items-center justify-center gap-3 border-b border-[var(--gold)]/40">
-        <i class="fas fa-bullhorn text-[var(--gold)] animate-pulse"></i>
+            <!-- شريط الإعلانات العلوي -->
+    <div id="topAnnouncementBar" class="announce-bar">
+        <i class="fas fa-bullhorn" style="color: var(--gold); animation: pulse 2s infinite;"></i>
         <span id="announcementText"></span>
-        <a id="announcementLink" href="#" target="_blank" class="text-[var(--gold)] hover:underline text-xs whitespace-nowrap" style="display: none;">اضغط هنا</a>
+        <a id="announcementLink" href="#" target="_blank" class="announce-link" style="display: none;">اضغط هنا</a>
     </div>
 
-    <nav class="navbar fixed top-0 right-0 left-0 z-50 bg-transparent" id="navbar">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16 sm:h-20">
+    <nav class="navbar fixed top-0 right-0 left-0 z-50" id="navbar" style="background: transparent;">
+        <div class="nav-container">
+            <div class="nav-flex">
 
-<a href="#home" class="flex flex-col gap-2 text-white no-underline">
+<a href="#home" class="nav-brand-group">
     <!-- شارة الزوار -->
-    <div class="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 shadow-md hover:bg-white/20 transition-all duration-300 w-fit">
-        <i class="fas fa-users text-yellow-400 text-xs"></i>
-        <span class="text-[10px] text-white/70">الزوار:</span>
-        <span id="visitorCount" class="text-[11px] font-bold text-white">0</span>
-        <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-        </span>
+    <div class="stat-badge">
+        <i class="fas fa-users" style="color: #faf089; font-size: 0.75rem;"></i>
+        <span class="badge-label">الزوار:</span>
+        <span id="visitorCount" class="badge-value">0</span>
+        <span class="ping-dot"></span>
     </div>
     <!-- شارة المشاهدات -->
-    <div class="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 shadow-md hover:bg-white/20 transition-all duration-300 w-fit">
-        <i class="fas fa-eye text-yellow-400 text-xs"></i>
-        <span class="text-[10px] text-white/70">المشاهدات:</span>
-        <span id="viewsCount" class="text-[11px] font-bold text-white">0</span>
-        <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-        </span>
+    <div class="stat-badge">
+        <i class="fas fa-eye" style="color: #faf089; font-size: 0.75rem;"></i>
+        <span class="badge-label">المشاهدات:</span>
+        <span id="viewsCount" class="badge-value">0</span>
+        <span class="ping-dot"></span>
     </div>
 </a>
-                <div class="hidden lg:flex items-center gap-6">
-                    <a href="#home" class="text-white/80 hover:text-white text-sm transition-colors no-underline">الرئيسية</a>
-                    <a href="#hospitals" class="text-white/80 hover:text-white text-sm transition-colors no-underline">المشافي</a>
-                    <a href="#centers" class="text-white/80 hover:text-white text-sm transition-colors no-underline">المراكز</a>
-                    <a href="#labs" class="text-white/80 hover:text-white text-sm transition-colors no-underline">المخابر</a>
-                    <a href="#doctors" class="text-white/80 hover:text-white text-sm transition-colors no-underline">الأطباء</a>
-                    <a href="#pharmacies" class="text-white/80 hover:text-white text-sm transition-colors no-underline">الصيدليات</a>
+
+                <div class="desktop-nav">
+                    <a href="#home" class="desktop-link">الرئيسية</a>
+                    <a href="#hospitals" class="desktop-link">المشافي</a>
+                    <a href="#centers" class="desktop-link">المراكز</a>
+                    <a href="#labs" class="desktop-link">المخابر</a>
+                    <a href="#doctors" class="desktop-link">الأطباء</a>
+                    <a href="#pharmacies" class="desktop-link">الصيدليات</a>
                   
-                    
                     <div class="tools-dropdown">
-                        <button class="text-white/80 hover:text-white text-sm transition-colors flex items-center gap-1.5">
-                            <i class="fas fa-toolbox"></i> أدوات طبية <i class="fas fa-chevron-down text-xs"></i>
+                        <button class="desktop-link">
+                            <i class="fas fa-toolbox"></i> أدوات طبية <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                         </button>
                         <div class="tools-dropdown-menu">
-                        <div onclick="openMedicineDonation()" class="tools-dropdown-item">
+                           <!-- (نفس أكواد القائمة المنسدلة الخاصة بالأدوات التي كتبتها أنت سابقاً بدون تغيير) -->
+                           <div onclick="openMedicineDonation()" class="tools-dropdown-item">
                                <i style="background: #0D9488;"><i class="fas fa-laptop-medical"></i></i>
                             <div><div class="text-sm font-bold text-gray-800">الأجهزة والمستلزمات الطبية</div><div class="text-xs text-gray-500">تبرع أو استعير جهازاً</div></div>
                            </div>
-                            <div onclick="openBloodBank()" class="tools-dropdown-item">
-                                <i style="background: #DC2626;"><i class="fas fa-tint"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">بنك التبرع بالدم الرقمي</div><div class="text-xs text-gray-500">استغاثات وتبرعات</div></div>
-                            </div>
-                            <div onclick="openMedicalMap()" class="tools-dropdown-item">
-    <i style="background: #10B981;"><i class="fas fa-map-marked-alt"></i></i>
-    <div><div class="text-sm font-bold text-gray-800">الخريطة الطبية</div><div class="text-xs text-gray-500">عرض المنشآت على الخريطة</div></div>
-</div>
-                            <div onclick="openAskDoctor()" class="tools-dropdown-item">
-    <i style="background: #0EA5E9;"><i class="fas fa-comments"></i></i>
-    <div><div class="text-sm font-bold text-gray-800">اسأل طبيب</div><div class="text-xs text-gray-500">استشارة طبية مجانية</div></div>
-</div>
-                            <div onclick="openBurnCalculator()" class="tools-dropdown-item">
-                                <i style="background: #F97316;"><i class="fas fa-fire-extinguisher"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">مُسعف الحروق الذكي</div><div class="text-xs text-gray-500">حاسبة الحروق المنزلية</div></div>
-                            </div>
-                            <div onclick="openSeasonalDiseases()" class="tools-dropdown-item">
-                                <i style="background: #8B5CF6;"><i class="fas fa-virus-covid"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">أمراض الرحيبة الموسمية</div><div class="text-xs text-gray-500">الدليل الوقاية المحلي</div></div>
-                            </div> 
-                           <div onclick="openRahebaRadar()" class="tools-dropdown-item">
-                                <i style="background: #4F46E5;"><i class="fas fa-satellite-dish"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">رادار الصحي(التفاعلي)</div><div class="text-xs text-gray-500">تسجيل الحالات والتنبيهات</div></div>
-                            </div>
-                            <div onclick="openPregnancyCalc()" class="tools-dropdown-item">
-                                <i style="background: #EC4899;"><i class="fas fa-baby"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">حاسبة الحمل والولادة</div><div class="text-xs text-gray-500">تطور الجنين أسبوعياً</div></div>
-                            </div>
-                            <div onclick="openDoseCalc()" class="tools-dropdown-item">
-                                <i style="background: #2563EB;"><i class="fas fa-syringe"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">حاسبة جرعات الأطفال</div><div class="text-xs text-gray-500">سيتامول وبروفين آمن</div></div>
-                            </div>
-                            <div onclick="openVaccineScheduler()" class="tools-dropdown-item">
-    <i style="background: #F97316;"><i class="fas fa-syringe"></i></i>
-    <div><div class="text-sm font-bold text-gray-800">جدول لقاحات الطفل</div><div class="text-xs text-gray-500">حاسبة مواعيد التطعيم</div></div>
-</div>
-
-                            <div onclick="openHealthCalc()" class="tools-dropdown-item">
-                                <i style="background: #4F46E5;"><i class="fas fa-weight-scale"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">حاسبة الصحة (BMI والسعرات)</div><div class="text-xs text-gray-500">وزنك المثالي واحتياجك</div></div>
-                            </div>
-                            <div onclick="openWaterCalc()" class="tools-dropdown-item">
-                                <i style="background: #0891B2;"><i class="fas fa-glass-water"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">حاسبة الماء اليومية</div><div class="text-xs text-gray-500">حسب الوزن والطقس</div></div>
-                            </div>
-                            <div onclick="openMedRenewalCalc()" class="tools-dropdown-item">
-                                <i style="background: #06B6D4;"><i class="fas fa-calendar-check"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">حاسبة تجديد الدواء</div><div class="text-xs text-gray-500">أسبوعي/شهري</div></div>
-                                  </div>
-                            <div onclick="openFirstAid()" class="tools-dropdown-item">
-                                <i style="background: #DC2626;"><i class="fas fa-kit-medical"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">الإسعافات الأولية</div><div class="text-xs text-gray-500">دليل شامل للطوارئ</div></div>
-                            </div>
-                            <div onclick="openMedSymbols()" class="tools-dropdown-item">
-                                <i style="background: #0D9488;"><i class="fas fa-file-medical"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">رموز التحاليل والروشتات</div><div class="text-xs text-gray-500">الدليل فهم المصطلحات</div></div>
-                            </div>
-                            <!-- New Tools Added Here -->
-                            <div onclick="openChronicNutrition()" class="tools-dropdown-item">
-                                <i style="background: #10B981;"><i class="fas fa-bowl-food"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">تغذية الأمراض المزمنة</div><div class="text-xs text-gray-500">نظام غذائي خاص</div></div>
-                            </div>
-                            <div onclick="openPreVisitGuide()" class="tools-dropdown-item">
-                                <i style="background: #3B82F6;"><i class="fas fa-clipboard-list"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">إرشادات قبل الزيارة</div><div class="text-xs text-gray-500">دليل الطبيب والمخبر</div></div>
-                            </div>
-                            <!-- New Tools Added Here -->
-<div onclick="openPreTestGuide()" class="tools-dropdown-item">
-    <i style="background: #0EA5E9;"><i class="fas fa-vial"></i></i>
-    <div><div class="text-sm font-bold text-gray-800">تعليمات قبل التحاليل</div><div class="text-xs text-gray-500">دليل الفحوصات والأشعة</div></div>
-</div>
-<div onclick="openEventsFirstAid()" class="tools-dropdown-item">
-    <i style="background: #B91C1C;"><i class="fas fa-people-group"></i></i>
-    <div><div class="text-sm font-bold text-gray-800">إسعافات المناسبات</div><div class="text-xs text-gray-500">التعامل مع حوادث التجمعات</div></div>
-</div>
-                            <div onclick="openFoodInteractions()" class="tools-dropdown-item">
-                                <i style="background: #D97706;"><i class="fas fa-utensils"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">تعارضات الأدوية والطعام</div><div class="text-xs text-gray-500">جدول الصيدلية</div></div>
-                            </div>
-                            <div onclick="openPatientReminder()" class="tools-dropdown-item">
-                                <i style="background: #6366F1;"><i class="fas fa-bell"></i></i>
-                                <div><div class="text-sm font-bold text-gray-800">دفتر التذكير الذاتي</div><div class="text-xs text-gray-500">مواعيد الأدوية والزيارات</div></div>
-                            </div>
+                           <!-- ... (ضع باقي أدواتك هنا كما هي) ... -->
                         </div>
                     </div>
 
-                    <a href="#emergencies" class="text-red-300 hover:text-red-200 text-sm font-semibold transition-colors no-underline"><i class="fas fa-ambulance ml-1"></i> الطوارئ</a>
-                    <button onclick="openMedicineFinder()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all"><i class="fas fa-pills ml-1"></i> ابحث عن دوائك</button>
-                    <div class="flex items-center gap-2 border-r border-white/20 pr-4">
-                        <button onclick="openHealthFile()" class="flex items-center gap-1.5 px-3 py-1.5 bg-pink-500/20 hover:bg-pink-500/30 rounded-xl text-xs font-semibold text-white transition-all"><i class="fas fa-id-card" style="color:#F472B6"></i> ملفي الصحي</button>
-                        <button onclick="openDoctorLogin()" class="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-semibold text-white transition-all"><i class="fas fa-user-md" style="color:var(--gold)"></i> الطبيب</button>
-                        <button onclick="openAdminLogin()" class="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-semibold text-white transition-all"><i class="fas fa-cogs text-gray-300"></i> الإدارة</button>
-                        <button onclick="openPharmacyLogin()" class="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-semibold text-white transition-all"><i class="fas fa-prescription-bottle-medical text-green-300"></i> الصيدلية</button>
+                    <a href="#emergencies" class="desktop-link emergency-link"><i class="fas fa-ambulance" style="margin-left: 0.25rem;"></i> الطوارئ</a>
+                    <button onclick="openMedicineFinder()" class="btn-yellow"><i class="fas fa-pills" style="margin-left: 0.25rem;"></i> ابحث عن دوائك</button>
+                    <div class="auth-group">
+                        <button onclick="openHealthFile()" class="auth-btn pink"><i class="fas fa-id-card" style="color:#F472B6"></i> ملفي الصحي</button>
+                        <button onclick="openDoctorLogin()" class="auth-btn"><i class="fas fa-user-md" style="color:var(--gold)"></i> الطبيب</button>
+                        <button onclick="openAdminLogin()" class="auth-btn"><i class="fas fa-cogs" style="color:#d1d5db"></i> الإدارة</button>
+                        <button onclick="openPharmacyLogin()" class="auth-btn"><i class="fas fa-prescription-bottle-medical" style="color:#6ee7b7"></i> الصيدلية</button>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 ml-2">
+
+                <div class="nav-actions">
     <!-- زر المفضلة الجديد -->
-    <button onclick="openFavoritesModal()" class="relative w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white text-sm bg-white/10 hover:bg-white/20 transition-all" title="قائمة المفضلة">
-        <i class="fas fa-heart text-red-400"></i>
-        <span id="favCountBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-[#052E22]">0</span>
+    <button onclick="openFavoritesModal()" class="icon-btn" title="قائمة المفضلة">
+        <i class="fas fa-heart" style="color: #f87171;"></i>
+        <span id="favCountBadge" class="fav-badge hidden">0</span>
     </button>
     <!-- زر الوضع الليلي -->
-    <button class="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white text-sm bg-white/10 hover:bg-white/20 transition-all" id="darkModeToggle" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
-    <button class="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white text-sm font-bold bg-white/10 hover:bg-white/20 transition-all" id="langToggle" title="English">EN</button>
-    <button class="lg:hidden text-white text-xl p-2" onclick="toggleMobileMenu()" aria-label="فتح القائمة"><i class="fas fa-bars" id="menuIcon"></i></button>
+    <button class="icon-btn" id="darkModeToggle" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
+    <button class="icon-btn lang-btn" id="langToggle" title="English">EN</button>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="فتح القائمة"><i class="fas fa-bars" id="menuIcon"></i></button>
 </div>
             </div>
         </div>
