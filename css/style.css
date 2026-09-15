@@ -1307,76 +1307,6 @@ body.stop-animations .btn-health-glow span::before {
 /* =========================================================
    الزر المتوهج باستمرار مع اللمعان الزجاجي الظاهر
    ========================================================= */
-/* تأثير الضغط على الأزرار والبطاقات في الجوال */
-@media (max-width: 768px) {
-    .btn, .call-btn, .filter-btn, .portal-grid-btn, .mobile-grid-btn {
-        transition: transform 0.1s ease-out, box-shadow 0.2s ease; /* حركة أسرع لللمس */
-    }
-    
-    /* عندما يضغط الإصبع على الزر */
-    .btn:active, .call-btn:active, .filter-btn:active, .card:active {
-        transform: scale(0.96) !important; /* يصغر قليلاً لي给人的 إحساس بالضغط */
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important; /* يخف الظل */
-    }
-}
-/* حماية الأزرار العائمة من الضغط خلف شريط الهاتف السفلي */
-@media (max-width: 768px) {
-    .back-to-top, .emergency-fab-wrapper, .ui-controls {
-        bottom: calc(30px + env(safe-area-inset-bottom)) !important; /* يرفع الأزرار فوق الشريط السفلي للهاتف */
-    }
-
-    
-/* ضمان حجم لمس مريح للإبهام في الجوال */
-@media (max-width: 768px) {
-    .accordion-header, .day-btn, .tools-dropdown-item {
-        min-height: 44px; /* مساحة لمس كافية لا تسبب الضغط الخاطئ */
-    }
-
-    /* تكبير أيقونات الإغلاق والإعجاب قليلاً لتسهيل لمسها */
-    .modal-content > div > button:first-child {
-        width: 36px;
-        height: 36px;
-    }
-}
-
-    
-    
-/* تفعيل التمرير الطبيعي للتطبيقات في العناصر المنبثقة */
-.ctrl-content, .mobile-menu-premium, .city-selector-panel {
-    -webkit-overflow-scrolling: touch; /* تمرير سلس باللمس (مهم جداً للآيفون) */
-    scroll-behavior: smooth;
-}
-
-/* تغيير لون تحديد النص ليتناسب مع هوية المنصة */
-::selection {
-    background: rgba(14, 124, 95, 0.2); /* أخضر زمردي شفاف */
-    color: #0E7C5F;
-    text-shadow: none;
-}
-::-moz-selection {
-    background: rgba(14, 124, 95, 0.2);
-    color: #0E7C5F;
-}
-/* إزالة الحدود الافتراضية وإضافة حلقة تركيز أنيقة */
-input:focus, select:focus, textarea:focus, .ctrl-input:focus {
-    outline: none !important;
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 0 4px rgba(14, 124, 95, 0.1) !important;
-    transition: box-shadow 0.2s ease;
-}
-/* تأثير التحميل الوهمي (Skeleton Loading) */
-.skeleton-loader {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 8px;
-    height: 20px;
-    width: 100%;
-}
-@keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
 
 /* =========================================================
    الزر المتوهج باستمرار مع الشريط الزجاجي المائل (RTL)
@@ -1420,17 +1350,14 @@ input:focus, select:focus, textarea:focus, .ctrl-input:focus {
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
-/* طبقة الحدود المتوهجة الدوارة (تعمل على جميع الهواتف) */
+/* 1. طبقة التدرج الدوارة */
 .btn-health-glow::before {
     content: '' !important;
     position: absolute !important;
-    width: 200% !important;
-    height: 200% !important;
-    top: -50% !important;
-    left: -50% !important;
-    border-radius: 50% !important; /* جعله دائرة كبيرة */
+    inset: -4px !important;
+    border-radius: 1rem !important;
     background: conic-gradient(
-        from 0deg,
+        from var(--border-angle, 0deg),
         #F0D77B,
         #10B981,  
         #C4962C,  
@@ -1439,13 +1366,7 @@ input:focus, select:focus, textarea:focus, .ctrl-input:focus {
     ) !important;
     z-index: -2 !important;
     filter: drop-shadow(0 0 8px rgba(240, 215, 123, 0.8)) !important;
-    animation: rotateGlowBorder 4s linear infinite !important;
-}
-
-/* حركة الدوران للحدود */
-@keyframes rotateGlowBorder {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    animation: rotateGlowBorder 3s linear infinite !important;
 }
 
 /* 2. طبقة الحقل الذهبي + اللمعة الزجاجية الواقعية الاحترافية */
@@ -1508,7 +1429,12 @@ input:focus, select:focus, textarea:focus, .ctrl-input:focus {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
 }
 
-
+/* دوران الحدود */
+@keyframes rotateGlowBorder {
+    to {
+        --border-angle: 360deg;
+    }
+}
 
 /* نبض التوهج */
 @keyframes btnMedicalPulse {
@@ -1518,38 +1444,4 @@ input:focus, select:focus, textarea:focus, .ctrl-input:focus {
     50% {
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 30px rgba(196, 150, 44, 1), 0 0 20px rgba(16, 185, 129, 0.8);
     }
-}
-
-/* === إصلاح عمى النصوص في القوائم المنسدلة وحقول الإدخال === */
-
-/* 1. إجبار حقول الإدخال والقوائم المنسدلة على استخدام ألوان المنصة */
-.ctrl-input, 
-input, 
-select, 
-textarea, 
-.city-option {
-    color: var(--fg) !important;
-    background-color: var(--card) !important;
-}
-
-/* 2. إجبار خيارات القائمة المنسدلة (Options) على الظهور بشكل صحيح */
-select option {
-    background-color: var(--card) !important;
-    color: var(--fg) !important;
-}
-
-/* 3. إجبار النوافذ المنبثقة بلوحة التحكم على وراثة اللون الأساسي */
-.ctrl-content, .modal-content {
-    color: var(--fg) !important;
-}
-
-/* 4. لون النص داخل لوحة اختيار المدينة */
-.city-selector-panel {
-    color: var(--fg) !important;
-}
-
-/* 5. عند تحديد مدينة (الحالة المفعلة) */
-.city-option.selected {
-    background-color: var(--accent) !important;
-    color: #ffffff !important;
 }
