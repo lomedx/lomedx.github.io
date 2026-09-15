@@ -1369,7 +1369,7 @@ body.stop-animations .btn-health-glow span::before {
     animation: rotateGlowBorder 3s linear infinite !important;
 }
 
-/* 2. طبقة الحقل الذهبي + اللمعة الزجاجية الواقعية الاحترافية */
+/* 2. طبقة الحقل الذهبي + اللمعة الزجاجية الواقعية */
 .btn-health-glow::after {
     content: '' !important;
     position: absolute !important;
@@ -1377,43 +1377,26 @@ body.stop-animations .btn-health-glow span::before {
     border-radius: calc(1rem - 2px) !important;
     z-index: -1 !important;
 
-    /* تدرج زجاجي أوسع وأكثر نعومة ليبدو كانعكاس ضوئي حقيقي */
     background-image: 
         linear-gradient(
             115deg,
-            transparent 30%,
-            rgba(255, 255, 255, 0.05) 40%,
-            rgba(255, 255, 255, 0.35) 47%,
-            rgba(255, 255, 255, 0.9) 50%, /* قمة اللمعان */
-            rgba(255, 255, 255, 0.35) 53%,
-            rgba(255, 255, 255, 0.05) 60%,
-            transparent 70%
+            transparent 0%,
+            transparent 42%,
+            rgba(255, 255, 255, 0.05) 46%,
+            rgba(255, 255, 255, 0.25) 49%,
+            rgba(255, 255, 255, 0.7) 50%,
+            rgba(255, 255, 255, 0.25) 51%,
+            rgba(255, 255, 255, 0.05) 54%,
+            transparent 58%,
+            transparent 100%
         ),
         linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #92610A 100%);
     
-    /* زيادة حجم الشريط الزجاجي ليغطي مساحة أكبر أثناء الحركة */
-    background-size: 300% 100%, 100% 100%;
+    background-size: 80% 100%, 100% 100%;
     background-repeat: no-repeat, no-repeat;
-    background-position: 200% 0, 0 0; 
+    background-position: 220% 0, 0 0; /* يبدأ خارج اليمين تماماً */
     
-    /* تسريع الأداء عبر كرت الشاشة */
-    will-change: background-position;
-    
-    /* حركة أنيقة: تمرير سلس يتوقف قليلاً قبل التكرار لإضفاء الواقعية */
-    animation: shineMoveRTL 6.5s cubic-bezier(0.65, 0.05, 0.36, 1) infinite !important;
-}
-
-/* حركة واقعية محسنة: تمر سريعة وتتوقف في المنتصف قليلاً ثم تعود */
-@keyframes shineMoveRTL {
-    0% {
-        background-position: 200% 0, 0 0;   /* تبدأ خارج اليمين تماماً */
-    }
-    60% {
-        background-position: -100% 0, 0 0;  /* تنتهي خارج اليسار تماماً */
-    }
-    100% {
-        background-position: -100% 0, 0 0;  /* تبقى متوقفة حتى نهاية الدورة */
-    }
+    animation: shineMoveRTL 4.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite !important;
 }
 
 /* 3. النص الداخلي */
@@ -1443,5 +1426,18 @@ body.stop-animations .btn-health-glow span::before {
     }
     50% {
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 30px rgba(196, 150, 44, 1), 0 0 20px rgba(16, 185, 129, 0.8);
+    }
+}
+
+/* حركة واقعية: تبدأ خارج اليمين وتنتهي خارج اليسار */
+@keyframes shineMoveRTL {
+    0% {
+        background-position: 220% 0, 0 0;   /* خارج اليمين تماماً */
+    }
+    60% {
+        background-position: -120% 0, 0 0;  /* خارج اليسار تماماً */
+    }
+    100% {
+        background-position: -120% 0, 0 0;  /* تبقى خارج حتى نهاية الدورة */
     }
 }
