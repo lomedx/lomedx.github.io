@@ -1694,3 +1694,32 @@ html.dark .booking-step {
     color: #ffffff !important;
     border-color: var(--accent) !important;
 }
+/* 1. نص أبيض أساسي مع تباين قوي وخلفية تباين خفيفة */
+.text-white-sharp {
+    color: #FFFFFF !important;
+    font-weight: 600;
+    /* ظل محيطي ناعم يمنع اختفاء النص على الخلفيات الفاتحة */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7), 
+                 0 2px 6px rgba(0, 0, 0, 0.4);
+    letter-spacing: 0.3px;
+}
+
+/* 2. نص أبيض بارز متوهج (ممتاز للعناوين والأزرار الداكنة) */
+.text-white-glow {
+    color: #FFFFFF !important;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6),
+                 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* 3. حاوية شفافة زجاجية (Glassmorphism) تضمن ظهور النص الأبيض على أي صورة أو خلفية */
+.glass-text-container {
+    background: rgba(15, 23, 42, 0.65); /* خلفية داكنة شفافة */
+    backdrop-filter: blur(8px); /* ضبابية خلفية الزجاج */
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 12px 20px;
+    color: #FFFFFF !important;
+}
+    
