@@ -1321,18 +1321,6 @@ body.stop-animations .btn-health-glow span::before {
    ========================================================= */
 
         /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية زاوية التدرج */
-
-
-/* حركة المسح من اليمين إلى اليسار (RTL) معالجة عبر Transform */
-/* =========================================================
-   زر الملف الصحي المتوهج مع اللمعة الزجاجية (RTL) - مصحح
-   ========================================================= */
-
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 @property --border-angle {
     syntax: '<angle>';
     initial-value: 0deg;
@@ -1344,100 +1332,102 @@ body.stop-animations .btn-health-glow span::before {
     border: none !important;
     z-index: 1 !important;
     isolation: isolate;
-    overflow: hidden !important;
+    overflow: hidden !important; /* لقص اللمعان المائل عند الحواف */
     
-    animation: btnMedicalPulse 3s ease-in-out infinite !important;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    /* توهج خارجي ساطع ودائم (بدون تمرير الماوس) */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 20px rgba(240, 215, 123, 0.6), 0 0 10px rgba(16, 185, 129, 0.4) !important;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
 }
 
-/* 1. طبقة التدرج الدوارة */
+/* 1. طبقة التدرج الدوارة والحدود المتوهجة */
 .btn-health-glow::before {
     content: '' !important;
     position: absolute !important;
-    inset: -4px !important;
+    inset: -2px !important;
     border-radius: 1rem !important;
     background: conic-gradient(
         from var(--border-angle, 0deg),
         #F0D77B,
-        #10B981,  
-        #C4962C,  
-        #FFFFFF,  
-        #F0D77B   
+        #10B981,
+        #C4962C,
+        #FFFFFF,
+        #F0D77B
     ) !important;
     z-index: -2 !important;
-    filter: drop-shadow(0 0 8px rgba(240, 215, 123, 0.8)) !important;
+    filter: drop-shadow(0 0 6px rgba(240, 215, 123, 0.6)) !important;
     animation: rotateGlowBorder 3s linear infinite !important;
 }
 
-/* 2. طبقة الحقل الذهبي + اللمعة الزجاجية الواقعية */
+/* 2. طبقة الخلفية الداخلية مع تأثير التغبيش الزجاجي */
 .btn-health-glow::after {
     content: '' !important;
     position: absolute !important;
-    inset: 2px !important; 
-    border-radius: calc(1rem - 2px) !important;
+    inset: 1.5px !important;
+    border-radius: calc(1rem - 1.5px) !important;
+    /* خلفية داكنة شبه شفافة لإظهار التدرج المتحرك من تحتها، وعدم حجب اللمعة */
+    background: rgba(15, 23, 42, 0.85) !important; 
+    backdrop-filter: blur(8px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
     z-index: -1 !important;
-
-    background-image: 
-        linear-gradient(
-            115deg,
-            transparent 0%,
-            transparent 42%,
-            rgba(255, 255, 255, 0.05) 46%,
-            rgba(255, 255, 255, 0.25) 49%,
-            rgba(255, 255, 255, 0.7) 50%,
-            rgba(255, 255, 255, 0.25) 51%,
-            rgba(255, 255, 255, 0.05) 54%,
-            transparent 58%,
-            transparent 100%
-        ),
-        linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #92610A 100%);
-    
-    background-size: 80% 100%, 100% 100%;
-    background-repeat: no-repeat, no-repeat;
-    background-position: 220% 0, 0 0; /* يبدأ خارج اليمين تماماً */
-    
-    animation: shineMoveRTL 4.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite !important;
 }
 
-/* 3. النص الداخلي */
+/* 3. ضمان تموضع الـ span الداخلي ليشمل كامل مساحة الزر */
 .btn-health-glow span {
     position: relative !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 8px !important;
-    z-index: 1 !important;
-    color: #FFFFFF !important; 
-    font-weight: 700 !important; 
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 1 !important; /* رفعه فوق كل الطبقات الخلفية */
 }
 
-/* دوران الحدود */
+/* 4. شريط المسح واللمعان الزجاجي (Sweeper) */
+.btn-health-glow span::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -50% !important;
+    left: 150% !important; /* نقطة البداية من خارج الزر يميناً */
+    width: 40% !important; /* عرض الشريط الزجاجي */
+    height: 200% !important;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.15) 20%,
+        rgba(255, 255, 255, 0.85) 50%, /* لمعة ساطعة متباينة */
+        rgba(240, 215, 123, 0.5) 75%,
+        rgba(255, 255, 255, 0) 100%
+    ) !important;
+    transform: rotate(25deg) !important;
+    animation: appInstallSweepRTL 3.5s cubic-bezier(0.25, 1, 0.5, 1) infinite !important;
+    pointer-events: none !important;
+    z-index: 2 !important; /* ضمان الظهور فوق خلفية الزر */
+    mix-blend-mode: screen; /* يجعل اللمعة البيضاء تتلون وتتألق فوق أي خلفية */
+}
+
+/* حركة دوران التدرج اللوني */
 @keyframes rotateGlowBorder {
     to {
         --border-angle: 360deg;
     }
 }
 
-/* نبض التوهج */
-@keyframes btnMedicalPulse {
-    0%, 100% {
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 15px rgba(196, 150, 44, 0.6), 0 0 10px rgba(16, 185, 129, 0.4);
-    }
-    50% {
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 30px rgba(196, 150, 44, 1), 0 0 20px rgba(16, 185, 129, 0.8);
-    }
-}
-
-/* حركة واقعية: تبدأ خارج اليمين وتنتهي خارج اليسار */
-@keyframes shineMoveRTL {
+/* حركة المسح من اليمين إلى اليسار (RTL) */
+@keyframes appInstallSweepRTL {
     0% {
-        background-position: 220% 0, 0 0;   /* خارج اليمين تماماً */
+        left: 150%; /* تبدأ من خارج الحد الأيمن */
+        opacity: 0;
     }
-    60% {
-        background-position: -120% 0, 0 0;  /* خارج اليسار تماماً */
+    10% {
+        opacity: 1;
     }
-    100% {
-        background-position: -120% 0, 0 0;  /* تبقى خارج حتى نهاية الدورة */
+    40% {
+        left: -150%; /* تعبر بالكامل إلى خارج الحد الأيسر */
+        opacity: 1;
+    }
+    45%, 100% {
+        left: -150%;
+        opacity: 0;
     }
 }
