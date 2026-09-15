@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # <--- تأكد تماماً أن هذا السطر موجود!
+      contents: write
 
     steps:
       - name: Checkout code
@@ -23,12 +23,12 @@ jobs:
         run: npm install -D tailwindcss
 
       - name: Build CSS
-        run: npx tailwindcss -i ./src/input.css -o ./css/style.css --minify
+        run: npx tailwindcss -i ./src/input.css -o ./css/style.css --config tailwind-config.js --minify
 
       - name: Commit and Push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add css/style.css
-          git commit -m "Auto: Compile and Minify Tailwind CSS" || echo "No changes to commit"
+          git commit -m "Auto compile Tailwind CSS" || echo "No changes to commit"
           git push
