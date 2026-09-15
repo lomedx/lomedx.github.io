@@ -1235,3 +1235,287 @@ html.dark .smart-empty { color: #94a3b8; }
 /* الوضع المظلم الداعم */
 html.dark .queue-tracker-card { background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2)); }
 html.dark .qt-stats { background: rgba(0,0,0,0.3); }
+
+
+/* ==========================================
+   تفعيل تسريع كرت الشاشة (GPU) لتقليل الحرارة مع بقاء الحركات
+========================================== */
+.hero-bg::after,
+.hero-bg::before,
+.hero-medical-logo img,
+.hero-medical-logo::before,
+.hero-medical-logo::after,
+.animate-ping,
+.pulse-register {
+    /* إجبار المتصفح على استخدام كرت الشاشة لرسم هذه العناصر */
+    will-change: transform, box-shadow, opacity;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+/* تحسين أداء التمرير ورسم البطاقات لتقليل حرارة كرت الشاشة */
+.card, .premium-card, .spa-legendary-card, .accordion-item {
+    content-visibility: auto;
+    contain-intrinsic-size: 200px; /* المتصفح سيحجز مسحة افتراضية حتى لا تقفز الصفحة */
+}
+/* احترام إعداد "توفير البطارية" في الهاتف لإيقاف الحركات تلقائياً */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* إيقاف الأنيميشن عندما يكون القسم خارج الشاشة */
+.hero-bg.paused-anim *,
+.hero-bg.paused-anim *::before,
+.hero-bg.paused-anim *::after {
+    animation-play-state: paused !important;
+}
+/* إيقاف الحركات في الخلفية عند فتح النوافذ مع استثناء قائمة الجوال وزر الملف الصحي */
+body.stop-animations *:not(.mobile-menu-premium):not(.mobile-menu-premium *):not(.btn-health-glow):not(.btn-health-glow *),
+body.stop-animations *::before,
+body.stop-animations *::after {
+    animation-play-state: paused !important;
+}
+
+/* إعادة تفعيل الحركات الخاصة بالطبقات الوهمية للزر (::before و ::after) */
+body.stop-animations .btn-health-glow::before,
+body.stop-animations .btn-health-glow::after,
+body.stop-animations .btn-health-glow span::before {
+    animation-play-state: running !important;
+}
+
+
+
+/* =========================================================
+   التدرج المتحرك المتوهج مع اللمعان الزجاجي (Glassy Glow Border)
+   ========================================================= */
+
+/* =========================================================
+   التدرج المتحرك المتوهج مع اللمعان الزجاجي (مصحح بالكامل)
+   ========================================================= */
+
+/* =========================================================
+   الزر المتوهج مع حركة اللمعان الزجاجي (يمين إلى يسار)
+   ========================================================= */
+/* =========================================================
+   الزر المتوهج باستمرار مع اللمعان الزجاجي (يمين إلى يسار)
+   ========================================================= */
+
+/* =========================================================
+   الزر المتوهج باستمرار مع اللمعان الزجاجي الظاهر
+   ========================================================= */
+/* تأثير الضغط على الأزرار والبطاقات في الجوال */
+@media (max-width: 768px) {
+    .btn, .call-btn, .filter-btn, .portal-grid-btn, .mobile-grid-btn {
+        transition: transform 0.1s ease-out, box-shadow 0.2s ease; /* حركة أسرع لللمس */
+    }
+    
+    /* عندما يضغط الإصبع على الزر */
+    .btn:active, .call-btn:active, .filter-btn:active, .card:active {
+        transform: scale(0.96) !important; /* يصغر قليلاً لي给人的 إحساس بالضغط */
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important; /* يخف الظل */
+    }
+}
+/* حماية الأزرار العائمة من الضغط خلف شريط الهاتف السفلي */
+@media (max-width: 768px) {
+    .back-to-top, .emergency-fab-wrapper, .ui-controls {
+        bottom: calc(30px + env(safe-area-inset-bottom)) !important; /* يرفع الأزرار فوق الشريط السفلي للهاتف */
+    }
+
+    
+/* ضمان حجم لمس مريح للإبهام في الجوال */
+@media (max-width: 768px) {
+    .accordion-header, .day-btn, .tools-dropdown-item {
+        min-height: 44px; /* مساحة لمس كافية لا تسبب الضغط الخاطئ */
+    }
+
+    /* تكبير أيقونات الإغلاق والإعجاب قليلاً لتسهيل لمسها */
+    .modal-content > div > button:first-child {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+    
+    
+/* تفعيل التمرير الطبيعي للتطبيقات في العناصر المنبثقة */
+.ctrl-content, .mobile-menu-premium, .city-selector-panel {
+    -webkit-overflow-scrolling: touch; /* تمرير سلس باللمس (مهم جداً للآيفون) */
+    scroll-behavior: smooth;
+}
+
+/* تغيير لون تحديد النص ليتناسب مع هوية المنصة */
+::selection {
+    background: rgba(14, 124, 95, 0.2); /* أخضر زمردي شفاف */
+    color: #0E7C5F;
+    text-shadow: none;
+}
+::-moz-selection {
+    background: rgba(14, 124, 95, 0.2);
+    color: #0E7C5F;
+}
+/* إزالة الحدود الافتراضية وإضافة حلقة تركيز أنيقة */
+input:focus, select:focus, textarea:focus, .ctrl-input:focus {
+    outline: none !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 4px rgba(14, 124, 95, 0.1) !important;
+    transition: box-shadow 0.2s ease;
+}
+/* تأثير التحميل الوهمي (Skeleton Loading) */
+.skeleton-loader {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+    height: 20px;
+    width: 100%;
+}
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* =========================================================
+   الزر المتوهج باستمرار مع الشريط الزجاجي المائل (RTL)
+   ========================================================= */
+/* =========================================================
+   زر الملف الصحي المتوهج (خلفية ذهبية + لمعة زجاجية RTL)
+   ========================================================= */
+
+/* لون الخلفية الذهبي الداكن الأصلي للزر */
+/* =========================================================
+   الزر المتوهج باستمرار مع اللمعان الزجاجي (يمين إلى يسار)
+   ========================================================= */
+
+        /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
+/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
+/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
+/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
+/* خاصية زاوية التدرج */
+
+
+/* حركة المسح من اليمين إلى اليسار (RTL) معالجة عبر Transform */
+/* =========================================================
+   زر الملف الصحي المتوهج مع اللمعة الزجاجية (RTL) - مصحح
+   ========================================================= */
+
+/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
+@property --border-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+.btn-health-glow {
+    position: relative !important;
+    border: none !important;
+    z-index: 1 !important;
+    isolation: isolate;
+    overflow: hidden !important;
+    
+    animation: btnMedicalPulse 3s ease-in-out infinite !important;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+/* طبقة الحدود المتوهجة الدوارة (تعمل على جميع الهواتف) */
+.btn-health-glow::before {
+    content: '' !important;
+    position: absolute !important;
+    width: 200% !important;
+    height: 200% !important;
+    top: -50% !important;
+    left: -50% !important;
+    border-radius: 50% !important; /* جعله دائرة كبيرة */
+    background: conic-gradient(
+        from 0deg,
+        #F0D77B,
+        #10B981,  
+        #C4962C,  
+        #FFFFFF,  
+        #F0D77B   
+    ) !important;
+    z-index: -2 !important;
+    filter: drop-shadow(0 0 8px rgba(240, 215, 123, 0.8)) !important;
+    animation: rotateGlowBorder 4s linear infinite !important;
+}
+
+/* حركة الدوران للحدود */
+@keyframes rotateGlowBorder {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* 2. طبقة الحقل الذهبي + اللمعة الزجاجية الواقعية الاحترافية */
+.btn-health-glow::after {
+    content: '' !important;
+    position: absolute !important;
+    inset: 2px !important; 
+    border-radius: calc(1rem - 2px) !important;
+    z-index: -1 !important;
+
+    /* تدرج زجاجي أوسع وأكثر نعومة ليبدو كانعكاس ضوئي حقيقي */
+    background-image: 
+        linear-gradient(
+            115deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.05) 40%,
+            rgba(255, 255, 255, 0.35) 47%,
+            rgba(255, 255, 255, 0.9) 50%, /* قمة اللمعان */
+            rgba(255, 255, 255, 0.35) 53%,
+            rgba(255, 255, 255, 0.05) 60%,
+            transparent 70%
+        ),
+        linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #92610A 100%);
+    
+    /* زيادة حجم الشريط الزجاجي ليغطي مساحة أكبر أثناء الحركة */
+    background-size: 300% 100%, 100% 100%;
+    background-repeat: no-repeat, no-repeat;
+    background-position: 200% 0, 0 0; 
+    
+    /* تسريع الأداء عبر كرت الشاشة */
+    will-change: background-position;
+    
+    /* حركة أنيقة: تمرير سلس يتوقف قليلاً قبل التكرار لإضفاء الواقعية */
+    animation: shineMoveRTL 6.5s cubic-bezier(0.65, 0.05, 0.36, 1) infinite !important;
+}
+
+/* حركة واقعية محسنة: تمر سريعة وتتوقف في المنتصف قليلاً ثم تعود */
+@keyframes shineMoveRTL {
+    0% {
+        background-position: 200% 0, 0 0;   /* تبدأ خارج اليمين تماماً */
+    }
+    60% {
+        background-position: -100% 0, 0 0;  /* تنتهي خارج اليسار تماماً */
+    }
+    100% {
+        background-position: -100% 0, 0 0;  /* تبقى متوقفة حتى نهاية الدورة */
+    }
+}
+
+/* 3. النص الداخلي */
+.btn-health-glow span {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    z-index: 1 !important;
+    color: #FFFFFF !important; 
+    font-weight: 700 !important; 
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+
+
+/* نبض التوهج */
+@keyframes btnMedicalPulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 15px rgba(196, 150, 44, 0.6), 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 30px rgba(196, 150, 44, 1), 0 0 20px rgba(16, 185, 129, 0.8);
+    }
+}
