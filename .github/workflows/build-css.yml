@@ -2,13 +2,13 @@ name: Compile Tailwind CSS
 
 on:
   push:
-    branches: [ "main" ] # سيتم تشغيل الكود عند رفع أي تحديث لفرع main
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # صلاحية السماح للـ Action بتعديل الملفات في مستودعك
+      contents: write  # <--- تأكد تماماً أن هذا السطر موجود!
 
     steps:
       - name: Checkout code
