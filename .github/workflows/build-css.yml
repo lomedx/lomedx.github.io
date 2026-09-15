@@ -1,3 +1,4 @@
+          
 name: Compile Tailwind CSS
 
 on:
@@ -19,13 +20,13 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Tailwind CLI
-        run: npm install -g @tailwindcss/cli
+      - name: Install Tailwind CSS
+        run: npm install tailwindcss@3 postcss autoprefixer
 
       - name: Build CSS
         run: |
           mkdir -p css
-          tailwindcss -i ./src/input.css -o ./css/style.css --config tailwind-config.js --minify
+          npx tailwindcss -i ./src/input.css -o ./css/style.css --config tailwind-config.js --minify
 
       - name: Commit and Push changes
         run: |
@@ -34,4 +35,3 @@ jobs:
           git add css/style.css
           git commit -m "Auto compile Tailwind CSS" || echo "No changes to commit"
           git push
-          
