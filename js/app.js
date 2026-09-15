@@ -1486,6 +1486,39 @@ window.openCtrlPanel = (title, contentHtml, headerColor = '#073D2E', preventClos
     }
     overlay.dataset.preventClose = preventClose ? 'true' : 'false';
 }
+window.switchHealthTab = (tab) => {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const loginBtn = document.getElementById('tabLoginBtn');
+    const registerBtn = document.getElementById('tabRegBtn');
+    
+    if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        loginForm.classList.add('flex');
+        registerForm.classList.remove('flex');
+        registerForm.classList.add('hidden');
+        loginBtn.classList.add('bg-white', 'shadow');
+        loginBtn.classList.remove('text-gray-500');
+        registerBtn.classList.remove('bg-white', 'shadow');
+        registerBtn.classList.add('text-gray-500');
+    } else {
+        loginForm.classList.remove('flex');
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+        registerForm.classList.add('flex');
+        registerBtn.classList.add('bg-white', 'shadow');
+        registerBtn.classList.remove('text-gray-500');
+        loginBtn.classList.remove('bg-white', 'shadow');
+        loginBtn.classList.add('text-gray-500');
+    }
+};
+
+window.searchArticles = () => {
+    const input = document.getElementById('blogSearchInput');
+    if (input) {
+        fetchArticles(input.value);
+    }
+};
 window.closeCtrlPanel = (event) => { 
     const overlay = document.getElementById('ctrlOverlay');
     if (event && event.target.id === 'ctrlOverlay' && overlay.dataset.preventClose === 'true') return; 
