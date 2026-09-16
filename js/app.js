@@ -4997,9 +4997,34 @@ const radarDiseasesData = {
         { id: 'asthma', name: 'ضيق تنفس وحساسية', icon: 'fa-lungs', color: '#10B981', symptoms: 'ألم بالصدر وضيق في التنفس', advice: 'مرضى الربو يجب عليهم حمل البخاخ الوقائي وتجنب الغبار والدخان.' }
     ]
 };
-window.openRahebaRadar = () => {
+window.openRahebaRadar = async () => {
+    // 1. جلب الإعدادات لمعرفة الفصل المحدد
+    const { data } = await supabase.from('radar_settings').select('*').eq('id', 'config').single();
+    if (data) {
+        radarSettings = data;
+        currentRadarTab = data.default_season || 'summer';
+    } else {
+        await supabase.from('radar_settings').upsert({ id: 'config', default_season: 'summer', last_reset: 0 });
+        radarSettings = { default_season: 'summer', last_reset: 0 };
+        currentRadarTab = 'summer';
+    }
+
     const cityOptions = allCities.filter(c => c !== 'كل المدن').map(c => `<option value="${c}" ${currentRadarCity === c ? 'selected' : ''}>${c}</option>`).join('');
     
+    // 2. تحديد أي زر سيكون فعالاً وأي زر سيكون معطلاً
+    const isSummerDefault = radarSettings.default_season === 'summer';
+
+    const summerBtnClass = isSummerDefault ? 'tab-btn active' : 'tab-btn text-gray-500 opacity-50 cursor-not-allowed';
+    const winterBtnClass = !isSummerDefault ? 'tab-btn active' : 'tab-btn text-gray-500 opacity-50 cursor-not-allowed';
+
+    const summerBtnAttr = isSummerDefault ? '' : 'disabled';
+    const winterBtnAttr = !isSummerDefault ? '' : 'disabled';
+
+    let seasonTabHtml = `
+        <button id="tabSummer" onclick="switchRadarTab('summer')" class="${summerBtnClass} flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2" ${summerBtnAttr}>☀️ <span>الصيف</span></button>
+        <button id="tabWinter" onclick="switchRadarTab('winter')" class="${winterBtnClass} flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2" ${winterBtnAttr}>❄️ <span>الشتاء</span></button>
+    `;
+
     openCtrlPanel('الرادار الصحي التفاعلي 📡', `
         <div class="flex flex-col gap-6">
             <div class="flex flex-col sm:flex-row justify-center items-center gap-3 bg-white p-3 rounded-2xl shadow-sm max-w-md mx-auto w-full">
@@ -5007,8 +5032,7 @@ window.openRahebaRadar = () => {
                     ${cityOptions}
                 </select>
                 <div class="flex gap-3 w-full sm:w-auto">
-                    <button id="tabSummer" onclick="switchRadarTab('summer')" class="tab-btn active flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2">☀️ <span>الصيف</span></button>
-                    <button id="tabWinter" onclick="switchRadarTab('winter')" class="tab-btn flex-1 py-3 rounded-xl font-bold text-sm text-gray-500 flex items-center justify-center gap-2">❄️ <span>الشتاء</span></button>
+                    ${seasonTabHtml}
                 </div>
             </div>
             <div id="radarCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
@@ -5019,10 +5043,7 @@ window.openRahebaRadar = () => {
         </div>
     `, '#4F46E5');
     
-    supabase.from('radar_settings').select('*').eq('id', 'config').single().then(({ data }) => {
-        if (data) { radarSettings = data; currentRadarTab = data.default_season || 'summer'; switchRadarTab(currentRadarTab); } 
-        else { supabase.from('radar_settings').upsert({ id: 'config', default_season: 'summer', last_reset: 0 }); switchRadarTab('summer'); }
-    });
+    // 3. جلب البيانات للفصل المحدد
     fetchRadarReports();
 }
 async function fetchRadarReports() {
