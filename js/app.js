@@ -3125,8 +3125,6 @@ window.openMedicineFinder = () => {
     const cityOptions = allCities.filter(c => c !== 'كل المدن').map(city => `<option value="${city}">${city}</option>`).join('');
 
     document.getElementById('modalContent').innerHTML = `<div class="p-6"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-pills ml-2" style="color: var(--gold)"></i> ابحث عن دوائك</h3><button onclick="closeModal()" class="text-2xl hover:text-gray-400 leading-none">&times;</button></div><div class="mb-4 p-3 rounded-xl text-sm bg-emerald-50 dark:bg-slate-700 text-emerald-800 dark:text-emerald-200 border border-emerald-100 dark:border-slate-600"><i class="fas fa-info-circle ml-1"></i> اكتب الأدوية المطلوبة وحدد مدينتك، وسنتولى إرسالها للصيدليات في مدينتك فقط. سيقوم أول صيدلية يتوفر فيها الدواء بالاتصال بك مباشرة!</div><form onsubmit="submitMedicineRequest(event)"><div class="mb-4"><label class="block text-sm font-semibold mb-2">الأدوية المطلوبة (نصياً)</label><textarea id="medList" class="ctrl-input" rows="3" placeholder="مثال: كريب ستوب، أبرة معينة، شراب سيتامول" required></textarea></div>
-    
-    // === تمت إضافة حقل المدينة هنا ===
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
         <div>
             <label class="block text-sm font-semibold mb-2">اسم المريض (اختياري)</label>
