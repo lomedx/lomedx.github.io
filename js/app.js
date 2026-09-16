@@ -5141,19 +5141,16 @@ window.submitRadarVote = async () => {
             timestamp: new Date().toISOString(),
             city: targetCity
         }]).select(); 
-        
         localStorage.setItem('lastRadarVoteTime', Date.now().toString());
-        closeModal(); 
-        showToast('تم تسجيل حالتك بنجاح!', 'success');
+        closeModal(); showToast('تم تسجيل حالتك بنجاح!', 'success');
+        fetchRadarReports();
+        setTimeout(() => {
+            document.getElementById('modalContent').innerHTML = `<div class="p-8 text-center"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-heart text-4xl text-red-500"></i></div><h3 class="font-bold text-xl mb-2 text-gray-800">نتمنى لك الشفاء العاجل!</h3><p class="text-sm text-gray-500 mb-6">تمت إضافتك لرادار الصحي. ساهم تسجيلك في حماية المجتمع.</p><button onclick="closeAllOverlays(); redirectToDoctorsSearch()" class="w-full bg-blue-500 text-white py-4 rounded-xl font-bold mb-2 hover:bg-blue-600 transition-all">👨‍⚕️ تواصل مع الأطباء المتاحين الآن</button><button onclick="closeModal()" class="text-gray-400 py-2 text-sm hover:text-gray-600">إغلاق</button></div>`;
+            document.getElementById('modalOverlay').classList.add('active');
+        }, 300);
+    } catch (err) { showToast('حدث خطأ', 'error'); }
+};
         
-        latestRadarReports.push(data[0]); 
-        renderRadarCards();
-        
-    } catch (err) { 
-        showToast('حدث خطأ'); 
-    }
-}; 
-
 window.redirectToDoctorsSearch = () => {
     closeModal(); closeCtrlPanel();
     const doctorsSection = document.getElementById('doctors');
