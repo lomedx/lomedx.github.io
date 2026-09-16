@@ -5037,7 +5037,7 @@ window.openRahebaRadar = async () => {
             </div>
             <div id="radarCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
             <div class="text-center mt-4 p-6 bg-white rounded-2xl shadow-sm border" style="border-color: var(--border)">
-                <p class="text-sm text-gray-600 mb-4">إذا كنت تعاني من أحد هذه الأعراض في ${currentRadarCity}، ساعد مجتمعك بتسجيل حالتك لمتابعة انتشار الأمراض.</p>
+            <p class="text-sm text-gray-600 mb-4">إذا كنت تعاني من أحد هذه الأعراض في <span id="radarCurrentCityName" style="font-weight: bold; color: var(--accent);">${currentRadarCity}</span>، ساعد مجتمعك بتسجيل حالتك لمتابعة انتشار الأمراض.</p>
                 <button onclick="openRadarRegisterModal()" class="pulse-register bg-red-500 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-red-600 transition-all w-full sm:w-auto">➕ سَجّل حالتك الصحية الآن</button>
             </div>
         </div>
@@ -5061,7 +5061,19 @@ window.switchRadarTab = (season) => {
 }
 window.changeRadarCity = (city) => {
     currentRadarCity = city;
-    fetchRadarReports(); // إعادة جلب البيانات للمدينة الجديدة
+    
+    // 1. تحديث اسم المدينة في النص فوراً
+    const cityNameEl = document.getElementById('radarCurrentCityName');
+    if (cityNameEl) cityNameEl.innerText = city;
+
+    // 2. تحديث النص الموجود في زر "تسجيل الحالة"
+    const registerTextEl = document.querySelector('#ctrlContent p.text-sm.text-gray-600.mb-4');
+    if (registerTextEl) {
+        registerTextEl.innerHTML = `إذا كنت تعاني من أحد هذه الأعراض في <span id="radarCurrentCityName" style="font-weight: bold; color: var(--accent);">${city}</span>، ساعد مجتمعك بتسجيل حالتك لمتابعة انتشار الأمراض.`;
+    }
+
+    // 3. جلب البيانات للمدينة الجديدة
+    fetchRadarReports();
 }
 function renderRadarCards() {
     const container = document.getElementById('radarCardsContainer'); if (!container) return;
