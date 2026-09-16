@@ -1,1725 +1,225 @@
-:root {
-    --bg: #FAF8F4; --bg-deep: #F0EDE6; --fg: #1B2A1B; --fg-light: #3D4F3D;
-    --muted: #7A8B7A; --accent: #0E7C5F; --accent-dark: #095E47; --accent-light: #D6F0E5;
-    --gold: #C4962C; --gold-light: #F5ECD0; --card: #FFFFFF; --border: #DDE3DD; --danger: #DC2626;
-    --clinic: #0E7C5F; --doctor: #2563EB; --pharmacy: #C4962C; --center: #9333EA; --lab: #DC2626; --hospital: #0D9488;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'IBM Plex Sans Arabic', sans-serif; background: var(--bg); color: var(--fg); overflow-x: hidden; transition: background-color 0.3s ease, color 0.3s ease; -webkit-font-smoothing: antialiased; }
-h1, h2, h3, h4, h5 { font-family: 'Noto Kufi Arabic', sans-serif; }
-
-.hero-bg { 
-    position: relative; 
-    overflow: hidden; 
-    background-color: #031410; 
-    z-index: 1;
-}
-
-/* === Hero Medical Logo Styles === */
-.hero-medical-logo {
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 2rem;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.hero-medical-logo img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    border-radius: 50%;
-    box-shadow: 
-        0 0 0 4px rgba(255, 255, 255, 0.1),
-        0 0 0 8px rgba(14, 124, 95, 0.3),
-        0 10px 40px rgba(0, 0, 0, 0.5),
-        0 0 60px rgba(196, 150, 44, 0.4);
-    animation: logoGlow 3s ease-in-out infinite, logoFloat 4s ease-in-out infinite;
-    transition: transform 0.4s ease;
-}
-
-.hero-medical-logo img:hover {
-    transform: scale(1.08) rotate(2deg);
-}
-
-/* توهج ذهبي متحرك حول الشعار */
-.hero-medical-logo::before {
-    content: '';
-    position: absolute;
-    inset: -15px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(196, 150, 44, 0.25) 0%, transparent 70%);
-    z-index: -1;
-    animation: logoGlow 3s ease-in-out infinite;
-}
-
-/* حلقة نابضة حول الشعار */
-.hero-medical-logo::after {
-    content: '';
-    position: absolute;
-    inset: -8px;
-    border-radius: 50%;
-    border: 2px solid rgba(196, 150, 44, 0.4);
-    animation: pulseRing 2.5s ease-in-out infinite;
-}
-
-@keyframes logoGlow {
-    0%, 100% { 
-        opacity: 0.6;
-        box-shadow: 
-            0 0 0 4px rgba(255, 255, 255, 0.1),
-            0 0 0 8px rgba(14, 124, 95, 0.3),
-            0 10px 40px rgba(0, 0, 0, 0.5),
-            0 0 60px rgba(196, 150, 44, 0.4);
-    }
-    50% { 
-        opacity: 1;
-        box-shadow: 
-            0 0 0 6px rgba(255, 255, 255, 0.15),
-            0 0 0 12px rgba(14, 124, 95, 0.4),
-            0 10px 50px rgba(0, 0, 0, 0.6),
-            0 0 80px rgba(196, 150, 44, 0.6);
-    }
-}
-
-@keyframes logoFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-@keyframes pulseRing {
-    0% { 
-        transform: scale(1);
-        opacity: 0.8;
-        border-color: rgba(196, 150, 44, 0.6);
-    }
-    100% { 
-        transform: scale(1.4);
-        opacity: 0;
-        border-color: rgba(196, 150, 44, 0);
-    }
-}
-
-/* إخفاء الشعار على الشاشات الصغيرة جداً */
-@media (max-width: 400px) {
-    .hero-medical-logo {
-        width: 90px;
-        height: 90px;
-    }
-}
-/* طبقة التوهج الزمردي الساطع في الأعلى */
-.hero-bg::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0; left: 0;
-    background: radial-gradient(circle at 50% -10%, rgba(16, 185, 129, 0.7) 0%, transparent 60%);
-    z-index: -1;
-    animation: pulse-glow 6s ease-in-out infinite; /* حركة نبض الإضاءة */
-}
-
-/* الشبكة الطبية المتوهجة ثلاثية الأبعاد */
-.hero-bg::after {
-    content: '';
-    position: absolute;
-    width: 200%;
-    height: 100%;
-    bottom: -50%;
-    left: -50%;
-    background-image: 
-        linear-gradient(rgba(20, 184, 166, 0.6) 1px, transparent 1px), /* خطوط زرقاء مخضرّة ساطعة */
-        linear-gradient(90deg, rgba(20, 184, 166, 0.6) 1px, transparent 1px);
-    background-size: 50px 50px;
-    transform: perspective(500px) rotateX(60deg); /* الميلان ثلاثي الأبعاد */
-    transform-origin: center top;
-    animation: grid-move 8s linear infinite; /* حركة الانزلاق للأمام */
-    mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 80%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 80%, transparent 100%);
-    z-index: -1;
-    pointer-events: none;
-}
-
-/* حركة الشبكة ثلاثية الأبعاد */
-@keyframes grid-move {
-    0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-    100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
-}
-
-/* حركة نبض التوهج العلوي */
-@keyframes pulse-glow {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; } 
-}
-.search-container { 
-    backdrop-filter: blur(16px); 
-    background: rgba(255,255,255,0.08); 
-    border: 1px solid rgba(255,255,255,0.15); 
-    transition: all 0.4s ease; 
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-} 
-.search-container:focus-within { 
-    background: rgba(255,255,255,0.15); 
-    border-color: rgba(196,150,44,0.6); 
-    box-shadow: 0 0 40px rgba(196,150,44,0.2); 
-}
-.search-input { background: transparent; color: white; outline: none; font-family: 'IBM Plex Sans Arabic', sans-serif; }
-.search-input::placeholder { color: rgba(255,255,255,0.5); }
-
-        .filter-btn { 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            position: relative; 
-            border: 1px solid var(--border); 
-            background: #FFFFFF; 
-            cursor: pointer;
-        }
-        .filter-btn:hover { 
-            transform: translateY(-4px); 
-            box-shadow: 0 12px 20px -5px rgba(0,0,0,0.12); 
-            border-color: transparent !important; 
-        } 
-        .filter-btn.active { 
-            transform: translateY(-4px); 
-            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.2); 
-            border-color: transparent !important; 
-        } 
-        .filter-btn.active i, .filter-btn.active span { 
-            color: white !important; 
-        }
-        
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; transition: box-shadow 0.3s ease, border-color 0.3s ease; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .card::before { content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 0; transition: height 0.3s ease; border-radius: 0 0 4px 0; z-index: 2; }
-        .card:hover::before { height: 100%; }
-        .card:hover { box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); border-color: transparent; }
-        .card.clinic-card::before { background: var(--clinic); } .card.doctor-card::before { background: var(--doctor); }
-        .card.pharmacy-card::before { background: var(--pharmacy); } .card.center-card::before { background: var(--center); } 
-        .card.lab-card::before { background: var(--lab); } .card.hospital-card::before { background: var(--hospital); }
-
-        .badge { font-size: 0.7rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
-        .badge-clinic { background: var(--accent-light); color: var(--accent-dark); } .badge-doctor { background: #DBEAFE; color: #1E40AF; }
-        .badge-pharmacy { background: var(--gold-light); color: #92610A; } .badge-center { background: #F3E8FF; color: #6B21A8; } 
-        .badge-lab { background: #FEE2E2; color: #991B1B; } .badge-hospital { background: #CCFBF1; color: #115E59; }
-        
-        .cat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
-        .cat-icon-clinic { background: var(--accent-light); color: var(--accent); } .cat-icon-doctor { background: #DBEAFE; color: #2563EB; }
-        .cat-icon-pharmacy { background: var(--gold-light); color: var(--gold); } .cat-icon-center { background: #F3E8FF; color: #9333EA; } 
-        .cat-icon-lab { background: #FEE2E2; color: #DC2626; } .cat-icon-hospital { background: #CCFBF1; color: var(--hospital); }
-        
-        .call-btn { transition: all 0.3s ease; position: relative; overflow: hidden; }
-        .call-btn::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: rgba(255,255,255,0.2); border-radius: 50%; transition: all 0.5s ease; transform: translate(-50%, -50%); }
-        .call-btn:hover::before { width: 200%; height: 200%; } .call-btn:hover { transform: scale(1.05); }
-
-.stat-card { 
-    background: rgba(255,255,255,0.08); 
-    backdrop-filter: blur(5px); 
-    border: 1px solid rgba(255,255,255,0.12); 
-    border-radius: 16px; 
-    transition: all 0.3s ease; 
-} 
-.stat-card:hover { 
-    background: rgba(255,255,255,0.14); 
-    transform: translateY(-5px); 
-    box-shadow: 0 0 20px rgba(14, 124, 95, 0.3); /* توهج زمردي */
-}
-        .ornament-line { display: flex; align-items: center; gap: 12px; justify-content: center; }
-        .ornament-line::before, .ornament-line::after { content: ''; width: 60px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
-        html { scroll-behavior: smooth; }
-        .navbar { backdrop-filter: blur(10px); transition: all 0.4s ease; }
-        .navbar.scrolled { background: rgba(7,61,46,0.95); box-shadow: 0 4px 30px rgba(0,0,0,0.2); }
-        
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--fg); color: white; padding: 14px 28px; border-radius: 12px; font-size: 0.9rem; z-index: 10001; opacity: 0; transition: all 0.4s ease; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 90vw; text-align: center; }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .back-to-top { position: fixed; bottom: 30px; left: 30px; width: 48px; height: 48px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transform: translateY(20px) scale(0.5); transition: all 0.4s ease; box-shadow: 0 4px 20px rgba(14,124,95,0.4); z-index: 1000; border: none; }
-        .back-to-top.visible { opacity: 1; transform: translateY(0) scale(1); }
-        .back-to-top:hover { transform: translateY(-5px) scale(1.1); }
-        .mobile-menu { transform: translateX(100%); transition: transform 0.4s ease; }
-        .mobile-menu.open { transform: translateX(0); }
-        
-        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
-        .detail-row { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--muted); }
-        .detail-row i { width: 16px; text-align: center; font-size: 0.75rem; }
-        
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: var(--card); border-radius: 20px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; opacity: 0; transform: scale(0.9); transition: all 0.3s ease; }
-        .modal-overlay.active .modal-content { opacity: 1; transform: scale(1); }
-        
-        .ctrl-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 9998; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .ctrl-overlay.active { display: flex; }
-        .ctrl-content { background: var(--bg); border-radius: 24px; max-width: 900px; width: 100%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); opacity: 0; transform: scale(0.9); transition: all 0.3s ease; }
-        .ctrl-overlay.active .ctrl-content { opacity: 1; transform: scale(1); }
-        .ctrl-input { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: var(--fg); font-family: 'IBM Plex Sans Arabic'; outline: none; transition: all 0.3s; }
-        .ctrl-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
-        .dot-pattern { background-image: radial-gradient(circle, var(--border) 1px, transparent 1px); background-size: 30px 30px; }
-        .filters-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-        .filters-scroll::-webkit-scrollbar { display: none; }
-
-        .booking-step { display: none; }
-        .booking-step.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .day-btn { transition: all 0.2s; border: 2px solid var(--border); }
-        .day-btn.active { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); }
-        .day-checkbox { accent-color: var(--accent); width: 20px; height: 20px; cursor: pointer; }
-
-        /* === الوضع المظلم المحسن (Dark Mode) === */
-html.dark {
-    --bg: #0f172a; /* خلفية الموقع الرئيسية */
-    --bg-deep: #020617; /* خلفية الأقسام العميقة */
-    --fg: #f8fafc; /* اللون النص الأساسي */
-    --fg-light: #cbd5e1; /* النصوص الثانوية */
-    --muted: #94a3b8; /* النصوص الباهتة */
-    --card: #1e293b; /* خلفية البطاقات والنوافذ */
-    --border: #334155; /* الحدود */
-    --accent-light: #134e4a; /* خلفية الأزرار الثانوية */
-}
-
-/* إجبار ألوان Tailwind على التكيف مع الوضع المظلم */
-html.dark .bg-white { background-color: var(--card) !important; }
-html.dark .bg-gray-50, html.dark .bg-gray-100 { background-color: var(--bg-deep) !important; }
-
-html.dark .text-gray-900, html.dark .text-gray-800 { color: var(--fg) !important; }
-html.dark .text-gray-700 { color: var(--fg-light) !important; }
-html.dark .text-gray-600, html.dark .text-gray-500, html.dark .text-gray-400 { color: var(--muted) !important; }
-
-html.dark .border-gray-100, html.dark .border-gray-200, html.dark .border-gray-300 { border-color: var(--border) !important; }
-
-/* تحسين مظهر حقول الإدخال في الوضع المظلم */
-html.dark .ctrl-input {
-    background-color: var(--bg-deep) !important;
-    color: var(--fg) !important;
-    border-color: var(--border) !important;
-}
-html.dark .ctrl-input::placeholder { color: var(--muted) !important; }
-
-/* تحسين النوافذ المنبثقة واللوحات */
-html.dark .ctrl-content, html.dark .modal-content {
-    background-color: var(--card) !important;
-}
-html.dark .toast {
-    background-color: var(--fg) !important;
-    color: var(--bg) !important;
-}
-
-/* تحسين الأدوات الطبية والبطاقات الداخلية */
-html.dark .accordion-item { background-color: var(--card) !important; border-color: var(--border) !important; }
-html.dark .accordion-body { background-color: var(--bg-deep) !important; }
-html.dark .disease-card, html.dark .med-symbol-card, html.dark .med-donation-card, html.dark .burn-option {
-    background-color: var(--card) !important; border-color: var(--border) !important;
-}
-html.dark .file-input-label { background-color: var(--bg-deep) !important; color: var(--muted) !important; border-color: var(--border) !important; }
-
-/* تحسين النقاط والأنماط الخلفية */
-html.dark .dot-pattern { background-image: radial-gradient(circle, #334155 1px, transparent 1px) !important; }
-html.dark .filter-btn { background: var(--card) !important; border-color: var(--border) !important; color: var(--fg) !important; }
-
-        .lightbox-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10002; display: none; justify-content: center; align-items: center; cursor: zoom-out; padding: 20px; }
-        .lightbox-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
-        .lightbox-overlay img { max-width: 90%; max-height: 90%; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); transform: scale(0.8); transition: transform 0.3s ease; }
-        .lightbox-overlay.active img { transform: scale(1); }
-        
-        .ui-controls { position: fixed; bottom: 90px; left: 30px; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
-        .ui-btn { width: 45px; height: 45px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.3s; }
-        .ui-btn:hover { transform: scale(1.1); }
-        .ui-btn.dark-btn { background: #1e293b; } .ui-btn.lang-btn { background: var(--gold); }
-        
-        .alixjori-dev { margin-top: 15px; text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.4); }
-        /* === تصميم اسم المطور الاحترافي === */
-.alixjori-dev { 
-    margin-top: 20px; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    gap: 6px;
-}
-
-.dev-subtext {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.3);
-    letter-spacing: 0.5px;
-}
-
-.dev-credit-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(196, 150, 44, 0.1);
-    border-radius: 999px; /* شكل حبة الدواء (Pill shape) */
-    backdrop-filter: blur(4px);
-    transition: all 0.3s ease;
-}
-
-.dev-credit-wrapper:hover {
-    background: rgba(196, 150, 44, 0.05);
-    border-color: rgba(196, 150, 44, 0.3);
-    box-shadow: 0 0 20px rgba(196, 150, 44, 0.1);
-}
-
-.dev-label {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.4);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* اسم المطور بتأثير الذهبي المتوهج */
-.dev-name {
-    font-family: 'Outfit', sans-serif;
-    font-weight: 700;
-    font-size: 0.95rem;
-    background: linear-gradient(110deg, var(--gold) 20%, #ffffff 50%, var(--gold) 80%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmerGold 3s linear infinite;
-    letter-spacing: 0.5px;
-}
-
-.dev-icon {
-    color: var(--gold);
-    font-size: 0.75rem;
-    filter: drop-shadow(0 0 4px rgba(196, 150, 44, 0.5));
-}
-
-/* حركة اللمعان الذهبي */
-@keyframes shimmerGold {
-    to {
-        background-position: -200% center;
-    }
-}
-        .input-invalid { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2) !important; }
-
-        .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
-        .file-input-wrapper input[type=file] { position: absolute; top: 0; right: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
-        .file-input-label { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; border: 2px dashed var(--border); border-radius: 12px; cursor: pointer; transition: all 0.3s; background: var(--bg); color: var(--muted); }
-        .file-input-label:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); }
-        .preview-image { max-height: 150px; border-radius: 8px; margin-top: 10px; }
-
-        /* === Tools Styles === */
-        .tools-dropdown { position: relative; }
-        .tools-dropdown-menu { position: absolute; top: 100%; left: 0; margin-top: 10px; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border: 1px solid var(--border); min-width: 280px; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s ease; z-index: 100; overflow: hidden; }
-        .tools-dropdown:hover .tools-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
-        .tools-dropdown-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid var(--border); }
-        .tools-dropdown-item:last-child { border-bottom: none; }
-        .tools-dropdown-item:hover { background: var(--bg-deep); }
-        .tools-dropdown-item i { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; }
-        
-        .med-symbol-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; transition: all 0.3s; cursor: default; }
-        .med-symbol-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
-        .med-symbol-badge { display: inline-block; background: var(--accent-light); color: var(--accent-dark); padding: 4px 10px; border-radius: 6px; font-weight: 800; font-family: monospace; margin-bottom: 8px; }
-
-        /* === Seasonal Diseases & Nutrition Styles === */
-        .disease-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.3s; }
-        .disease-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px -5px rgba(0,0,0,0.1); }
-        .disease-header { padding: 16px; display: flex; align-items: center; gap: 12px; color: white; }
-        .disease-body { padding: 16px; }
-        .disease-section { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
-        .disease-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        
-        /* === Blood Bank Styles === */
-        .blood-type-badge { font-weight: 900; font-size: 1.5rem; padding: 10px 20px; border-radius: 12px; background: #FEE2E2; color: #DC2626; display: inline-block; }
-        .blood-alert-card { background: white; border: 2px solid #FECACA; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 16px; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.05); transition: all 0.3s; }
-        .blood-alert-card:hover { border-color: #DC2626; box-shadow: 0 8px 25px rgba(220, 38, 38, 0.1); }
-        
-        /* === Burn Calculator Styles === */
-        .burn-option { border: 2px solid var(--border); border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.2s; text-align: center; }
-        .burn-option:hover { border-color: var(--accent); background: var(--accent-light); }
-        .burn-option.selected { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); font-weight: bold; }
-
-        /* === Medicine Donation Styles === */
-        .med-donation-card { border: 1px solid var(--border); border-radius: 16px; padding: 16px; background: var(--card); transition: all 0.3s; }
-        .med-donation-card:hover { border-color: #059669; box-shadow: 0 8px 20px rgba(5, 150, 105, 0.08); }
-
-        /* Tip Transition */
-        #dailyTipText { transition: opacity 0.3s ease; }
-
-        /* Accordion */
-        .accordion-item { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
-        .accordion-header { padding: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--card); font-weight: bold; font-size: 0.9rem; }
-        .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: var(--bg); }
-        .accordion-item.active .accordion-body { max-height: 2000px; }
-        .accordion-item.active .accordion-header i { transform: rotate(180deg); }
-                      /* === إخفاء شريط ترجمة جوجل العلوي بالكامل === */
-        body { top: 0 !important; position: static !important; }
-        .skiptranslate { display: none !important; }
-        .goog-te-banner-frame { display: none !important; }
-        .goog-te-gadget-icon { display: none !important; }
-        .goog-logo-link { display: none !important; }
-        .goog-te-gadget span { display: none !important; }
-        .goog-tooltip { display: none !important; }
-        .goog-tooltip:hover { display: none !important; }
-        .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
-        #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
-        #google_translate_element { display: none !important; }
-        .accordion-body-inner { padding: 16px; font-size: 0.85rem; color: var(--fg-light); line-height: 1.6; }
-                /* === كود تحريك نص الإعلان === */
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        #announcementText {
-            white-space: nowrap;
-            display: inline-block;
-            animation: marquee 30s linear infinite; /* سرعة الحركة 30 ثانية */
-            padding-left: 100%;
-        }
-        /* إيقاف الحركة عند مرور الماوس لتسهيل القراءة */
-        #announcementText:hover {
-            animation-play-state: paused;
-        }
-                #announcementText.no-marquee {
-            animation: none;
-            padding-left: 0;
-        }
-                /* === قسم التعليمات قبل التحاليل === */
-        .fasting-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; }
-        .fasting-8 { background: #FEF3C7; color: #92400E; }
-        .fasting-10 { background: #FFEDD5; color: #9A3412; }
-        .fasting-12 { background: #FEE2E2; color: #991B1B; }
-        .fasting-none { background: #D1FAE5; color: #065F46; }
-        .fasting-special { background: #EDE9FE; color: #5B21B6; }
-        .prelab-accordion { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-        .prelab-accordion.open { max-height: 800px; }
-        .prelab-toggle { cursor: pointer; transition: background 0.2s; }
-        .prelab-toggle:hover { background: var(--bg-deep); }
-        .tab-btn { padding: 8px 16px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border); background: var(--card); color: var(--muted); }
-        .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-        .tab-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
-        .glow-border { position: relative; }
-        .glow-border::before { content: ''; position: absolute; inset: -2px; border-radius: 18px; background: linear-gradient(135deg, var(--accent), var(--gold), var(--accent)); background-size: 200% 200%; animation: glowShift 4s ease infinite; z-index: -1; opacity: 0; transition: opacity 0.3s; }
-        .glow-border:hover::before { opacity: 1; }
-        @keyframes glowShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-
-/* === تنسيقات شاشة التحميل 3D === */
-.splash-3d-scene {
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(circle at 50% 50%, #064D3A 0%, #021410 100%);
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    perspective: 1000px;
-    transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.8s ease, visibility 0.8s ease;
-    overflow: hidden;
-}
-
-/* خلفية النجوم المتطايرة */
-.splash-stars {
-    position: absolute;
-    inset: 0;
-    background-image: 
-        radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.8), transparent),
-        radial-gradient(2px 2px at 40px 70px, rgba(196, 150, 44, 0.6), transparent),
-        radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.9), transparent),
-        radial-gradient(2px 2px at 160px 120px, rgba(14, 124, 95, 0.8), transparent),
-        radial-gradient(1px 1px at 250px 80px, rgba(255,255,255,0.7), transparent);
-    background-size: 300px 300px;
-    background-repeat: repeat;
-    animation: starsMove 8s linear infinite;
-    opacity: 0.6;
-    z-index: 1;
-}
-
-@keyframes starsMove {
-    from { background-position: 0 0; }
-    to { background-position: 300px 300px; }
-}
-
-/* المسرح ثلاثي الأبعاد */
-.splash-3d-stage {
-    position: relative;
-    width: 200px;
-    height: 200px;
-    transform-style: preserve-3d;
-    animation: stageFloat 4s ease-in-out infinite;
-    z-index: 10;
-}
-
-@keyframes stageFloat {
-    0%, 100% { transform: translateY(0) rotateX(10deg) rotateY(0deg); }
-    50% { transform: translateY(-15px) rotateX(15deg) rotateY(10deg); }
-}
-
-/* الحلقات المدارية */
-.orbit-ring {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    transform-style: preserve-3d;
-    box-shadow: 0 0 20px rgba(196, 150, 44, 0.3);
-}
-
-.orbit-1 {
-    width: 180px; height: 180px;
-    margin-left: -90px; margin-top: -90px;
-    border-top-color: #C4962C; border-right-color: #0E7C5F;
-    animation: spin3d 1 4s linear infinite;
-}
-
-.orbit-2 {
-    width: 240px; height: 240px;
-    margin-left: -120px; margin-top: -120px;
-    border-bottom-color: #C4962C; border-left-color: rgba(14, 124, 95, 0.5);
-    transform: rotateX(70deg);
-    animation: spin3d 2 6s linear infinite reverse;
-}
-
-.orbit-3 {
-    width: 300px; height: 300px;
-    margin-left: -150px; margin-top: -150px;
-    border-top-color: rgba(14, 124, 95, 0.3); border-left-color: #C4962C;
-    transform: rotateY(70deg);
-    animation: spin3d 3 8s linear infinite;
-}
-
-@keyframes spin3d {
-    from { transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) rotateZ(0deg); }
-    to { transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) rotateZ(360deg); }
-}
-
-/* الشعار */
-.splash-logo-3d {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 100px; height: 100px;
-    margin-left: -50px; margin-top: -50px;
-    transform-style: preserve-3d;
-    transform: translateZ(50px);
-}
-
-.splash-logo-3d img {
-    width: 100%; height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 0 40px rgba(196, 150, 44, 0.6), 0 15px 35px rgba(0,0,0,0.5);
-    border: 3px solid rgba(255,255,255,0.2);
-}
-
-.splash-logo-glow {
-    position: absolute;
-    inset: -20px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(196, 150, 44, 0.4) 0%, transparent 70%);
-    filter: blur(15px);
-    animation: glowPulse 2s ease-in-out infinite;
-}
-
-@keyframes glowPulse {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.2); }
-}
-
-/* الأيقونات الطبية في المدار */
-.orbit-icon {
-    position: absolute;
-    top: 50%; left: 50%;
-    color: #C4962C;
-    text-shadow: 0 0 10px rgba(196, 150, 44, 0.8);
-    font-size: 1.2rem;
-    transform-style: preserve-3d;
-}
-
-.orbit-icon-1 { animation: orbitMove1 4s linear infinite; }
-.orbit-icon-2 { animation: orbitMove2 6s linear infinite; }
-.orbit-icon-3 { animation: orbitMove3 8s linear infinite; }
-
-@keyframes orbitMove1 {
-    from { transform: rotate(0deg) translateX(90px) rotate(0deg) translateZ(20px); }
-    to { transform: rotate(360deg) translateX(90px) rotate(-360deg) translateZ(20px); }
-}
-@keyframes orbitMove2 {
-    from { transform: rotate(120deg) translateX(120px) rotate(-120deg) translateZ(-20px); }
-    to { transform: rotate(480deg) translateX(120px) rotate(-480deg) translateZ(-20px); }
-}
-@keyframes orbitMove3 {
-    from { transform: rotate(240deg) translateX(150px) rotate(-240deg) translateZ(0); }
-    to { transform: rotate(600deg) translateX(150px) rotate(-600deg) translateZ(0); }
-}
-
-/* النص ثلاثي الأبعاد */
-.splash-text-3d-container {
-    margin-top: 4rem;
-    text-align: center;
-    z-index: 10;
-    transform-style: preserve-3d;
-    animation: textFloat 3s ease-in-out infinite;
-}
-
-@keyframes textFloat {
-    0%, 100% { transform: translateY(0) translateZ(30px); }
-    50% { transform: translateY(-5px) translateZ(50px); }
-}
-
-.splash-text-3d {
-    font-family: 'Noto Kufi Arabic', sans-serif;
-    font-size: 2rem;
-    font-weight: 900;
-    color: #FFFFFF;
-    letter-spacing: 1px;
-    text-shadow: 
-        1px 1px 0 #0E7C5F,
-        2px 2px 0 #0E7C5F,
-        3px 3px 0 #0E7C5F,
-        4px 4px 0 #0E7C5F,
-        5px 5px 10px rgba(0,0,0,0.5),
-        0 0 20px rgba(196, 150, 44, 0.5);
-}
-
-.splash-subtext {
-    color: rgba(255,255,255,0.6);
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-}
-
-/* شريط التحميل الزجاجي */
-.splash-loader-bar {
-    margin-top: 2rem;
-    width: 200px;
-    height: 4px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
-    overflow: hidden;
-    position: relative;
-    z-index: 10;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
-}
-
-.splash-loader-bar::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 40%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, #C4962C, transparent);
-    box-shadow: 0 0 15px #C4962C;
-    animation: loaderSlide 1.5s ease-in-out infinite;
-}
-
-@keyframes loaderSlide {
-    0% { left: -40%; }
-    100% { left: 100%; }
-}
-
-/* تأثير الاختفاء */
-.splash-3d-scene.hidden {
-    opacity: 0;
-    transform: scale(1.1);
-    visibility: hidden;
-} 
-            .tab-btn { transition: all 0.3s; }
-        .tab-btn.active { background: #073D2E; color: white; box-shadow: 0 4px 15px rgba(7,61,46,0.3); }
-        .pulse-register { animation: pulse-btn 2s infinite; }
-        @keyframes pulse-btn { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5); } 70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
-
-/* تنسيقات شارة الزوار */
-.stat-pill-pro {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1); padding: 6px 14px;
-    border-radius: 12px; font-size: 11px; transition: all 0.4s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-.stat-pill-pro:hover {
-    background: rgba(255, 255, 255, 0.15); border-color: rgba(196, 150, 44, 0.5);
-    transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-.radar-dot-pro {
-    width: 7px; height: 7px; background-color: #10B981; border-radius: 50%;
-    position: relative; box-shadow: 0 0 8px #10B981; flex-shrink: 0;
-}
-.radar-dot-pro::before {
-    content: ''; position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%); width: 100%; height: 100%;
-    border-radius: 50%; border: 2px solid #10B981;
-    animation: radar-pulse-pro 2s ease-out infinite;
-}
-@keyframes radar-pulse-pro {
-    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
-    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
-}
-
-/* === شارة التوثيق الاحترافية === */
-.verified-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: linear-gradient(135deg, #0E7C5F 0%, #10B981 100%);
-    color: #FFFFFF;
-    font-size: 0.65rem;
-    font-weight: 800;
-    padding: 3px 8px;
-    border-radius: 10px;
-    vertical-align: middle;
-    margin-left: 6px;
-    box-shadow: 0 2px 6px rgba(14, 124, 95, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    font-family: 'IBM Plex Sans Arabic', sans-serif;
-}
-.verified-badge i {
-    font-size: 0.7rem;
-}
-.verified-gold {
-    background: linear-gradient(135deg, #C4962C 0%, #e6c976 50%, #C4962C 100%);
-    color: #422006;
-    box-shadow: 0 2px 6px rgba(196, 150, 44, 0.3);
-}
-/* زر المدينة */
-.city-pill-btn { border: 1px solid rgba(255,255,255,0.15); }
-
-/* لوحة المدن المنزلقة */
-.city-selector-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 9999;
-    display: flex; align-items: flex-end; justify-content: center;
-    opacity: 0; visibility: hidden; transition: all 0.3s ease;
-}
-.city-selector-overlay.active { opacity: 1; visibility: visible; }
-
-.city-selector-panel {
-    background: var(--bg); width: 100%; max-width: 500px; max-height: 70vh; border-radius: 24px 24px 0 0;
-    padding: 24px; box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
-    transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto;
-}
-.city-selector-overlay.active .city-selector-panel { transform: translateY(0); }
-
-.city-option {
-    display: flex; align-items: center; justify-content: space-between; padding: 16px; border-radius: 14px;
-    cursor: pointer; border: 1px solid var(--border); background: var(--card); margin-bottom: 10px; transition: all 0.2s;
-}
-.city-option:hover { border-color: var(--accent); background: var(--accent-light); transform: translateX(5px); }
-.city-option.selected { background: var(--accent); color: white; border-color: var(--accent); }
-.detail-mini-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-.detail-mini-card:hover { transform: translateY(-2px); box-shadow: 0 8px 15px -5px rgba(0,0,0,0.1); }
-
-/* === تنسيق زر الطوارئ العائم === */
-.emergency-fab {
-    position: fixed;
-    bottom: 90px; /* ليرفع الزر للأعلى قليلاً ليكون فوق زر العودة */
-    left: 30px;
-    width: 52px;
-    height: 52px;
-    background: #DC2626;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.5);
-    z-index: 1000;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    animation: pulse-fab 2s infinite;
-}
-
-.emergency-fab:hover {
-    transform: scale(1.1) rotate(-5deg);
-    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.7);
-}
-
-/* الدائرة المتوهجة حول الزر */
-.fab-ping {
-    position: absolute;
-    top: -2px; left: -2px;
-    width: 56px; height: 56px;
-    background: #DC2626;
-    border-radius: 50%;
-    z-index: -1;
-    opacity: 0.6;
-    animation: ping-animation 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-
-@keyframes ping-animation {
-    75%, 100% {
-        transform: scale(2);
-        opacity: 0;
-    }
-}
-
-@keyframes pulse-fab {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-/* تعديل بسيط لزر العودة للأعلى ليتناسب مع المكان */
-.back-to-top {
-    bottom: 30px !important; 
-    left: 30px !important;
-}
-/* === تصميم اسم العلامة التجارية LomedX === */
-.lomedx-brand {
-    font-family: 'Outfit', 'Poppins', 'Segoe UI', sans-serif; /* خط إنجليزي عصري */
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--gold) 0%, #f8d674 40%, var(--accent) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent; /* لضمان التوافق */
-    letter-spacing: 0.5px;
-    display: inline-block;
-    text-shadow: 0 2px 10px rgba(196, 150, 44, 0.15);
-}
-
-/* نسخة خاصة للشاشات الداكنة لضمان ظهور التدرج */
-html.dark .lomedx-brand {
-    background: linear-gradient(135deg, #f8d674 0%, var(--gold) 50%, #10B981 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-/* تعديل شاشة التحميل لتبدو احترافية بالتدرج */
-.splash-text-3d {
-    font-family: 'Outfit', sans-serif;
-    background: linear-gradient(135deg, #ffffff 0%, var(--gold) 50%, var(--accent) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
-    /* تم إزالة الظلال القديمة لأن التدرج لا يدعم text-shadow مباشرة */
-}
-/* === تحسينات حقول البحث والاستعلام === */
-.search-container, .quick-lookup-box {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-/* تحسين مظهر حقل الإدخال عند التفاعل معه */
-.search-input:focus {
-    outline: none;
-}
-
-/* إضافة لمسة ذهبية خفيفة أسفل حقل البحث عند النقر عليه */
-.search-container:focus-within {
-    border-color: rgba(196,150,44,0.5) !important;
-    box-shadow: 0 0 0 2px rgba(196, 150, 44, 0.1), 0 8px 32px rgba(0, 0, 0, 0.1) !important;
-}
-
-/* الوضع المظلم: إضافة خلفية خفيفة للحقل ليظهر بوضوح */
-html.dark .search-input {
-    color: var(--fg) !important;
-}
-html.dark .search-input::placeholder {
-    color: var(--muted) !important;
-}
-
-/* زر المدينة: إضافة حدود ذهبية خفيفة جداً لتجانسه مع التصميم */
-.city-pill-btn {
-    border: 1px solid rgba(255,255,255,0.15) !important;
-}
-.city-pill-btn:hover {
-    border-color: rgba(196,150,44,0.5) !important;
-}
-/* === تعديل حاوية زر الطوارئ === */
-.emergency-fab-wrapper {
-    position: fixed;
-    bottom: 90px;
-    left: 30px;
-    z-index: 1000;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-/* حالة الإخفاء (عند الضغط على X) */
-.emergency-fab-wrapper.hidden-fab {
-    opacity: 0;
-    visibility: hidden;
-}
-
-/* تنسيق زر X */
-.emergency-fab-close {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    width: 24px;
-    height: 24px;
-    background: white;
-    border: 2px solid #DC2626;
-    color: #DC2626;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    transition: all 0.2s ease;
-    z-index: 1001; /* ليكون فوق زر الطوارئ */
-}
-
-.emergency-fab-close:hover {
-    background: #DC2626;
-    color: white;
-    transform: scale(1.1);
-}
-/* ===
-/* === تنسيقات قائمة الجوال المطورة حسب التصميم === */
-
-/* الأزرار الشبكية (الاختصارات والبوابات) */
-.mobile-grid-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 14px 8px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.05);
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-.mobile-grid-btn:hover {
-    background: rgba(255,255,255,0.08);
-    border-color: rgba(196, 150, 44, 0.2);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
-.mobile-grid-btn i { font-size: 18px; }
-.mobile-grid-btn span { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.8); }
-
-/* عناوين الأقسام داخل القائمة */
-.section-title {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--gold);
-    padding: 0 16px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.section-title i {
-    font-size: 11px;
-}
-
-/* صندوق تعرف على المنصة */
-.platform-info-box {
-    background: rgba(255,255,255,0.03);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(196, 150, 44, 0.15);
-    position: relative;
-    overflow: hidden;
-}
-.platform-info-box::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 3px;
-    height: 100%;
-    background: linear-gradient(to bottom, var(--gold), transparent);
-}
-
-/* تحسين الخلفية الزخرفية للقائمة */
-.mobile-menu-bg-pattern {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100%;
-    height: 250px;
-    background: radial-gradient(circle at top right, rgba(14, 124, 95, 0.4) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-}
-/* === تنسيقات قائمة الجوال الفاخرة (Premium UI) === */
-.mobile-menu-premium {
-    background: radial-gradient(circle at top center, #0a4d3a 0%, #052E22 40%, #021410 100%);
-    box-shadow: -10px 0 40px rgba(0,0,0,0.5);
-    transform: translateX(100%);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.mobile-menu-premium.open { transform: translateX(0); }
-.mobile-menu-premium::-webkit-scrollbar { width: 5px; }
-.mobile-menu-premium::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
-.mobile-menu-premium::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
-
-.text-gold-gradient {
-    background: linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #92610A 100%);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 2px 4px rgba(196, 150, 44, 0.3));
-}
-.icon-gold-gradient {
-    background: linear-gradient(135deg, #F0D77B 0%, #C4962C 100%);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-.lomedx-brand {
-    font-family: 'Outfit', sans-serif; font-weight: 800;
-    background: linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #0E7C5F 100%);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-.premium-card {
-    background: linear-gradient(180deg, rgba(14, 124, 95, 0.15) 0%, rgba(2, 20, 16, 0.4) 100%);
-    border: 1px solid rgba(196, 150, 44, 0.3);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(196, 150, 44, 0.1);
-}
-.menu-item-premium {
-    border-bottom: 1px solid rgba(196, 150, 44, 0.1);
-    transition: all 0.3s ease;
-}
-.menu-item-premium:last-child { border-bottom: none; }
-.menu-item-premium:hover {
-    background: linear-gradient(90deg, rgba(196, 150, 44, 0.1) 0%, transparent 100%);
-    padding-right: 10px !important;
-}
-.btn-dark-gold {
-    background: linear-gradient(135deg, #92610A 0%, #C4962C 50%, #92610A 100%);
-    box-shadow: 0 10px 25px rgba(196, 150, 44, 0.3), inset 0 1px 0 rgba(255,255,255,0.3);
-    border: 1px solid #F0D77B;
-}
-.portal-grid-btn {
-    background: linear-gradient(180deg, rgba(196, 150, 44, 0.05) 0%, rgba(196, 150, 44, 0.15) 100%);
-    border: 1px solid rgba(196, 150, 44, 0.5);
-    transition: all 0.3s ease;
-    box-shadow: inset 0 1px 0 rgba(240, 215, 123, 0.2);
-}
-.portal-grid-btn:hover {
-    background: linear-gradient(180deg, rgba(196, 150, 44, 0.15) 0%, rgba(196, 150, 44, 0.3) 100%);
-    border-color: #F0D77B;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(196, 150, 44, 0.2), inset 0 1px 0 rgba(240, 215, 123, 0.4);
-}
-.accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out; }
-.accordion-active .accordion-content { max-height: 1000px; } /* تم زيادة الحد ليتسع لكل الأدوات */
-.accordion-active .chevron-icon { transform: rotate(180deg); color: #F0D77B; }
-.chevron-icon { transition: all 0.3s ease; }
-.glow-gold { text-shadow: 0 0 10px rgba(240, 215, 123, 0.5); }
-
-.goog-te-balloon { display: none !important; }
-.goog-tooltip { display: none !important; }
-.goog-tooltip:hover { display: none !important; }
-
-.mini-spinner {
-    width: 24px;
-    height: 24px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: var(--accent);
-    animation: spin 1s linear infinite;
-    margin: 0 auto;
-}
-.spinner-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 40px 0;
-    color: var(--muted);
-    font-size: 0.85rem;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* === تنسيقات البحث الذكي المعزول === */
-#smartSearchDropdown {
-    background-color: #ffffff;
-    border: 1px solid #DDE3DD;
-    border-radius: 16px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-    overflow: hidden;
-    max-height: 350px;
-    overflow-y: auto;
-}
-
-/* دعم الوضع المظلم */
-html.dark #smartSearchDropdown {
-    background-color: #1e293b;
-    border-color: #334155;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
-}
-
-/* عناصر القائمة */
-.smart-result-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    cursor: pointer;
-    border-bottom: 1px solid #DDE3DD;
-    transition: background 0.2s;
-}
-.smart-result-item:last-child { border-bottom: none; }
-.smart-result-item:hover { background-color: #F0EDE6; }
-html.dark .smart-result-item:hover { background-color: #334155; }
-
-.smart-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 1rem;
-}
-
-.smart-text { flex: 1; min-width: 0; }
-.smart-name { font-weight: 700; font-size: 0.875rem; color: #1B2A1B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-html.dark .smart-name { color: #f8fafc; }
-.smart-desc { font-size: 0.75rem; color: #7A8B7A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-html.dark .smart-desc { color: #94a3b8; }
-
-.smart-arrow { font-size: 0.75rem; color: #DDE3DD; }
-html.dark .smart-arrow { color: #334155; }
-
-.smart-empty { padding: 24px; text-align: center; font-size: 0.875rem; color: #7A8B7A; }
-html.dark .smart-empty { color: #94a3b8; }
-
-
-/* بطاقة الازدحام للمريض */
-.live-queue-widget {
-    background: linear-gradient(135deg, rgba(14, 124, 95, 0.1), rgba(2, 20, 16, 0.4));
-    border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 16px;
-    padding: 15px; margin-top: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;
-}
-.lq-status { display: flex; align-items: center; gap: 10px; }
-.lq-dot { width: 10px; height: 10px; border-radius: 50%; animation: lq-pulse 1.5s infinite; }
-@keyframes lq-pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-.lq-text { font-size: 12px; color: #b2c7c2; }
-.lq-numbers { text-align: left; }
-.lq-count { font-size: 20px; font-weight: 900; color: #fff; }
-.lq-time { font-size: 11px; color: #C4962C; font-weight: 700; }
-
-/* === بطاقة الازدحام الاحترافية === */
-.queue-tracker-card {
-    background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px; 
-    padding: 20px; 
-    margin-top: 20px; 
-    margin-bottom: 20px;
-    display: flex; 
-    flex-direction: column; 
-    gap: 15px;
-}
-.qt-header { display: flex; align-items: center; gap: 15px; }
-.qt-icon { 
-    width: 48px; height: 48px; border-radius: 14px; 
-    display: flex; align-items: center; justify-content: center; font-size: 20px; 
-    border: 1px solid rgba(255,255,255,0.1);
-}
-.qt-info { display: flex; flex-direction: column; }
-.qt-title { font-size: 14px; font-weight: 800; color: #fff; }
-.qt-status { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; margin-top: 4px; }
-.qt-pulse-dot { 
-    width: 8px; height: 8px; border-radius: 50%; 
-    animation: lq-pulse 1.5s infinite; 
-    box-shadow: 0 0 10px currentColor;
-}
-.qt-stats { 
-    display: flex; align-items: center; justify-content: space-between; 
-    background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; 
-    border: 1px solid rgba(255,255,255,0.05);
-}
-.qt-stat-box { text-align: center; flex: 1; }
-.qt-num { 
-    display: block; font-size: 26px; font-weight: 900; color: #fff; 
-    font-family: 'Outfit', sans-serif; 
-}
-.qt-label { font-size: 11px; color: #8ea8a1; margin-top: 4px; display: block; font-weight: 600; }
-.qt-divider { width: 1px; height: 35px; background: rgba(255,255,255,0.1); }
-
-/* الوضع المظلم الداعم */
-html.dark .queue-tracker-card { background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2)); }
-html.dark .qt-stats { background: rgba(0,0,0,0.3); }
-
-
-/* ==========================================
-   تفعيل تسريع كرت الشاشة (GPU) لتقليل الحرارة مع بقاء الحركات
-========================================== */
-.hero-bg::after,
-.hero-bg::before,
-.hero-medical-logo img,
-.hero-medical-logo::before,
-.hero-medical-logo::after,
-.animate-ping,
-.pulse-register {
-    /* إجبار المتصفح على استخدام كرت الشاشة لرسم هذه العناصر */
-    will-change: transform, box-shadow, opacity;
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-}
-
-/* تحسين أداء التمرير ورسم البطاقات لتقليل حرارة كرت الشاشة */
-.card, .premium-card, .spa-legendary-card, .accordion-item {
-    content-visibility: auto;
-    contain-intrinsic-size: 200px; /* المتصفح سيحجز مسحة افتراضية حتى لا تقفز الصفحة */
-}
-/* احترام إعداد "توفير البطارية" في الهاتف لإيقاف الحركات تلقائياً */
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* إيقاف الأنيميشن عندما يكون القسم خارج الشاشة */
-.hero-bg.paused-anim *,
-.hero-bg.paused-anim *::before,
-.hero-bg.paused-anim *::after {
-    animation-play-state: paused !important;
-}
-/* إيقاف الحركات في الخلفية عند فتح النوافذ مع استثناء قائمة الجوال وزر الملف الصحي */
-body.stop-animations *:not(.mobile-menu-premium):not(.mobile-menu-premium *):not(.btn-health-glow):not(.btn-health-glow *),
-body.stop-animations *::before,
-body.stop-animations *::after {
-    animation-play-state: paused !important;
-}
-
-/* إعادة تفعيل الحركات الخاصة بالطبقات الوهمية للزر (::before و ::after) */
-body.stop-animations .btn-health-glow::before,
-body.stop-animations .btn-health-glow::after,
-body.stop-animations .btn-health-glow span::before {
-    animation-play-state: running !important;
-}
-
-
-
-/* =========================================================
-   التدرج المتحرك المتوهج مع اللمعان الزجاجي (Glassy Glow Border)
-   ========================================================= */
-
-/* =========================================================
-   التدرج المتحرك المتوهج مع اللمعان الزجاجي (مصحح بالكامل)
-   ========================================================= */
-
-/* =========================================================
-   الزر المتوهج مع حركة اللمعان الزجاجي (يمين إلى يسار)
-   ========================================================= */
-/* =========================================================
-   الزر المتوهج باستمرار مع اللمعان الزجاجي (يمين إلى يسار)
-   ========================================================= */
-
-/* =========================================================
-   الزر المتوهج باستمرار مع اللمعان الزجاجي الظاهر
-   ========================================================= */
-/* تأثير الضغط على الأزرار والبطاقات في الجوال */
-@media (max-width: 768px) {
-    .btn, .call-btn, .filter-btn, .portal-grid-btn, .mobile-grid-btn {
-        transition: transform 0.1s ease-out, box-shadow 0.2s ease; /* حركة أسرع لللمس */
-    }
-    
-    /* عندما يضغط الإصبع على الزر */
-    .btn:active, .call-btn:active, .filter-btn:active, .card:active {
-        transform: scale(0.96) !important; /* يصغر قليلاً لي给人的 إحساس بالضغط */
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important; /* يخف الظل */
-    }
-}
-/* حماية الأزرار العائمة من الضغط خلف شريط الهاتف السفلي */
-@media (max-width: 768px) {
-    .back-to-top, .emergency-fab-wrapper, .ui-controls {
-        bottom: calc(30px + env(safe-area-inset-bottom)) !important; /* يرفع الأزرار فوق الشريط السفلي للهاتف */
-    }
-
-    
-/* ضمان حجم لمس مريح للإبهام في الجوال */
-@media (max-width: 768px) {
-    .accordion-header, .day-btn, .tools-dropdown-item {
-        min-height: 44px; /* مساحة لمس كافية لا تسبب الضغط الخاطئ */
-    }
-
-    /* تكبير أيقونات الإغلاق والإعجاب قليلاً لتسهيل لمسها */
-    .modal-content > div > button:first-child {
-        width: 36px;
-        height: 36px;
-    }
-}
-
-    
-    
-/* تفعيل التمرير الطبيعي للتطبيقات في العناصر المنبثقة */
-.ctrl-content, .mobile-menu-premium, .city-selector-panel {
-    -webkit-overflow-scrolling: touch; /* تمرير سلس باللمس (مهم جداً للآيفون) */
-    scroll-behavior: smooth;
-}
-
-/* تغيير لون تحديد النص ليتناسب مع هوية المنصة */
-::selection {
-    background: rgba(14, 124, 95, 0.2); /* أخضر زمردي شفاف */
-    color: #0E7C5F;
-    text-shadow: none;
-}
-::-moz-selection {
-    background: rgba(14, 124, 95, 0.2);
-    color: #0E7C5F;
-}
-/* إزالة الحدود الافتراضية وإضافة حلقة تركيز أنيقة */
-input:focus, select:focus, textarea:focus, .ctrl-input:focus {
-    outline: none !important;
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 0 4px rgba(14, 124, 95, 0.1) !important;
-    transition: box-shadow 0.2s ease;
-}
-/* تأثير التحميل الوهمي (Skeleton Loading) */
-.skeleton-loader {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 8px;
-    height: 20px;
-    width: 100%;
-}
-@keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-/* =========================================================
-   الزر المتوهج باستمرار مع الشريط الزجاجي المائل (RTL)
-   ========================================================= */
-/* =========================================================
-   زر الملف الصحي المتوهج (خلفية ذهبية + لمعة زجاجية RTL)
-   ========================================================= */
-
-/* لون الخلفية الذهبي الداكن الأصلي للزر */
-/* =========================================================
-   الزر المتوهج باستمرار مع اللمعان الزجاجي (يمين إلى يسار)
-   ========================================================= */
-
-        /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية زاوية التدرج */
-
-
-/* حركة المسح من اليمين إلى اليسار (RTL) معالجة عبر Transform */
-/* =========================================================
-   زر الملف الصحي المتوهج مع اللمعة الزجاجية (RTL) - مصحح
-   ========================================================= */
-
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-@property --border-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-}
-
-.btn-health-glow {
-    position: relative !important;
-    border: none !important;
-    z-index: 1 !important;
-    isolation: isolate;
-    overflow: hidden !important;
-    
-    animation: btnMedicalPulse 3s ease-in-out infinite !important;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-}
-
-/* طبقة الحدود المتوهجة الدوارة (تعمل على جميع الهواتف) */
-.btn-health-glow::before {
-    content: '' !important;
-    position: absolute !important;
-    width: 200% !important;
-    height: 200% !important;
-    top: -50% !important;
-    left: -50% !important;
-    border-radius: 50% !important; /* جعله دائرة كبيرة */
-    background: conic-gradient(
-        from 0deg,
-        #F0D77B,
-        #10B981,  
-        #C4962C,  
-        #FFFFFF,  
-        #F0D77B   
-    ) !important;
-    z-index: -2 !important;
-    filter: drop-shadow(0 0 8px rgba(240, 215, 123, 0.8)) !important;
-    animation: rotateGlowBorder 4s linear infinite !important;
-}
-
-/* حركة الدوران للحدود */
-@keyframes rotateGlowBorder {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-/* 2. طبقة الحقل الذهبي + اللمعة الزجاجية الواقعية الاحترافية */
-.btn-health-glow::after {
-    content: '' !important;
-    position: absolute !important;
-    inset: 2px !important; 
-    border-radius: calc(1rem - 2px) !important;
-    z-index: -1 !important;
-
-    /* تدرج زجاجي أوسع وأكثر نعومة ليبدو كانعكاس ضوئي حقيقي */
-    background-image: 
-        linear-gradient(
-            115deg,
-            transparent 30%,
-            rgba(255, 255, 255, 0.05) 40%,
-            rgba(255, 255, 255, 0.35) 47%,
-            rgba(255, 255, 255, 0.9) 50%, /* قمة اللمعان */
-            rgba(255, 255, 255, 0.35) 53%,
-            rgba(255, 255, 255, 0.05) 60%,
-            transparent 70%
-        ),
-        linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #92610A 100%);
-    
-    /* زيادة حجم الشريط الزجاجي ليغطي مساحة أكبر أثناء الحركة */
-    background-size: 300% 100%, 100% 100%;
-    background-repeat: no-repeat, no-repeat;
-    background-position: 200% 0, 0 0; 
-    
-    /* تسريع الأداء عبر كرت الشاشة */
-    will-change: background-position;
-    
-    /* حركة أنيقة: تمرير سلس يتوقف قليلاً قبل التكرار لإضفاء الواقعية */
-    animation: shineMoveRTL 6.5s cubic-bezier(0.65, 0.05, 0.36, 1) infinite !important;
-}
-
-/* حركة واقعية محسنة: تمر سريعة وتتوقف في المنتصف قليلاً ثم تعود */
-@keyframes shineMoveRTL {
-    0% {
-        background-position: 200% 0, 0 0;   /* تبدأ خارج اليمين تماماً */
-    }
-    60% {
-        background-position: -100% 0, 0 0;  /* تنتهي خارج اليسار تماماً */
-    }
-    100% {
-        background-position: -100% 0, 0 0;  /* تبقى متوقفة حتى نهاية الدورة */
-    }
-}
-
-/* 3. النص الداخلي */
-.btn-health-glow span {
-    position: relative !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    z-index: 1 !important;
-    color: #FFFFFF !important; 
-    font-weight: 700 !important; 
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
-}
-
-
-
-/* نبض التوهج */
-@keyframes btnMedicalPulse {
-    0%, 100% {
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 15px rgba(196, 150, 44, 0.6), 0 0 10px rgba(16, 185, 129, 0.4);
-    }
-    50% {
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 30px rgba(196, 150, 44, 1), 0 0 20px rgba(16, 185, 129, 0.8);
-    }
-}
-/* === تحسينات نافذة الحجز الاحترافية (الوضع النهاري والليلي) === */
-
-/* 1. تحسين حقول الإدخال (الاسم، الهاتف، الملاحظات) */
-.ctrl-input {
-    background-color: var(--bg-deep) !important; /* خلفية رمادية خفيفة لإبراز الحقل */
-    border: 1.5px solid var(--border) !important;
-    color: var(--fg) !important;
-    padding: 14px 16px !important;
-    border-radius: 14px !important;
-    font-size: 0.95rem !important;
-    transition: all 0.3s ease !important;
-}
-
-.ctrl-input:focus {
-    background-color: var(--card) !important; /* خلفية بيضاء عند الكتابة */
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 0 4px rgba(14, 124, 95, 0.1) !important;
-}
-
-.ctrl-input::placeholder {
-    color: var(--muted) !important;
-    font-weight: 400 !important;
-}
-
-/* 2. تحسين أزرار اختيار اليوم (Day Buttons) */
-.day-btn {
-    background: var(--card) !important;
-    border: 2px solid var(--border) !important;
-    color: var(--fg) !important;
-    border-radius: 16px !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.day-btn:hover {
-    border-color: var(--accent) !important;
-    transform: translateY(-3px) !important;
-    box-shadow: 0 6px 12px -4px rgba(14, 124, 95, 0.15) !important;
-}
-
-.day-btn.active {
-    background: var(--accent) !important;
-    color: #ffffff !important;
-    border-color: var(--accent) !important;
-    box-shadow: 0 10px 20px -5px rgba(14, 124, 95, 0.4) !important;
-    transform: translateY(-3px) !important;
-}
-
-.day-btn.active span {
-    color: #ffffff !important;
-}
-
-/* 3. تحسين أزرار الأوقات (Slots) */
-#slotsContainer button {
-    background: var(--bg-deep) !important;
-    color: var(--accent) !important;
-    border: 1px solid transparent !important;
-    border-radius: 10px !important;
-    font-weight: 700 !important;
-    transition: all 0.2s ease !important;
-}
-
-#slotsContainer button:hover {
-    background: var(--accent-light) !important;
-    transform: scale(1.05) !important;
-}
-
-#slotsContainer button[style*="bg-blue-600"], 
-#slotsContainer button[style*="background-color: var(--accent)"] {
-    background: var(--accent) !important;
-    color: white !important;
-    box-shadow: 0 4px 12px rgba(14, 124, 95, 0.3) !important;
-}
-
-#slotsContainer button:disabled {
-    background: var(--bg-deep) !important;
-    color: var(--muted) !important;
-    opacity: 0.5 !important;
-    cursor: not-allowed !important;
-    text-decoration: line-through !important;
-}
-
-/* 4. تحسين زر "التالي" و "تأكيد" */
-#step1Next, .btn-confirm-booking {
-    background: var(--accent) !important;
-    color: white !important;
-    border-radius: 14px !important;
-    font-weight: 800 !important;
-    padding: 14px !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 8px 20px -5px rgba(14, 124, 95, 0.4) !important;
-}
-
-#step1Next:disabled {
-    background: var(--muted) !important;
-    box-shadow: none !important;
-    cursor: not-allowed !important;
-    opacity: 0.5 !important;
-}
-
-#step1Next:not(:disabled):hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 12px 25px -5px rgba(14, 124, 95, 0.5) !important;
-}
-
-/* === تحسينات الوضع المظلم (Dark Mode) === */
-html.dark .ctrl-input {
-    background-color: #0f172a !important; /* خلفية داكنة جداً */
-    border-color: #334155 !important;
-    color: #f8fafc !important;
-}
-html.dark .ctrl-input:focus {
-    background-color: #1e293b !important;
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15) !important;
-}
-html.dark .day-btn {
-    background: #1e293b !important;
-    border-color: #334155 !important;
-}
-html.dark .day-btn.active {
-    background: var(--accent) !important;
-    color: white !important;
-    border-color: var(--accent) !important;
-}
-html.dark #slotsContainer button {
-    background: #1e293b !important;
-    color: #10B981 !important;
-}
-html.dark #slotsContainer button:hover {
-    background: #134e4a !important;
-    color: #ffffff !important;
-}
-/* === إصلاح المتغيرات المفقودة في الوضع المظلم لمنع النص الأعمى === */
-html.dark {
-    --accent-dark: #10B981 !important; /* أخضر فاتح ليظهر على الخلفية الداكنة */
-    --gold-light: #422006 !important;   /* بني داكن ليظهر خلفية للنصوص الذهبية */
-    --gold: #F0D77B !important;         /* تفتيح اللون الذهبي في الليل */
-}
-
-/* إجبار النصوص داخل نافذة الحجز على الظهور في الوضع المظلم */
-html.dark .booking-step {
-    color: var(--fg) !important;
-}
-
-/* إجبار حقول الإدخال في الحجز على الظهور بوضوح في كلا الوضعين */
-.ctrl-input {
-    background-color: var(--card) !important;
-    color: var(--fg) !important;
-    border-color: var(--border) !important;
-}
-
-/* إجبار خيارات الأوقات (Slots) على الظهور بوضوح */
-#slotsContainer button {
-    background-color: var(--bg-deep) !important;
-    color: var(--accent) !important;
-}
-
-#slotsContainer button[style*="bg-blue-600"],
-#slotsContainer button[style*="background-color: var(--accent)"] {
-    background-color: var(--accent) !important;
-    color: #ffffff !important;
-}
-
-/* إجبار أزرار الأيام على الظهور بوضوح */
-.day-btn {
-    background-color: var(--card) !important;
-    color: var(--fg) !important;
-    border-color: var(--border) !important;
-}
-
-.day-btn.active {
-    background-color: var(--accent) !important;
-    color: #ffffff !important;
-    border-color: var(--accent) !important;
-}
-/* 1. نص أبيض أساسي مع تباين قوي وخلفية تباين خفيفة */
-.text-white-sharp {
-    color: #FFFFFF !important;
-    font-weight: 600;
-    /* ظل محيطي ناعم يمنع اختفاء النص على الخلفيات الفاتحة */
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7), 
-                 0 2px 6px rgba(0, 0, 0, 0.4);
-    letter-spacing: 0.3px;
-}
-
-/* 2. نص أبيض بارز متوهج (ممتاز للعناوين والأزرار الداكنة) */
-.text-white-glow {
-    color: #FFFFFF !important;
-    font-weight: 700;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6),
-                 0 2px 4px rgba(0, 0, 0, 0.8);
-}
-
-/* 3. حاوية شفافة زجاجية (Glassmorphism) تضمن ظهور النص الأبيض على أي صورة أو خلفية */
-.glass-text-container {
-    background: rgba(15, 23, 42, 0.65); /* خلفية داكنة شفافة */
-    backdrop-filter: blur(8px); /* ضبابية خلفية الزجاج */
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 12px;
-    padding: 12px 20px;
-    color: #FFFFFF !important;
-}
-    
+:root{--bg:#FAF8F4;--bg-deep:#F0EDE6;--fg:#1B2A1B;--fg-light:#3D4F3D;--muted:#7A8B7A;--accent:#0E7C5F;--accent-dark:#095E47;--accent-light:#D6F0E5;--gold:#C4962C;--gold-light:#F5ECD0;--card:#FFFFFF;--border:#DDE3DD;--danger:#DC2626;--clinic:#0E7C5F;--doctor:#2563EB;--pharmacy:#C4962C;--center:#9333EA;--lab:#DC2626;--hospital:#0D9488}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--fg);overflow-x:hidden;transition:background-color .3s ease,color .3s ease;-webkit-font-smoothing:antialiased}h1,h2,h3,h4,h5{font-family:'Noto Kufi Arabic',sans-serif}.hero-bg{position:relative;overflow:hidden;background-color:#031410;z-index:1}.hero-medical-logo{width:120px;height:120px;margin:0 auto 2rem;position:relative;display:flex;align-items:center;justify-content:center}.hero-medical-logo img{width:100%;height:100%;object-fit:contain;border-radius:50%;box-shadow:0 0 0 4px rgba(255,255,255,.1),0 0 0 8px rgba(14,124,95,.3),0 10px 40px rgba(0,0,0,.5),0 0 60px rgba(196,150,44,.4);animation:logoGlow 3s ease-in-out infinite,logoFloat 4s ease-in-out infinite;transition:transform .4s ease}.hero-medical-logo img:hover{transform:scale(1.08) rotate(2deg)}.hero-medical-logo::before{content:'';position:absolute;inset:-15px;border-radius:50%;background:radial-gradient(circle,rgba(196,150,44,.25) 0,transparent 70%);z-index:-1;animation:logoGlow 3s ease-in-out infinite}.hero-medical-logo::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(196,150,44,.4);animation:pulseRing 2.5s ease-in-out infinite}@keyframes logoGlow{0%,100%{opacity:.6;box-shadow:0 0 0 4px rgba(255,255,255,.1),0 0 0 8px rgba(14,124,95,.3),0 10px 40px rgba(0,0,0,.5),0 0 60px rgba(196,150,44,.4)}50%{opacity:1;box-shadow:0 0 0 6px rgba(255,255,255,.15),0 0 0 12px rgba(14,124,95,.4),0 10px 50px rgba(0,0,0,.6),0 0 80px rgba(196,150,44,.6)}}@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}@keyframes pulseRing{0%{transform:scale(1);opacity:.8;border-color:rgba(196,150,44,.6)}100%{transform:scale(1.4);opacity:0;border-color:rgba(196,150,44,0)}}@media (max-width:400px){.hero-medical-logo{width:90px;height:90px}}.hero-bg::before{content:'';position:absolute;width:100%;height:100%;top:0;left:0;background:radial-gradient(circle at 50% -10%,rgba(16,185,129,.7) 0,transparent 60%);z-index:-1;animation:pulse-glow 6s ease-in-out infinite}.hero-bg::after{content:'';position:absolute;width:200%;height:100%;bottom:-50%;left:-50%;background-image:linear-gradient(rgba(20,184,166,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(20,184,166,.6) 1px,transparent 1px);background-size:50px 50px;transform:perspective(500px) rotateX(60deg);transform-origin:center top;animation:grid-move 8s linear infinite;mask-image:linear-gradient(to bottom,transparent 0,#000 30%,#000 80%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 30%,#000 80%,transparent 100%);z-index:-1;pointer-events:none}@keyframes grid-move{0%{transform:perspective(500px) rotateX(60deg) translateY(0)}100%{transform:perspective(500px) rotateX(60deg) translateY(50px)}}@keyframes pulse-glow{0%,100%{opacity:.5}50%{opacity:1}}.search-container{backdrop-filter:blur(16px);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);transition:all .4s ease;box-shadow:0 8px 32px rgba(0,0,0,.1)}.search-container:focus-within{background:rgba(255,255,255,.15);border-color:rgba(196,150,44,.6);box-shadow:0 0 40px rgba(196,150,44,.2)}.search-input{background:0 0;color:#fff;outline:0;font-family:'IBM Plex Sans Arabic',sans-serif}.search-input::placeholder{color:rgba(255,255,255,.5)}.filter-btn{transition:all .3s cubic-bezier(.4,0,.2,1);position:relative;border:1px solid var(--border);background:#fff;cursor:pointer}.filter-btn:hover{transform:translateY(-4px);box-shadow:0 12px 20px -5px rgba(0,0,0,.12);border-color:transparent!important}.filter-btn.active{transform:translateY(-4px);box-shadow:0 15px 30px -10px rgba(0,0,0,.2);border-color:transparent!important}.filter-btn.active i,.filter-btn.active span{color:#fff!important}.card{background:var(--card);border:1px solid var(--border);border-radius:16px;transition:box-shadow .3s ease,border-color .3s ease;position:relative;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.05)}.card::before{content:'';position:absolute;top:0;right:0;width:4px;height:0;transition:height .3s ease;border-radius:0 0 4px 0;z-index:2}.card:hover::before{height:100%}.card:hover{box-shadow:0 15px 30px -10px rgba(0,0,0,.15);border-color:transparent}.card.clinic-card::before{background:var(--clinic)}.card.doctor-card::before{background:var(--doctor)}.card.pharmacy-card::before{background:var(--pharmacy)}.card.center-card::before{background:var(--center)}.card.lab-card::before{background:var(--lab)}.card.hospital-card::before{background:var(--hospital)}.badge{font-size:.7rem;padding:3px 10px;border-radius:20px;font-weight:600}.badge-clinic{background:var(--accent-light);color:var(--accent-dark)}.badge-doctor{background:#dbeafe;color:#1e40af}.badge-pharmacy{background:var(--gold-light);color:#92610a}.badge-center{background:#f3e8ff;color:#6b21a8}.badge-lab{background:#fee2e2;color:#991b1b}.badge-hospital{background:#ccfbf1;color:#115e59}.cat-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}.cat-icon-clinic{background:var(--accent-light);color:var(--accent)}.cat-icon-doctor{background:#dbeafe;color:#2563eb}.cat-icon-pharmacy{background:var(--gold-light);color:var(--gold)}.cat-icon-center{background:#f3e8ff;color:#9333ea}.cat-icon-lab{background:#fee2e2;color:#dc2626}.cat-icon-hospital{background:#ccfbf1;color:var(--hospital)}.call-btn{transition:all .3s ease;position:relative;overflow:hidden}.call-btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,.2);border-radius:50%;transition:all .5s ease;transform:translate(-50%,-50%)}.call-btn:hover::before{width:200%;height:200%}.call-btn:hover{transform:scale(1.05)}.stat-card{background:rgba(255,255,255,.08);backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,.12);border-radius:16px;transition:all .3s ease}.stat-card:hover{background:rgba(255,255,255,.14);transform:translateY(-5px);box-shadow:0 0 20px rgba(14,124,95,.3)}.ornament-line{display:flex;align-items:center;gap:12px;justify-content:center}.ornament-line::after,.ornament-line::before{content:'';width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}html{scroll-behavior:smooth}.navbar{backdrop-filter:blur(10px);transition:all .4s ease}.navbar.scrolled{background:rgba(7,61,46,.95);box-shadow:0 4px 30px rgba(0,0,0,.2)}.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--fg);color:#fff;padding:14px 28px;border-radius:12px;font-size:.9rem;z-index:10001;opacity:0;transition:all .4s ease;box-shadow:0 10px 40px rgba(0,0,0,.3);max-width:90vw;text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.back-to-top{position:fixed;bottom:30px;left:30px;width:48px;height:48px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transform:translateY(20px) scale(.5);transition:all .4s ease;box-shadow:0 4px 20px rgba(14,124,95,.4);z-index:1000;border:none}.back-to-top.visible{opacity:1;transform:translateY(0) scale(1)}.back-to-top:hover{transform:translateY(-5px) scale(1.1)}.mobile-menu{transform:translateX(100%);transition:transform .4s ease}.mobile-menu.open{transform:translateX(0)}::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:4px}.detail-row{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted)}.detail-row i{width:16px;text-align:center;font-size:.75rem}.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}.modal-overlay.active{display:flex}.modal-content{background:var(--card);border-radius:20px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;opacity:0;transform:scale(.9);transition:all .3s ease}.modal-overlay.active .modal-content{opacity:1;transform:scale(1)}.ctrl-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:9998;display:none;align-items:center;justify-content:center;padding:20px}.ctrl-overlay.active{display:flex}.ctrl-content{background:var(--bg);border-radius:24px;max-width:900px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);opacity:0;transform:scale(.9);transition:all .3s ease}.ctrl-overlay.active .ctrl-content{opacity:1;transform:scale(1)}.ctrl-input{width:100%;padding:12px 16px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--fg);font-family:'IBM Plex Sans Arabic';outline:0;transition:all .3s}.ctrl-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}.dot-pattern{background-image:radial-gradient(circle,var(--border) 1px,transparent 1px);background-size:30px 30px}.booking-step{display:none}.booking-step.active{display:block}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}.day-btn{transition:all .2s;border:2px solid var(--border)}.day-btn.active{border-color:var(--accent);background:var(--accent-light);color:var(--accent-dark)}.day-checkbox{accent-color:var(--accent);width:20px;height:20px;cursor:pointer}html.dark{--bg:#0f172a;--bg-deep:#020617;--fg:#f8fafc;--fg-light:#cbd5e1;--muted:#94a3b8;--card:#1e293b;--border:#334155;--accent-light:#134e4a}html.dark .bg-white{background-color:var(--card)!important}html.dark .bg-gray-100,html.dark .bg-gray-50{background-color:var(--bg-deep)!important}html.dark .text-gray-800,html.dark .text-gray-900{color:var(--fg)!important}html.dark .text-gray-700{color:var(--fg-light)!important}html.dark .text-gray-400,html.dark .text-gray-500,html.dark .text-gray-600{color:var(--muted)!important}html.dark .border-gray-100,html.dark .border-gray-200,html.dark .border-gray-300{border-color:var(--border)!important}html.dark .ctrl-input{background-color:var(--bg-deep)!important;color:var(--fg)!important;border-color:var(--border)!important}html.dark .ctrl-input::placeholder{color:var(--muted)!important}html.dark .ctrl-content,html.dark .modal-content{background-color:var(--card)!important}html.dark .toast{background-color:var(--fg)!important;color:var(--bg)!important}html.dark .accordion-item{background-color:var(--card)!important;border-color:var(--border)!important}html.dark .accordion-body{background-color:var(--bg-deep)!important}html.dark .burn-option,html.dark .disease-card,html.dark .med-donation-card,html.dark .med-symbol-card{background-color:var(--card)!important;border-color:var(--border)!important}html.dark .file-input-label{background-color:var(--bg-deep)!important;color:var(--muted)!important;border-color:var(--border)!important}html.dark .dot-pattern{background-image:radial-gradient(circle,#334155 1px,transparent 1px)!important}html.dark .filter-btn{background:var(--card)!important;border-color:var(--border)!important;color:var(--fg)!important}.lightbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:10002;display:none;justify-content:center;align-items:center;cursor:zoom-out;padding:20px}.lightbox-overlay.active{display:flex;animation:fadeIn .3s ease}.lightbox-overlay img{max-width:90%;max-height:90%;border-radius:12px;box-shadow:0 25px 50px -12px rgba(0,0,0,.8);transform:scale(.8);transition:transform .3s ease}.lightbox-overlay.active img{transform:scale(1)}.alixjori-dev{margin-top:15px;text-align:center;font-size:.8rem;color:rgba(255,255,255,.4)}.alixjori-dev{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:6px}.dev-subtext{font-size:.7rem;color:rgba(255,255,255,.3);letter-spacing:.5px}.dev-credit-wrapper{display:flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(196,150,44,.1);border-radius:999px;backdrop-filter:blur(4px);transition:all .3s ease}.dev-credit-wrapper:hover{background:rgba(196,150,44,.05);border-color:rgba(196,150,44,.3);box-shadow:0 0 20px rgba(196,150,44,.1)}.dev-label{font-size:.7rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px}.dev-name{font-family:Outfit,sans-serif;font-weight:700;font-size:.95rem;background:linear-gradient(110deg,var(--gold) 20%,#fff 50%,var(--gold) 80%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shimmerGold 3s linear infinite;letter-spacing:.5px}.dev-icon{color:var(--gold);font-size:.75rem;filter:drop-shadow(0 0 4px rgba(196, 150, 44, .5))}@keyframes shimmerGold{to{background-position:-200% center}}.input-invalid{border-color:var(--danger)!important;box-shadow:0 0 0 3px rgba(220,38,38,.2)!important}.file-input-wrapper{position:relative;overflow:hidden;display:inline-block;width:100%}.file-input-wrapper input[type=file]{position:absolute;top:0;right:0;opacity:0;width:100%;height:100%;cursor:pointer}.file-input-label{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;border:2px dashed var(--border);border-radius:12px;cursor:pointer;transition:all .3s;background:var(--bg);color:var(--muted)}.file-input-label:hover{border-color:var(--accent);background:var(--accent-light);color:var(--accent-dark)}.preview-image{max-height:150px;border-radius:8px;margin-top:10px}.tools-dropdown{position:relative}.tools-dropdown-menu{position:absolute;top:100%;left:0;margin-top:10px;background:#fff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.15);border:1px solid var(--border);min-width:280px;opacity:0;visibility:hidden;transform:translateY(10px);transition:all .3s ease;z-index:100;overflow:hidden}.tools-dropdown:hover .tools-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}.tools-dropdown-item{display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;transition:background .2s;border-bottom:1px solid var(--border)}.tools-dropdown-item:last-child{border-bottom:none}.tools-dropdown-item:hover{background:var(--bg-deep)}.tools-dropdown-item i{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem}.med-symbol-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;transition:all .3s;cursor:default}.med-symbol-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.05)}.med-symbol-badge{display:inline-block;background:var(--accent-light);color:var(--accent-dark);padding:4px 10px;border-radius:6px;font-weight:800;font-family:monospace;margin-bottom:8px}.disease-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all .3s}.disease-card:hover{transform:translateY(-5px);box-shadow:0 12px 25px -5px rgba(0,0,0,.1)}.disease-header{padding:16px;display:flex;align-items:center;gap:12px;color:#fff}.disease-body{padding:16px}.disease-section{margin-bottom:12px;padding-bottom:12px;border-bottom:1px dashed var(--border)}.disease-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}.blood-type-badge{font-weight:900;font-size:1.5rem;padding:10px 20px;border-radius:12px;background:#fee2e2;color:#dc2626;display:inline-block}.burn-option{border:2px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;text-align:center}.burn-option:hover{border-color:var(--accent);background:var(--accent-light)}.burn-option.selected{border-color:var(--accent);background:var(--accent-light);color:var(--accent-dark);font-weight:700}.med-donation-card{border:1px solid var(--border);border-radius:16px;padding:16px;background:var(--card);transition:all .3s}.med-donation-card:hover{border-color:#059669;box-shadow:0 8px 20px rgba(5,150,105,.08)}#dailyTipText{transition:opacity .3s ease}.accordion-item{border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden}.accordion-header{padding:16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--card);font-weight:700;font-size:.9rem}.accordion-body{max-height:0;overflow:hidden;transition:max-height .3s ease;background:var(--bg)}.accordion-item.active .accordion-body{max-height:2000px}.accordion-item.active .accordion-header i{transform:rotate(180deg)}body{top:0!important;position:static!important}#google_translate_element{display:none!important}.accordion-body-inner{padding:16px;font-size:.85rem;color:var(--fg-light);line-height:1.6}@keyframes marquee{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}#announcementText{white-space:nowrap;display:inline-block;animation:marquee 30s linear infinite;padding-left:100%}#announcementText:hover{animation-play-state:paused}#announcementText.no-marquee{animation:none;padding-left:0}.fasting-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:20px;font-weight:700;font-size:.8rem}.fasting-8{background:#fef3c7;color:#92400e}.fasting-10{background:#ffedd5;color:#9a3412}.fasting-12{background:#fee2e2;color:#991b1b}.fasting-none{background:#d1fae5;color:#065f46}.fasting-special{background:#ede9fe;color:#5b21b6}.prelab-accordion{max-height:0;overflow:hidden;transition:max-height .4s ease}.prelab-accordion.open{max-height:800px}.prelab-toggle{cursor:pointer;transition:background .2s}.prelab-toggle:hover{background:var(--bg-deep)}.tab-btn{padding:8px 16px;border-radius:10px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;border:1px solid var(--border);background:var(--card);color:var(--muted)}.tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}.tab-btn:hover:not(.active){border-color:var(--accent);color:var(--accent)}.glow-border{position:relative}.glow-border::before{content:'';position:absolute;inset:-2px;border-radius:18px;background:linear-gradient(135deg,var(--accent),var(--gold),var(--accent));background-size:200% 200%;animation:glowShift 4s ease infinite;z-index:-1;opacity:0;transition:opacity .3s}.glow-border:hover::before{opacity:1}@keyframes glowShift{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}.splash-3d-scene{position:fixed;inset:0;background:radial-gradient(circle at 50% 50%,#064d3a 0,#021410 100%);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;perspective:1000px;transition:transform .8s cubic-bezier(.76,0,.24,1),opacity .8s ease,visibility .8s ease;overflow:hidden}.splash-stars{position:absolute;inset:0;background-image:radial-gradient(2px 2px at 20px 30px,rgba(255,255,255,.8),transparent),radial-gradient(2px 2px at 40px 70px,rgba(196,150,44,.6),transparent),radial-gradient(1px 1px at 90px 40px,rgba(255,255,255,.9),transparent),radial-gradient(2px 2px at 160px 120px,rgba(14,124,95,.8),transparent),radial-gradient(1px 1px at 250px 80px,rgba(255,255,255,.7),transparent);background-size:300px 300px;background-repeat:repeat;animation:starsMove 8s linear infinite;opacity:.6;z-index:1}@keyframes starsMove{from{background-position:0 0}to{background-position:300px 300px}}.splash-3d-stage{position:relative;width:200px;height:200px;transform-style:preserve-3d;animation:stageFloat 4s ease-in-out infinite;z-index:10}@keyframes stageFloat{0%,100%{transform:translateY(0) rotateX(10deg) rotateY(0)}50%{transform:translateY(-15px) rotateX(15deg) rotateY(10deg)}}.orbit-ring{position:absolute;top:50%;left:50%;border-radius:50%;border:2px solid transparent;transform-style:preserve-3d;box-shadow:0 0 20px rgba(196,150,44,.3)}.orbit-1{width:180px;height:180px;margin-left:-90px;margin-top:-90px;border-top-color:#c4962c;border-right-color:#0e7c5f;animation:spin3d 1 4s linear infinite}.orbit-2{width:240px;height:240px;margin-left:-120px;margin-top:-120px;border-bottom-color:#c4962c;border-left-color:rgba(14,124,95,.5);transform:rotateX(70deg);animation:spin3d 2 6s linear infinite reverse}.orbit-3{width:300px;height:300px;margin-left:-150px;margin-top:-150px;border-top-color:rgba(14,124,95,.3);border-left-color:#c4962c;transform:rotateY(70deg);animation:spin3d 3 8s linear infinite}@keyframes spin3d{from{transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) rotateZ(0)}to{transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) rotateZ(360deg)}}.splash-logo-3d{position:absolute;top:50%;left:50%;width:100px;height:100px;margin-left:-50px;margin-top:-50px;transform-style:preserve-3d;transform:translateZ(50px)}.splash-logo-3d img{width:100%;height:100%;border-radius:50%;object-fit:cover;box-shadow:0 0 40px rgba(196,150,44,.6),0 15px 35px rgba(0,0,0,.5);border:3px solid rgba(255,255,255,.2)}.splash-logo-glow{position:absolute;inset:-20px;border-radius:50%;background:radial-gradient(circle,rgba(196,150,44,.4) 0,transparent 70%);filter:blur(15px);animation:glowPulse 2s ease-in-out infinite}@keyframes glowPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}.orbit-icon{position:absolute;top:50%;left:50%;color:#c4962c;text-shadow:0 0 10px rgba(196,150,44,.8);font-size:1.2rem;transform-style:preserve-3d}.orbit-icon-1{animation:orbitMove1 4s linear infinite}.orbit-icon-2{animation:orbitMove2 6s linear infinite}.orbit-icon-3{animation:orbitMove3 8s linear infinite}@keyframes orbitMove1{from{transform:rotate(0) translateX(90px) rotate(0) translateZ(20px)}to{transform:rotate(360deg) translateX(90px) rotate(-360deg) translateZ(20px)}}@keyframes orbitMove2{from{transform:rotate(120deg) translateX(120px) rotate(-120deg) translateZ(-20px)}to{transform:rotate(480deg) translateX(120px) rotate(-480deg) translateZ(-20px)}}@keyframes orbitMove3{from{transform:rotate(240deg) translateX(150px) rotate(-240deg) translateZ(0)}to{transform:rotate(600deg) translateX(150px) rotate(-600deg) translateZ(0)}}.splash-text-3d-container{margin-top:4rem;text-align:center;z-index:10;transform-style:preserve-3d;animation:textFloat 3s ease-in-out infinite}@keyframes textFloat{0%,100%{transform:translateY(0) translateZ(30px)}50%{transform:translateY(-5px) translateZ(50px)}}.splash-text-3d{font-family:'Noto Kufi Arabic',sans-serif;font-size:2rem;font-weight:900;color:#fff;letter-spacing:1px;text-shadow:1px 1px 0 #0e7c5f,2px 2px 0 #0e7c5f,3px 3px 0 #0e7c5f,4px 4px 0 #0e7c5f,5px 5px 10px rgba(0,0,0,.5),0 0 20px rgba(196,150,44,.5)}.splash-subtext{color:rgba(255,255,255,.6);font-size:.9rem;margin-top:.5rem;letter-spacing:2px;text-transform:uppercase}.splash-loader-bar{margin-top:2rem;width:200px;height:4px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden;position:relative;z-index:10;box-shadow:0 0 15px rgba(0,0,0,.5)}.splash-loader-bar::after{content:'';position:absolute;top:0;left:0;width:40%;height:100%;background:linear-gradient(90deg,transparent,#c4962c,transparent);box-shadow:0 0 15px #c4962c;animation:loaderSlide 1.5s ease-in-out infinite}@keyframes loaderSlide{0%{left:-40%}100%{left:100%}}.splash-3d-scene.hidden{opacity:0;transform:scale(1.1);visibility:hidden}.tab-btn{transition:all .3s}.tab-btn.active{background:#073d2e;color:#fff;box-shadow:0 4px 15px rgba(7,61,46,.3)}.pulse-register{animation:pulse-btn 2s infinite}@keyframes pulse-btn{0%{box-shadow:0 0 0 0 rgba(220,38,38,.5)}70%{box-shadow:0 0 0 15px rgba(220,38,38,0)}100%{box-shadow:0 0 0 0 rgba(220,38,38,0)}}@keyframes radar-pulse-pro{0%{transform:translate(-50%,-50%) scale(1);opacity:.8}100%{transform:translate(-50%,-50%) scale(3);opacity:0}}.verified-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#0e7c5f 0,#10b981 100%);color:#fff;font-size:.65rem;font-weight:800;padding:3px 8px;border-radius:10px;vertical-align:middle;margin-left:6px;box-shadow:0 2px 6px rgba(14,124,95,.3);border:1px solid rgba(255,255,255,.3);font-family:'IBM Plex Sans Arabic',sans-serif}.verified-badge i{font-size:.7rem}.verified-gold{background:linear-gradient(135deg,#c4962c 0,#e6c976 50%,#c4962c 100%);color:#422006;box-shadow:0 2px 6px rgba(196,150,44,.3)}.city-pill-btn{border:1px solid rgba(255,255,255,.15)}.city-selector-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:all .3s ease}.city-selector-overlay.active{opacity:1;visibility:visible}.city-selector-panel{background:var(--bg);width:100%;max-width:500px;max-height:70vh;border-radius:24px 24px 0 0;padding:24px;box-shadow:0 -10px 40px rgba(0,0,0,.2);transform:translateY(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);overflow-y:auto}.city-selector-overlay.active .city-selector-panel{transform:translateY(0)}.city-option{display:flex;align-items:center;justify-content:space-between;padding:16px;border-radius:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);margin-bottom:10px;transition:all .2s}.city-option:hover{border-color:var(--accent);background:var(--accent-light);transform:translateX(5px)}.city-option.selected{background:var(--accent);color:#fff;border-color:var(--accent)}.emergency-fab{position:fixed;bottom:90px;left:30px;width:52px;height:52px;background:#dc2626;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 15px rgba(220,38,38,.5);z-index:1000;transition:transform .3s ease,box-shadow .3s ease;animation:pulse-fab 2s infinite}.emergency-fab:hover{transform:scale(1.1) rotate(-5deg);box-shadow:0 8px 25px rgba(220,38,38,.7)}.fab-ping{position:absolute;top:-2px;left:-2px;width:56px;height:56px;background:#dc2626;border-radius:50%;z-index:-1;opacity:.6;animation:ping-animation 1.5s cubic-bezier(0,0,.2,1) infinite}@keyframes ping-animation{100%,75%{transform:scale(2);opacity:0}}@keyframes pulse-fab{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}.back-to-top{bottom:30px!important;left:30px!important}.lomedx-brand{font-family:Outfit,Poppins,'Segoe UI',sans-serif;font-weight:800;background:linear-gradient(135deg,var(--gold) 0,#f8d674 40%,var(--accent) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;letter-spacing:.5px;display:inline-block;text-shadow:0 2px 10px rgba(196,150,44,.15)}html.dark .lomedx-brand{background:linear-gradient(135deg,#f8d674 0,var(--gold) 50%,#10b981 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}.splash-text-3d{font-family:Outfit,sans-serif;background:linear-gradient(135deg,#fff 0,var(--gold) 50%,var(--accent) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}.search-container{box-shadow:0 8px 32px rgba(0,0,0,.1)}.search-input:focus{outline:0}.search-container:focus-within{border-color:rgba(196,150,44,.5)!important;box-shadow:0 0 0 2px rgba(196,150,44,.1),0 8px 32px rgba(0,0,0,.1)!important}html.dark .search-input{color:var(--fg)!important}html.dark .search-input::placeholder{color:var(--muted)!important}.city-pill-btn{border:1px solid rgba(255,255,255,.15)!important}.city-pill-btn:hover{border-color:rgba(196,150,44,.5)!important}.emergency-fab-wrapper{position:fixed;bottom:90px;left:30px;z-index:1000;transition:opacity .3s ease,visibility .3s ease}.emergency-fab-wrapper.hidden-fab{opacity:0;visibility:hidden}.mobile-grid-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:14px 8px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);transition:all .3s ease;cursor:pointer}.mobile-grid-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(196,150,44,.2);transform:translateY(-3px);box-shadow:0 5px 15px rgba(0,0,0,.2)}.mobile-grid-btn i{font-size:18px}.mobile-grid-btn span{font-size:11px;font-weight:600;color:rgba(255,255,255,.8)}.section-title{font-size:12px;font-weight:700;color:var(--gold);padding:0 16px;margin-bottom:12px;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.5px}.section-title i{font-size:11px}.mobile-menu-bg-pattern{position:absolute;top:0;right:0;width:100%;height:250px;background:radial-gradient(circle at top right,rgba(14,124,95,.4) 0,transparent 70%);pointer-events:none;z-index:0}.mobile-menu-premium{background:radial-gradient(circle at top center,#0a4d3a 0,#052e22 40%,#021410 100%);box-shadow:-10px 0 40px rgba(0,0,0,.5);transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1)}.mobile-menu-premium.open{transform:translateX(0)}.mobile-menu-premium::-webkit-scrollbar{width:5px}.mobile-menu-premium::-webkit-scrollbar-track{background:rgba(0,0,0,.2)}.mobile-menu-premium::-webkit-scrollbar-thumb{background:var(--gold);border-radius:10px}.text-gold-gradient{background:linear-gradient(135deg,#f0d77b 0,#c4962c 50%,#92610a 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 4px rgba(196, 150, 44, .3))}.icon-gold-gradient{background:linear-gradient(135deg,#f0d77b 0,#c4962c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}.lomedx-brand{font-family:Outfit,sans-serif;font-weight:800;background:linear-gradient(135deg,#f0d77b 0,#c4962c 50%,#0e7c5f 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}.premium-card{background:linear-gradient(180deg,rgba(14,124,95,.15) 0,rgba(2,20,16,.4) 100%);border:1px solid rgba(196,150,44,.3);backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(196,150,44,.1)}.menu-item-premium{border-bottom:1px solid rgba(196,150,44,.1);transition:all .3s ease}.menu-item-premium:last-child{border-bottom:none}.menu-item-premium:hover{background:linear-gradient(90deg,rgba(196,150,44,.1) 0,transparent 100%);padding-right:10px!important}.btn-dark-gold{background:linear-gradient(135deg,#92610a 0,#c4962c 50%,#92610a 100%);box-shadow:0 10px 25px rgba(196,150,44,.3),inset 0 1px 0 rgba(255,255,255,.3);border:1px solid #f0d77b}.portal-grid-btn{background:linear-gradient(180deg,rgba(196,150,44,.05) 0,rgba(196,150,44,.15) 100%);border:1px solid rgba(196,150,44,.5);transition:all .3s ease;box-shadow:inset 0 1px 0 rgba(240,215,123,.2)}.portal-grid-btn:hover{background:linear-gradient(180deg,rgba(196,150,44,.15) 0,rgba(196,150,44,.3) 100%);border-color:#f0d77b;transform:translateY(-3px);box-shadow:0 8px 20px rgba(196,150,44,.2),inset 0 1px 0 rgba(240,215,123,.4)}.accordion-content{max-height:0;overflow:hidden;transition:max-height .4s ease-in-out}.accordion-active .accordion-content{max-height:1000px}.accordion-active .chevron-icon{transform:rotate(180deg);color:#f0d77b}.chevron-icon{transition:all .3s ease}.glow-gold{text-shadow:0 0 10px rgba(240,215,123,.5)}.spinner-container{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:40px 0;color:var(--muted);font-size:.85rem}@keyframes spin{to{transform:rotate(360deg)}}#smartSearchDropdown{background-color:#fff;border:1px solid #dde3dd;border-radius:16px;box-shadow:0 15px 40px rgba(0,0,0,.15);overflow:hidden;max-height:350px;overflow-y:auto}html.dark #smartSearchDropdown{background-color:#1e293b;border-color:#334155;box-shadow:0 15px 40px rgba(0,0,0,.5)}.smart-result-item{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid #dde3dd;transition:background .2s}.smart-result-item:last-child{border-bottom:none}.smart-result-item:hover{background-color:#f0ede6}html.dark .smart-result-item:hover{background-color:#334155}.smart-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem}.smart-text{flex:1;min-width:0}.smart-name{font-weight:700;font-size:.875rem;color:#1b2a1b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}html.dark .smart-name{color:#f8fafc}.smart-desc{font-size:.75rem;color:#7a8b7a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}html.dark .smart-desc{color:#94a3b8}.smart-arrow{font-size:.75rem;color:#dde3dd}html.dark .smart-arrow{color:#334155}.smart-empty{padding:24px;text-align:center;font-size:.875rem;color:#7a8b7a}html.dark .smart-empty{color:#94a3b8}.lq-status{display:flex;align-items:center;gap:10px}.lq-dot{width:10px;height:10px;border-radius:50%;animation:lq-pulse 1.5s infinite}@keyframes lq-pulse{0%{opacity:1}50%{opacity:.5}100%{opacity:1}}.lq-text{font-size:12px;color:#b2c7c2}.lq-count{font-size:20px;font-weight:900;color:#fff}.lq-time{font-size:11px;color:#c4962c;font-weight:700}.queue-tracker-card{background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:20px;margin-top:20px;margin-bottom:20px;display:flex;flex-direction:column;gap:15px}.qt-header{display:flex;align-items:center;gap:15px}.qt-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid rgba(255,255,255,.1)}.qt-info{display:flex;flex-direction:column}.qt-title{font-size:14px;font-weight:800;color:#fff}.qt-status{font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;margin-top:4px}.qt-pulse-dot{width:8px;height:8px;border-radius:50%;animation:lq-pulse 1.5s infinite;box-shadow:0 0 10px currentColor}.qt-stats{display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.2);border-radius:12px;padding:15px;border:1px solid rgba(255,255,255,.05)}.qt-stat-box{text-align:center;flex:1}.qt-num{display:block;font-size:26px;font-weight:900;color:#fff;font-family:Outfit,sans-serif}.qt-label{font-size:11px;color:#8ea8a1;margin-top:4px;display:block;font-weight:600}.qt-divider{width:1px;height:35px;background:rgba(255,255,255,.1)}html.dark .queue-tracker-card{background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(0,0,0,.2))}html.dark .qt-stats{background:rgba(0,0,0,.3)}.animate-ping,.hero-bg::after,.hero-bg::before,.hero-medical-logo img,.hero-medical-logo::after,.hero-medical-logo::before,.pulse-register{will-change:transform,box-shadow,opacity;transform:translateZ(0);-webkit-transform:translateZ(0)}.accordion-item,.card,.premium-card{content-visibility:auto;contain-intrinsic-size:200px}@media (prefers-reduced-motion:reduce){*,::after,::before{animation-duration:0s!important;animation-iteration-count:1!important;transition-duration:0s!important}}.hero-bg.paused-anim *,.hero-bg.paused-anim ::after,.hero-bg.paused-anim ::before{animation-play-state:paused!important}body.stop-animations ::after,body.stop-animations ::before,body.stop-animations :not(.mobile-menu-premium):not(.mobile-menu-premium*):not(.btn-health-glow):not(.btn-health-glow*){animation-play-state:paused!important}body.stop-animations .btn-health-glow span::before,body.stop-animations .btn-health-glow::after,body.stop-animations .btn-health-glow::before{animation-play-state:running!important}@media (max-width:768px){.btn,.call-btn,.filter-btn,.mobile-grid-btn,.portal-grid-btn{transition:transform .1s ease-out,box-shadow .2s ease}.btn:active,.call-btn:active,.card:active,.filter-btn:active{transform:scale(.96)!important;box-shadow:0 2px 10px rgba(0,0,0,.1)!important}}
+
+/* =========================================
+   طبقة التوافق: تحويل Tailwind إلى CSS خام
+   ضع هذا الكود في نهاية ملف style.css
+========================================= */
+
+/* === Display & Flexbox & Grid === */
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.grid { display: grid; }
+.hidden { display: none; }
+.block { display: block; }
+.inline-block { display: inline-block; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-start { justify-content: flex-start; }
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.flex-1 { flex: 1 1 0%; }
+.flex-shrink-0 { flex-shrink: 0; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-col-reverse { flex-direction: column-reverse; }
+
+/* === Grid Template Columns === */
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.grid-cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+
+/* === Width & Height === */
+.w-full { width: 100%; }
+.w-fit { width: fit-content; }
+.w-12 { width: 3rem; }
+.h-full { height: 100%; }
+.h-16 { height: 4rem; }
+.h-20 { height: 5rem; }
+.h-screen { height: 100vh; }
+.min-h-screen { min-height: 100vh; }
+.max-w-2xl { max-width: 42rem; }
+.max-w-3xl { max-width: 48rem; }
+.max-w-4xl { max-width: 56rem; }
+.max-w-5xl { max-width: 64rem; }
+.max-w-7xl { max-width: 80rem; }
+.max-w-md { max-width: 28rem; }
+.max-w-sm { max-width: 24rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+/* === Spacing (Padding) === */
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.p-5 { padding: 1.25rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+.px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+.px-12 { padding-left: 3rem; padding-right: 3rem; }
+.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-2.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.py-3.5 { padding-top: 0.875rem; padding-bottom: 0.875rem; }
+.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+.py-10 { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+.py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+.py-16 { padding-top: 4rem; padding-bottom: 4rem; }
+.pt-12 { padding-top: 3rem; }
+.pt-24 { padding-top: 6rem; }
+.pb-16 { padding-bottom: 4rem; }
+.pb-8 { padding-bottom: 2rem; }
+.pr-4 { padding-right: 1rem; }
+.pr-5 { padding-right: 1.25rem; }
+.pr-6 { padding-right: 1.5rem; }
+
+/* === Spacing (Margin) === */
+.m-0 { margin: 0; }
+.m-auto { margin: auto; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-5 { margin-bottom: 1.25rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.mb-10 { margin-bottom: 2.5rem; }
+.mb-12 { margin-bottom: 3rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 0.75rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mt-8 { margin-top: 2rem; }
+.mt-12 { margin-top: 3rem; }
+.ml-1 { margin-left: 0.25rem; }
+.ml-2 { margin-left: 0.5rem; }
+.ml-4 { margin-left: 1rem; }
+.ml-auto { margin-left: auto; }
+.mr-2 { margin-right: 0.5rem; }
+
+/* === Gap === */
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-5 { gap: 1.25rem; }
+.gap-6 { gap: 1.5rem; }
+.gap-8 { gap: 2rem; }
+.gap-10 { gap: 2.5rem; }
+.gap-12 { gap: 3rem; }
+
+/* === Typography === */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+.text-white { color: #fff; }
+.text-black { color: #000; }
+.text-xs { font-size: 0.75rem; }
+.text-sm { font-size: 0.875rem; }
+.text-base { font-size: 1rem; }
+.text-lg { font-size: 1.125rem; }
+.text-xl { font-size: 1.25rem; }
+.text-2xl { font-size: 1.5rem; }
+.text-3xl { font-size: 1.875rem; }
+.text-4xl { font-size: 2.25rem; }
+.text-5xl { font-size: 3rem; }
+.text-6xl { font-size: 3.75rem; }
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.font-black { font-weight: 900; }
+.font-extrabold { font-weight: 800; }
+.font-medium { font-weight: 500; }
+.italic { font-style: italic; }
+.no-underline { text-decoration: none; }
+.whitespace-nowrap { white-space: nowrap; }
+.leading-relaxed { line-height: 1.625; }
+.leading-tight { line-height: 1.25; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cursor-pointer { cursor: pointer; }
+.uppercase { text-transform: uppercase; }
+
+/* === Borders & Radius === */
+.rounded { border-radius: 0.25rem; }
+.rounded-md { border-radius: 0.375rem; }
+.rounded-lg { border-radius: 0.5rem; }
+.rounded-xl { border-radius: 0.75rem; }
+.rounded-2xl { border-radius: 1rem; }
+.rounded-3xl { border-radius: 1.5rem; }
+.rounded-full { border-radius: 9999px; }
+.border { border-width: 1px; }
+.border-2 { border-width: 2px; }
+.border-0 { border-width: 0; }
+.border-t { border-top-width: 1px; }
+.border-b { border-bottom-width: 1px; }
+.border-r { border-right-width: 1px; }
+.border-l { border-left-width: 1px; }
+
+/* === Position === */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.sticky { position: sticky; }
+.top-0 { top: 0; }
+.bottom-0 { bottom: 0; }
+.left-0 { left: 0; }
+.right-0 { right: 0; }
+.left-4 { left: 1rem; }
+.left-1\/2 { left: 50%; }
+.z-10 { z-index: 10; }
+.z-20 { z-index: 20; }
+.z-30 { z-index: 30; }
+.z-40 { z-index: 40; }
+.z-50 { z-index: 50; }
+.z-\[60\] { z-index: 60; }
+.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.overflow-hidden { overflow: hidden; }
+.overflow-y-auto { overflow-y: auto; }
+.overflow-x-auto { overflow-x: auto; }
+.shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); }
+.shadow { box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06); }
+.shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
+.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+.shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); }
+.shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+.transition-all { transition: all 0.3s ease; }
+.duration-300 { transition-duration: 0.3s; }
+.duration-500 { transition-duration: 0.5s; }
+
+/* === Responsive Utilities (Media Queries) === */
+@media (min-width: 640px) {
+  .sm\:flex { display: flex; }
+  .sm\:flex-row { flex-direction: row; }
+  .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sm\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .sm\:text-sm { font-size: 0.875rem; }
+  .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .sm\:py-16 { padding-top: 4rem; padding-bottom: 4rem; }
+  .sm\:w-340px { width: 340px; }
+  .sm\:h-350px { height: 350px; }
+}
+
+@media (min-width: 1024px) {
+  .lg\:flex { display: flex; }
+  .lg\:hidden { display: none; }
+  .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .lg\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+  .lg\:py-16 { padding-top: 4rem; padding-bottom: 4rem; }
+}
+
+/* === Dark Mode Compatibility === */
+html.dark .text-white\/65 { color: rgba(255,255,255,0.65); }
+html.dark .text-white\/80 { color: rgba(255,255,255,0.8); }
+html.dark .text-white\/90 { color: rgba(255,255,255,0.9); }
+html.dark .bg-white\/10 { background-color: rgba(255,255,255,0.1); }
+html.dark .bg-white\/5 { background-color: rgba(255,255,255,0.05); }
