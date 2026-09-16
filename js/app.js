@@ -36,6 +36,7 @@ let adInterval = null;
 let allHomeAds = [];
 let currentCity = 'all';
 let activeQrScanner = null;
+let currentRadarCity = 'الرحيبة'; // المدينة الافتراضية للرادار
 let renderLimits = {
     hospital: 4,
     center: 4,
@@ -4997,19 +4998,27 @@ const radarDiseasesData = {
     ]
 };
 window.openRahebaRadar = () => {
-    openCtrlPanel('رادار الرحيبة الصحي (التفاعلي) 📡', `
+    const cityOptions = allCities.filter(c => c !== 'كل المدن').map(c => `<option value="${c}" ${currentRadarCity === c ? 'selected' : ''}>${c}</option>`).join('');
+    
+    openCtrlPanel('الرادار الصحي التفاعلي 📡', `
         <div class="flex flex-col gap-6">
-            <div class="flex justify-center gap-3 bg-white p-2 rounded-2xl shadow-sm max-w-md mx-auto w-full">
-                <button id="tabSummer" onclick="switchRadarTab('summer')" class="tab-btn active flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2">☀️ <span>حالات الصيف</span></button>
-                <button id="tabWinter" onclick="switchRadarTab('winter')" class="tab-btn flex-1 py-3 rounded-xl font-bold text-sm text-gray-500 flex items-center justify-center gap-2">❄️ <span>حالات الشتاء</span></button>
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-3 bg-white p-3 rounded-2xl shadow-sm max-w-md mx-auto w-full">
+                <select id="radarCitySelect" onchange="changeRadarCity(this.value)" class="ctrl-input text-sm mb-2 sm:mb-0">
+                    ${cityOptions}
+                </select>
+                <div class="flex gap-3 w-full sm:w-auto">
+                    <button id="tabSummer" onclick="switchRadarTab('summer')" class="tab-btn active flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2">☀️ <span>الصيف</span></button>
+                    <button id="tabWinter" onclick="switchRadarTab('winter')" class="tab-btn flex-1 py-3 rounded-xl font-bold text-sm text-gray-500 flex items-center justify-center gap-2">❄️ <span>الشتاء</span></button>
+                </div>
             </div>
             <div id="radarCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
             <div class="text-center mt-4 p-6 bg-white rounded-2xl shadow-sm border" style="border-color: var(--border)">
-                <p class="text-sm text-gray-600 mb-4">إذا كنت تعاني من أحد هذه الأعراض، ساعد مجتمعك بتسجيل حالتك لمتابعة انتشار الأمراض.</p>
+                <p class="text-sm text-gray-600 mb-4">إذا كنت تعاني من أحد هذه الأعراض في ${currentRadarCity}، ساعد مجتمعك بتسجيل حالتك لمتابعة انتشار الأمراض.</p>
                 <button onclick="openRadarRegisterModal()" class="pulse-register bg-red-500 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-red-600 transition-all w-full sm:w-auto">➕ سَجّل حالتك الصحية الآن</button>
             </div>
         </div>
     `, '#4F46E5');
+    
     supabase.from('radar_settings').select('*').eq('id', 'config').single().then(({ data }) => {
         if (data) { radarSettings = data; currentRadarTab = data.default_season || 'summer'; switchRadarTab(currentRadarTab); } 
         else { supabase.from('radar_settings').upsert({ id: 'config', default_season: 'summer', last_reset: 0 }); switchRadarTab('summer'); }
@@ -5017,7 +5026,8 @@ window.openRahebaRadar = () => {
     fetchRadarReports();
 }
 async function fetchRadarReports() {
-    const { data } = await supabase.from('disease_reports').select('*');
+    // جلب البيانات للمدينة الحالية فقط
+    const { data } = await supabase.from('disease_reports').select('*').eq('city', currentRadarCity);
     latestRadarReports = data || [];
     renderRadarCards();
 }
@@ -5027,6 +5037,10 @@ window.switchRadarTab = (season) => {
     const tabS = document.getElementById('tabSummer'); const tabW = document.getElementById('tabWinter');
     if (tabS && tabW) { if (season === 'summer') { tabS.classList.add('active'); tabW.classList.add('text-gray-500'); } else { tabW.classList.add('active'); tabS.classList.add('text-gray-500'); } }
     renderRadarCards();
+}
+window.changeRadarCity = (city) => {
+    currentRadarCity = city;
+    fetchRadarReports(); // إعادة جلب البيانات للمدينة الجديدة
 }
 function renderRadarCards() {
     const container = document.getElementById('radarCardsContainer'); if (!container) return;
@@ -5084,12 +5098,18 @@ window.submitRadarVote = async () => {
     if (!window.selectedRadarDisease) return;
     const duration = document.getElementById('radarDuration').value;
     try {
-        await supabase.from('disease_reports').insert([{ disease_id: window.selectedRadarDisease, season: currentRadarTab, duration: duration, timestamp: new Date().toISOString() }]);
+        await supabase.from('disease_reports').insert([{ 
+            disease_id: window.selectedRadarDisease, 
+            season: currentRadarTab, 
+            duration: duration, 
+            timestamp: new Date().toISOString(),
+            city: currentRadarCity // إضافة المدينة هنا
+        }]);
         localStorage.setItem('lastRadarVoteTime', Date.now().toString());
         closeModal(); showToast('تم تسجيل حالتك بنجاح!', 'success');
         fetchRadarReports();
         setTimeout(() => {
-            document.getElementById('modalContent').innerHTML = `<div class="p-8 text-center"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-heart text-4xl text-red-500"></i></div><h3 class="font-bold text-xl mb-2 text-gray-800">نتمنى لك الشفاء العاجل!</h3><p class="text-sm text-gray-500 mb-6">تم إضافتك لرادار الرحيبة الصحي. ساهم تسجيلك في حماية المجتمع.</p><button onclick="redirectToDoctorsSearch()" class="w-full bg-blue-500 text-white py-4 rounded-xl font-bold mb-2 hover:bg-blue-600 transition-all">👨‍⚕️ تواصل مع الأطباء المتاحين الآن</button><button onclick="closeModal()" class="text-gray-400 py-2 text-sm hover:text-gray-600">إغلاق</button></div>`;
+            document.getElementById('modalContent').innerHTML = `<div class="p-8 text-center"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-heart text-4xl text-red-500"></i></div><h3 class="font-bold text-xl mb-2 text-gray-800">نتمنى لك الشفاء العاجل!</h3><p class="text-sm text-gray-500 mb-6">تم إضافتك لرادار ${currentRadarCity} الصحي. ساهم تسجيلك في حماية المجتمع.</p><button onclick="redirectToDoctorsSearch()" class="w-full bg-blue-500 text-white py-4 rounded-xl font-bold mb-2 hover:bg-blue-600 transition-all">👨‍⚕️ تواصل مع الأطباء المتاحين الآن</button><button onclick="closeModal()" class="text-gray-400 py-2 text-sm hover:text-gray-600">إغلاق</button></div>`;
             document.getElementById('modalOverlay').classList.add('active');
         }, 300);
     } catch (err) { showToast('حدث خطأ', 'error'); }
