@@ -36,7 +36,7 @@ let adInterval = null;
 let allHomeAds = [];
 let currentCity = 'all';
 let activeQrScanner = null;
-let currentRadarCity = 'الرحيبة'; // المدينة الافتراضية للرادار
+let currentRadarCity = 'الرحيبة';
 let renderLimits = {
     hospital: 4,
     center: 4,
@@ -5098,21 +5098,31 @@ window.submitRadarVote = async () => {
     if (!window.selectedRadarDisease) return;
     const duration = document.getElementById('radarDuration').value;
     try {
-        await supabase.from('disease_reports').insert([{ 
+        // إذا كان currentRadarCity فارغاً، سيستخدم 'الرحيبة' افتراضياً
+        const targetCity = currentRadarCity || 'الرحيبة';
+
+        const { data, error } = await supabase.from('disease_reports').insert([{ 
             disease_id: window.selectedRadarDisease, 
             season: currentRadarTab, 
             duration: duration, 
             timestamp: new Date().toISOString(),
-            city: currentRadarCity // إضافة المدينة هنا
-        }]);
+            city: targetCity
+        }]).select(); 
+        
+        if (error) throw error; // هذا السطر سيرمي الخطأ الحقيقي إذا كان موجوداً
+        
         localStorage.setItem('lastRadarVoteTime', Date.now().toString());
-        closeModal(); showToast('تم تسجيل حالتك بنجاح!', 'success');
-        fetchRadarReports();
-        setTimeout(() => {
-            document.getElementById('modalContent').innerHTML = `<div class="p-8 text-center"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-heart text-4xl text-red-500"></i></div><h3 class="font-bold text-xl mb-2 text-gray-800">نتمنى لك الشفاء العاجل!</h3><p class="text-sm text-gray-500 mb-6">تم إضافتك لرادار ${currentRadarCity} الصحي. ساهم تسجيلك في حماية المجتمع.</p><button onclick="redirectToDoctorsSearch()" class="w-full bg-blue-500 text-white py-4 rounded-xl font-bold mb-2 hover:bg-blue-600 transition-all">👨‍⚕️ تواصل مع الأطباء المتاحين الآن</button><button onclick="closeModal()" class="text-gray-400 py-2 text-sm hover:text-gray-600">إغلاق</button></div>`;
-            document.getElementById('modalOverlay').classList.add('active');
-        }, 300);
-    } catch (err) { showToast('حدث خطأ', 'error'); }
+        closeModal(); 
+        showToast('تم تسجيل حالتك بنجاح!', 'success');
+        
+        latestRadarReports.push(data[0]); 
+        renderRadarCards();
+        
+    } catch (err) { 
+        console.error("Radar Submit Error:", err);
+        // هنا سنعرض لك رسالة الخطأ القادمة من Supabase بالضبط
+        showToast('خطأ: ' + err.message, 'error'); 
+    }
 }; 
 
 window.redirectToDoctorsSearch = () => {
