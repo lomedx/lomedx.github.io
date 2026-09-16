@@ -48,9 +48,11 @@ let allCities = ['كل المدن', 'الرحيبة','القطيفة','جيرو�
 
 // === محرك الإشعارات المركزي ===
 // === محرك الإشعارات المركزي ===
-async function sendPushNotification(userId, title, message, target = 'user', playerId = null) {
+// === محرك الإشعارات المركزي ===
+async function sendPushNotification(userId, title, message, target = 'user', playerId = null, city = null) {
     try {
         const bodyData = { title, message, target };
+        if (city) bodyData.city = city; // إضافة المدينة إن وجدت
         if (target === 'player' && playerId) {
             bodyData.player_id = playerId;
         } else if (userId) {
@@ -62,7 +64,6 @@ async function sendPushNotification(userId, title, message, target = 'user', pla
         if (error) return;
     } catch (err) {
     }   
-    
 }
 
 // 2. دالة التفعيل (سليمة تماماً ومعدلة لتتوافق مع الإصدار الجديد)
@@ -1818,7 +1819,7 @@ window.openPharmacyLogin = async () => {
 window.logoutPharmacy = async () => {
     await supabase.auth.signOut();
     closeCtrlPanel();
-    showToast('تم تسجيل الخروج بنجاح');
+    showToast('تم تسجيل الخروج بنجاح', 'success');
 }
 window.renderPharmacyDashboard = async (pharm) => { 
     const { data: { session } } = await supabase.auth.getSession();
@@ -1936,7 +1937,7 @@ window.updateMedStatus = async (id, status) => {
             p_req_id: id,
             p_status: status
         });
-        showToast('تم تحديث حالة الدواء'); 
+        showToast('تم تحديث حالة الدواء', 'success'); 
     } catch (e) { showToast('خطأ في التحديث', 'error'); } 
 }
 
@@ -1949,7 +1950,7 @@ window.updateMedNotes = async (id, notes) => {
             p_status: 'searching', // نبقي الحالة كما هي
             p_notes: notes
         });
-        showToast('تم حفظ الملاحظة'); 
+        showToast('تم حفظ الملاحظة', 'success'); 
     } catch (e) { showToast('خطأ في الحفظ', 'error'); } 
 }
 
@@ -2090,11 +2091,17 @@ window.handlePharmacyLogin = async (e) => {
         }
         
         if (window.OneSignalDeferred) {
-            OneSignalDeferred.push(function(OneSignal) {
-                OneSignal.login(data.user.id);
-                OneSignal.User.addTag("role", "pharmacy");
-            });
-        }
+    OneSignalDeferred.push(function(OneSignal) {
+        OneSignal.login(data.user.id);
+        OneSignal.User.addTag("role", "pharmacy");
+        
+        // إضافة وسم المدينة (بناءً على عنوان الصيدلية الموجود في قاعدة البيانات)
+        // نفترض أنك تملك حقل address أو city في جدول listings
+        let pharmCity = pharmData.address || 'غير محدد'; 
+        // أو إذا كان عندك حقل city مخصص: let pharmCity = pharmData.city;
+        OneSignal.User.addTag("city", pharmCity); 
+    });
+}
         renderPharmacyDashboard(pharmData); 
     } else {
         await supabase.auth.signOut();
@@ -3142,11 +3149,15 @@ window.previewMedicineImage = (event) => {
     const fileInput = document.getElementById('medImage'); 
     const file = fileInput.files[0]; 
     
+    // جلب المدينة المختارة من الحقل الجديد
+    const citySelect = document.getElementById('medCity');
+    const targetCity = citySelect ? citySelect.value : 'الرحيبة'; // قيمة افتراضية احتياطية
+    
     if (!medList) { showToast('الرجاء كتابة الأدوية المطلوبة'); return; }
     if (!/^09\d{8}$/.test(phone)) { 
         phoneInput.classList.add('input-invalid'); 
         showToast('الرجاء إدخال رقم هاتف صحيح'); 
-        submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال للصيدليات'; 
+        submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال لصيدليات مدينتي'; 
         return; 
     } 
     phoneInput.classList.remove('input-invalid'); 
@@ -3166,7 +3177,9 @@ window.previewMedicineImage = (event) => {
 
         const medRef = `MED-${Math.floor(Math.random() * 900000) + 100000}`;
         
-        // === التعديل هنا: استخدام الدالة الموحدة ===
+        // لاحظ هنا: لم نقم بإدراج الـ city كـ Column في قاعدة البيانات (لأنك تعتمد على الجداول الموجودة)
+        // لكننا أرسلناها مع بيانات الإشعار فقط
+        
         const { data: reqData, error: reqError } = await supabase.functions.invoke('manage-public-requests', {
             body: { 
                 action: 'submit_request',
@@ -3184,29 +3197,29 @@ window.previewMedicineImage = (event) => {
         }
         if (reqData && reqData.error) throw new Error(reqData.error);
 
-        sendPushNotification(null, "طلب دواء عاجل 💊", `المريض ${name} يبحث عن: ${medList}`, 'pharmacies');
+        // === إرسال الإشعار مستهدفين صيدليات المدينة المحددة فقط ===
+        sendPushNotification(null, "طلب دواء عاجل 💊", `المريض ${name} من ${targetCity} يبحث عن: ${medList}`, 'pharmacies', null, targetCity);
         
         document.getElementById('modalContent').innerHTML = `
         <div class="p-8 text-center">
             <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style="background: var(--accent-light)">
                 <i class="fas fa-check text-4xl" style="color: var(--accent)"></i>
             </div>
-            <h3 class="text-xl font-bold mb-2">تم بث طلبك للصيدليات!</h3>
+            <h3 class="text-xl font-bold mb-2">تم بث طلبك لصيدليات ${targetCity}!</h3>
             <p class="text-sm mb-2" style="color: var(--muted)">احفظ هذا الرقم لتتبع حالتك:</p>
             <div class="text-2xl font-black text-yellow-600 mb-6">#${medRef}</div>
             <button onclick="copyText('${medRef}')" class="w-full py-3 rounded-xl text-white font-bold text-sm mb-2" style="background: var(--accent)">
                 <i class="fas fa-copy ml-2"></i> نسخ الكود
             </button>
-            <p class="text-xs text-gray-400 mt-4">سيقوم النظام بإشعارك فور توفّر الدواء في أقرب صيدلية.</p>
+            <p class="text-xs text-gray-400 mt-4">سيقوم النظام بإشعارك فور توفّر الدواء في أقرب صيدلية بمدينتك.</p>
             <button onclick="closeModal()" class="w-full py-2 mt-2 rounded-xl border font-bold text-sm" style="border-color: var(--border)">إغلاق</button>
         </div>`; 
     } catch (err) { 
         showToast('حدث خطأ: ' + err.message, 'error'); 
         submitBtn.disabled = false; 
-        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال للصيدليات'; 
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال لصيدليات مدينتي'; 
     } 
 };
-
 window.quickLookup = async () => {
     let val = document.getElementById('quickLookupInput').value.trim().toUpperCase().replace(/#/g, '').replace(/\s/g, '');
     if (!val) { showToast('الرجاء إدخال رقم الاستعلام'); return; }
