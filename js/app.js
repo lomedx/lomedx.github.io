@@ -5142,8 +5142,6 @@ window.submitRadarVote = async () => {
             city: targetCity
         }]).select(); 
         
-        if (error) throw error; // هذا السطر سيرمي الخطأ الحقيقي إذا كان موجوداً
-        
         localStorage.setItem('lastRadarVoteTime', Date.now().toString());
         closeModal(); 
         showToast('تم تسجيل حالتك بنجاح!', 'success');
@@ -5152,9 +5150,7 @@ window.submitRadarVote = async () => {
         renderRadarCards();
         
     } catch (err) { 
-        console.error("Radar Submit Error:", err);
-        // هنا سنعرض لك رسالة الخطأ القادمة من Supabase بالضبط
-        showToast('خطأ: ' + err.message, 'error'); 
+        showToast('حدث خطأ'); 
     }
 }; 
 
@@ -5932,11 +5928,12 @@ window.openArticleReader = async (id) => {
                     <h4 class="font-bold text-base text-blue-900 mb-2">هل تحتاج إلى استشارة طبية؟</h4>
                     <p class="text-xs text-blue-700 mb-4 max-w-md mx-auto">لا تعتمد على المقالات فقط. تواصل مباشرةً مع أطباء متخصصين عبر منصة لوميديكس.</p>
                     <div class="flex flex-col sm:flex-row gap-3 justify-center w-full max-w-md mx-auto">
-                        <button onclick="closeModal(); openAskDoctor()" class="flex-1 min-w-[160px] bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center gap-1">
-                            <i class="fas fa-comments"></i> اسأل طبيباً الآن
+                        <button onclick="closeAllOverlays(); openAskDoctor()" class="flex-1 min-w-[160px] bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center gap-1">
+                              <i class="fas fa-comments"></i> اسأل طبيباً الآن
                         </button>
-                        <button onclick="closeModal(); redirectToDoctorsSearch('${escapeHtml(article.category || '')}')" class="flex-1 min-w-[160px] bg-white border border-blue-200 text-blue-700 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors shadow-sm flex items-center justify-center gap-1">
-                            <i class="fas fa-search"></i> ابحث عن طبيب مختص
+                        
+                        <button onclick="closeAllOverlays(); redirectToDoctorsSearch('${escapeHtml(article.category || '')}')" class="flex-1 min-w-[160px] bg-white border border-blue-200 text-blue-700 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors shadow-sm flex items-center justify-center gap-1">
+                              <i class="fas fa-search"></i> ابحث عن طبيب مختص
                         </button>
                     </div>
                 </div>
@@ -6500,7 +6497,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!mobileMenu) return;
 
     let openedFromMenu = false;
-
+    // دالة موحدة لإغلاق كل النوافذ والقوائم ومنع القائمة الذكية من العودة
+    window.closeAllOverlays = () => {
+        openedFromMenu = false; // إيقاف السلوك الذكي الذي يعيد فتح القائمة
+        closeModal(); 
+        closeCtrlPanel();
+        
+        // إغلاق قائمة الجوال إذا كانت مفتوحة
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        if (mobileMenu && mobileMenu.classList.contains('open')) {
+            mobileMenu.classList.remove('open');
+            menuOverlay.classList.add('hidden');
+            unlockScroll();
+        }
+    };
         // 1. تعديل أزرار الميزات داخل القائمة
     mobileMenu.querySelectorAll('a, button').forEach(btn => {
         const onclickVal = btn.getAttribute('onclick');
