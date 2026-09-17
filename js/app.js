@@ -1874,7 +1874,7 @@ const { count: providedCount } = await supabase
 
     // مؤقت هادئ كل دقيقة فقط
     unsubscribeMedRequestsInterval = setInterval(() => fetchMedRequests(pharm.name, pharmCity), 60000); // عدّلنا هذا السطر}
-
+}
 async function fetchMedRequests(pharmName, pharmCity = null) {
     const container = document.getElementById('requestsContainer'); 
     if (!container) return; 
