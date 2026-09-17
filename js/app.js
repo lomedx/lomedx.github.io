@@ -1835,13 +1835,13 @@ window.renderPharmacyDashboard = async (pharm) => {
         const foundCity = allCities.find(c => c !== 'كل المدن' && pharm.address.includes(c));
         if (foundCity) pharmCity = foundCity;
     }
-    
-    // ... (أكمل باقي كود الدالة الأصلي كما هو بالضبط)
-    // === التعديل: العداد يبحث عن كل الأدوية التي وفرتها الصيدلية مسبقاً بغض النظر عن حالتها الحالية ===
+
+// === العداد يبحث عن كل الأدوية التي وفرتها الصيدلية مسبقاً ===
 const { count: providedCount } = await supabase
-        .from('medicine_requests')
-        .select('*', { count: 'exact', head: true })
-        .eq('available_pharmacy', pharm.name);
+    .from('medicine_requests')
+    .select('*', { count: 'exact', head: true })
+    .eq('available_pharmacy', pharm.name)
+    .eq('status', 'available'); // نحدد الحالة لتبقى ثابتة ولا تتأثر بالمؤقت
     
     const providedMeds = providedCount || 0;
     
@@ -1886,6 +1886,7 @@ async function fetchMedRequests(pharmName, pharmCity = null) {
     
     container.innerHTML = '<p class="text-center py-10" style="color: var(--muted)">جاري تحديث الطلبات...</p>';
     
+    // العودة لاستخدام الدالة الآمنة RPC
     const { data: snapshot, error } = await supabase.rpc('get_active_med_requests');
         
     if (error || !snapshot) { container.innerHTML = '<p class="text-center py-10 text-red-500">حدث خطأ أو لا تملك صلاحية.</p>'; return; }
@@ -1894,8 +1895,8 @@ async function fetchMedRequests(pharmName, pharmCity = null) {
     let filteredSnapshot = snapshot;
     if (pharmCity && pharmCity !== 'غير محدد') {
         filteredSnapshot = snapshot.filter(req => {
-            // نفترض أن المدينة محفوظة كـ req.city، أو إذا كانت محفوظة كـ JSON داخل payload سنبحث عنها
-            let reqCity = req.city || (req.payload && req.payload.city) || 'غير محدد';
+            // الآن نقرأ الحقل المستقل city الذي قمنا بإنشائه
+            let reqCity = req.city || 'غير محدد';
             return reqCity === pharmCity;
         });
     }
@@ -1903,12 +1904,11 @@ async function fetchMedRequests(pharmName, pharmCity = null) {
     if (filteredSnapshot.length === 0) { container.innerHTML = '<p class="text-center py-10" style="color: var(--muted)">لا توجد طلبات أدوية في مدينتك حالياً.</p>'; return; } 
     
     let html = ''; 
-    // نستخدم filteredSnapshot بدلاً من snapshot
     filteredSnapshot.forEach(req => { 
-        // ... (أكمل باقي كود الدالة كما هو بالضبط)
+        // ... (أكمل باقي كود الدالة الأصلي لرسم البطاقات كما هو بدون تغيير)
         const date = new Date(req.created_at).toLocaleString('ar-EG', { date: 'short', time: 'short' }); 
         const phone = req.patient_phone; 
-        
+    
         let requestStatus = ''; 
         if (req.status === 'available') requestStatus = `<span class="text-xs px-2 py-1 rounded bg-green-100 text-green-700 inline-block mb-2">تم التوفير</span>`; 
         else if (req.status === 'unavailable') requestStatus = `<span class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700 inline-block mb-2">غير متوفر</span>`; 
