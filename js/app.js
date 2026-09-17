@@ -1637,25 +1637,33 @@ window.confirmBooking = async () => {
     if (!/^09\d{8}$/.test(phone)) { phoneInput.classList.add('input-invalid'); showToast('رقم هاتف غير صحيح'); return; } 
     phoneInput.classList.remove('input-invalid'); 
     
-    // إرفاق معرف إشعارات المريض
     const patientPushId = localStorage.getItem('patient_push_id') || null;
+
+    // === توليد بصمة الجهاز المعقدة ===
+    let deviceFingerprint = 'unknown';
+    if (window.FingerprintJS) {
+        const fp = await FingerprintJS.load();
+        const result = await fp.get();
+        deviceFingerprint = result.visitorId;
+    }
 
     const submitBtn = document.querySelector('#step2 button[type="submit"]') || document.querySelector('#step2 button');
     if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التأكيد...'; }
 
     try { 
-        // === استدعاء الـ Edge Function الآمنة بدلاً من الإدراج المباشر ===
         const { data: funcData, error: funcError } = await supabase.functions.invoke('manage-public-requests', {
-    body: { 
-        action: 'book',
-        doctor_id: tempBooking.itemid,
-        patient_name: name,
-        patient_phone: phone,
-        day: tempBooking.daystr,
-        time: tempBooking.slot_time || "بانتظار التحديد",
-        patient_push_id: patientPushId
-    }
-});
+            body: { 
+                action: 'book',
+                doctor_id: tempBooking.itemid,
+                patient_name: name,
+                patient_phone: phone,
+                day: tempBooking.daystr,
+                time: tempBooking.slot_time || "بانتظار التحديد",
+                patient_push_id: patientPushId,
+                fingerprint: deviceFingerprint // <--- أرسلنا البصمة هنا
+            }
+        });
+        
                                 if (funcError) {
                     // استخراج رسالة الخطأ العربية من جسم الاستجابة (Response Body)
                     let errMsg = funcError.message;
