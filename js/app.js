@@ -1794,13 +1794,13 @@ if (doctorData && doctorData.user_id) {
         showToast('خطأ في الإرسال', 'error');
     }   
 };
-
 window.openPharmacyLogin = async () => { 
     const { data: { session } } = await supabase.auth.getSession();
     if (session && session.user.email && session.user.email.endsWith('@lomedx.app')) {
         const userId = session.user.id;
+        // === التعديل هنا: إضافة address للاستعلام ===
         const { data: listing } = await supabase.from('listings')
-            .select('id, name, image, is_subscribed, isopen, night, phone_clicks, view_count')
+            .select('id, name, image, is_subscribed, isopen, night, phone_clicks, view_count, address')
             .eq('user_id', userId).eq('type', 'pharmacy').maybeSingle();
 
         if (listing) {
