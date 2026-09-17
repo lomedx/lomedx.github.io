@@ -636,6 +636,20 @@ function updateMetaTags(title, description, image) {
     
     document.querySelector('link[rel="canonical"]').setAttribute('href', window.location.href);
 }
+const DEFAULT_SEO = {
+    title: 'LomedX | منصة طبية شاملة: حجز مواعيد، بحث عن دواء، وملف صحي ذكي',
+    description: 'LomedX منصتك الطبية الشاملة في سوريا. احجز موعدك مع أفضل الأطباء، ابحث عن دواء في صيدليات مدينتك، أنشئ ملفك الصحي المشفر، واستفد من أدواتنا الطبية التفاعلية (حاسبات الجرعات، الإسعافات، بنك الدم).',
+    image: 'https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg'
+};
+
+// دالة موحدة لإعادة الرابط والوصف للوضع الافتراضي
+function resetMetaTags() {
+    updateMetaTags(DEFAULT_SEO.title, DEFAULT_SEO.description, DEFAULT_SEO.image);
+    // مسح أي هاش (مثل #medicine-finder) لكي يبقى الرابط الأساسي نظيفاً
+    if (window.location.hash && !window.location.hash.includes('article=')) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+}
 function createCard(item) {
     const typeMap = { 
         hospital: { cardClass: 'hospital-card', badgeClass: 'badge-hospital', iconClass: 'cat-icon-hospital', icon: 'fa-hospital-symbol', label: 'مشفى', color: 'var(--hospital)' }, 
@@ -1537,6 +1551,7 @@ window.closeCtrlPanel = (event) => {
     overlay.classList.remove('active'); 
     unlockScroll(); 
     document.getElementById('ctrlContent').innerHTML = ''; 
+    resetMetaTags();
     if (doctorDashboardInterval) { clearInterval(doctorDashboardInterval); doctorDashboardInterval = null; } 
     if (unsubscribeMedRequests) { supabase.removeChannel(unsubscribeMedRequests); unsubscribeMedRequests = null; } 
     if (unsubscribeMedRequestsInterval) { clearInterval(unsubscribeMedRequestsInterval); unsubscribeMedRequestsInterval = null; } 
