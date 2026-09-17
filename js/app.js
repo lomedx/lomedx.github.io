@@ -3165,7 +3165,9 @@ window.openMedicineFinder = () => {
         </div>
     </div>
     
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"><div><label class="block text-sm font-semibold mb-2">مستوى الإلحاح</label><select id="medUrgency" class="ctrl-input"><option value="عاجل جداً (طوارئ)">عاجل جداً (طوارئ)</option><option value="عاجل (خلال اليوم)">عاجل (خلال اليوم)</option><option value="عادي" selected>عادي</option></select></div></div><div class="mb-6"><label class="block text-sm font-semibold mb-2">صورة الوصفة الطبية (اختياري)</label><div class="file-input-wrapper"><label class="file-input-label" for="medImage"><i class="fas fa-camera text-2xl mb-2"></i><span>اضغط لاختيار صورة الوصفة (إن وجدت)</span><img id="imagePreview" class="preview-image hidden" src="" alt="معاينة"></label><input type="file" id="medImage" accept="image/*" onchange="previewMedicineImage(event)"></div></div><button type="submit" id="medSubmitBtn" class="w-full py-3.5 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90 flex items-center justify-center gap-2" style="background: var(--accent)"><i class="fas fa-paper-plane"></i> إرسال لصيدليات مدينتي</button></form></div>`; 
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"><div><label class="block text-sm font-semibold mb-2">مستوى الإلحاح</label><select id="medUrgency" class="ctrl-input"><option value="عاجل جداً (طوارئ)">عاجل جداً (طوارئ)</option><option value="عاجل (خلال اليوم)">عاجل (خلال اليوم)</option><option value="عادي" selected>عادي</option></select></div></div><div class="mb-6"><label class="block text-sm font-semibold mb-2">صورة الوصفة الطبية (اختياري)</label><div class="file-input-wrapper"><label class="file-input-label" for="medImage"><i class="fas fa-camera text-2xl mb-2"></i><span>اضغط لاختيار صورة الوصفة (إن وجدت)</span><img id="imagePreview" class="preview-image hidden" src="" alt="معاينة"></label><input type="file" id="medImage" accept="image/*" onchange="previewMedicineImage(event)"></div></div><div class="mb-6 flex justify-center">
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAAE6WGao5dTYqh9U-" data-theme="light"></div>
+</div><button type="submit" id="medSubmitBtn" class="w-full py-3.5 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90 flex items-center justify-center gap-2" style="background: var(--accent)"><i class="fas fa-paper-plane"></i> إرسال لصيدليات مدينتي</button></form></div>`; 
     
     document.getElementById('modalOverlay').classList.add('active'); 
     lockScroll(); 
@@ -3185,6 +3187,13 @@ window.previewMedicineImage = (event) => {
   window.submitMedicineRequest = async (e) => { 
     e.preventDefault(); 
     if (!window.checkOnlineStatus()) return; 
+
+          // === التقاط توكن الحماية ===
+    const cfToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+    if (!cfToken) { 
+        showToast('يرجى الانتظار ثانية حتى يكتمل التحقق الأمني.'); 
+        return; 
+    }
     
     const submitBtn = document.getElementById('medSubmitBtn'); 
     const medList = document.getElementById('medList').value.trim();
@@ -3230,7 +3239,7 @@ window.previewMedicineImage = (event) => {
             body: { 
                 action: 'submit_request',
                 type: 'medicine', patient_phone: phone, 
-                // أضفنا city هنا داخل payload
+                cf_token: cfToken, 
                 payload: { med_ref: medRef, med_list: medList, urgency: urgency, patient_name: name, image_url: imageUrl, patient_push_id: localStorage.getItem('patient_push_id'), city: targetCity }
             }
         });
