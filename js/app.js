@@ -1354,18 +1354,12 @@ window.closeModal = (event) => {
     document.getElementById('modalOverlay').classList.remove('active'); 
     unlockScroll(); 
     
-    // إعادة رابط الموقع وعنوان التبويب لوضعهما الطبيعي (SEO)
-    if (window.location.hash.includes('article=')) {
-        history.replaceState(null, '', window.location.pathname);
-        updateMetaTags(
-            'LomedX | مشافي، أطباء، صيدليات، مراكز طبية، مخابر', 
-            'Lomedx منصة الطبية الشاملة في سوريا. ابحث عن أقرب المشفى، الطبيب، الصيدلية، المركز الطبي أو مخبر.',
-            'https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg'
-        );
-        // تنظيف الـ Schema الخاص بالمقال عند الإغلاق
-        const articleSchema = document.getElementById('dynamicArticleSchema');
-        if (articleSchema) articleSchema.remove();
-    }
+    // === تنظيف الرابط وإعادة وسوم الـ SEO الافتراضية لأي أداة ===
+    resetMetaTags();
+    
+    // تنظيف الـ Schema الخاص بالمقال عند الإغلاق
+    const articleSchema = document.getElementById('dynamicArticleSchema');
+    if (articleSchema) articleSchema.remove();
 };
 window.openLightbox = (src) => { const lightbox = document.getElementById('lightbox'); lightbox.querySelector('img').src = src.includes('picsum.photos') ? src.replace('/400/250', '/1200/800') : src; lightbox.classList.add('active'); lockScroll(); }
 window.copyNumber = (phone) => { navigator.clipboard.writeText(phone).then(() => showToast('تم نسخ رقم الهاتف بنجاح')).catch(() => showToast('تعذر النسخ')); }
@@ -3180,6 +3174,12 @@ window.toggleQueueStatus = async (id, enable) => {
     }
 };
 window.openMedicineFinder = () => { 
+    history.replaceState(null, '', window.location.pathname + '#medicine-finder');
+    updateMetaTags(
+        'ابحث عن دوائك | LomedX', 
+        'خدمة ذكية للبحث عن الأدوية في صيدليات مدينتك. أرسل طلبك واحصل على إشعار فور توفر الدواء في أقرب صيدلية.'
+    );
+    
     closeCtrlPanel(); 
     closeModal();
     
