@@ -1639,13 +1639,24 @@ window.confirmBooking = async () => {
     
     const patientPushId = localStorage.getItem('patient_push_id') || null;
 
-    // === توليد بصمة الجهاز المعقدة ===
-    let deviceFingerprint = 'unknown';
-    if (window.FingerprintJS) {
+// === انتظار تحميل مكتبة FingerprintJS لتوليد البصمة ===
+let deviceFingerprint = 'unknown';
+let attempts = 0;
+// ننتظر تحميل المكتبة لمدة أقصاها 2 ثانية (20 محاولة * 100 مللي ثانية)
+while (!window.FingerprintJS && attempts < 20) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    attempts++;
+}
+
+if (window.FingerprintJS) {
+    try {
         const fp = await FingerprintJS.load();
         const result = await fp.get();
         deviceFingerprint = result.visitorId;
+    } catch (e) {
+        console.error("فشل توليد بصمة الجهاز:", e);
     }
+}
 
     const submitBtn = document.querySelector('#step2 button[type="submit"]') || document.querySelector('#step2 button');
     if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التأكيد...'; }
@@ -2968,6 +2979,11 @@ window.submitBloodRequest = async (e) => {
     if (lastBloodRequest && (Date.now() - parseInt(lastBloodRequest)) < 3600000) {
         const minsLeft = Math.ceil((3600000 - (Date.now() - parseInt(lastBloodRequest))) / 60000);
         showToast(`لقد أرسلت استغاثة مؤخراً. يرجى الانتظار ${minsLeft} دقيقة.`, 'error');
+        return;
+    }
+         // فحص الكلمات المسيئة قبل الإرسال
+    if (containsBadWords(name) || containsBadWords(hospital) || containsBadWords(notes)) {
+        showToast('تم رفض الاستغاثة لاحتوائها على كلمات غير لائقة.', 'error');
         return;
     }
 
