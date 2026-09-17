@@ -1828,6 +1828,15 @@ window.renderPharmacyDashboard = async (pharm) => {
         showToast('يجب تسجيل الدخول أولاً');
         return;
     }
+
+    // === استخراج مدينة الصيدلية من عنوانها ===
+    let pharmCity = 'غير محدد';
+    if (pharm.address) {
+        const foundCity = allCities.find(c => c !== 'كل المدن' && pharm.address.includes(c));
+        if (foundCity) pharmCity = foundCity;
+    }
+    
+    // ... (أكمل باقي كود الدالة الأصلي كما هو بالضبط)
     // === التعديل: العداد يبحث عن كل الأدوية التي وفرتها الصيدلية مسبقاً بغض النظر عن حالتها الحالية ===
 const { count: providedCount } = await supabase
         .from('medicine_requests')
@@ -1852,22 +1861,21 @@ const { count: providedCount } = await supabase
     if (unsubscribeMedRequests) { supabase.removeChannel(unsubscribeMedRequests); }
     if (unsubscribeMedRequestsInterval) { clearInterval(unsubscribeMedRequestsInterval); }
     
-    // جلب البيانات لأول مرة
-    fetchMedRequests(pharm.name);
+        // جلب البيانات لأول مرة
+    fetchMedRequests(pharm.name, pharmCity);
     
-    // الاشتراك في التحديثات اللحظية (Realtime) - تتحدث فور إضافة أو تعديل طلب
+    // الاشتراك في التحديثات اللحظية (Realtime)
     unsubscribeMedRequests = supabase
       .channel('medicine_requests_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'medicine_requests' }, payload => {
-          fetchMedRequests(pharm.name);
+          fetchMedRequests(pharm.name, pharmCity); // عدّلنا هذا السطر
       })
       .subscribe();
 
-    // مؤقت هادئ كل دقيقة فقط، للتحقق من الطلبات التي انتهت مدتها (30 دقيقة) لإخفائها
-    unsubscribeMedRequestsInterval = setInterval(() => fetchMedRequests(pharm.name), 60000);
-}
+    // مؤقت هادئ كل دقيقة فقط
+    unsubscribeMedRequestsInterval = setInterval(() => fetchMedRequests(pharm.name, pharmCity), 60000); // عدّلنا هذا السطر}
 
-async function fetchMedRequests(pharmName) {
+async function fetchMedRequests(pharmName, pharmCity = null) {
     const container = document.getElementById('requestsContainer'); 
     if (!container) return; 
     
@@ -1878,14 +1886,26 @@ async function fetchMedRequests(pharmName) {
     
     container.innerHTML = '<p class="text-center py-10" style="color: var(--muted)">جاري تحديث الطلبات...</p>';
     
-    // استخدام الدالة الآمنة RPC
     const { data: snapshot, error } = await supabase.rpc('get_active_med_requests');
         
     if (error || !snapshot) { container.innerHTML = '<p class="text-center py-10 text-red-500">حدث خطأ أو لا تملك صلاحية.</p>'; return; }
-    if (snapshot.length === 0) { container.innerHTML = '<p class="text-center py-10" style="color: var(--muted)">لا توجد طلبات أدوية حالياً.</p>'; return; } 
+    
+    // === فلترة الطلبات لتظهر فقط طلبات مدينة الصيدلية ===
+    let filteredSnapshot = snapshot;
+    if (pharmCity && pharmCity !== 'غير محدد') {
+        filteredSnapshot = snapshot.filter(req => {
+            // نفترض أن المدينة محفوظة كـ req.city، أو إذا كانت محفوظة كـ JSON داخل payload سنبحث عنها
+            let reqCity = req.city || (req.payload && req.payload.city) || 'غير محدد';
+            return reqCity === pharmCity;
+        });
+    }
+
+    if (filteredSnapshot.length === 0) { container.innerHTML = '<p class="text-center py-10" style="color: var(--muted)">لا توجد طلبات أدوية في مدينتك حالياً.</p>'; return; } 
     
     let html = ''; 
-    snapshot.forEach(req => { 
+    // نستخدم filteredSnapshot بدلاً من snapshot
+    filteredSnapshot.forEach(req => { 
+        // ... (أكمل باقي كود الدالة كما هو بالضبط)
         const date = new Date(req.created_at).toLocaleString('ar-EG', { date: 'short', time: 'short' }); 
         const phone = req.patient_phone; 
         
@@ -2077,9 +2097,9 @@ window.handlePharmacyLogin = async (e) => {
         return; 
     }
 
-    // === التعديل هنا: جلب بيانات الصيدلية مباشرة من listings ===
+    // === التعديل هنا: إضافة address للاستعلام ===
     const { data: pharmData, error: fetchError } = await supabase.from('listings')
-        .select('id, name, image, is_subscribed, isopen, night, phone_clicks, view_count')
+        .select('id, name, image, is_subscribed, isopen, night, phone_clicks, view_count, address') 
         .eq('user_id', data.user.id).eq('type', 'pharmacy').maybeSingle();
 
     if (pharmData) { 
@@ -2091,17 +2111,20 @@ window.handlePharmacyLogin = async (e) => {
         }
         
         if (window.OneSignalDeferred) {
-    OneSignalDeferred.push(function(OneSignal) {
-        OneSignal.login(data.user.id);
-        OneSignal.User.addTag("role", "pharmacy");
-        
-        // إضافة وسم المدينة (بناءً على عنوان الصيدلية الموجود في قاعدة البيانات)
-        // نفترض أنك تملك حقل address أو city في جدول listings
-        let pharmCity = pharmData.address || 'غير محدد'; 
-        // أو إذا كان عندك حقل city مخصص: let pharmCity = pharmData.city;
-        OneSignal.User.addTag("city", pharmCity); 
-    });
-}
+            OneSignalDeferred.push(function(OneSignal) {
+                OneSignal.login(data.user.id);
+                OneSignal.User.addTag("role", "pharmacy");
+                
+                // === كود ذكي يطابق اسم المدينة من قائمة المدن لديك ===
+                let pharmCity = 'غير محدد';
+                if (pharmData.address) {
+                    // يبحث عن أي مدينة من allCities موجودة داخل نص العنوان
+                    const foundCity = allCities.find(c => c !== 'كل المدن' && pharmData.address.includes(c));
+                    if (foundCity) pharmCity = foundCity;
+                }
+                OneSignal.User.addTag("city", pharmCity); 
+            });
+        }
         renderPharmacyDashboard(pharmData); 
     } else {
         await supabase.auth.signOut();
@@ -3203,11 +3226,12 @@ window.previewMedicineImage = (event) => {
         // لاحظ هنا: لم نقم بإدراج الـ city كـ Column في قاعدة البيانات (لأنك تعتمد على الجداول الموجودة)
         // لكننا أرسلناها مع بيانات الإشعار فقط
         
-        const { data: reqData, error: reqError } = await supabase.functions.invoke('manage-public-requests', {
+                const { data: reqData, error: reqError } = await supabase.functions.invoke('manage-public-requests', {
             body: { 
                 action: 'submit_request',
                 type: 'medicine', patient_phone: phone, 
-                payload: { med_ref: medRef, med_list: medList, urgency: urgency, patient_name: name, image_url: imageUrl, patient_push_id: localStorage.getItem('patient_push_id') }
+                // أضفنا city هنا داخل payload
+                payload: { med_ref: medRef, med_list: medList, urgency: urgency, patient_name: name, image_url: imageUrl, patient_push_id: localStorage.getItem('patient_push_id'), city: targetCity }
             }
         });
 
