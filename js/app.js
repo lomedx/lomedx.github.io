@@ -1295,10 +1295,8 @@ window.closeModal = (event) => {
     document.getElementById('modalOverlay').classList.remove('active'); 
     unlockScroll(); 
     
-    // === تنظيف الرابط وإعادة وسوم الـ SEO الافتراضية لأي أداة ===
+    // === تنظيف الـ SEO وحذف Schema القديم ===
     resetMetaTags();
-    
-    // تنظيف الـ Schema الخاص بالمقال عند الإغلاق
     const articleSchema = document.getElementById('dynamicArticleSchema');
     if (articleSchema) articleSchema.remove();
 };
@@ -1474,26 +1472,32 @@ window.closeCtrlPanel = (event) => {
     const overlay = document.getElementById('ctrlOverlay');
     if (event && event.target.id === 'ctrlOverlay' && overlay.dataset.preventClose === 'true') return; 
     if (window.activeHealthFileSub) { supabase.removeChannel(window.activeHealthFileSub); window.activeHealthFileSub = null; }
-    // === إيقاف الكاميرا إجبارياً عند إغلاق اللوحة ===
+    
     if (activeQrScanner) {
         activeQrScanner.stop().then(() => {
             activeQrScanner.clear();
             activeQrScanner = null;
-        }).catch(() => {
-            activeQrScanner = null;
-        });
+        }).catch(() => { activeQrScanner = null; });
     }
+    
     overlay.classList.remove('active'); 
     unlockScroll(); 
     document.getElementById('ctrlContent').innerHTML = ''; 
+    
+    // === تنظيف الرابط وإعادة الـ SEO ===
     resetMetaTags();
+    if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+        history.pushState({}, '', '/');
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+    
     if (doctorDashboardInterval) { clearInterval(doctorDashboardInterval); doctorDashboardInterval = null; } 
     if (unsubscribeMedRequests) { supabase.removeChannel(unsubscribeMedRequests); unsubscribeMedRequests = null; } 
     if (unsubscribeMedRequestsInterval) { clearInterval(unsubscribeMedRequestsInterval); unsubscribeMedRequestsInterval = null; } 
     if (unsubscribeDocBookings) { supabase.removeChannel(unsubscribeDocBookings); unsubscribeDocBookings = null; }
     if (activeFollowupUnsub) { supabase.removeChannel(activeFollowupUnsub); activeFollowupUnsub = null; } 
     currentFollowupBookingId = null;
-}
+};
 
 window.openBookingModal = (id) => { 
     closeModal(); 
