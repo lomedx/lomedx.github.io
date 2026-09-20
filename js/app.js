@@ -1648,47 +1648,64 @@ window.confirmBooking = async () => {
     
     const patientPushId = localStorage.getItem('patient_push_id') || null;
 
-    // === انتظار تحميل مكتبة FingerprintJS بطريقة ديناميكية ===
-    let deviceFingerprint = 'unknown';
-    
-    // دالة مساعدة لحقن السكريبت وانتظاره
-    const loadFingerprintScript = () => {
-        return new Promise((resolve, reject) => {
-            if (window.FingerprintJS) return resolve(); // إذا كانت محملة مسبقاً
-            
-            const script = document.createElement('script');
-            script.src = 'https://openfpcdn.io/fingerprintjs/4/open-source.js';
-            script.async = true;
-            
-            script.onload = () => resolve();
-            script.onerror = () => reject(new Error('Failed to load FingerprintJS'));
-            
-            document.head.appendChild(script);
-            
-            // مهلة زمنية أطول (5 ثوانٍ مثلاً) للإنترنت البطيء
-            setTimeout(() => reject(new Error('Timeout')), 5000);
-        });
+    // === 1. دالة محلية لتوليد بصمة احتياطية (لا يمكن حظرها) ===
+    const generateNativeFingerprint = () => {
+        const nav = window.navigator || {};
+        const screen = window.screen || {};
+        const data = [
+            nav.userAgent || '',
+            nav.language || '',
+            nav.languages ? nav.languages.join(',') : '',
+            nav.platform || '',
+            nav.hardwareConcurrency || '',
+            screen.width + 'x' + screen.height || '',
+            screen.colorDepth || '',
+            new Date().getTimezoneOffset(),
+            window.devicePixelRatio || 1
+        ].join('|');
+        
+        // خوارزمية Hash بسيطة لتحويل النص الطويل إلى كود قصير فريد
+        let hash = 0;
+        for (let i = 0; i < data.length; i++) {
+            const char = data.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // تحويل إلى 32bit integer
+        }
+        return 'native_' + Math.abs(hash).toString(16); // إضافة بادئة لنعرف أنها بصمة محلية
     };
 
+    // === 2. محاولة تحميل مكتبة FingerprintJS الخارجية ===
+    let deviceFingerprint = 'unknown';
     try {
-        // 1. محاولة تحميل المكتبة (تنتظر حتى 5 ثوانٍ)
-        await loadFingerprintScript();
+        if (!window.FingerprintJS) {
+            await new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://openfpcdn.io/fingerprintjs/4/open-source.js';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+                setTimeout(() => reject(new Error('Timeout')), 3000);
+            });
+        }
         
-        // 2. إذا تحملت بنجاح، قم بتوليد البصمة
         if (window.FingerprintJS) {
             const fp = await window.FingerprintJS.load();
             const result = await fp.get();
             deviceFingerprint = result.visitorId;
         }
     } catch (err) {
-        // تجاهل الخطأ (المتصفح قد يكون حظر المكتبة)، ستظل البصمة 'unknown'
-        console.warn("لم يتم تحميل مكتبة البصمة (ربما بسبب مانع الإعلانات):", err.message);
+        console.warn("تم حظر مكتبة البصمة الخارجية، سيتم استخدام البصمة المحلية.");
+    }
+
+    // === 3. الحل الاحتياطي: إذا فشلت المكتبة الخارجية، استخدم الدالة المحلية ===
+    if (deviceFingerprint === 'unknown' || !deviceFingerprint) {
+        deviceFingerprint = generateNativeFingerprint();
     }
 
     const submitBtn = document.querySelector('#step2 button[type="submit"]') || document.querySelector('#step2 button');
     if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التأكيد...'; }
 
-    
+    // === 4. إرسال البصمة (سواء الخارجية أو المحلية) ===
     try { 
         const { data: funcData, error: funcError } = await supabase.functions.invoke('manage-public-requests', {
             body: { 
@@ -1699,9 +1716,11 @@ window.confirmBooking = async () => {
                 day: tempBooking.daystr,
                 time: tempBooking.slot_time || "بانتظار التحديد",
                 patient_push_id: patientPushId,
-                fingerprint: deviceFingerprint // <--- أرسلنا البصمة هنا
+                fingerprint: deviceFingerprint // <--- الآن ستظهر بصمة حقيقية دائماً
             }
         });
+        
+        // ... (أكمل باقي كود الحجز الموجود لديك بنفس الطريقة) ...
         
                                 if (funcError) {
                     // استخراج رسالة الخطأ العربية من جسم الاستجابة (Response Body)
