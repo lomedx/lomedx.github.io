@@ -1648,28 +1648,47 @@ window.confirmBooking = async () => {
     
     const patientPushId = localStorage.getItem('patient_push_id') || null;
 
-// === انتظار تحميل مكتبة FingerprintJS لتوليد البصمة ===
-let deviceFingerprint = 'unknown';
-let attempts = 0;
-// ننتظر تحميل المكتبة لمدة أقصاها 2 ثانية (20 محاولة * 100 مللي ثانية)
-while (!window.FingerprintJS && attempts < 20) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    attempts++;
-}
+    // === انتظار تحميل مكتبة FingerprintJS بطريقة ديناميكية ===
+    let deviceFingerprint = 'unknown';
+    
+    // دالة مساعدة لحقن السكريبت وانتظاره
+    const loadFingerprintScript = () => {
+        return new Promise((resolve, reject) => {
+            if (window.FingerprintJS) return resolve(); // إذا كانت محملة مسبقاً
+            
+            const script = document.createElement('script');
+            script.src = 'https://openfpcdn.io/fingerprintjs/4/open-source.js';
+            script.async = true;
+            
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error('Failed to load FingerprintJS'));
+            
+            document.head.appendChild(script);
+            
+            // مهلة زمنية أطول (5 ثوانٍ مثلاً) للإنترنت البطيء
+            setTimeout(() => reject(new Error('Timeout')), 5000);
+        });
+    };
 
-if (window.FingerprintJS) {
     try {
-        const fp = await FingerprintJS.load();
-        const result = await fp.get();
-        deviceFingerprint = result.visitorId;
-    } catch (e) {
-        console.error("فشل توليد بصمة الجهاز:", e);
+        // 1. محاولة تحميل المكتبة (تنتظر حتى 5 ثوانٍ)
+        await loadFingerprintScript();
+        
+        // 2. إذا تحملت بنجاح، قم بتوليد البصمة
+        if (window.FingerprintJS) {
+            const fp = await window.FingerprintJS.load();
+            const result = await fp.get();
+            deviceFingerprint = result.visitorId;
+        }
+    } catch (err) {
+        // تجاهل الخطأ (المتصفح قد يكون حظر المكتبة)، ستظل البصمة 'unknown'
+        console.warn("لم يتم تحميل مكتبة البصمة (ربما بسبب مانع الإعلانات):", err.message);
     }
-}
 
     const submitBtn = document.querySelector('#step2 button[type="submit"]') || document.querySelector('#step2 button');
     if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التأكيد...'; }
 
+    
     try { 
         const { data: funcData, error: funcError } = await supabase.functions.invoke('manage-public-requests', {
             body: { 
