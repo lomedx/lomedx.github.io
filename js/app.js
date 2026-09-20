@@ -260,66 +260,7 @@ function updateTipDisplay() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-// === نظام توجيه الروابط الشامل (SPA Hash Router) ===
-const urlHash = window.location.hash;
-if (urlHash && urlHash !== '#home' && !urlHash.includes('article=')) {
-    // جدول التوجيه (يربط الهاش باسم الدالة)
-    const routes = {
-        '#blog': 'openMedicalBlog',
-        '#blood-bank': 'openBloodBank',
-        '#first-aid': 'openFirstAid',
-        '#ask-doctor': 'openAskDoctor',
-        '#medicine-finder': 'openMedicineFinder',
-        '#health-file': 'openHealthFile',
-        '#doctor-login': 'openDoctorLogin',
-        '#pharmacy-login': 'openPharmacyLogin',
-        '#admin-login': 'openAdminLogin',
-        '#burn-calculator': 'openBurnCalculator',
-        '#seasonal-diseases': 'openSeasonalDiseases',
-        '#pregnancy-calc': 'openPregnancyCalc',
-        '#dose-calc': 'openDoseCalc',
-        '#vaccine-scheduler': 'openVaccineScheduler',
-        '#health-calc': 'openHealthCalc',
-        '#water-calc': 'openWaterCalc',
-        '#med-renewal-calc': 'openMedRenewalCalc',
-        '#med-symbols': 'openMedSymbols',
-        '#chronic-nutrition': 'openChronicNutrition',
-        '#pre-visit-guide': 'openPreVisitGuide',
-        '#pre-test-guide': 'openPreTestGuide',
-        '#events-first-aid': 'openEventsFirstAid',
-        '#food-interactions': 'openFoodInteractions',
-        '#patient-reminder': 'openPatientReminder',
-        '#medical-map': 'openMedicalMap',
-        '#raheba-radar': 'openRahebaRadar',
-        '#medicine-donation': 'openMedicineDonation'
-    };
 
-            const functionName = routes[urlHash];
-    if (functionName && typeof window[functionName] === 'function') {
-        // 1. تنظيف الرابط فوراً
-        history.replaceState(null, '', window.location.pathname + window.location.search);
-
-        // 2. التحقق مما إذا كان المستخدم يقوم بتحديث الصفحة (Refresh)
-        let isPageReload = false;
-        if (window.performance && window.performance.getEntriesByType) {
-            const navEntries = window.performance.getEntriesByType('navigation');
-            if (navEntries.length > 0 && navEntries[0].type === 'reload') {
-                isPageReload = true;
-            }
-        } else if (window.performance && window.performance.navigation) {
-            if (window.performance.navigation.type === 1) {
-                isPageReload = true;
-            }
-        }
-
-        // 3. لا تفتح الأداة إذا كان المستخدم قد قام فقط بتحديث الصفحة
-        if (!isPageReload) {
-            setTimeout(() => {
-                window[functionName]();
-            }, 1200); 
-        }
-    }
-}
     const isOAuthRedirect = window.location.href.includes('code=') || window.location.href.includes('access_token=');
     const isGoogleIntent = sessionStorage.getItem('google_login_intent') === 'true';
     
@@ -6763,5 +6704,71 @@ if (heroSection && heroBg) {
         });
     }, { threshold: 0.1 });
     heroObserver.observe(heroSection);
+}
+    // === محرك التوجيه الجديد (History API - بدون علامة #) ===
+const routesConfig = {
+    '/blog': { title: 'المدونة والمقالات الطبية | LomedX', desc: 'مكتبة طبية شاملة.', handler: 'openMedicalBlog' },
+    '/blood-bank': { title: 'بنك التبرع بالدم الرقمي | LomedX', desc: 'ربط المرضى بالدم بالمتبرعين.', handler: 'openBloodBank' },
+    '/first-aid': { title: 'دليل الإسعافات الأولية | LomedX', desc: 'التعامل مع الحوادث والطوارئ.', handler: 'openFirstAid' },
+    '/ask-doctor': { title: 'اسأل طبيب | LomedX', desc: 'استشارة طبية مجانية.', handler: 'openAskDoctor' },
+    '/medicine-finder': { title: 'ابحث عن دوائك | LomedX', desc: 'بحث عن الدواء في صيدليات مدينتك.', handler: 'openMedicineFinder' },
+    '/health-file': { title: 'الملف الصحي الذكي | LomedX', desc: 'سجلك الطبي المشفر.', handler: 'openHealthFile' },
+    '/burn-calculator': { title: 'مُسعف الحروق الذكي | LomedX', desc: 'إسعافات أولية للحروق.', handler: 'openBurnCalculator' },
+    '/raheba-radar': { title: 'الرادار الصحي التفاعلي | LomedX', desc: 'رصد الأمراض الموسمية.', handler: 'openRahebaRadar' },
+    '/medicine-donation': { title: 'مركز الأجهزة الطبية | LomedX', desc: 'تبادل الأجهزة الطبية.', handler: 'openMedicineDonation' },
+    '/medical-map': { title: 'الخريطة الطبية | LomedX', desc: 'عرض المنشآت على الخريطة.', handler: 'openMedicalMap' },
+    '/events-first-aid': { title: 'إسعافات المناسبات | LomedX', desc: 'حوادث التجمعات.', handler: 'openEventsFirstAid' },
+    '/pregnancy-calc': { title: 'حاسبة الحمل والولادة | LomedX', desc: 'تطور الجنين أسبوعياً.', handler: 'openPregnancyCalc' },
+    '/dose-calc': { title: 'حاسبة جرعات الأطفال | LomedX', desc: 'سيتامول وبروفين آمن.', handler: 'openDoseCalc' },
+    '/vaccine-scheduler': { title: 'جدول لقاحات الطفل | LomedX', desc: 'حاسبة مواعيد التطعيم.', handler: 'openVaccineScheduler' },
+    '/health-calc': { title: 'حاسبة الصحة | LomedX', desc: 'BMI والسعرات.', handler: 'openHealthCalc' },
+    '/water-calc': { title: 'حاسبة الماء اليومية | LomedX', desc: 'حسب الوزن والطقس.', handler: 'openWaterCalc' },
+    '/med-renewal-calc': { title: 'حاسبة تجديد الدواء | LomedX', desc: 'أسبوعي/شهري.', handler: 'openMedRenewalCalc' },
+    '/med-symbols': { title: 'رموز التحاليل والروشتات | LomedX', desc: 'فهم المصطلحات.', handler: 'openMedSymbols' },
+    '/chronic-nutrition': { title: 'تغذية الأمراض المزمنة | LomedX', desc: 'نظام غذائي خاص.', handler: 'openChronicNutrition' },
+    '/pre-visit-guide': { title: 'إرشادات قبل زيارة الطبيب | LomedX', desc: 'دليل الطبيب والمخبر.', handler: 'openPreVisitGuide' },
+    '/pre-test-guide': { title: 'تعليمات قبل التحاليل | LomedX', desc: 'دليل الفحوصات والأشعة.', handler: 'openPreTestGuide' },
+    '/food-interactions': { title: 'تعارضات الأدوية والطعام | LomedX', desc: 'جدول الصيدلية.', handler: 'openFoodInteractions' },
+    '/patient-reminder': { title: 'دفتر التذكير الذاتي | LomedX', desc: 'مواعيد الأدوية والزيارات.', handler: 'openPatientReminder' }
+};
+
+function handleRouteChange() {
+    const path = window.location.pathname;
+    if (path === '/' || path === '/index.html') { resetMetaTags(); return; }
+
+    const route = routesConfig[path];
+    if (route && typeof window[route.handler] === 'function') {
+        updateMetaTags(route.title, route.desc, DEFAULT_SEO.image);
+        
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenu && mobileMenu.classList.contains('open')) toggleMobileMenu();
+        
+        setTimeout(() => window[route.handler](), 100);
+    }
+}
+
+window.addEventListener('popstate', handleRouteChange);
+
+document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href^="/"]');
+    if (link && !link.hasAttribute('target') && !link.hasAttribute('download')) {
+        if (link.getAttribute('href').startsWith('//')) return; 
+        e.preventDefault(); 
+        const path = new URL(link.href).pathname;
+        history.pushState({}, '', path);
+        handleRouteChange();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+});
+
+if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+    let isPageReload = false;
+    if (window.performance && window.performance.getEntriesByType) {
+        const navEntries = window.performance.getEntriesByType('navigation');
+        if (navEntries.length > 0 && navEntries[0].type === 'reload') isPageReload = true;
+    }
+    if (!isPageReload) {
+        setTimeout(handleRouteChange, 1200); 
+    }
 }
 // نهاية ملف app.js
