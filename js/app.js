@@ -1635,71 +1635,71 @@ window.selectSlot = (time, btn) => {
 }
 window.goToStep = (step) => { document.querySelectorAll('.booking-step').forEach(s => s.classList.remove('active')); document.getElementById(`step${step}`).classList.add('active'); }
 
-     const patientPushId = localStorage.getItem('patient_push_id') || null;
+window.confirmBooking = async () => { 
+    if (!window.checkOnlineStatus()) return; 
+    const name = document.getElementById('patientName').value.trim(); 
+    const phoneInput = document.getElementById('patientPhone'); 
+    const phone = phoneInput.value.trim(); 
+    const notes = document.getElementById('patientNotes').value.trim(); 
+    
+    if (!name || !phone) { showToast('الرجاء إدخال الاسم والهاتف'); return; } 
+    if (!/^09\d{8}$/.test(phone)) { phoneInput.classList.add('input-invalid'); showToast('رقم هاتف غير صحيح'); return; } 
+    phoneInput.classList.remove('input-invalid'); 
+    
+    const patientPushId = localStorage.getItem('patient_push_id') || null;
 
-    // === 1. دالة محلية لتوليد بصمة (لا يمكن لأي إضافة حظرها) ===
+    // === الدالة المحلية الخارقة (بصمة Canvas + خصائص الجهاز) ===
     const generateNativeFingerprint = () => {
         const nav = window.navigator || {};
         const screen = window.screen || {};
+        
+        // 1. بصمة الـ Canvas (تختلف حسب كرت الشاشة والتعريفات)
+        let canvasCode = 'no_canvas';
+        try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = "top";
+            ctx.font = "14px 'Arial'";
+            ctx.fillStyle = "#f60";
+            ctx.fillRect(125, 1, 62, 20);
+            ctx.fillStyle = "#069";
+            ctx.fillText("LomedX_Security_FP", 2, 15);
+            ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+            ctx.fillText("LomedX_Security_FP", 4, 17);
+            canvasCode = canvas.toDataURL().slice(-50); // أخذ آخر 50 حرف لتقليل الحجم
+        } catch (e) { canvasCode = 'canvas_blocked'; }
+
+        // 2. تجميع خصائص الجهاز والمتصفح
         const data = [
             nav.userAgent || '',
             nav.language || '',
-            nav.languages ? nav.languages.join(',') : '',
             nav.platform || '',
-            nav.hardwareConcurrency || '',
-            screen.width + 'x' + screen.height || '',
+            nav.hardwareConcurrency || '', // عدد أنوية المعالج
+            nav.deviceMemory || '',       // الرام
+            nav.maxTouchPoints || 0,      // دعم اللمس
+            screen.width + 'x' + screen.height,
             screen.colorDepth || '',
-            new Date().getTimezoneOffset(),
-            window.devicePixelRatio || 1
+            window.devicePixelRatio || 1, // كثافة البكسلات
+            new Date().getTimezoneOffset(), // المنطقة الزمنية
+            canvasCode                     // كود الرسم
         ].join('|');
-        
-        let hash = 0;
+
+        // 3. خوارزمية FNV-1a Hash لتحويل النص الضخم إلى كود قصير فريد
+        let hash = 2166136261;
         for (let i = 0; i < data.length; i++) {
-            const char = data.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash;
+            hash ^= data.charCodeAt(i);
+            hash = Math.imul(hash, 16777619);
         }
-        return 'native_' + Math.abs(hash).toString(16);
+        
+        return 'native_' + (hash >>> 0).toString(16);
     };
 
-    // === 2. محاولة تحميل المكتبة الخارجية مع "سباق" ضد الزمن (3 ثوانٍ) ===
-    let deviceFingerprint = 'unknown';
-    
-    try {
-        deviceFingerprint = await Promise.race([
-            (async () => {
-                if (!window.FingerprintJS) {
-                    await new Promise((resolve, reject) => {
-                        const script = document.createElement('script');
-                        script.src = 'https://openfpcdn.io/fingerprintjs/4/open-source.js';
-                        script.onload = resolve;
-                        script.onerror = reject;
-                        document.head.appendChild(script);
-                    });
-                }
-                if (window.FingerprintJS) {
-                    const fp = await window.FingerprintJS.load();
-                    const result = await fp.get();
-                    return result.visitorId;
-                }
-                return 'unknown';
-            })(),
-            // مؤقت 3 ثوانٍ: إذا تعطل تحميل المكتبة بسبب الإضافات، سيتم تجاهلها
-            new Promise(resolve => setTimeout(() => resolve('timeout'), 3000))
-        ]);
-    } catch (err) {
-        console.warn("تم حظر مكتبة البصمة، سيتم استخدام البصمة المحلية.");
-    }
-
-    // === 3. إذا فشلت المكتبة أو انتهى وقتها (3 ثوانٍ)، استخدم البصمة المحلية الإلزامية ===
-    if (!deviceFingerprint || deviceFingerprint === 'unknown' || deviceFingerprint === 'timeout') {
-        deviceFingerprint = generateNativeFingerprint();
-    }
+    // توليد البصمة فوراً (لا يوجد انتظار للشبكة أو مكتبات)
+    const deviceFingerprint = generateNativeFingerprint();
 
     const submitBtn = document.querySelector('#step2 button[type="submit"]') || document.querySelector('#step2 button');
     if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التأكيد...'; }
 
-    // === 4. إرسال البصمة (سواء الخارجية أو المحلية) ===
     try { 
         const { data: funcData, error: funcError } = await supabase.functions.invoke('manage-public-requests', {
             body: { 
@@ -1710,11 +1710,11 @@ window.goToStep = (step) => { document.querySelectorAll('.booking-step').forEach
                 day: tempBooking.daystr,
                 time: tempBooking.slot_time || "بانتظار التحديد",
                 patient_push_id: patientPushId,
-                fingerprint: deviceFingerprint // <--- الآن ستظهر بصمة حقيقية دائماً
+                fingerprint: deviceFingerprint // <--- البصمة جاهزة 100% وأسرع من السابق
             }
         });
         
-        // ... (أكمل باقي كود الحجز الموجود لديك بنفس الطريقة) ...
+        
         
                                 if (funcError) {
                     // استخراج رسالة الخطأ العربية من جسم الاستجابة (Response Body)
