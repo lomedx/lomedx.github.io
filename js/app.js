@@ -1635,20 +1635,9 @@ window.selectSlot = (time, btn) => {
 }
 window.goToStep = (step) => { document.querySelectorAll('.booking-step').forEach(s => s.classList.remove('active')); document.getElementById(`step${step}`).classList.add('active'); }
 
-window.confirmBooking = async () => { 
-    if (!window.checkOnlineStatus()) return; 
-    const name = document.getElementById('patientName').value.trim(); 
-    const phoneInput = document.getElementById('patientPhone'); 
-    const phone = phoneInput.value.trim(); 
-    const notes = document.getElementById('patientNotes').value.trim(); 
-    
-    if (!name || !phone) { showToast('الرجاء إدخال الاسم والهاتف'); return; } 
-    if (!/^09\d{8}$/.test(phone)) { phoneInput.classList.add('input-invalid'); showToast('رقم هاتف غير صحيح'); return; } 
-    phoneInput.classList.remove('input-invalid'); 
-    
-    const patientPushId = localStorage.getItem('patient_push_id') || null;
+     const patientPushId = localStorage.getItem('patient_push_id') || null;
 
-    // === 1. دالة محلية لتوليد بصمة احتياطية (لا يمكن حظرها) ===
+    // === 1. دالة محلية لتوليد بصمة (لا يمكن لأي إضافة حظرها) ===
     const generateNativeFingerprint = () => {
         const nav = window.navigator || {};
         const screen = window.screen || {};
@@ -1664,41 +1653,46 @@ window.confirmBooking = async () => {
             window.devicePixelRatio || 1
         ].join('|');
         
-        // خوارزمية Hash بسيطة لتحويل النص الطويل إلى كود قصير فريد
         let hash = 0;
         for (let i = 0; i < data.length; i++) {
             const char = data.charCodeAt(i);
             hash = ((hash << 5) - hash) + char;
-            hash = hash & hash; // تحويل إلى 32bit integer
+            hash = hash & hash;
         }
-        return 'native_' + Math.abs(hash).toString(16); // إضافة بادئة لنعرف أنها بصمة محلية
+        return 'native_' + Math.abs(hash).toString(16);
     };
 
-    // === 2. محاولة تحميل مكتبة FingerprintJS الخارجية ===
+    // === 2. محاولة تحميل المكتبة الخارجية مع "سباق" ضد الزمن (3 ثوانٍ) ===
     let deviceFingerprint = 'unknown';
+    
     try {
-        if (!window.FingerprintJS) {
-            await new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = 'https://openfpcdn.io/fingerprintjs/4/open-source.js';
-                script.onload = resolve;
-                script.onerror = reject;
-                document.head.appendChild(script);
-                setTimeout(() => reject(new Error('Timeout')), 3000);
-            });
-        }
-        
-        if (window.FingerprintJS) {
-            const fp = await window.FingerprintJS.load();
-            const result = await fp.get();
-            deviceFingerprint = result.visitorId;
-        }
+        deviceFingerprint = await Promise.race([
+            (async () => {
+                if (!window.FingerprintJS) {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = 'https://openfpcdn.io/fingerprintjs/4/open-source.js';
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+                if (window.FingerprintJS) {
+                    const fp = await window.FingerprintJS.load();
+                    const result = await fp.get();
+                    return result.visitorId;
+                }
+                return 'unknown';
+            })(),
+            // مؤقت 3 ثوانٍ: إذا تعطل تحميل المكتبة بسبب الإضافات، سيتم تجاهلها
+            new Promise(resolve => setTimeout(() => resolve('timeout'), 3000))
+        ]);
     } catch (err) {
-        console.warn("تم حظر مكتبة البصمة الخارجية، سيتم استخدام البصمة المحلية.");
+        console.warn("تم حظر مكتبة البصمة، سيتم استخدام البصمة المحلية.");
     }
 
-    // === 3. الحل الاحتياطي: إذا فشلت المكتبة الخارجية، استخدم الدالة المحلية ===
-    if (deviceFingerprint === 'unknown' || !deviceFingerprint) {
+    // === 3. إذا فشلت المكتبة أو انتهى وقتها (3 ثوانٍ)، استخدم البصمة المحلية الإلزامية ===
+    if (!deviceFingerprint || deviceFingerprint === 'unknown' || deviceFingerprint === 'timeout') {
         deviceFingerprint = generateNativeFingerprint();
     }
 
