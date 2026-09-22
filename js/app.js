@@ -66,7 +66,7 @@ async function sendPushNotification(userId, title, message, target = 'user', pla
     }   
 }
 
-// 2. دالة التفعيل (سليمة تماماً ومعدلة لتتوافق مع الإصدار الجديد)
+// 2. دالة التفعيل (سليمة تماماً ومعدلة لتتوافق hمع الإصدار الجديد)
 window.setupOneSignal = async () => {
     
     
