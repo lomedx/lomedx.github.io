@@ -288,7 +288,7 @@ window.addEventListener('DOMContentLoaded', () => {
             loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js')
         ]).then(() => {
             // 2. تحميل ملف العرض السينمائي الخاص بك
-            return loadScript('./js/cinematic-intro.js'); // تأكد من المسار صحيح
+            return loadScript('cinematic-intro.js'); // تأكد من المسار صحيح
         }).then(() => {
             // 3. تشغيل العرض السينمائي
             if (typeof initializeCinematicIntro === 'function') {
