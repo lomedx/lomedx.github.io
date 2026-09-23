@@ -261,6 +261,47 @@ function updateTipDisplay() {
 
 window.addEventListener('DOMContentLoaded', () => {
 
+
+
+    // === كود تشغيل العرض السينمائي لمرة واحدة مع دعم SEO ===
+    const hasSeenCinematic = localStorage.getItem('lomedx_cinematic_seen');
+    const isBot = navigator.userAgent.toLowerCase().includes('bot'); // منع تفعيله لمحركات البحث
+
+    if (!hasSeenCinematic && !isBot) {
+        const overlay = document.getElementById('cinematicIntroOverlay');
+        if (overlay) overlay.style.display = 'block';
+
+        // دالة تحميل السكريبتات بشكل كسول (Lazy Load) لأداء و SEO أفضل
+        const loadScript = (src) => {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        };
+
+        // 1. تحميل مكتبات Three.js أولاً
+        Promise.all([
+            loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'),
+            loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js')
+        ]).then(() => {
+            // 2. تحميل ملف العرض السينمائي الخاص بك
+            return loadScript('./js/cinematic-intro.js'); // تأكد من المسار صحيح
+        }).then(() => {
+            // 3. تشغيل العرض السينمائي
+            if (typeof initializeCinematicIntro === 'function') {
+                initializeCinematicIntro();
+            }
+        }).catch(err => {
+            console.error("Failed to load cinematic intro", err);
+            if (overlay) overlay.style.display = 'none'; // إخفاء الحاوية إذا فشل التحميل
+        });
+    }
+
+
+    
     const isOAuthRedirect = window.location.href.includes('code=') || window.location.href.includes('access_token=');
     const isGoogleIntent = sessionStorage.getItem('google_login_intent') === 'true';
     
