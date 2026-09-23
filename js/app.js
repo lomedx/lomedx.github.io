@@ -664,7 +664,7 @@ function generateItemListSchema(items) {
                     "streetAddress": item.address || item.clinic || "",
                     "addressLocality": "سوريا"
                 },
-                "url": `https://lomedx.github.io/#${item.id}` // رابط الصفحة (تعديل الرابط حسب دومينك)
+                "url": `https://lomedx.pages.dev/#${item.id}` // رابط الصفحة (تعديل الرابط حسب دومينك)
             }
         };
     });
