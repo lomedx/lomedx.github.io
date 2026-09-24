@@ -1,6 +1,6 @@
 // === ملف: seo-data.js ===
 const AdvancedMedicalSEO = {
-    'burn-calculator': {
+    'burn-calculator': { //......1
         related: [
             { title: 'دليل الإسعافات الأولية الشامل', url: '/first-aid', icon: 'fa-kit-medical' },
             { title: 'ابحث عن طبيب جلدية أو حروق', url: '/doctors', icon: 'fa-user-doctor' }
@@ -19,7 +19,7 @@ const AdvancedMedicalSEO = {
             { q: "متى يجب نقل مصاب الحرق للمستشفى فوراً؟", a: "إذا كان الحرق في الوجه، العنق، الأعضاء التناسلية، المفاصل، أو إذا كانت مساحته أكبر من كف اليد، أو إذا كان حرقاً كيميائياً أو كهربائياً مهما كانت مساحته." }
         ]
     },
-    'dose-calc': {
+    'dose-calc': {   //....2
         related: [
             { title: 'جدول لقاحات الطفل', url: '/vaccine-scheduler', icon: 'fa-syringe' },
             { title: 'ابحث عن طبيب أطفال', url: '/doctors', icon: 'fa-user-doctor' }
@@ -38,7 +38,7 @@ const AdvancedMedicalSEO = {
             { q: "ماذا أفعل إذا قيأت الطفل بعد أخذ الدواء مباشرة؟", a: "إذا حدث القيء خلال 15-20 دقيقة، يمكن إعادة الجرعة مرة واحدة. إذا حدث بعد ذلك، فالدواء قد امتصه الجسم، لا تعطيه جرعة أخرى." }
         ]
     },
-    'pregnancy-calc': {
+    'pregnancy-calc': {//.....3
         related: [
             { title: 'حاسبة الصحة (BMI والسعرات)', url: '/health-calc', icon: 'fa-weight-scale' },
             { title: 'ابحث عن طبيب نسائية وتوليد', url: '/doctors', icon: 'fa-user-doctor' }
@@ -57,7 +57,7 @@ const AdvancedMedicalSEO = {
             { q: "ماذا أفعل إذا كانت دورتي الشهرية غير منتظمة؟", a: "في هذه الحالة، يصبح حساب التاريخ بناءً على الدورة غير دقيق. سيقوم طبيبك بتحديد موعد الولادة بناءً على فحص السونار (Ultrasound) في الثلث الأول من الحمل، وهو الأكثر دقة." }
         ]
     },
-    'first-aid': {
+    'first-aid': {//.......4
         related: [
             { title: 'مُسعف الحروق الذكي', url: '/burn-calculator', icon: 'fa-fire-extinguisher' },
             { title: 'إسعافات المناسبات والتجمعات', url: '/events-first-aid', icon: 'fa-people-group' }
@@ -76,7 +76,7 @@ const AdvancedMedicalSEO = {
             { q: "ماذا أفعل لشخص يعاني من نزيف أنف شديد (رعاف)؟", a: "أجلس المصاب وأمل رأسه للأمام قليلاً (للخلف يسبب بلع الدم والقيء)، واضغط برفق على الأجناف لمدة 10-15 دقيقة مع التنفس من الفم." }
         ]
     },
-    'vaccine-scheduler': {
+    'vaccine-scheduler': {//....5
         related: [
             { title: 'حاسبة جرعات الأطفال', url: '/dose-calc', icon: 'fa-syringe' },
             { title: 'ابحث عن طبيب أطفال', url: '/doctors', icon: 'fa-user-doctor' }
@@ -95,7 +95,7 @@ const AdvancedMedicalSEO = {
             { q: "ما هي الأعراض الجانبية الشائعة للقاحات؟", a: "الحرارة، الاحمرار أو تورم بسيط في مكان الحقن، وخمول بسيط. تعطى خافضات الحرارة وكمادات باردة، وتختفي الأعراض خلال 24 إلى 48 ساعة." }
         ]
     },
-    'med-symbols': {
+    'med-symbols': {//.....6
         related: [
             { title: 'التعليمات قبل التحاليل', url: '/pre-test-guide', icon: 'fa-vial' },
             { title: 'إرشادات قبل زيارة الطبيب', url: '/pre-visit-guide', icon: 'fa-clipboard-list' }
@@ -114,7 +114,7 @@ const AdvancedMedicalSEO = {
             { q: "ماذا يعني الرمز PRN المكتوب على الروشتة؟", a: 'يعني (Pro Re Nata) أو "عند اللزوم". لا تأخذ هذا الدواء بجدول منتظم يومي، بل فقط عند الشعور بالحاجة إليه (كأدوية الصداع أو مهدئات المغص).' }
         ]
     },
-    'health-calc': {
+    'health-calc': {//.....7
         related: [
             { title: 'حاسبة الماء اليومية', url: '/water-calc', icon: 'fa-glass-water' },
             { title: 'تغذية الأمراض المزمنة', url: '/chronic-nutrition', icon: 'fa-bowl-food' }
@@ -133,7 +133,7 @@ const AdvancedMedicalSEO = {
             { q: "ما هو الوزن المثالي وكيف يحسب؟", a: "هناك عدة معادلات (مثل معادلة ديفاين). الأداة تحسب لك الوزن المثالي بناءً على طولك وجنسك، ولكنه يمثل هدفاً تقريبياً وليس قاعدة مطلقة، فالأهم هو نسبة الدهون وتوزيعها." }
         ]
     },
-    'water-calc': {
+    'water-calc': {//......8
         related: [
             { title: 'حاسبة الصحة (BMI)', url: '/health-calc', icon: 'fa-weight-scale' },
             { title: 'إسعافات ضربة الشمس', url: '/first-aid', icon: 'fa-sun' }
@@ -152,7 +152,7 @@ const AdvancedMedicalSEO = {
             { q: "كيف أعرف أنني أشرب ماء كافياً؟", a: "أبسط مؤشر هو لون البول. إذا كان شفافاً أو أصفر فاتحاً جداً، فأنت مرطب جيداً. إذا كان أصفر غامقاً، جسمك يحتاج إلى ماء فوراً." }
         ]
     },
-    'chronic-nutrition': {
+    'chronic-nutrition': {//......9
         related: [
             { title: 'تعارضات الأدوية والطعام', url: '/food-interactions', icon: 'fa-utensils' },
             { title: 'ابحث عن طبيب باطنة', url: '/doctors', icon: 'fa-user-doctor' }
@@ -171,7 +171,7 @@ const AdvancedMedicalSEO = {
             { q: "هل العسل أفضل من السكر الأبيض لمرضى السكري؟", a: "العسل يحتوي على نفس كمية الكربوهيدرات والسعرات كالسكر الأبيض تقريباً، ويرفع سكر الدم. استخدام العسل بدلاً من السكر يفيد الصحة العامة لكنه لا يعطي مريض السكري حرية في زيادة الكمية." }
         ]
     },
-    'pre-test-guide': {
+    'pre-test-guide': {//....10
         related: [
             { title: 'رموز التحاليل والروشتات', url: '/med-symbols', icon: 'fa-file-medical' },
             { title: 'ابحث عن مخبر طبي', url: '/labs', icon: 'fa-flask' }
@@ -190,7 +190,7 @@ const AdvancedMedicalSEO = {
             { q: "لماذا يُطلب مني امتلاء المثانة في سونار الحوض؟", a: 'المثانة الممتلئة بالماء تعمل كـ "نافذة" صوتية تدفع الأمعاء بعيداً وتسمح للأشعة بتصوير الرحم والمبايض أو البروستات بوضوح تام.' }
         ]
     },
-    'food-interactions': {
+    'food-interactions': {//.....11
         related: [
             { title: 'تغذية الأمراض المزمنة', url: '/chronic-nutrition', icon: 'fa-bowl-food' },
             { title: 'ابحث عن صيدلية', url: '/pharmacies', icon: 'fa-prescription-bottle-medical' }
@@ -209,7 +209,7 @@ const AdvancedMedicalSEO = {
             { q: "ماذا عن الشاي والقهوة مع الأدوية؟", a: "التانينات الموجودة في الشاي قد تعيق امتصاص الحديد والمضادات الحيوية. الكافيين في القهوة قد يزيد من نبضات القلب إذا أُخذ مع أدوية الربو أو أدوية ارتفاع ضغط الدم." }
         ]
     },
-    'medicine-finder': {
+    'medicine-finder': {//.....12
         related: [
             { title: 'ابحث عن صيدلية مناوبة', url: '/pharmacies', icon: 'fa-prescription-bottle-medical' },
             { title: 'تغذية الأمراض المزمنة', url: '/chronic-nutrition', icon: 'fa-bowl-food' }
@@ -228,7 +228,7 @@ const AdvancedMedicalSEO = {
             { q: "ماذا لو لم أجد الدواء في صيدليات مدينتي؟", a: "إذا تعذر توفير الدواء، سيبقى الطلب معروضاً حتى تتوفر إحدى الصيدليات عليه، أو يمكنك توسيع نطاق البحث ليشمل المدن المجاورة." }
         ]
     },
-    'blood-bank': {
+    'blood-bank': {//.....13
         related: [
             { title: 'الأجهزة والمستلزمات الطبية', url: '/medicine-donation', icon: 'fa-laptop-medical' },
             { title: 'دليل الإسعافات الأولية', url: '/first-aid', icon: 'fa-kit-medical' }
@@ -247,7 +247,7 @@ const AdvancedMedicalSEO = {
             { q: "هل يمكنني حذف استغاثتي بعد توفير الدم؟", a: "نعم، بمجرد توفير الكمية المطلوبة، يمكنك الدخول للوحة التحكم وإنهاء الطلب ليتوقف عن الظهور للمتبرعين، شكراً لتعاونك." }
         ]
     },
-    'events-first-aid': {
+    'events-first-aid': {//......14
         related: [
             { title: 'دليل الإسعافات الأولية', url: '/first-aid', icon: 'fa-kit-medical' },
             { title: 'مُسعف الحروق الذكي', url: '/burn-calculator', icon: 'fa-fire-extinguisher' }
@@ -266,7 +266,7 @@ const AdvancedMedicalSEO = {
             { q: "ماذا أفعل إذا أغمى على شخص وسط الزحام؟", a: "افسح المجال له للهواء النقي، مده على ظهره وارفع قدميه 30 سم. فك الملابس الضيقة. إذا لم يفق خلال دقيقة، اطلب الإسعاف فوراً وراقب تنفسه." }
         ]
     },
-    'medical-map': {
+    'medical-map': {//......15
         related: [
             { title: 'ابحث عن طبيب', url: '/doctors', icon: 'fa-user-doctor' },
             { title: 'ابحث عن صيدلية', url: '/pharmacies', icon: 'fa-prescription-bottle-medical' }
@@ -285,7 +285,7 @@ const AdvancedMedicalSEO = {
             { q: "هل أستطيع رؤية رقم هاتف المشفى مباشرة من الخريطة؟", a: "الخريطة مخصصة لتحديد المواقع والاتجاهات. لرؤية رقم الهاتف والتقييمات والتفاصيل الكاملة، يمكنك الضغط على اسم المنشأة لتفتح نافذة التفاصيل الكاملة." }
         ]
     },
-    'raheba-radar': {
+    'raheba-radar': {//.....16
         related: [
             { title: 'أمراض الرحيبة الموسمية', url: '/seasonal-diseases', icon: 'fa-virus-covid' },
             { title: 'ابحث عن طبيب', url: '/doctors', icon: 'fa-user-doctor' }
@@ -304,7 +304,7 @@ const AdvancedMedicalSEO = {
             { q: "كيف يفيدني الرادار إذا تغير اللون إلى الأحمر؟", a: "إذا رأيت انتشاراً واسعاً لمرض معين في مدينتك، يجب عليك تشديد التدابير (تجنب الزحام، غسل اليدين، لبس الكمامة) لتجنب التقاط العدوى." }
         ]
     },
-    'pre-visit-guide': {
+    'pre-visit-guide': {//.....17
         related: [
             { title: 'التعليمات قبل التحاليل', url: '/pre-test-guide', icon: 'fa-vial' },
             { title: 'رموز التحاليل والروشتات', url: '/med-symbols', icon: 'fa-file-medical' }
@@ -323,7 +323,7 @@ const AdvancedMedicalSEO = {
             { q: "هل أصوم قبل زيارة طبيب القلب أو الجلدية؟", a: "زيارة الطبيب العادية لا تتطلب صياماً. الصيام يُطلب فقط قبل التحاليل المخبرية (كالسكر والدهون) أو بعض الفحوصات كالسونار. اسأل العيادة عند حجز الموعد للتأكد." }
         ]
     },
-    'med-renewal-calc': {
+    'med-renewal-calc': {//.....18
         related: [
             { title: 'حاسبة جرعات الأطفال', url: '/dose-calc', icon: 'fa-syringe' },
             { title: 'دفتر التذكير الذاتي', url: '/patient-reminder', icon: 'fa-bell' }
@@ -342,7 +342,7 @@ const AdvancedMedicalSEO = {
             { q: "هل يمكنني الاعتماد عليها كتنبيهات في هاتفي؟", a: 'الأداة تعرض لك تاريخ النفاد المتوقع، يمكنك تدوينه في تقويم هاتفك أو استخدام أداة "دفتر التذكير الذاتي" في منصة LomedX لإضافة تذكير في يوم النفاد.' }
         ]
     },
-    'patient-reminder': {
+    'patient-reminder': {//......19
         related: [
             { title: 'حاسبة تجديد الدواء', url: '/med-renewal-calc', icon: 'fa-calendar-check' },
             { title: 'إرشادات قبل زيارة الطبيب', url: '/pre-visit-guide', icon: 'fa-clipboard-list' }
@@ -361,7 +361,7 @@ const AdvancedMedicalSEO = {
             { q: "هل يمكنني استخدامها لتذكيري بمواعيد الأطفال؟", a: "بالتأكيد، يمكنك إضافة تذكيرات لجداول التطعيمات، مواعيد الرضاعة، أو حتى تذكير لشراء حفاضات. الأداة مرنة لتنظيم حياتك اليومية." }
         ]
     },
-    'medicine-donation': {
+    'medicine-donation': {//.....20
         related: [
             { title: 'بنك التبرع بالدم الرقمي', url: '/blood-bank', icon: 'fa-droplet' },
             { title: 'ابحث عن دوائك', url: '/medicine-finder', icon: 'fa-pills' }
@@ -380,7 +380,7 @@ const AdvancedMedicalSEO = {
             { q: "هل تأخذ المنصة عمولة على التبرع أو الإعارة؟", a: "إطلاقاً، المنصة مجانية بالكامل وربط المرضى ببعضهم البعض هو رسالة تكافلية بحتة، التواصل يتم مباشرة بين المستخدم والمعرض." }
         ]
     },
-    'ask-doctor': {
+    'ask-doctor': {//.....21
         related: [
             { title: 'المدونة والمقالات الطبية', url: '/blog', icon: 'fa-book-medical' },
             { title: 'ابحث عن طبيب', url: '/doctors', icon: 'fa-user-doctor' }
@@ -399,7 +399,7 @@ const AdvancedMedicalSEO = {
             { q: "هل يمكنني طلب روشتة طبية من خلال هذه الأداة؟", a: "لا، يُمنع منعاً باتاً وصف الأدوية أو إصدار روشتات عبر الإنترنت دون كشف مباشر، لأن ذلك يخالف القوانين الطبية ويشكل خطراً على المريض. الاستشارة هنا هي للتوجيه فقط." }
         ]
     },
-    'seasonal-diseases': {
+        'seasonal-diseases': {//.....22
         related: [
             { title: 'الرادار الصحي التفاعلي', url: '/raheba-radar', icon: 'fa-satellite-dish' },
             { title: 'دليل الإسعافات الأولية', url: '/first-aid', icon: 'fa-kit-medical' }
@@ -417,8 +417,8 @@ const AdvancedMedicalSEO = {
             { q: "كيف أفرق بين الإنفلونزا ونزلة البرد العادية؟", a: "نزلة البرد خفيفة وتشمل رشحاً وعطساً دون حرارة عالية. الإنفلونزا أشد وتسبب حرارة عالية، آلاماً في العظام والمفاصل، واحتقاناً في الحلق، وتكسير عام للجسم يستلزم الراحة التامة." },
             { q: "لماذا تنتشر حساسية الصدر في القلمون الشتاء؟", a: "بسبب البرد الجاف وانتشار الغبار في الهواء (الرياح الخمسينية)، بالإضافة لاستخدام المدافئ التي قد تطلق دخاناً أو غباراً. مرضى الربو يجب حمل البخاخات الوقائية وتجنب الهواء البارد المباشر." }
         ]
-    };
-        'blog': {
+    }, 
+    'blog': {//.....23
         related: [
             { title: 'اسأل طبيب', url: '/ask-doctor', icon: 'fa-comments' },
             { title: 'ابحث عن طبيب', url: '/doctors', icon: 'fa-user-doctor' }
@@ -434,7 +434,7 @@ const AdvancedMedicalSEO = {
             { q: "هل يمكنني الاعتماد على المقالات كروشتة طبية؟", a: "إطلاقاً، المقالات هي للتوعية الثقافية الصحية فقط. لا يجوز تناول أي دواء أو اتباع أي خطة علاجية بدون كشف مباشر عند الطبيب المختص." }
         ]
     },
-    'health-file': {
+    'health-file': {. //....24
         related: [
             { title: 'ابحث عن طبيب', url: '/doctors', icon: 'fa-user-doctor' },
             { title: 'الإسعافات الأولية', url: '/first-aid', icon: 'fa-kit-medical' }
@@ -453,4 +453,4 @@ const AdvancedMedicalSEO = {
             { q: "هل يستطيع الصيدلي الاستفادة من هذا الملف؟", a: "نعم، إذا أظهرت ملفك للصيدلي، سيساعده ذلك في معرفة الأدوية التي تتناولها لتفادي تعارض الأدوية الجديدة معها." }
         ]
     }
-}
+}; 
