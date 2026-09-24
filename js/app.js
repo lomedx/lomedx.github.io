@@ -1568,6 +1568,7 @@ window.searchArticles = () => {
 window.closeCtrlPanel = (event) => { 
     const overlay = document.getElementById('ctrlOverlay');
     if (event && event.target.id === 'ctrlOverlay' && overlay.dataset.preventClose === 'true') return; 
+ clearToolSEO(); 
     if (window.activeHealthFileSub) { supabase.removeChannel(window.activeHealthFileSub); window.activeHealthFileSub = null; }
     
     if (activeQrScanner) {
@@ -4578,6 +4579,7 @@ window.openBurnCalculator = () => {
                 <span>أجب عن الأسئلة التالية بدقة للحصول على إرشادات الإسعاف الأولى الصحيحة لحالة الحرق.</span>
             </div>
             <div id="burnCalcContent" class="bg-white p-6 rounded-2xl border" style="border-color: var(--border)"></div>
+       ${generateToolSEOHtml('burn-calculator')}  
         </div>
     `, '#F97316');
     window.renderBurnStep();
@@ -4716,6 +4718,7 @@ window.openPregnancyCalc = () => {
                 </button>
             </div>
             <div id="pregResult" class="hidden flex flex-col gap-4"></div>
+        ${generateToolSEOHtml('pregnancy-calc')}
         </div>
     `, '#EC4899');
 }
@@ -4773,6 +4776,7 @@ window.openDoseCalc = () => {
                 <button onclick="calcDose()" class="w-full py-3 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90" style="background: #2563EB;"><i class="fas fa-syringe ml-2"></i> احسبي الجرعة الآمنة</button>
             </div>
             <div id="doseResult" class="hidden"></div>
+     ${generateToolSEOHtml('dose-calc')}
         </div>
     `, '#2563EB');
 }
