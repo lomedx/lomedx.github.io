@@ -999,7 +999,88 @@ function renderSearchDropdown(matches) {
     if (window.updateSmartSearchPosition) window.updateSmartSearchPosition();
     searchDropdown.classList.remove('hidden');
 }
+// ==========================================
+// محرك الـ SEO الذكي (يقرأ البيانات ويبني الواجهة)
+// ==========================================
+function generateToolSEOHtml(toolId) {
+    // التحقق من وجود البيانات (في ملف seo-data.js)
+    if (typeof AdvancedMedicalSEO === 'undefined' || !AdvancedMedicalSEO[toolId]) return '';
 
+    const data = AdvancedMedicalSEO[toolId];
+
+    // 1. بناء الروابط الداخلية (Internal Linking)
+    let relatedHtml = data.related.map(r => 
+        `<a href="${r.url}" class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl hover:bg-blue-50 transition-all text-sm font-semibold" style="color: var(--accent); text-decoration: none;"><i class="fas ${r.icon}"></i> ${r.title}</a>`
+    ).join('');
+    
+    // 2. بناء المصادر الطبية (E-E-A-T)
+    let refsHtml = data.references.map(r => 
+        `<a href="${r.url}" rel="nofollow" target="_blank" class="block text-xs text-gray-500 hover:text-blue-600 transition-colors mb-1"><i class="fas fa-external-link-alt ml-1 text-[10px]"></i> ${r.name}</a>`
+    ).join('');
+    
+    // 3. بناء الأسئلة الشائعة (FAQs Accordion)
+    let faqsHtml = data.faqs.map(item => `
+        <div class="accordion-item active">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span class="font-bold text-sm flex-1">${item.q}</span>
+                <i class="fas fa-chevron-down transition-transform"></i>
+            </div>
+            <div class="accordion-body"><div class="accordion-body-inner text-sm text-gray-600 leading-relaxed">${item.a}</div></div>
+        </div>
+    `).join('');
+
+    // 4. حقن الـ FAQ Schema في الـ Head لجوجل (مهم جداً للظهور المباشر في البحث)
+    const faqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": data.faqs.map(item => ({
+            "@type": "Question",
+            "name": item.q,
+            "acceptedAnswer": { "@type": "Answer", "text": item.a }
+        }))
+    };
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = `faqSchema_${toolId}`;
+    script.textContent = JSON.stringify(faqSchema);
+    document.head.appendChild(script);
+
+    // 5. إرجاع كود الـ HTML الكامل لعرضه في أسفل الأداة
+    return `
+        <!-- الربط الداخلي الذكي -->
+        <aside class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+            ${relatedHtml}
+        </aside>
+
+        <!-- المحتوى الطويل المفصل (Long-form Content) -->
+        <article class="accordion-item active mb-6">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span class="font-bold text-sm flex items-center gap-2"><i class="fas fa-book-medical text-blue-600"></i> دليل طبي شامل حول هذه الأداة</span>
+                <i class="fas fa-chevron-down transition-transform"></i>
+            </div>
+            <div class="accordion-body">
+                <div class="accordion-body-inner text-sm text-gray-600 leading-loose text-right">${data.longContent}</div>
+            </div>
+        </article>
+
+        <!-- الأسئلة الشائعة -->
+        <section class="mb-6">
+            <h3 class="font-bold text-base mb-3 flex items-center gap-2"><i class="fas fa-circle-question text-blue-600"></i> أسئلة شائعة (FAQ)</h3>
+            ${faqsHtml}
+        </section>
+
+        <!-- المصادر الطبية العالمية -->
+        <aside class="p-4 bg-gray-50 rounded-xl border" style="border-color: var(--border);">
+            <h4 class="text-xs font-bold text-gray-500 mb-2 flex items-center gap-2"><i class="fas fa-shield-halved text-green-600"></i> المصادر والمراجع الطبية العالمية:</h4>
+            ${refsHtml}
+        </aside>
+    `;
+}
+
+// دالة تنظيف الـ Schema عند إغلاق النافذة (لتجنب تكرار الأكواد في الـ Head)
+function clearToolSEO() {
+    document.querySelectorAll('script[id^="faqSchema_"]').forEach(el => el.remove());
+}
 window.selectSearchResult = (id) => {
     if(searchDropdown) searchDropdown.classList.add('hidden');
     const searchInput = document.getElementById('heroSearch');
