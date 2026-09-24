@@ -574,7 +574,7 @@ function getOptimizedImageUrl(url, width = 400, height = 300) {
     // إرجاع الرابط كما هو إذا لم يتحقق أي شرط
     return url;
 }
-function updateMetaTags(title, description, image) {
+function updateMetaTags(title, description, image, keywords = '') {
     document.title = title;
     
     let metaDesc = document.querySelector('meta[name="description"]');
@@ -584,6 +584,15 @@ function updateMetaTags(title, description, image) {
         document.head.appendChild(metaDesc);
     }
     metaDesc.content = description;
+
+    // === إضافة أو تحديث وسم الكلمات المفتاحية ===
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+        metaKeywords = document.createElement('meta');
+        metaKeywords.name = "keywords";
+        document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.content = keywords;
 
     document.querySelector('meta[property="og:title"]').setAttribute('content', title);
     document.querySelector('meta[property="og:description"]').setAttribute('content', description);
@@ -1008,17 +1017,29 @@ function generateToolSEOHtml(toolId) {
 
     const data = AdvancedMedicalSEO[toolId];
 
-    // 1. بناء الروابط الداخلية (Internal Linking)
+    // 1. حقن الكلمات المفتاحية والـ Meta Tags ديناميكياً
+    if (data.keywords && data.keywords.length > 0) {
+        const keywordsString = data.keywords.join(', ');
+        const route = routesConfig['/' + toolId] || {};
+        updateMetaTags(
+            route.title || `${toolId} | LomedX`, 
+            route.desc || 'أداة طبية تفاعلية من LomedX', 
+            DEFAULT_SEO.image, 
+            keywordsString
+        );
+    }
+
+    // 2. بناء الروابط الداخلية (Internal Linking)
     let relatedHtml = data.related.map(r => 
         `<a href="${r.url}" class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl hover:bg-blue-50 transition-all text-sm font-semibold" style="color: var(--accent); text-decoration: none;"><i class="fas ${r.icon}"></i> ${r.title}</a>`
     ).join('');
     
-    // 2. بناء المصادر الطبية (E-E-A-T)
+    // 3. بناء المصادر الطبية (E-E-A-T)
     let refsHtml = data.references.map(r => 
         `<a href="${r.url}" rel="nofollow" target="_blank" class="block text-xs text-gray-500 hover:text-blue-600 transition-colors mb-1"><i class="fas fa-external-link-alt ml-1 text-[10px]"></i> ${r.name}</a>`
     ).join('');
     
-    // 3. بناء الأسئلة الشائعة (FAQs Accordion)
+    // 4. بناء الأسئلة الشائعة (FAQs Accordion)
     let faqsHtml = data.faqs.map(item => `
         <div class="accordion-item active">
             <div class="accordion-header" onclick="toggleAccordion(this)">
@@ -1029,7 +1050,7 @@ function generateToolSEOHtml(toolId) {
         </div>
     `).join('');
 
-    // 4. حقن الـ FAQ Schema في الـ Head لجوجل (مهم جداً للظهور المباشر في البحث)
+    // 5. حقن الـ FAQ Schema في الـ Head لجوجل
     const faqSchema = {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -1045,7 +1066,7 @@ function generateToolSEOHtml(toolId) {
     script.textContent = JSON.stringify(faqSchema);
     document.head.appendChild(script);
 
-    // 5. إرجاع كود الـ HTML الكامل لعرضه في أسفل الأداة
+    // 6. إرجاع كود الـ HTML الكامل لعرضه في أسفل الأداة
     return `
         <!-- الربط الداخلي الذكي -->
         <aside class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
@@ -1077,7 +1098,7 @@ function generateToolSEOHtml(toolId) {
     `;
 }
 
-// دالة تنظيف الـ Schema عند إغلاق النافذة (لتجنب تكرار الأكواد في الـ Head)
+// دالة تنظيف الـ Schema عند إغلاق النافذة
 function clearToolSEO() {
     document.querySelectorAll('script[id^="faqSchema_"]').forEach(el => el.remove());
 }
@@ -6839,30 +6860,30 @@ if (heroSection && heroBg) {
 }
     // === محرك التوجيه الجديد (History API - بدون علامة #) ===
 const routesConfig = {
-    '/blog': { title: 'المدونة والمقالات الطبية | LomedX', desc: 'مكتبة طبية شاملة.', handler: 'openMedicalBlog' },
-    '/blood-bank': { title: 'بنك التبرع بالدم الرقمي | LomedX', desc: 'ربط المرضى بالدم بالمتبرعين.', handler: 'openBloodBank' },
-    '/first-aid': { title: 'دليل الإسعافات الأولية | LomedX', desc: 'التعامل مع الحوادث والطوارئ.', handler: 'openFirstAid' },
-    '/ask-doctor': { title: 'اسأل طبيب | LomedX', desc: 'استشارة طبية مجانية.', handler: 'openAskDoctor' },
-    '/medicine-finder': { title: 'ابحث عن دوائك | LomedX', desc: 'بحث عن الدواء في صيدليات مدينتك.', handler: 'openMedicineFinder' },
-    '/health-file': { title: 'الملف الصحي الذكي | LomedX', desc: 'سجلك الطبي المشفر.', handler: 'openHealthFile' },
-    '/burn-calculator': { title: 'مُسعف الحروق الذكي | LomedX', desc: 'إسعافات أولية للحروق.', handler: 'openBurnCalculator' },
-    '/raheba-radar': { title: 'الرادار الصحي التفاعلي | LomedX', desc: 'رصد الأمراض الموسمية.', handler: 'openRahebaRadar' },
-    '/medicine-donation': { title: 'مركز الأجهزة الطبية | LomedX', desc: 'تبادل الأجهزة الطبية.', handler: 'openMedicineDonation' },
-    '/medical-map': { title: 'الخريطة الطبية | LomedX', desc: 'عرض المنشآت على الخريطة.', handler: 'openMedicalMap' },
-    '/events-first-aid': { title: 'إسعافات المناسبات | LomedX', desc: 'حوادث التجمعات.', handler: 'openEventsFirstAid' },
-    '/pregnancy-calc': { title: 'حاسبة الحمل والولادة | LomedX', desc: 'تطور الجنين أسبوعياً.', handler: 'openPregnancyCalc' },
-    '/dose-calc': { title: 'حاسبة جرعات الأطفال | LomedX', desc: 'سيتامول وبروفين آمن.', handler: 'openDoseCalc' },
-    '/vaccine-scheduler': { title: 'جدول لقاحات الطفل | LomedX', desc: 'حاسبة مواعيد التطعيم.', handler: 'openVaccineScheduler' },
-    '/health-calc': { title: 'حاسبة الصحة | LomedX', desc: 'BMI والسعرات.', handler: 'openHealthCalc' },
-    '/water-calc': { title: 'حاسبة الماء اليومية | LomedX', desc: 'حسب الوزن والطقس.', handler: 'openWaterCalc' },
-    '/med-renewal-calc': { title: 'حاسبة تجديد الدواء | LomedX', desc: 'أسبوعي/شهري.', handler: 'openMedRenewalCalc' },
-    '/med-symbols': { title: 'رموز التحاليل والروشتات | LomedX', desc: 'فهم المصطلحات.', handler: 'openMedSymbols' },
-    '/chronic-nutrition': { title: 'تغذية الأمراض المزمنة | LomedX', desc: 'نظام غذائي خاص.', handler: 'openChronicNutrition' },
-    '/pre-visit-guide': { title: 'إرشادات قبل زيارة الطبيب | LomedX', desc: 'دليل الطبيب والمخبر.', handler: 'openPreVisitGuide' },
-    '/pre-test-guide': { title: 'تعليمات قبل التحاليل | LomedX', desc: 'دليل الفحوصات والأشعة.', handler: 'openPreTestGuide' },
-    '/food-interactions': { title: 'تعارضات الأدوية والطعام | LomedX', desc: 'جدول الصيدلية.', handler: 'openFoodInteractions' },
-    '/patient-reminder': { title: 'دفتر التذكير الذاتي | LomedX', desc: 'مواعيد الأدوية والزيارات.', handler: 'openPatientReminder' },
-        '/seasonal-diseases': { title: 'الأمراض الموسمية الشائعة في منطقة القلمون | LomedX', desc: 'دليل توعوي بأبرز الأمراض المنتشرة في منطقة القلمون موسمياً مع نصائح وقائية.', handler: 'openSeasonalDiseases' },
+    '/blog': { title: 'المدونة والمقالات الطبية | LomedX', desc: 'مكتبة طبية شاملة.', keywords: 'مقالات طبية, مدونة صحة, نصائح طبية, Lomedx', handler: 'openMedicalBlog' },
+    '/blood-bank': { title: 'بنك التبرع بالدم الرقمي | LomedX', desc: 'ربط المرضى بالدم بالمتبرعين.', keywords: 'بنك الدم, تبرع بالدم, استغاثة دم, سوريا, Lomedx', handler: 'openBloodBank' },
+    '/first-aid': { title: 'دليل الإسعافات الأولية | LomedX', desc: 'التعامل مع الحوادث والطوارئ.', keywords: 'إسعافات أولية, طوارئ, إنعاش قلبي, حروق, Lomedx', handler: 'openFirstAid' },
+    '/ask-doctor': { title: 'اسأل طبيب | LomedX', desc: 'استشارة طبية مجانية.', keywords: 'اسأل طبيب, استشارة طبية, سؤال طبي, Lomedx', handler: 'openAskDoctor' },
+    '/medicine-finder': { title: 'ابحث عن دوائك | LomedX', desc: 'بحث عن الدواء في صيدليات مدينتك.', keywords: 'بحث عن دواء, صيدليات سوريا, طلب دواء, Lomedx', handler: 'openMedicineFinder' },
+    '/health-file': { title: 'الملف الصحي الذكي | LomedX', desc: 'سجلك الطبي المشفر.', keywords: 'ملف صحي, سجل طبي إلكتروني, رمز QR طبي, Lomedx', handler: 'openHealthFile' },
+    '/burn-calculator': { title: 'مُسعف الحروق الذكي | LomedX', desc: 'إسعافات أولية للحروق.', keywords: 'حرق, إسعاف حروق, حرق بالماء الساخن, Lomedx', handler: 'openBurnCalculator' },
+    '/raheba-radar': { title: 'الرادار الصحي التفاعلي | LomedX', desc: 'رصد الأمراض الموسمية.', keywords: 'رادار صحي, أمراض موسمية, إنفلونزا, Lomedx', handler: 'openRahebaRadar' },
+    '/medicine-donation': { title: 'مركز الأجهزة الطبية | LomedX', desc: 'تبادل الأجهزة الطبية.', keywords: 'تبرع أجهزة طبية, كرسي متحرك, Lomedx', handler: 'openMedicineDonation' },
+    '/medical-map': { title: 'الخريطة الطبية | LomedX', desc: 'عرض المنشآت على الخريطة.', keywords: 'خريطة طبية, أقرب مشفى, Lomedx', handler: 'openMedicalMap' },
+    '/events-first-aid': { title: 'إسعافات المناسبات | LomedX', desc: 'حوادث التجمعات.', keywords: 'إسعافات المناسبات, حوادث الأفراح, Lomedx', handler: 'openEventsFirstAid' },
+    '/pregnancy-calc': { title: 'حاسبة الحمل والولادة | LomedX', desc: 'تطور الجنين أسبوعياً.', keywords: 'حاسبة الحمل, موعد الولادة, تطور الجنين, Lomedx', handler: 'openPregnancyCalc' },
+    '/dose-calc': { title: 'حاسبة جرعات الأطفال | LomedX', desc: 'سيتامول وبروفين آمن.', keywords: 'جرعات الأطفال, سيتامول, بروفين, Lomedx', handler: 'openDoseCalc' },
+    '/vaccine-scheduler': { title: 'جدول لقاحات الطفل | LomedX', desc: 'حاسبة مواعيد التطعيم.', keywords: 'لقاحات الطفل, جدول التطعيم, Lomedx', handler: 'openVaccineScheduler' },
+    '/health-calc': { title: 'حاسبة الصحة | LomedX', desc: 'BMI والسعرات.', keywords: 'حاسبة BMI, السعرات الحرارية, الوزن المثالي, Lomedx', handler: 'openHealthCalc' },
+    '/water-calc': { title: 'حاسبة الماء اليومية | LomedX', desc: 'حسب الوزن والطقس.', keywords: 'حاسبة الماء, شرب الماء, الجفاف, Lomedx', handler: 'openWaterCalc' },
+    '/med-renewal-calc': { title: 'حاسبة تجديد الدواء | LomedX', desc: 'أسبوعي/شهري.', keywords: 'تجديد الدواء, انتهاء الدواء, Lomedx', handler: 'openMedRenewalCalc' },
+    '/med-symbols': { title: 'رموز التحاليل والروشتات | LomedX', desc: 'فهم المصطلحات.', keywords: 'رموز التحاليل, CBC, HbA1c, روشتة طبية, Lomedx', handler: 'openMedSymbols' },
+    '/chronic-nutrition': { title: 'تغذية الأمراض المزمنة | LomedX', desc: 'نظام غذائي خاص.', keywords: 'تغذية الأمراض المزمنة, حمية السكري, Lomedx', handler: 'openChronicNutrition' },
+    '/pre-visit-guide': { title: 'إرشادات قبل زيارة الطبيب | LomedX', desc: 'دليل الطبيب والمخبر.', keywords: 'زيارة الطبيب, التحضير للطبيب, Lomedx', handler: 'openPreVisitGuide' },
+    '/pre-test-guide': { title: 'تعليمات قبل التحاليل | LomedX', desc: 'دليل الفحوصات والأشعة.', keywords: 'التحاليل الطبية, الصيام للتحاليل, إيكو, Lomedx', handler: 'openPreTestGuide' },
+    '/food-interactions': { title: 'تعارضات الأدوية والطعام | LomedX', desc: 'جدول الصيدلية.', keywords: 'تعارض الأدوية, الأدوية والطعام, Lomedx', handler: 'openFoodInteractions' },
+    '/patient-reminder': { title: 'دفتر التذكير الذاتي | LomedX', desc: 'مواعيد الأدوية والزيارات.', keywords: 'تذكير الأدوية, مواعيد الدواء, Lomedx', handler: 'openPatientReminder' },
+    '/seasonal-diseases': { title: 'الأمراض الموسمية الشائعة في منطقة القلمون | LomedX', desc: 'دليل توعوي بأبرز الأمراض المنتشرة في منطقة القلمون موسمياً.', keywords: 'الأمراض الموسمية, الرحيبة, القلمون, Lomedx', handler: 'openSeasonalDiseases' },
 };
 
 function handleRouteChange() {
@@ -6871,7 +6892,8 @@ function handleRouteChange() {
 
     const route = routesConfig[path];
     if (route && typeof window[route.handler] === 'function') {
-        updateMetaTags(route.title, route.desc, DEFAULT_SEO.image);
+        // تمرير الكلمات المفتاحية إلى دالة تحديث الوسوم
+        updateMetaTags(route.title, route.desc, DEFAULT_SEO.image, route.keywords);
         
         const mobileMenu = document.getElementById('mobileMenu');
         if (mobileMenu && mobileMenu.classList.contains('open')) toggleMobileMenu();
@@ -6879,7 +6901,6 @@ function handleRouteChange() {
         setTimeout(() => window[route.handler](), 100);
     }
 }
-
 window.addEventListener('popstate', handleRouteChange);
 
 document.addEventListener('click', (e) => {
