@@ -122,6 +122,17 @@ function loadChartJs() {
         document.head.appendChild(script);
     });
 }
+// دالة تحميل أي مكتبة ديناميكياً عند الطلب فقط
+function loadDynamicScript(src, globalVarName) {
+    return new Promise((resolve, reject) => {
+        if (window[globalVarName]) { resolve(); return; }
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`Failed to load ${src}`));
+        document.head.appendChild(script);
+    });
+}
 // دالة موحدة لتوليد الرموز الآمنة
 function generateSecureToken(length = 32) {
     const arr = new Uint8Array(length / 2);
@@ -2536,21 +2547,27 @@ window.sendDocMessage = async (bookingId) => {
         showToast('خطأ في الإرسال', 'error'); 
     }
 };
-window.openDoctorScanner = (docId) => {
+window.openDoctorScanner = async (docId) => {
     const docData = allData.find(d => d.id === docId) || {};
-    openCtrlPanel('قارئ الملفات الصحية للمريض', `<div class="flex flex-col gap-4"><div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm flex items-center gap-3"><i class="fas fa-camera text-xl"></i><span>وجه كاميرا الهاتف نحو رمز QR الخاص بالمريض.</span></div><div id="qr-reader" style="width:100%"></div></div>`, '#2563EB');
+    openCtrlPanel('قارئ الملفات الصحية للمريض', `<div class="flex flex-col gap-4"><div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm flex items-center gap-3"><i class="fas fa-camera text-xl"></i><span>جه كاميرا الهاتف نحو رمز QR الخاص بالمريض.</span></div><div id="qr-reader" style="width:100%"></div></div>`, '#2563EB');
     
-    // تخزين الكائن في المتغير العام
-    activeQrScanner = new Html5Qrcode("qr-reader");
-    activeQrScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText) => { 
-            activeQrScanner.stop().then(() => { 
-                activeQrScanner = null; 
-                fetchPatientHealthFile(decodedText, docData); 
-            }).catch(() => {}); 
-        },
-        (errorMessage) => { }
-    ).catch(err => { showToast("تعذر الوصول للكاميرا.", 'error'); });
+    try {
+        // تحميل مكتبة QR فقط عند الحاجة
+        await loadDynamicScript('https://unpkg.com/html5-qrcode', 'Html5Qrcode');
+        
+        activeQrScanner = new Html5Qrcode("qr-reader");
+        activeQrScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decodedText) => { 
+                activeQrScanner.stop().then(() => { 
+                    activeQrScanner = null; 
+                    fetchPatientHealthFile(decodedText, docData); 
+                }).catch(() => {}); 
+            },
+            (errorMessage) => { }
+        ).catch(err => { showToast("تعذر الوصول للكاميرا.", 'error'); });
+    } catch (err) {
+        showToast("تعذر تحميل قارئ QR، تحقق من الإنترنت.", 'error');
+    }
 };
 
 window.fetchPatientHealthFile = async (userId, doctorData) => {
@@ -4184,8 +4201,13 @@ window.handleHealthLogin = async (e) => {
     renderHealthDashboard(fileData);
 };
  window.renderHealthDashboard = (data) => {
+    // دالة تنظيف البيانات: تمنع ظهور null, undefined، أو النصوص الفارغة ككلمات غريبة
+    const safe = (val) => {
+        if (val === null || val === undefined || val === 'null' || val === 'undefined' || val === '') return '';
+        return val;
+    };
 
-    openCtrlPanel(`الملف الصحي: ${data.full_name || 'مريض'}`,  `
+    openCtrlPanel(`الملف الصحي: ${safe(data.full_name) || 'مريض'}`,  `
         <div class="bg-white p-6 rounded-2xl border-2 flex flex-col items-center" style="border-color: #EC4899;">
     <div class="flex items-center justify-between w-full mb-3">
         <div class="text-sm font-bold text-pink-500">رمز الطوارئ الطبي (QR)</div>
@@ -4197,27 +4219,27 @@ window.handleHealthLogin = async (e) => {
       <p class="text-xs text-gray-500 mt-3 text-center">وجه الطبيب لمسح هذا الرمز للوصول لملفك فوراً دون كلمة مرور</p>
           </div>
             <form onsubmit="saveHealthProfile(event)" class="bg-white p-5 rounded-xl border grid grid-cols-1 sm:grid-cols-2 gap-3" style="border-color: var(--border)">
-                <div class="col-span-1 sm:col-span-2"><label class="text-xs font-bold text-gray-500">الاسم الكامل</label><input type="text" id="hfFullName" class="ctrl-input" value="${escapeHtml(data.full_name || data.fullName || '')}" required></div>
-                <div><label class="text-xs font-bold text-gray-500">العمر</label><input type="number" id="hfAge" class="ctrl-input" value="${escapeHtml(data.age || '')}"></div>
-                <div><label class="text-xs font-bold text-gray-500">الجنس</label><select id="hfGender" class="ctrl-input"><option value="ذكر" ${data.gender === 'ذكر' ? 'selected' : ''}>ذكر</option><option value="أنثى" ${data.gender === 'أنثى' ? 'selected' : ''}>أنثى</option></select></div>
-                <div><label class="text-xs font-bold text-gray-500">فصيلة الدم</label><select id="hfBloodType" class="ctrl-input">${["A+","A-","B+","B-","AB+","AB-","O+","O-","غير معروف"].map(t => `<option value="${t}" ${data.blood_type === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
-                <div><label class="text-xs font-bold text-gray-500">الوزن (كغ)</label><input type="text" id="hfWeight" class="ctrl-input" value="${escapeHtml(data.weight || '')}"></div>
-                <div class="col-span-1 sm:col-span-2"><label class="text-xs font-bold text-gray-500">الأمراض المزمنة</label><input type="text" id="hfDiseases" class="ctrl-input" value="${escapeHtml(data.diseases || '')}" placeholder="مثال: سكري، ضغط"></div>
-                <div class="col-span-1 sm:col-span-2"><label class="text-xs font-bold text-gray-500">الحساسية (دوائية/غذائية)</label><input type="text" id="hfAllergies" class="ctrl-input" value="${escapeHtml(data.allergies || '')}" placeholder="مثال: بنسلين، مكسرات"></div>
-                <div class="col-span-1 sm:col-span-2"><label class="text-xs font-bold text-gray-500">الأدوية الحالية</label><input type="text" id="hfMedications" class="ctrl-input" value="${escapeHtml(data.medications || '')}"></div>
+                <div class="col-span-1 sm:col-span-2"><label class="text-xs font-bold text-gray-500">الاسم الكامل</label><input type="text" id="hfFullName" class="ctrl-input" value="${escapeHtml(safe(data.full_name) || safe(data.fullName))}" required></div>
+                <div><label class="text-xs font-bold text-gray-500">العمر</label><input type="number" id="hfAge" class="ctrl-input" value="${escapeHtml(safe(data.age))}"></div>
+                <div><label class="text-xs font-bold text-gray-500">الجنس</label><select id="hfGender" class="ctrl-input"><option value="ذكر" ${safe(data.gender) === 'ذكر' ? 'selected' : ''}>ذكر</option><option value="أنثى" ${safe(data.gender) === 'أنثى' ? 'selected' : ''}>أنثى</option></select></div>
+                <div><label class="text-xs font-bold text-gray-500">فصيلة الدم</label><select id="hfBloodType" class="ctrl-input">${["A+","A-","B+","B-","AB+","AB-","O+","O-","غير معروف"].map(t => `<option value="${t}" ${safe(data.blood_type) === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+                <div><label class="text-xs font-bold text-gray-500">الوزن (كغ)</label><input type="text" id="hfWeight" class="ctrl-input" value="${escapeHtml(safe(data.weight))}"></div>
+                <div class="col-span-1 sm:col-span-2"><label class="text-xs font-bold text-gray-500">الأمراض المزمنة</label><input type="text" id="hfDiseases" class="ctrl-input" value="${escapeHtml(safe(data.diseases))}" placeholder="مثال: سكري، ضغط"></div>
+                <div class="col-span-1 sm:col-span-2"><label class="text-xs font-bold text-gray-500">الحساسية (دوائية/غذائية)</label><input type="text" id="hfAllergies" class="ctrl-input" value="${escapeHtml(safe(data.allergies))}" placeholder="مثال: بنسلين، مكسرات"></div>
+                <div class="col-span-1 sm:col-span-2"><label class="text-xs font-bold text-gray-500">الأدوية الحالية</label><input type="text" id="hfMedications" class="ctrl-input" value="${escapeHtml(safe(data.medications))}"></div>
                 
                 <div class="col-span-1 sm:col-span-2 mt-2 p-3 rounded-xl border" style="border-color: #FED7AA; background: #FFF7ED;">
                     <label class="text-xs font-bold text-orange-700 flex items-center gap-1"><i class="fas fa-tooth"></i> سجل الأسنان (يُقرأ فقط من قبل طبيب الأسنان)</label>
-                    <textarea id="hfDental" class="ctrl-input mt-2" rows="2" placeholder="عمليات سابقة، تقويم، حساسية معينة...">${escapeHtml(data.dental || '')}</textarea>
+                    <textarea id="hfDental" class="ctrl-input mt-2" rows="2" placeholder="عمليات سابقة، تقويم، حساسية معينة...">${escapeHtml(safe(data.dental))}</textarea>
                 </div>
 
                 <div class="col-span-1 sm:col-span-2 p-3 rounded-xl border" style="border-color: #BFDBFE; background: #EFF6FF;">
                     <label class="text-xs font-bold text-blue-700 flex items-center gap-1"><i class="fas fa-eye"></i> سجل العيون (يُقرأ فقط من قبل طبيب العيون)</label>
-                    <textarea id="hfEye" class="ctrl-input mt-2" rows="2" placeholder="وصفة النظارة، ضغط العين، عمليات ليزك...">${escapeHtml(data.eye || '')}</textarea>
+                    <textarea id="hfEye" class="ctrl-input mt-2" rows="2" placeholder="وصفة النظارة، ضغط العين، عمليات ليزك...">${escapeHtml(safe(data.eye))}</textarea>
                 </div>
 
-                <div><label class="text-xs font-bold text-gray-500">اسم جهة الطوارئ</label><input type="text" id="hfEmergencyName" class="ctrl-input" value="${escapeHtml(data.emergency_name || '')}"></div>
-                <div><label class="text-xs font-bold text-gray-500">هاتف جهة الطوارئ</label><input type="tel" id="hfEmergencyPhone" class="ctrl-input" value="${escapeHtml(data.emergency_phone || '')}"></div>
+                <div><label class="text-xs font-bold text-gray-500">اسم جهة الطوارئ</label><input type="text" id="hfEmergencyName" class="ctrl-input" value="${escapeHtml(safe(data.emergency_name))}"></div>
+                <div><label class="text-xs font-bold text-gray-500">هاتف جهة الطوارئ</label><input type="tel" id="hfEmergencyPhone" class="ctrl-input" value="${escapeHtml(safe(data.emergency_phone))}"></div>
                 <button type="submit" class="col-span-1 sm:col-span-2 py-3 rounded-xl text-white font-bold text-sm" style="background: #EC4899"><i class="fas fa-save ml-2"></i> حفظ التحديثات</button>
             </form>
             
@@ -6609,14 +6631,16 @@ document.addEventListener('DOMContentLoaded', () => {
             unlockScroll();
         }
     };
-        // 1. تعديل أزرار الميزات داخل القائمة
     mobileMenu.querySelectorAll('a, button').forEach(btn => {
         const onclickVal = btn.getAttribute('onclick');
-        // نستهدف أي زر أو رابط يقوم بفتح نافذة (يحتوي على كلمة open أو show أو toggleEmergency)
-        if (onclickVal && (onclickVal.includes('open') || onclickVal.includes('show') || onclickVal.includes('toggleEmergency'))) {
-            
+        const hrefVal = btn.getAttribute('href');
+        
+        // نستهدف أي زر له onclick يفتح نافذة، أو أي رابط يبدأ بـ / (نظام التوجيه الجديد)
+        const isOpeningLink = (hrefVal && hrefVal.startsWith('/') && !hrefVal.startsWith('//')) || (onclickVal && (onclickVal.includes('open') || onclickVal.includes('show') || onclickVal.includes('toggleEmergency')));
+        
+        if (isOpeningLink) {
             // إزالة دالة الإغلاق القديمة إذا كانت موجودة لمنع التضارب
-            if (onclickVal.includes('toggleMobileMenu()')) {
+            if (onclickVal && onclickVal.includes('toggleMobileMenu()')) {
                 btn.setAttribute('onclick', onclickVal.replace(/toggleMobileMenu\(\);?\s*/g, ''));
             }
             
@@ -6624,7 +6648,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => {
                 openedFromMenu = true; // تعليم أن الميزة فُتحت من القائمة
                 menuOverlay.classList.add('hidden'); // إخفاء الخلفية السوداء
-                mobileMenu.classList.remove('open'); // سحب القائمة جانبياً لإفساح المجال للميزة
+                mobileMenu.classList.remove('open'); // سحب القائمة جانبياً
                 unlockScroll();
             });
         }
@@ -6739,6 +6763,7 @@ const routesConfig = {
     '/pre-test-guide': { title: 'تعليمات قبل التحاليل | LomedX', desc: 'دليل الفحوصات والأشعة.', handler: 'openPreTestGuide' },
     '/food-interactions': { title: 'تعارضات الأدوية والطعام | LomedX', desc: 'جدول الصيدلية.', handler: 'openFoodInteractions' },
     '/patient-reminder': { title: 'دفتر التذكير الذاتي | LomedX', desc: 'مواعيد الأدوية والزيارات.', handler: 'openPatientReminder' }
+        '/seasonal-diseases': { title: 'الأمراض الموسمية الشائعة في منطقة القلمون | LomedX', desc: 'دليل توعوي بأبرز الأمراض المنتشرة في منطقة القلمون موسمياً مع نصائح وقائية.', handler: 'openSeasonalDiseases' },
 };
 
 function handleRouteChange() {
