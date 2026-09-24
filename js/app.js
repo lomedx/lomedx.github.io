@@ -3291,7 +3291,7 @@ window.openMedicineFinder = () => {
     
     <div class="mb-6 flex justify-center" id="turnstile-container"></div>
     
-    <button type="submit" id="medSubmitBtn" class="w-full py-3.5 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90 flex items-center justify-center gap-2" style="background: var(--accent)"><i class="fas fa-paper-plane"></i> إرسال لصيدليات مدينتي</button></form></div>`; 
+    <button type="submit" id="medSubmitBtn" class="w-full py-3.5 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90 flex items-center justify-center gap-2" style="background: var(--accent)"><i class="fas fa-paper-plane"></i> إرسال لصيدليات مدينتي</button></form>${generateToolSEOHtml('medicine-finder')}</div>`; 
     
     document.getElementById('modalOverlay').classList.add('active'); 
     lockScroll(); 
@@ -4192,7 +4192,7 @@ window.openHealthFile = async () => {
 
             <div class="relative my-2">
                 <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300"></div></div>
-                <div class="relative flex justify-center"><span class="bg-transparent px-4 text-xs text-gray-500">أو سجل عبر البريد الإلكتروني</span></div>
+                <div class="relative flex justify-center"><span class="bg-transparent px-4 text-xs text-gray-500"> أو سجل عبر البريد الإلكتروني </span></div>
             </div>
 
             <div class="flex gap-2 bg-gray-100 p-1 rounded-xl">
@@ -5911,7 +5911,9 @@ window.openMedicalBlog = () => {
             <div id="blogArticlesList" class="flex flex-col gap-4">
                 ${skeletonHtml}
             </div>
+      ${generateToolSEOHtml('blog')}
         </div>
+        
     `, '#0E7C5F');
     fetchTrendingArticles();
     fetchArticles();
