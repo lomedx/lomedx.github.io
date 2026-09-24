@@ -4688,10 +4688,9 @@ window.openSeasonalDiseases = () => {
                     <div class="text-sm text-gray-700 leading-relaxed">${escapeHtml(d.tip)}</div>
                 </div>
             </div>
-            ${generateToolSEOHtml('seasonal-diseases')}
         </div>
     `).join('');
-    openCtrlPanel('دليل الأمراض الموسمية الشائعة في منطقة القلمون', `<div class="flex flex-col gap-5"><div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-purple-800 text-sm flex items-center gap-3"><i class="fas fa-virus-covid text-xl"></i><span>دليل توعوي بأبرز الأمراض المنتشرة في مناطق القلمون موسمياً، مع نصائح وقائية محلية.</span></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${cardsHtml}</div></div>`, '#8B5CF6');
+    openCtrlPanel('دليل الأمراض الموسمية الشائعة في منطقة القلمون', `<div class="flex flex-col gap-5"><div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-purple-800 text-sm flex items-center gap-3"><i class="fas fa-virus-covid text-xl"></i><span>دليل توعوي بأبرز الأمراض المنتشرة في مناطق القلمون موسمياً، مع نصائح وقائية محلية.</span></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${cardsHtml}</div>${generateToolSEOHtml('seasonal-diseases')}</div>`, '#8B5CF6');
 }
 // 4. Pregnancy Calculator
 const pregnancyData = [
@@ -5181,8 +5180,8 @@ window.openMedicalMap = () => {
             <div class="w-full sm:w-2/3 rounded-xl overflow-hidden border" style="border-color: var(--border)">
                 <iframe id="mapFrame" width="100%" height="100%" frameborder="0" style="border:0; min-height: 400px;" src="https://maps.google.com/maps?q=الرحيبة%20سوريا&output=embed" allowfullscreen></iframe>
             </div>
-            ${generateToolSEOHtml('medical-map')}
         </div>
+        ${generateToolSEOHtml('medical-map')}
     `, '#10B981');
     renderMapList();
 }
