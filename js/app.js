@@ -2864,6 +2864,7 @@ window.openMedicineDonation = () => {
                     <p class="text-center py-8 text-gray-400 text-sm">جاري تحميل الإعلانات...</p>
                 </div>
             </div>
+                ${generateToolSEOHtml('medicine-donation')}
         </div>
     `, '#0D9488');
     renderMedicineDonationsUI();
@@ -3021,6 +3022,7 @@ window.openBloodBank = () => {
                     <p class="text-center py-8 text-gray-400 text-sm">جاري تحميل الاستغاثات...</p>
                 </div>
             </div>
+            ${generateToolSEOHtml('blood-bank')}
         </div>
     `, '#DC2626');
     renderBloodBankUI();
@@ -4686,9 +4688,10 @@ window.openSeasonalDiseases = () => {
                     <div class="text-sm text-gray-700 leading-relaxed">${escapeHtml(d.tip)}</div>
                 </div>
             </div>
+            ${generateToolSEOHtml('seasonal-diseases')}
         </div>
     `).join('');
-    openCtrlPanel('دليل أمراض الرحيبة الموسمية', `<div class="flex flex-col gap-5"><div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-purple-800 text-sm flex items-center gap-3"><i class="fas fa-virus-covid text-xl"></i><span>دليل توعوي بأبرز الأمراض المنتشرة في منطقة الرحيبة والقلمون موسمياً، مع نصائح وقائية محلية.</span></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${cardsHtml}</div></div>`, '#8B5CF6');
+    openCtrlPanel('دليل الأمراض الموسمية الشائعة في منطقة القلمون', `<div class="flex flex-col gap-5"><div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-purple-800 text-sm flex items-center gap-3"><i class="fas fa-virus-covid text-xl"></i><span>دليل توعوي بأبرز الأمراض المنتشرة في مناطق القلمون موسمياً، مع نصائح وقائية محلية.</span></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${cardsHtml}</div></div>`, '#8B5CF6');
 }
 // 4. Pregnancy Calculator
 const pregnancyData = [
@@ -4845,7 +4848,7 @@ window.openFirstAid = () => {
             <div class="accordion-body"><div class="accordion-body-inner whitespace-pre-line">${escapeHtml(item.steps)}</div></div>
         </div>
     `).join('');
-    openCtrlPanel('دليل الإسعافات الأولية الشامل', `<div class="flex flex-col gap-4"><div class="bg-red-50 border border-red-200 rounded-xl p-4 text-red-800 text-sm flex items-center gap-3"><i class="fas fa-ambulance text-xl"></i><span>هذه الإرشادات أولية ولا تغني عن الاتصال بالإسعاف (110) فوراً في الحالات الخطيرة.</span></div><div>${accordionHtml}</div></div>`, '#DC2626');
+    openCtrlPanel('دليل الإسعافات الأولية الشامل', `<div class="flex flex-col gap-4"><div class="bg-red-50 border border-red-200 rounded-xl p-4 text-red-800 text-sm flex items-center gap-3"><i class="fas fa-ambulance text-xl"></i><span>هذه الإرشادات أولية ولا تغني عن الاتصال بالإسعاف (110) فوراً في الحالات الخطيرة.</span></div><div>${accordionHtml}</div>${generateToolSEOHtml('first-aid')}</div>`, '#DC2626');
 }
 
 window.toggleFirstAidAccordion = (el) => { const item = el.parentElement; const isActive = item.classList.contains('active'); document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); if (!isActive) item.classList.add('active'); }
@@ -4865,7 +4868,7 @@ const medSymbolsData = [
     { symbol: "PO", name: "عن طريق الفم", desc: "تعني تناول الدواء بلعاً عبر الفم." }
 ];
 window.openMedSymbols = () => {
-    openCtrlPanel('دليل رموز التحاليل والروشتات الطبية', `<div class="flex flex-col gap-4"><div class="bg-teal-50 border border-teal-200 rounded-xl p-4 text-teal-800 text-sm flex items-center gap-3"><i class="fas fa-balance-scale text-xl"></i><span><b>إخلاء مسؤولية:</b> هذا الدليل للثقافة العامة فقط ولا يهدف للتشخيص. راجع طبيبك لتفسير النتائج.</span></div><div class="relative"><input type="text" id="symbolSearch" class="ctrl-input pr-10" placeholder="ابحث عن رمز أو اسم التحليل..." oninput="filterMedSymbols()"><i class="fas fa-search absolute top-4 left-4 text-gray-400"></i></div><div id="symbolsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div></div>`, '#0D9488');
+    openCtrlPanel('دليل رموز التحاليل والروشتات الطبية', `<div class="flex flex-col gap-4"><div class="bg-teal-50 border border-teal-200 rounded-xl p-4 text-teal-800 text-sm flex items-center gap-3"><i class="fas fa-balance-scale text-xl"></i><span><b>إخلاء مسؤولية:</b> هذا الدليل للثقافة العامة فقط ولا يهدف للتشخيص. راجع طبيبك لتفسير النتائج.</span></div><div class="relative"><input type="text" id="symbolSearch" class="ctrl-input pr-10" placeholder="ابحث عن رمز أو اسم التحليل..." oninput="filterMedSymbols()"><i class="fas fa-search absolute top-4 left-4 text-gray-400"></i></div><div id="symbolsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>  ${generateToolSEOHtml('med-symbols')}</div>`, '#0D9488');
     renderMedSymbols(medSymbolsData);
 }
 function renderMedSymbols(data) {
@@ -4897,6 +4900,7 @@ window.openHealthCalc = () => {
                 <button onclick="calcHealth()" class="col-span-1 sm:col-span-2 py-3 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90" style="background: #4F46E5;"><i class="fas fa-calculator ml-2"></i> احسب النتائج</button>
             </div>
             <div id="healthResult" class="hidden"></div>
+            ${generateToolSEOHtml('health-calc')}
         </div>
     `, '#4F46E5');
 }
@@ -4953,6 +4957,7 @@ window.openWaterCalc = () => {
                 <button onclick="calcWater()" class="w-full py-3 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90" style="background: #0891B2;"><i class="fas fa-droplet ml-2"></i> احسب احتياجي من الماء</button>
             </div>
             <div id="waterResult" class="hidden"></div>
+            ${generateToolSEOHtml('water-calc')}
         </div>
     `, '#0891B2');
 }
@@ -4992,7 +4997,7 @@ window.openChronicNutrition = () => {
             <div class="disease-header" style="background: ${escapeHtml(d.color)};"><i class="fas ${escapeHtml(d.icon)} text-2xl text-white"></i><div><h4 class="font-bold text-white text-sm" style="font-family: 'Noto Kufi Arabic'">${escapeHtml(d.disease)}</h4></div></div>
             <div class="disease-body"><div class="text-xs font-bold text-gray-500 mb-1">النصائح الغذائية:</div><div class="text-sm text-gray-700 leading-relaxed">${escapeHtml(d.advice)}</div></div>
         </div>`).join('');
-    openCtrlPanel('قسم التغذية للأمراض المزمنة', `<div class="flex flex-col gap-4"><div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-emerald-800 text-sm flex items-center gap-3"><i class="fas fa-bowl-food text-xl"></i><span>دليل غذائي مبسط لأمراض مزمنة شائعة. هذه الإرشادات استرشادية ويجب الالتزام بخطة الطبيب المعالج.</span></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${cardsHtml}</div></div>`, '#10B981');
+    openCtrlPanel('قسم التغذية للأمراض المزمنة', `<div class="flex flex-col gap-4"><div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-emerald-800 text-sm flex items-center gap-3"><i class="fas fa-bowl-food text-xl"></i><span>دليل غذائي مبسط لأمراض مزمنة شائعة. هذه الإرشادات استرشادية ويجب الالتزام بخطة الطبيب المعالج.</span></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${cardsHtml}</div>${generateToolSEOHtml('chronic-nutrition')}</div>`, '#10B981');
 }
 
 // === 2. Pre-Visit Guide ===
@@ -5020,6 +5025,7 @@ window.openPreVisitGuide = () => {
                     <li><b>النشاط البدني:</b> تجنب الرياضة المجهدة قبل التحليل مباشرة لأنها قد تؤثر على بعض النتائج.</li>
                 </ul>
             </div>
+            ${generateToolSEOHtml('pre-visit-guide')}
         </div>
     `, '#3B82F6');
 }
@@ -5035,7 +5041,7 @@ const foodInteractionsData = [
 ];
 window.openFoodInteractions = () => {
     const tableRows = foodInteractionsData.map(item => `<tr class="border-b" style="border-color: var(--border)"><td class="p-3 text-sm font-bold text-gray-800">${escapeHtml(item.med)}</td><td class="p-3 text-sm text-red-600">${escapeHtml(item.food)}</td><td class="p-3 text-sm text-gray-600">${escapeHtml(item.effect)}</td></tr>`).join('');
-    openCtrlPanel('جدول تعارضات الأدوية مع الطعام', `<div class="flex flex-col gap-4"><div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800 text-sm flex items-center gap-3"><i class="fas fa-utensils text-xl"></i><span>جدول إرشادي لأهم التداخلات بين الأدوية الشائعة والأطعمة. استشر الصيدلاني دائماً.</span></div><div class="bg-white rounded-xl border overflow-hidden" style="border-color: var(--border)"><table class="w-full text-right"><thead class="bg-gray-50"><tr class="border-b" style="border-color: var(--border)"><th class="p-3 text-xs font-bold text-gray-500">الدواء</th><th class="p-3 text-xs font-bold text-gray-500">الطعام الممنوع/المحظور</th><th class="p-3 text-xs font-bold text-gray-500">التأثير الجانبي</th></tr></thead><tbody>${tableRows}</tbody></table></div></div>`, '#D97706');
+    openCtrlPanel('جدول تعارضات الأدوية مع الطعام', `<div class="flex flex-col gap-4"><div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800 text-sm flex items-center gap-3"><i class="fas fa-utensils text-xl"></i><span>جدول إرشادي لأهم التداخلات بين الأدوية الشائعة والأطعمة. استشر الصيدلاني دائماً.</span></div><div class="bg-white rounded-xl border overflow-hidden" style="border-color: var(--border)"><table class="w-full text-right"><thead class="bg-gray-50"><tr class="border-b" style="border-color: var(--border)"><th class="p-3 text-xs font-bold text-gray-500">الدواء</th><th class="p-3 text-xs font-bold text-gray-500">الطعام الممنوع/المحظور</th><th class="p-3 text-xs font-bold text-gray-500">التأثير الجانبي</th></tr></thead><tbody>${tableRows}</tbody></table></div>${generateToolSEOHtml('food-interactions')}</div>`, '#D97706');
 }
 
 // === 4. Patient Self-Reminder Book (Local Storage) ===
@@ -5058,6 +5064,7 @@ window.openPatientReminder = () => {
                 <h4 class="font-bold mb-4 text-sm flex items-center gap-2"><i class="fas fa-list text-indigo-600"></i> تذكيراتي المحفوظة</h4>
                 <div id="remindersList" class="flex flex-col gap-3"><p class="text-center py-8 text-gray-400 text-sm">لا توجد تذكيرات بعد.</p></div>
             </div>
+            ${generateToolSEOHtml('patient-reminder')}
         </div>
     `, '#6366F1');
     renderRemindersList();
@@ -5086,6 +5093,7 @@ window.openMedRenewalCalc = () => {
                 <button onclick="calcRenewal()" class="col-span-1 sm:col-span-2 py-3 rounded-xl text-white font-bold text-sm" style="background: #06B6D4;"><i class="fas fa-calculator ml-2"></i> احسب موعد التجديد</button>
             </div>
             <div id="renewalResult" class="hidden"></div>
+            ${generateToolSEOHtml('med-renewal-calc')}
         </div>
     `, '#06B6D4');
 }
@@ -5127,6 +5135,7 @@ window.openPreTestGuide = () => {
                 <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm hover:shadow-md transition-all glow-border"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-500"><i class="fas fa-wave-square"></i></div><h4 class="font-bold text-sm">تعليمات إيكو / سونار البطن؟</h4></div><div class="flex items-center gap-3"><span class="fasting-badge fasting-special"><i class="fas fa-moon"></i> 6 - 8 ساعات</span><span class="text-xs" style="color:var(--muted)">معدة فارغة + مثانة ممتلئة</span></div></div>
             </div>
             <div class="bg-white rounded-2xl border overflow-hidden shadow-sm" style="border-color:var(--border)"><div class="p-4 border-b flex flex-wrap gap-2" style="border-color:var(--border);background:var(--bg-deep)"><button class="tab-btn active" onclick="filterPrelab('all',this)">الكل</button><button class="tab-btn" onclick="filterPrelab('blood',this)"><i class="fas fa-tint ml-1"></i>تحاليل دم</button><button class="tab-btn" onclick="filterPrelab('imaging',this)"><i class="fas fa-x-ray ml-1"></i>أشعة وتصوير</button><button class="tab-btn" onclick="filterPrelab('urine',this)"><i class="fas fa-flask ml-1"></i>تحاليل بول</button><button class="tab-btn" onclick="filterPrelab('special',this)"><i class="fas fa-star ml-1"></i>فحوصات خاصة</button></div><div id="prelabList"></div></div>
+            ${generateToolSEOHtml('pre-test-guide')}
         </div>`;
     openCtrlPanel('التعليمات قبل التحاليل والفحوصات', initialHtml, '#3B82F6');
     renderPrelab('all');
@@ -5159,7 +5168,7 @@ window.openEventsFirstAid = () => {
         { icon: "fa-pills", title: "هبوط السكر المفاجئ (لمرضى السكري)", steps: "1. إذا شعر شخص بعرق شديد، رجفة، أو تشوش بالوعي، اعطه فوراً عصيراً محلى، أو قطعة سكر، أو ملعقة عسل.\n2. لا تعطه شيئاً عن الفم إذا كان فاقداً للوعي تماماً لتجنب اختناقه.\n3. انتظر 15 دقيقة، إذا لم يتحسن، أعطه جرعة أخرى من السكر واطلب الإسعاف.\n4. بعد أن يستعيد وعيه وتتحسن حالته، أعطه وجبة خفيفة تحتوي على نشويات (شطيرة) لضمان استقرار السكر." }
     ];
     const html = data.map(d => `<div class="accordion-item"><div class="accordion-header" onclick="toggleAccordion(this)"><div class="flex items-center gap-3"><i class="fas ${escapeHtml(d.icon)} text-red-600 text-lg w-8"></i><span>${escapeHtml(d.title)}</span></div><i class="fas fa-chevron-down transition-transform"></i></div><div class="accordion-body"><div class="accordion-body-inner whitespace-pre-line">${escapeHtml(d.steps)}</div></div></div>`).join('');
-    openCtrlPanel('إسعافات المناسبات والتجمعات', `<div class="flex flex-col gap-4"><div class="bg-red-50 border border-red-200 rounded-xl p-4 text-red-800 text-sm flex items-center gap-3"><i class="fas fa-kit-medical text-xl"></i><span>دليل سريع للتعامل مع أكثر الحوادث شيوعاً في الأفراح، المهرجانات، والتجمعات العائلية.</span></div><div>${html}</div></div>`, '#DC2626');
+    openCtrlPanel('إسعافات المناسبات والتجمعات', `<div class="flex flex-col gap-4"><div class="bg-red-50 border border-red-200 rounded-xl p-4 text-red-800 text-sm flex items-center gap-3"><i class="fas fa-kit-medical text-xl"></i><span>دليل سريع للتعامل مع أكثر الحوادث شيوعاً في الأفراح، المهرجانات، والتجمعات العائلية.</span></div><div>${html}</div>${generateToolSEOHtml('events-first-aid')}</div>`, '#DC2626');
 };
 
 // === Interactive Medical Map ===
@@ -5172,6 +5181,7 @@ window.openMedicalMap = () => {
             <div class="w-full sm:w-2/3 rounded-xl overflow-hidden border" style="border-color: var(--border)">
                 <iframe id="mapFrame" width="100%" height="100%" frameborder="0" style="border:0; min-height: 400px;" src="https://maps.google.com/maps?q=الرحيبة%20سوريا&output=embed" allowfullscreen></iframe>
             </div>
+            ${generateToolSEOHtml('medical-map')}
         </div>
     `, '#10B981');
     renderMapList();
@@ -5247,6 +5257,7 @@ window.openRahebaRadar = async () => {
             <p class="text-sm text-gray-600 mb-4">إذا كنت تعاني من أحد هذه الأعراض في <span id="radarCurrentCityName" style="font-weight: bold; color: var(--accent);">${currentRadarCity}</span>، ساعد مجتمعك بتسجيل حالتك لمتابعة انتشار الأمراض.</p>
                 <button onclick="openRadarRegisterModal()" class="pulse-register bg-red-500 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-red-600 transition-all w-full sm:w-auto">➕ سَجّل حالتك الصحية الآن</button>
             </div>
+            ${generateToolSEOHtml('raheba-radar')}
         </div>
     `, '#4F46E5');
     
@@ -5396,6 +5407,7 @@ window.openVaccineScheduler = () => {
                 <button onclick="calcVaccines()" class="w-full mt-4 py-3 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90" style="background: #F97316;"><i class="fas fa-calculator ml-2"></i> احسب جدول اللقاحات</button>
             </div>
             <div id="vaccResult" class="hidden flex flex-col gap-3"></div>
+            ${generateToolSEOHtml('vaccine-scheduler')}
         </div>
     `, '#F97316');
 }
@@ -5452,6 +5464,7 @@ window.openAskDoctor = (docName) => {
                     <p class="text-center py-8 text-gray-400 text-sm">جاري تحميل الأسئلة...</p>
                 </div>
             </div>
+            ${generateToolSEOHtml('ask-doctor')}
         </div>
     `, '#0EA5E9');
         fetchQuestions();
