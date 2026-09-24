@@ -6762,7 +6762,7 @@ const routesConfig = {
     '/pre-visit-guide': { title: 'إرشادات قبل زيارة الطبيب | LomedX', desc: 'دليل الطبيب والمخبر.', handler: 'openPreVisitGuide' },
     '/pre-test-guide': { title: 'تعليمات قبل التحاليل | LomedX', desc: 'دليل الفحوصات والأشعة.', handler: 'openPreTestGuide' },
     '/food-interactions': { title: 'تعارضات الأدوية والطعام | LomedX', desc: 'جدول الصيدلية.', handler: 'openFoodInteractions' },
-    '/patient-reminder': { title: 'دفتر التذكير الذاتي | LomedX', desc: 'مواعيد الأدوية والزيارات.', handler: 'openPatientReminder' }
+    '/patient-reminder': { title: 'دفتر التذكير الذاتي | LomedX', desc: 'مواعيد الأدوية والزيارات.', handler: 'openPatientReminder' },
         '/seasonal-diseases': { title: 'الأمراض الموسمية الشائعة في منطقة القلمون | LomedX', desc: 'دليل توعوي بأبرز الأمراض المنتشرة في منطقة القلمون موسمياً مع نصائح وقائية.', handler: 'openSeasonalDiseases' },
 };
 
