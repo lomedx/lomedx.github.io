@@ -434,7 +434,7 @@ const AdvancedMedicalSEO = {
             { q: "هل يمكنني الاعتماد على المقالات كروشتة طبية؟", a: "إطلاقاً، المقالات هي للتوعية الثقافية الصحية فقط. لا يجوز تناول أي دواء أو اتباع أي خطة علاجية بدون كشف مباشر عند الطبيب المختص." }
         ]
     },
-    'health-file': {. //....24
+    'health-file': { //....24
         related: [
             { title: 'ابحث عن طبيب', url: '/doctors', icon: 'fa-user-doctor' },
             { title: 'الإسعافات الأولية', url: '/first-aid', icon: 'fa-kit-medical' }
