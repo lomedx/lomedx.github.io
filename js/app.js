@@ -648,7 +648,7 @@ function createCard(item) {
     }
     
     return `<div class="card ${t.cardClass} cursor-pointer" onclick="openModal('${escapeHtml(item.id)}')" data-type="${escapeHtml(item.type)}"><div class="relative h-40 overflow-hidden rounded-t-2xl">
-<img src="${getOptimizedImageUrl(item.image, 400, 300)}" alt="${escapeHtml(item.name)}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 cursor-zoom-in" loading="lazy" onclick="event.stopPropagation(); openLightbox(this.src)"><div class="absolute top-3 right-3"><span class="badge ${t.badgeClass}">${t.label}</span></div><div class="absolute top-3 left-3 flex flex-col gap-1 items-start">
+<img src="${getOptimizedImageUrl(item.image, 400, 300)}" alt="${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} في سوريا | منصة LomedX" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 cursor-zoom-in" loading="lazy" onclick="event.stopPropagation(); openLightbox(this.src)"><div class="absolute top-3 right-3"><span class="badge ${t.badgeClass}">${t.label}</span></div><div class="absolute top-3 left-3 flex flex-col gap-1 items-start">
     ${['doctor', 'pharmacy'].includes(item.type) && item.isopen === true ? '<span class="badge" style="background:#10B981;color:white"><i class="fas fa-door-open ml-1"></i>مفتوح</span>' : ''}
     ${['doctor', 'pharmacy'].includes(item.type) && item.isopen === false ? '<span class="badge" style="background:#EF4444;color:white"><i class="fas fa-door-closed ml-1"></i>مغلق</span>' : ''}
     ${item.night ? '<span class="badge" style="background:rgba(196,150,44,0.9);color:white"><i class="fas fa-moon ml-1"></i>ليلي</span>' : ''}
