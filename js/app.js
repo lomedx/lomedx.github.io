@@ -6904,6 +6904,9 @@ function handleRouteChange() {
 window.addEventListener('popstate', handleRouteChange);
 
 document.addEventListener('click', (e) => {
+    // هذا السطر يمنع محرك التوجيه من التدخل إذا كان الزر يفتح أكورديون (مثل الفوتر)
+    if (e.defaultPrevented) return; 
+    
     const link = e.target.closest('a[href^="/"]');
     if (link && !link.hasAttribute('target') && !link.hasAttribute('download')) {
         if (link.getAttribute('href').startsWith('//')) return; 
