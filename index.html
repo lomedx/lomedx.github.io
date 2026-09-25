@@ -131,6 +131,54 @@
       gtag('js', new Date());
       gtag('config', 'G-7ZMMYD9NL9');
     </script>
+    <style>
+        /* تحسين شكل القائمة المنسدلة للأدوات في الكمبيوتر */
+        .tools-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 0.5rem;
+            width: 700px;
+            background: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.15);
+            border: 1px solid #DDE3DD;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-50%) translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        html.dark .tools-dropdown-menu {
+            background: #1e293b;
+            border-color: #334155;
+        }
+        .tools-dropdown:hover .tools-dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+        .tools-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            transition: background 0.2s;
+            text-decoration: none !important;
+        }
+        .tools-dropdown-item:hover {
+            background: #F0EDE6;
+        }
+        html.dark .tools-dropdown-item:hover {
+            background: #334155;
+        }
+    </style>
 </head>
 <body>
 <!-- شاشة التحميل الأسطورية 3D -->
@@ -197,7 +245,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 sm:h-20">
 
-<a href="#home" class="flex flex-col gap-2 text-white no-underline">
+<a href="/" class="flex flex-col gap-2 text-white no-underline">
     <!-- شارة الزوار -->
     <div class="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 shadow-md hover:bg-white/20 transition-all duration-300 w-fit">
         <i class="fas fa-users text-yellow-400 text-xs"></i>
@@ -348,11 +396,11 @@
                     <i class="fas fa-house text-xs"></i> الخدمات الأساسية
                 </h2>
                 <div class="flex flex-col">
-                    <a href="#home" onclick="toggleMobileMenu()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg" style="text-decoration:none;"><i class="fas fa-house w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">الرئيسية</span></a>
-                    <a href="#hospitals" onclick="toggleMobileMenu()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg" style="text-decoration:none;"><i class="fas fa-hospital w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">المشافي والمراكز</span></a>
-                    <a href="#doctors" onclick="toggleMobileMenu()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg" style="text-decoration:none;"><i class="fas fa-user-doctor w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">الأطباء</span></a>
-                    <a href="#pharmacies" onclick="toggleMobileMenu()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg" style="text-decoration:none;"><i class="fas fa-prescription-bottle-medical w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">الصيدليات</span></a>
-                    <a href="#labs" onclick="toggleMobileMenu()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg" style="text-decoration:none;"><i class="fas fa-flask w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">المخابر الطبية</span></a>
+                    <a href="/" onclick="toggleMobileMenu()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg" style="text-decoration:none;"><i class="fas fa-house w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">الرئيسية</span></a>
+                    <a href="/hospitals" onclick="toggleMobileMenu()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg" style="text-decoration:none;"><i class="fas fa-hospital w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">المشافي والمراكز</span></a>
+                    <a href="/doctors" onclick="toggleMobileMenu()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg" style="text-decoration:none;"><i class="fas fa-user-doctor w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">الأطباء</span></a>
+                    <a href="/pharmacies" onclick="toggleMobileMenu()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg" style="text-decoration:none;"><i class="fas fa-prescription-bottle-medical w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">الصيدليات</span></a>
+                    <a href="/labs" onclick="toggleMobileMenu()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg" style="text-decoration:none;"><i class="fas fa-flask w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">المخابر الطبية</span></a>
                 </div>
             </div>
 
@@ -702,10 +750,11 @@
         <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent"></div>
         
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- تعديل الشبكة لتكون 4 أعمدة متوازنة -->
             <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
                 
                 <!-- القسم الأول: الشعار والوصف -->
-                <div class="md:col-span-5 flex flex-col items-start gap-4">
+                <div class="md:col-span-4 flex flex-col items-start gap-4">
                     <div class="flex items-center gap-4">
                         <div class="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center border-2 border-[var(--gold)]/30" style="box-shadow: 0 0 20px rgba(196, 150, 44, 0.2);">
                             <img src="https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg?auth_key=1885239914-cbdf24db3e384494b76a36d7b2c9a35a-0-3aee9630f51ea0cb177c216a24d9f061" alt="الشعار الدليل الطبي" class="w-full h-full object-cover" loading="lazy">
@@ -721,9 +770,9 @@
                 </div>
 
                 <!-- قسم روابط الـ SEO في الفوتر -->
-                <div class="md:col-span-4">
-                    <h4 class="text-sm font-bold mb-5 text-white/90 relative pr-4 before:content-[''] before:absolute before:right-0 before:top-1/2 before:-translate-y-1/2 before:w-1.5 before:h-5 before:bg-[var(--gold)] before:rounded-full" style="font-family: 'Noto Kufi Arabic';">دليل الأدوات والخدمات</h4>
-                    <ul class="grid grid-cols-2 gap-2 text-sm">
+                <div class="md:col-span-2">
+                    <h4 class="text-sm font-bold mb-5 text-white/90 relative pr-4 before:content-[''] before:absolute before:right-0 before:top-1/2 before:-translate-y-1/2 before:w-1.5 before:h-5 before:bg-[var(--gold)] before:rounded-full" style="font-family: 'Noto Kufi Arabic';">روابط سريعة</h4>
+                    <ul class="grid grid-cols-1 gap-2 text-sm">
                         <li><a href="/blog" class="text-white/50 hover:text-[var(--gold)] transition-colors">المدونة الطبية</a></li>
                         <li><a href="/blood-bank" class="text-white/50 hover:text-[var(--gold)] transition-colors">بنك الدم</a></li>
                         <li><a href="/first-aid" class="text-white/50 hover:text-[var(--gold)] transition-colors">إسعافات أولية</a></li>
@@ -734,16 +783,15 @@
                 </div>
 
                 <!-- القسم الثاني: روابط سريعة -->
-                <div class="md:col-span-3">
-                    <h4 class="text-sm font-bold mb-5 text-white/90 relative pr-4 before:content-[''] before:absolute before:right-0 before:top-1/2 before:-translate-y-1/2 before:w-1.5 before:h-5 before:bg-[var(--gold)] before:rounded-full" style="font-family: 'Noto Kufi Arabic';">روابط سريعة</h4>
+                <div class="md:col-span-2">
+                    <h4 class="text-sm font-bold mb-5 text-white/90 relative pr-4 before:content-[''] before:absolute before:right-0 before:top-1/2 before:-translate-y-1/2 before:w-1.5 before:h-5 before:bg-[var(--gold)] before:rounded-full" style="font-family: 'Noto Kufi Arabic';">الدليل الطبي</h4>
                     <ul class="space-y-3 text-sm">
-                        <li><a href="#home" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> الرئيسية</a></li>
-                        <li><a href="#hospitals" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> المشافي</a></li>
-                        <li><a href="#doctors" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> الأطباء</a></li>
-                        <li><a href="#labs" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> المخابر الطبية</a></li>
-                        <li><a href="#pharmacies" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> الصيدليات</a></li>
-                        <li><button onclick="toggleEmergencyPopup()" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group w-full text-right"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> أرقام الطوارئ و الجهات الصحية</button></li>
-                        <li><a href="#contact" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> تواصل معنا</a></li>
+                        <li><a href="/" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> الرئيسية</a></li>
+                        <li><a href="/hospitals" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> المشافي</a></li>
+                        <li><a href="/doctors" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> الأطباء</a></li>
+                        <li><a href="/labs" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> المخابر الطبية</a></li>
+                        <li><a href="/pharmacies" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> الصيدليات</a></li>
+                        <li><button onclick="toggleEmergencyPopup()" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group w-full text-right"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> أرقام الطوارئ</button></li>
                     </ul>
                 </div>
 
