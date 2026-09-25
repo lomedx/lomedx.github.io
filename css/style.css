@@ -1383,7 +1383,7 @@ body.stop-animations .btn-health-glow span::before {
     .back-to-top, .emergency-fab-wrapper, .ui-controls {
         bottom: calc(30px + env(safe-area-inset-bottom)) !important; /* يرفع الأزرار فوق الشريط السفلي للهاتف */
     }
-
+}
     
 /* ضمان حجم لمس مريح للإبهام في الجوال */
 @media (max-width: 768px) {
@@ -1780,5 +1780,4 @@ html.dark .booking-step {
     border-radius: 12px;
     padding: 12px 20px;
     color: #FFFFFF !important;
-}
-    
+}   
