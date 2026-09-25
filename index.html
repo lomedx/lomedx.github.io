@@ -143,7 +143,7 @@
         
         <div class="splash-logo-3d">
             <div class="splash-logo-glow"></div>
-            <img src="https://i.ibb.co/d09VBmky/37414.png" alt="الدليل الطبي">
+            <img src="https://i.ibb.co/d09VBmky/37414.png" alt="منصة LomedX الطبية">
         </div>
         
         <!-- علامة طبية متوهجة في المدار -->
@@ -860,7 +860,7 @@
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-chevron-up"></i></button>
     <div class="toast" id="toast"></div>
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)"><div class="modal-content" id="modalContent" onclick="event.stopPropagation()"></div></div>
-    <div id="lightbox" class="lightbox-overlay"><img src="" alt="معاينة الصورة"></div>
+    <div id="lightbox" class="lightbox-overlay"><img src="" alt="صورة منشأة طبية من منصة LomedX"></div>
 
 <!-- محرك ترجمة جوجل المخفي -->
 <div id="google_translate_element" style="display:none;"></div>
@@ -869,7 +869,7 @@
         new google.translate.TranslateElement({pageLanguage: 'ar', includedLanguages: 'en', autoDisplay: false}, 'google_translate_element');
     }
 </script>
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script async defer type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 
     <!-- لوحة اختيار المدينة المنزلقة -->
@@ -924,45 +924,5 @@
 
         
 
-<!-- تحميل مكتبة Three.js والعرض السينمائي لمرة واحدة -->
-<script>
-  (function() {
-    const hasSeenCinematic = localStorage.getItem('lomedx_cinematic_seen');
-    const isBot = navigator.userAgent.toLowerCase().includes('bot');
-
-    if (!hasSeenCinematic && !isBot) {
-      const overlay = document.getElementById('cinematicIntroOverlay');
-      if (overlay) overlay.style.display = 'block';
-
-      const loadScript = (src) => {
-        return new Promise((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = src;
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-      };
-
-      Promise.all([
-        loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'),
-        loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js')
-      ]).then(() => {
-        // تحميل ملف السينمائي من مجلد js (تأكد أن الملف موجود في GitHub باسم cinematic-intro.js)
-        return loadScript('./js/cinematic-intro.js');
-      }).then(() => {
-        if (typeof initializeCinematicIntro === 'function') {
-          initializeCinematicIntro();
-        } else {
-          console.error("Cinematic function not found!");
-          if (overlay) overlay.style.display = 'none';
-        }
-      }).catch(err => {
-        console.error("Failed to load cinematic intro", err);
-        if (overlay) overlay.style.display = 'none';
-      });
-    }
-  })();
-</script>  
 </body>
 </html>
