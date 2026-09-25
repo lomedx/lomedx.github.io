@@ -1,20 +1,23 @@
-<!DOCTYPE html>
+<!<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- ====== SEO BASIC (عربي/إنجليزي محسن) ====== -->
     <title>LomedX | المنصة الطبية الشاملة: حجز مواعيد، بنك دم، وملف صحي ذكي في سوريا</title>
     <meta name="description" content="Lomedx منصة طبية متكاملة في سوريا. ابحث عن أطباء، صيدليات، ومشافي. احجز موعدك إلكترونياً، أنشئ ملفك الصحي المشفر، واستفد من أدواتنا الطبية التفاعلية (حاسبات الجرعات، الإسعافات، بنك الدم).">
     <meta name="keywords" content="حجز موعد طبيب, منصة طبية سوريا, بنك الدم الرقمي, ملف صحي ذكي, Lomedx, doctors Syria, medical platform, Syria healthcare">
     <meta name="author" content="LomedX Medical Team">
     <meta name="robots" content="index, follow, max-image-preview:large" />
 
+    <!-- ====== CANONICAL & HREFLANG (دعم اللغتين عالمياً) ====== -->
     <link rel="canonical" href="https://lomedx.pages.dev/" />
     <link rel="alternate" hreflang="ar" href="https://lomedx.pages.dev/" />
     <link rel="alternate" hreflang="en" href="https://lomedx.pages.dev/en" />
     <link rel="alternate" hreflang="x-default" href="https://lomedx.pages.dev/" />
 
+    <!-- ====== OPEN GRAPH (وسائل التواصل) ====== -->
     <meta property="og:title" content="LomedX | المنصة الطبية الشاملة في سوريا" />
     <meta property="og:description" content="الوصول السريع للرعاية الصحية: حجز المواعيد، الملف الصحي المشفر، بنك الدم، والأدوات الطبية التفاعلية." />
     <meta property="og:type" content="website" />
@@ -24,6 +27,7 @@
     <meta property="og:locale:alternate" content="en_US" />
     <meta property="og:image" content="https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg" />
 
+    <!-- ====== TWITTER CARDS ====== -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="LomedX | المنصة الطبية الشاملة" />
     <meta name="twitter:description" content="حجز مواعيد الأطباء، بنك الدم، والملف الصحي الذكي في سوريا." />
@@ -31,6 +35,7 @@
 
     <meta name="google-site-verification" content="xgV2Ga-CojV2Rw9acgS3hBPa_gAkuPtdbatttCT_LVY" />
 
+    <!-- ====== JSON-LD: WebApplication Schema (بيانات منظمة للأداة الطبية) ====== -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -53,6 +58,7 @@
     }
     </script>
 
+    <!-- ====== JSON-LD: FAQPage Schema (الأسئلة الشائعة للظهور المباشر في جوجل) ====== -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -86,6 +92,7 @@
     }
     </script>
 
+    <!-- كود تفعيل التطبيق PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0E7C5F">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -94,6 +101,7 @@
     <meta name="apple-mobile-web-app-title" content="LomedX">
     <link rel="apple-touch-icon" href="https://i.ibb.co/d09VBmky/37414.png">
 
+    <!-- OneSignal SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -106,6 +114,7 @@
       });
     </script>
 
+    <!-- استدعاء الملفات الخارجية -->
     <script defer src="./js/seo-data.js?v=1.0"></script>
     <script type="module" src="./js/app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -114,6 +123,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css?v=2">
 
+    <!-- Google Analytics (GA4) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7ZMMYD9NL9"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -123,6 +133,7 @@
     </script>
 </head>
 <body>
+<!-- شاشة التحميل الأسطورية 3D -->
 <div id="appSplashScreen" class="splash-3d-scene">
     <div class="splash-stars"></div>
     <div class="splash-3d-stage">
@@ -135,6 +146,7 @@
             <img src="https://i.ibb.co/d09VBmky/37414.png" alt="الدليل الطبي">
         </div>
         
+        <!-- علامة طبية متوهجة في المدار -->
         <i class="fas fa-heart-pulse orbit-icon orbit-icon-1"></i>
         <i class="fas fa-staff-snake orbit-icon orbit-icon-2"></i>
         <i class="fas fa-shield-heart orbit-icon orbit-icon-3"></i>
@@ -148,16 +160,23 @@
     <div class="splash-loader-bar"></div>
 </div>
 
+    
+<!-- سكريبت احتياطي مستقل لإخفاء شاشة التحميل لضمان عدم تعليق الموقع -->
 <script>
     setTimeout(function() {
         var splash = document.getElementById('appSplashScreen');
         if (splash) {
+            // 1. إيقاف جميع الحركات فوراً لتبريد المعالج
             splash.style.animation = 'none';
             var animatedElements = splash.querySelectorAll('*');
             animatedElements.forEach(function(el) {
                 el.style.animation = 'none';
             });
+            
+            // 2. بدء تأثير الاختفاء
             splash.classList.add('hidden');
+            
+            // 3. حذف الشاشة نهائياً من الذاكرة (DOM) بعد انتهاء التأثير
             setTimeout(function() { 
                 if (splash.parentNode) {
                     splash.parentNode.removeChild(splash);
@@ -167,56 +186,98 @@
     }, 3000);
 </script>
 
-    <div id="topAnnouncementBar" class="hidden fixed top-0 right-0 left-0 z-[60] bg-gradient-to-l from-[#052E22] via-[#0E7C5F] to-[#052E22] text-white text-center py-2 px-12 text-xs font-semibold shadow-md flex items-center justify-center gap-3 border-b border-[var(--gold)]/40">
+        <!-- شريط الإعلانات العلوي -->
+    <div id="topAnnouncementBar" class="hidden fixed top-0 right-0 left-0 z-[60] bg-gradient-to-l from-[#052E22] via-[#0E7C5F] to-[#052E22] text-white text-center py-2 px-12 text-xs sm:text-sm font-semibold shadow-md flex items-center justify-center gap-3 border-b border-[var(--gold)]/40">
         <i class="fas fa-bullhorn text-[var(--gold)] animate-pulse"></i>
         <span id="announcementText"></span>
         <a id="announcementLink" href="#" target="_blank" class="text-[var(--gold)] hover:underline text-xs whitespace-nowrap" style="display: none;">اضغط هنا</a>
     </div>
 
     <nav class="navbar fixed top-0 right-0 left-0 z-50 bg-transparent" id="navbar">
-        <div class="max-w-md mx-auto px-4">
-            <div class="flex items-center justify-between h-16">
-                
-                <a href="#home" class="flex flex-col gap-2 text-white no-underline">
-                    <div class="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 shadow-md hover:bg-white/20 transition-all duration-300 w-fit">
-                        <i class="fas fa-users text-yellow-400 text-xs"></i>
-                        <span class="text-[10px] text-white/70">الزوار:</span>
-                        <span id="visitorCount" class="text-[11px] font-bold text-white">0</span>
-                        <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                        </span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+
+<a href="#home" class="flex flex-col gap-2 text-white no-underline">
+    <!-- شارة الزوار -->
+    <div class="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 shadow-md hover:bg-white/20 transition-all duration-300 w-fit">
+        <i class="fas fa-users text-yellow-400 text-xs"></i>
+        <span class="text-[10px] text-white/70">الزوار:</span>
+        <span id="visitorCount" class="text-[11px] font-bold text-white">0</span>
+        <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+        </span>
+    </div>
+    <!-- شارة المشاهدات -->
+    <div class="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 shadow-md hover:bg-white/20 transition-all duration-300 w-fit">
+        <i class="fas fa-eye text-yellow-400 text-xs"></i>
+        <span class="text-[10px] text-white/70">المشاهدات:</span>
+        <span id="viewsCount" class="text-[11px] font-bold text-white">0</span>
+        <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+        </span>
+    </div>
+</a>
+                <!-- قائمة أدوات طبية احترافية تعتمد على Tailwind فقط -->
+                <div class="relative group">
+                    <button class="text-white/80 hover:text-white text-sm transition-colors flex items-center gap-1.5"><i class="fas fa-toolbox"></i> أدوات طبية <i class="fas fa-chevron-down text-xs"></i></button>
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[720px] max-w-[90vw] bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-gray-100 dark:border-slate-700 p-6 grid grid-cols-2 gap-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                        <a href="/medicine-donation" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #0D9488;" class="fas fa-laptop-medical text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">الأجهزة الطبية</div><div class="text-xs text-gray-500 dark:text-gray-400">تبرع أو استعير جهازاً</div></div></a>
+                        <a href="/blood-bank" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #DC2626;" class="fas fa-tint text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">بنك الدم الرقمي</div><div class="text-xs text-gray-500 dark:text-gray-400">استغاثات وتبرعات</div></div></a>
+                        <a href="/medical-map" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #10B981;" class="fas fa-map-marked-alt text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">الخريطة الطبية</div><div class="text-xs text-gray-500 dark:text-gray-400">عرض المنشآت</div></div></a>
+                        <a href="/ask-doctor" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #0EA5E9;" class="fas fa-comments text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">اسأل طبيب</div><div class="text-xs text-gray-500 dark:text-gray-400">استشارة مجانية</div></div></a>
+                        <a href="/burn-calculator" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #F97316;" class="fas fa-fire-extinguisher text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">مُسعف الحروق</div><div class="text-xs text-gray-500 dark:text-gray-400">حاسبة الحروق</div></div></a>
+                        <a href="/seasonal-diseases" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #8B5CF6;" class="fas fa-virus-covid text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">الأمراض الموسمية</div><div class="text-xs text-gray-500 dark:text-gray-400">دليل الوقاية</div></div></a>
+                        <a href="/raheba-radar" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #4F46E5;" class="fas fa-satellite-dish text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">رادار الصحي</div><div class="text-xs text-gray-500 dark:text-gray-400">تسجيل الحالات</div></div></a>
+                        <a href="/pregnancy-calc" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #EC4899;" class="fas fa-baby text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">حاسبة الحمل</div><div class="text-xs text-gray-500 dark:text-gray-400">تطور الجنين</div></div></a>
+                        <a href="/dose-calc" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #2563EB;" class="fas fa-syringe text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">جرعات الأطفال</div><div class="text-xs text-gray-500 dark:text-gray-400">سيتامول وبروفين</div></div></a>
+                        <a href="/vaccine-scheduler" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #F97316;" class="fas fa-syringe text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">لقاحات الطفل</div><div class="text-xs text-gray-500 dark:text-gray-400">مواعيد التطعيم</div></div></a>
+                        <a href="/health-calc" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #4F46E5;" class="fas fa-weight-scale text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">حاسبة الصحة (BMI)</div><div class="text-xs text-gray-500 dark:text-gray-400">وزنك المثالي</div></div></a>
+                        <a href="/water-calc" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #0891B2;" class="fas fa-glass-water text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">حاسبة الماء</div><div class="text-xs text-gray-500 dark:text-gray-400">حسب الوزن</div></div></a>
+                        <a href="/med-renewal-calc" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #06B6D4;" class="fas fa-calendar-check text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">تجديد الدواء</div><div class="text-xs text-gray-500 dark:text-gray-400">أسبوعي/شهري</div></div></a>
+                        <a href="/first-aid" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #DC2626;" class="fas fa-kit-medical text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">الإسعافات الأولية</div><div class="text-xs text-gray-500 dark:text-gray-400">دليل الطوارئ</div></div></a>
+                        <a href="/med-symbols" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #0D9488;" class="fas fa-file-medical text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">رموز التحاليل</div><div class="text-xs text-gray-500 dark:text-gray-400">فهم المصطلحات</div></div></a>
+                        <a href="/chronic-nutrition" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #10B981;" class="fas fa-bowl-food text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">تغذية الأمراض المزمنة</div><div class="text-xs text-gray-500 dark:text-gray-400">نظام غذائي خاص</div></div></a>
+                        <a href="/pre-visit-guide" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #3B82F6;" class="fas fa-clipboard-list text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">إرشادات قبل الزيارة</div><div class="text-xs text-gray-500 dark:text-gray-400">دليل الطبيب والمخبر</div></div></a>
+                        <a href="/pre-test-guide" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #0EA5E9;" class="fas fa-vial text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">تعليمات قبل التحاليل</div><div class="text-xs text-gray-500 dark:text-gray-400">دليل الفحوصات</div></div></a>
+                        <a href="/events-first-aid" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #B91C1C;" class="fas fa-people-group text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">إسعافات المناسبات</div><div class="text-xs text-gray-500 dark:text-gray-400">حوادث التجمعات</div></div></a>
+                        <a href="/food-interactions" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #D97706;" class="fas fa-utensils text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">تعارضات الأدوية والطعام</div><div class="text-xs text-gray-500 dark:text-gray-400">جدول الصيدلية</div></div></a>
+                        <a href="/patient-reminder" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors no-underline"><i style="background: #6366F1;" class="fas fa-bell text-white p-2 rounded-lg"></i><div><div class="text-sm font-bold text-gray-800 dark:text-white">دفتر التذكير الذاتي</div><div class="text-xs text-gray-500 dark:text-gray-400">مواعيد الأدوية</div></div></a>
                     </div>
-                    <div class="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 shadow-md hover:bg-white/20 transition-all duration-300 w-fit">
-                        <i class="fas fa-eye text-yellow-400 text-xs"></i>
-                        <span class="text-[10px] text-white/70">المشاهدات:</span>
-                        <span id="viewsCount" class="text-[11px] font-bold text-white">0</span>
-                        <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                        </span>
-                    </div>
-                </a>
-                
-                <div class="flex items-center gap-2">
-                    <button onclick="openFavoritesModal()" class="relative w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white text-sm bg-white/10 hover:bg-white/20 transition-all" title="قائمة المفضلة">
-                        <i class="fas fa-heart text-red-400"></i>
-                        <span id="favCountBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-[#052E22]">0</span>
-                    </button>
-                    <button class="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white text-sm bg-white/10 hover:bg-white/20 transition-all" id="darkModeToggle" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
-                    <button class="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white text-sm font-bold bg-white/10 hover:bg-white/20 transition-all" id="langToggle" title="English">EN</button>
-                    <button class="text-white text-xl p-2" onclick="toggleMobileMenu()" aria-label="فتح القائمة"><i class="fas fa-bars" id="menuIcon"></i></button>
                 </div>
+                <button onclick="openMedicineFinder()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all"><i class="fas fa-pills ml-1"></i> ابحث عن دوائك</button>
+                <div class="flex items-center gap-2 border-r border-white/20 pr-4">
+                    <button onclick="openHealthFile()" class="flex items-center gap-1.5 px-3 py-1.5 bg-pink-500/20 hover:bg-pink-500/30 rounded-xl text-xs font-semibold text-white transition-all"><i class="fas fa-id-card" style="color:#F472B6"></i> ملفي الصحي</button>
+                    <button onclick="openDoctorLogin()" class="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-semibold text-white transition-all"><i class="fas fa-user-md" style="color:var(--gold)"></i> الطبيب</button>
+                    <button onclick="openAdminLogin()" class="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-semibold text-white transition-all"><i class="fas fa-cogs text-gray-300"></i> الإدارة</button>
+                    <button onclick="openPharmacyLogin()" class="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-semibold text-white transition-all"><i class="fas fa-prescription-bottle-medical text-green-300"></i> الصيدلية</button>
+                </div>
+            </div>
+                <div class="flex items-center gap-2 ml-2">
+    <!-- زر المفضلة الجديد -->
+    <button onclick="openFavoritesModal()" class="relative w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white text-sm bg-white/10 hover:bg-white/20 transition-all" title="قائمة المفضلة">
+        <i class="fas fa-heart text-red-400"></i>
+        <span id="favCountBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-[#052E22]">0</span>
+    </button>
+    <!-- زر الوضع الليلي -->
+    <button class="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white text-sm bg-white/10 hover:bg-white/20 transition-all" id="darkModeToggle" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
+    <button class="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white text-sm font-bold bg-white/10 hover:bg-white/20 transition-all" id="langToggle" title="English">EN</button>
+    <button class="lg:hidden text-white text-xl p-2" onclick="toggleMobileMenu()" aria-label="فتح القائمة"><i class="fas fa-bars" id="menuIcon"></i></button>
+</div>
             </div>
         </div>
     </nav>
 
-    <div class="mobile-menu-premium fixed top-0 right-0 w-[300px] h-full z-50 overflow-y-auto" id="mobileMenu">
+                       <!-- قائمة الجوال - التصميم الفاخر المرتب احترافياً -->
+        <div class="mobile-menu-premium fixed top-0 right-0 w-[300px] sm:w-[340px] h-full z-50 overflow-y-auto" id="mobileMenu">
         <div class="p-6 pt-12 relative">
+
+            <!-- الهيدر العلوي -->
             <div class="flex items-center justify-between mb-8 relative z-10">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center border-2 border-[var(--gold)] flex-shrink-0" style="box-shadow: 0 0 20px rgba(196, 150, 44, 0.3);">
-                        <img src="https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg" alt="LomedX" class="w-full h-full object-cover">
+                        <img src="https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg?auth_key=1885239914-cbdf24db3e384494b76a36d7b2c9a35a-0-3aee9630f51ea0cb177c216a24d9f061" alt="LomedX" class="w-full h-full object-cover">
                     </div>
                     <span class="lomedx-brand text-2xl font-black leading-none pb-1">LomedX</span>
                 </div>
@@ -230,6 +291,7 @@
                 </div>
             </div>
 
+            <!-- صندوق تعرف على المنصة -->
             <div class="premium-card rounded-2xl p-4 mb-6 relative overflow-hidden" id="platformAccordion">
                 <div class="absolute top-0 right-0 w-1.5 h-full bg-gradient-to-b from-[var(--gold)] to-transparent"></div>
                 <button onclick="togglePlatformInfo()" class="w-full flex items-center justify-between text-right">
@@ -272,6 +334,7 @@
                 </div>
             </div>
 
+            <!-- بطاقة الخدمات الأساسية -->
             <div class="premium-card rounded-3xl p-4 mb-6">
                 <h2 class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
                     <i class="fas fa-house text-xs"></i> الخدمات الأساسية
@@ -285,12 +348,14 @@
                 </div>
             </div>
 
+            <!-- زر المدونة الطبية -->
             <a href="/blog" class="btn-dark-gold w-full rounded-2xl py-3 mb-6 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] relative cursor-pointer" style="text-decoration:none;">
                 <i class="fas fa-book-medical text-white text-lg"></i>
                 <span class="text-white font-bold text-sm glow-gold">المدونة الطبية الذكية</span>
                 <i class="fas fa-arrow-left text-white/70 text-xs absolute left-4"></i>
             </a>
 
+            <!-- 1. الخدمات العاجلة والطوارئ -->
             <div class="premium-card rounded-3xl p-4 mb-6">
                 <h2 class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
                     <i class="fas fa-triangle-exclamation text-xs"></i> 🚨 الخدمات العاجلة والطوارئ
@@ -305,6 +370,7 @@
                 </div>
             </div>
 
+            <!-- 2. الحاسبات والأدوات الطبية -->
             <div class="premium-card rounded-3xl p-4 mb-6">
                 <h2 class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
                     <i class="fas fa-calculator text-xs"></i> الحاسبات والأدوات الطبية
@@ -319,6 +385,7 @@
                 </div>
             </div>
 
+            <!-- 3. الاستكشاف والخدمات التفاعلية -->
             <div class="premium-card rounded-3xl p-4 mb-6">
                 <h2 class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
                     <i class="fas fa-magnifying-glass text-xs"></i> الاستكشاف والخدمات التفاعلية
@@ -332,6 +399,7 @@
                 </div>
             </div>
 
+            <!-- 4. الدليل والإرشادات الصحية -->
             <div class="premium-card rounded-3xl p-4 mb-6">
                 <h2 class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
                     <i class="fas fa-book-medical text-xs"></i> الدليل والإرشادات الصحية
@@ -345,6 +413,7 @@
                 </div>
             </div>
 
+            <!-- 5. إدارة الصحة الشخصية -->
             <div class="premium-card rounded-3xl p-4 mb-6">
                 <h2 class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
                     <i class="fas fa-heart-pulse text-xs"></i> إدارة الصحة الشخصية
@@ -363,6 +432,7 @@
                 </div>
             </div>
 
+            <!-- 6. بوابات النظام -->
             <div class="premium-card rounded-3xl p-4 mb-8">
                 <h2 class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
                     <i class="fas fa-shield-halved text-xs"></i> بوابات النظام
@@ -398,52 +468,59 @@
     </div>
 
     <section id="home" class="hero-bg min-h-screen flex items-center relative">
-        <div class="max-w-md mx-auto px-4 pt-24 pb-16 w-full relative z-10">
-            <div class="text-center max-w-md mx-auto" id="hero-content">
-                <div class="hero-medical-logo">
-                    <img src="https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg" alt="LomedX " loading="lazy">
-                </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 w-full relative z-10">
+            <!-- الكود الجديد -->
+<div class="text-center max-w-3xl mx-auto" id="hero-content">
+    <!-- شعار طبي احترافي -->
+    <div class="hero-medical-logo">
+        <img src="https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg?auth_key=1885239914-cbdf24db3e384494b76a36d7b2c9a35a-0-3aee9630f51ea0cb177c216a24d9f061" alt="LomedX " loading="lazy">
+    </div>
 
-                <div id="userLocationBadge" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 mb-6 text-white/80 text-sm"style="display: none;">
-                    <i class="fas fa-map-marker-alt" style="color: var(--gold)"></i>
-                    <span id="userLocationText">جاري تحديد موقعك...</span>
-                </div>
-                <h1 class="text-3xl font-black text-white leading-tight mb-6" style="font-family: 'Noto Kufi Arabic'"><span>منصتك الطبية الشاملة</span></h1>
-                <p class="text-white/65 text-base mb-10 max-w-md mx-auto leading-relaxed">ابحث عن الأطباء، الصيدليات، المشافي، المخابر، والمراكز الطبية بكل سهولة. الرعاية الصحية الموثوقة بنقرة واحدة.</p>
-                
-                <div id="homeMediaAdsSection" class="hidden mb-6 w-full max-w-md mx-auto">
+    <div id="userLocationBadge" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 mb-6 text-white/80 text-sm"style="display: none;">
+    <i class="fas fa-map-marker-alt" style="color: var(--gold)"></i>
+    <span id="userLocationText">جاري تحديد موقعك...</span>
+</div>
+<h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6" style="font-family: 'Noto Kufi Arabic'"><span>منصتك الطبية الشاملة</span></h1>
+<p class="text-white/65 text-base sm:text-lg mb-10 max-w-xl mx-auto leading-relaxed">ابحث عن الأطباء، الصيدليات، المشافي، المخابر، والمراكز الطبية بكل سهولة. الرعاية الصحية الموثوقة بنقرة واحدة.</p>
+          <!-- Homepage Media Ads Slider Section -->
+                                <div id="homeMediaAdsSection" class="hidden mb-6 w-full max-w-2xl mx-auto">
                     <div class="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20">
-                        <div id="homeAdContainer" class="w-full h-[200px]">
+                        <div id="homeAdContainer" class="w-full h-[200px] sm:h-[350px]">
+                            <!-- سيتم حقن الإعلانات هنا -->
                         </div>
+                        <!-- النقاط (تُنشأ تلقائياً) -->
                         <div id="adDots" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 z-20"></div>
                     </div>
                 </div>
-                
-                <div class="search-container rounded-2xl p-3 max-w-md mx-auto flex flex-col items-stretch gap-2">
-                    <button onclick="openCitySelector()" class="city-pill-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-semibold transition-all whitespace-nowrap">
-                        <i class="fas fa-location-dot text-[var(--gold)]"></i>
-                        <span id="currentCityText">كل المدن</span>
-                        <i class="fas fa-chevron-down text-xs opacity-70"></i>
-                    </button>
-                    <div class="flex flex-1 items-center gap-2 bg-white/5 rounded-xl px-3 py-1">
-                        <i class="fas fa-magnifying-glass text-white/40"></i>
-                        <input type="text" id="heroSearch" class="search-input w-full py-3 text-sm" placeholder="ابحث عن طبيب، صيدلية، مشفى..." oninput="handleSearch(this.value)">
-                        <button onclick="handleSearch(document.getElementById('heroSearch').value)" class="px-6 py-3 rounded-xl text-white font-semibold text-sm transition-all hover:shadow-lg hover:shadow-yellow-500/30 flex-shrink-0" style="background: linear-gradient(135deg, var(--gold), #e6c976);">بحث</button>
-                    </div>
-                </div>
+                <!-- حاوية البحث الرئيسية -->
+<div class="search-container rounded-2xl p-3 max-w-2xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+    <!-- زر المدينة الأنيق -->
+    <button onclick="openCitySelector()" class="city-pill-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-semibold transition-all whitespace-nowrap">
+        <i class="fas fa-location-dot text-[var(--gold)]"></i>
+        <span id="currentCityText">كل المدن</span>
+        <i class="fas fa-chevron-down text-xs opacity-70"></i>
+    </button>
 
-                <div class="mt-3 max-w-md mx-auto bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-2 flex flex-col items-stretch gap-2">
-                    <div class="flex items-center gap-3 px-3 flex-1">
-                        <i class="fas fa-file-invoice text-yellow-400 text-base"></i>
-                        <input type="text" id="quickLookupInput" class="search-input w-full py-2.5 text-sm bg-transparent" placeholder="استعلم عن حالة حجزك أو طلب دوائك برقم المرجع...">
-                    </div>
-                    <button onclick="quickLookup()" class="px-5 py-2.5 rounded-xl text-white font-semibold text-sm transition-all hover:opacity-90 flex items-center justify-center gap-2" style="background: linear-gradient(135deg, var(--accent), #0d9488);">
-                        <i class="fas fa-magnifying-glass text-xs"></i>
-                        استعلام
-                    </button>
-                </div>
-                
-                <div class="mt-8 max-w-md mx-auto bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex items-center gap-4 text-right">
+    <!-- حقل الإدخال وزر البحث -->
+    <div class="flex flex-1 items-center gap-2 bg-white/5 sm:bg-transparent rounded-xl sm:rounded-none px-3 py-1 sm:py-0">
+        <i class="fas fa-magnifying-glass text-white/40"></i>
+        <input type="text" id="heroSearch" class="search-input w-full py-3 text-sm sm:text-base" placeholder="ابحث عن طبيب، صيدلية، مشفى..." oninput="handleSearch(this.value)">
+        <button onclick="handleSearch(document.getElementById('heroSearch').value)" class="px-6 py-3 rounded-xl text-white font-semibold text-sm transition-all hover:shadow-lg hover:shadow-yellow-500/30 flex-shrink-0" style="background: linear-gradient(135deg, var(--gold), #e6c976);">بحث</button>
+    </div>
+</div>
+
+<!-- حاوية الاستعلام السريع -->
+<div class="mt-3 max-w-2xl mx-auto bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+    <div class="flex items-center gap-3 px-3 flex-1">
+        <i class="fas fa-file-invoice text-yellow-400 text-base"></i>
+        <input type="text" id="quickLookupInput" class="search-input w-full py-2.5 text-sm bg-transparent" placeholder="استعلم عن حالة حجزك أو طلب دوائك برقم المرجع...">
+    </div>
+    <button onclick="quickLookup()" class="px-5 py-2.5 rounded-xl text-white font-semibold text-sm transition-all hover:opacity-90 flex items-center justify-center gap-2" style="background: linear-gradient(135deg, var(--accent), #0d9488);">
+        <i class="fas fa-magnifying-glass text-xs"></i>
+        استعلام
+    </button>
+</div>
+                <div class="mt-8 max-w-2xl mx-auto bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex items-center gap-4 text-right">
                     <div class="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-lightbulb text-yellow-400 text-lg"></i>
                     </div>
@@ -453,21 +530,42 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-2 mt-12 max-w-md mx-auto">
-                    <div class="stat-card p-3 rounded-2xl text-center"><div class="text-xl font-black text-white" id="stat-hospital">0</div><div class="text-[9px] text-white/50 mt-1">المشفى</div></div>
-                    <div class="stat-card p-3 rounded-2xl text-center"><div class="text-xl font-black text-white" id="stat-center">0</div><div class="text-[9px] text-white/50 mt-1">المركز الطبي</div></div>
-                    <div class="stat-card p-3 rounded-2xl text-center"><div class="text-xl font-black text-white" id="stat-lab">0</div><div class="text-[9px] text-white/50 mt-1">المخبر</div></div>
-                    <div class="stat-card p-3 rounded-2xl text-center"><div class="text-xl font-black text-white" id="stat-doctor">0</div><div class="text-[9px] text-white/50 mt-1">الطبيب</div></div>
-                    <div class="stat-card p-3 rounded-2xl text-center"><div class="text-xl font-black text-white" id="stat-pharmacy">0</div><div class="text-[9px] text-white/50 mt-1">الصيدلية</div></div>
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-4 mt-12 max-w-4xl mx-auto">
+    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-hospital">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">المشفى</div></div>
+    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-center">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">المركز الطبي</div></div>
+    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-lab">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">المخبر</div></div>
+    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-doctor">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">الطبيب</div></div>
+    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-pharmacy">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">الصيدلية</div></div>
                 </div>
         </div>
                 <div class="absolute bottom-0 left-0 right-0"><svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H0Z" fill="var(--bg)"/></svg></div>
-    </section> 
+    </section> <!-- تم إغلاق قسم الهيرو هنا -->
 
+
+
+
+
+<!-- =========================================
+    LomedX SPA Interactive Sections
+==========================================
+  <!-- 2. قسم الحلول -->
+
+  
+
+<!-- السكربت الخاص بتبديل الأقسام -->
+<!-- نهاية الكود -->
+
+
+    
+
+    
+       <!-- قسم الاستغاثات والتصفية (مستقل تماماً) -->
     <section class="z-30 py-10 shadow-sm relative" style="background: rgba(250, 248, 244, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border)">
-        <div class="max-w-md mx-auto px-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            <div id="homeAlertsWrapper" class="hidden flex-col gap-6 mb-12">
+            <!-- 1. الاستغاثات والأدوية (مستقلة بالأعلى - نصف الشاشة لكل منهما) -->
+            <div id="homeAlertsWrapper" class="hidden flex-col md:flex-row gap-6 mb-12">
+                <!-- صندوق الدم -->
                 <div id="homeBloodAlertsSection" class="hidden flex-1 rounded-3xl p-5 border border-red-100 bg-gradient-to-br from-red-50/80 to-white shadow-lg hover:shadow-xl transition-shadow duration-300">
                     <div class="flex items-center gap-4 mb-5">
                         <div class="relative w-12 h-12 rounded-2xl bg-red-500 flex items-center justify-center text-white text-xl shadow-md">
@@ -482,9 +580,10 @@
                             <p class="text-xs text-red-500/80 font-semibold">ساهم في إنقاذ حياة</p>
                         </div>
                     </div>
-                    <div id="homeBloodAlerts" class="grid grid-cols-1 gap-3"></div>
+                    <div id="homeBloodAlerts" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
                 </div>
                 
+                                <!-- صندوق الأدوية -->
                 <div id="homeMedicinesSection" class="hidden flex-1 rounded-3xl p-5 border border-teal-100 bg-gradient-to-br from-teal-50/80 to-white shadow-lg hover:shadow-xl transition-shadow duration-300">
                     <div class="flex items-center gap-4 mb-5">
                         <div class="w-12 h-12 rounded-2xl bg-teal-500 flex items-center justify-center text-white text-xl shadow-md">
@@ -495,12 +594,13 @@
                             <p class="text-xs text-teal-500/80 font-semibold">عرض وطلب مجاني</p>
                         </div>
                     </div>
-                    <div id="homeMedicinesList" class="grid grid-cols-1 gap-3"></div>
+                    <div id="homeMedicinesList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
                 </div>
-            </div>
+            </div> <!-- تم إغلاق الـ Wrapper هنا بشكل صحيح -->
 
-            <div class="max-w-md mx-auto bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-6 rounded-3xl border shadow-sm" style="border-color: var(--border)">
-                <div class="grid grid-cols-4 gap-3">
+            <!-- 2. مربعات التصفية (أصبحت الآن خارج صندوق التنبيهات لتظهر دائماً) -->
+            <div class="max-w-5xl mx-auto bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-6 rounded-3xl border shadow-sm" style="border-color: var(--border)">
+                <div class="grid grid-cols-4 sm:grid-cols-7 gap-3 sm:gap-4">
                     <button class="filter-btn active rounded-2xl flex flex-col items-center justify-center shadow-sm p-3 aspect-square" data-filter="all" onclick="setFilter('all', this)">
                         <i class="fas fa-th-large text-2xl mb-2 text-gray-400"></i>
                         <span class="text-xs font-extrabold text-gray-700 dark:text-white">الكل</span>
@@ -527,61 +627,56 @@
                     </button>
                 </div>
             </div>
-        </div>
-    </section>
+            </section>
 
     
-    <section id="hospitals" class="py-12 dot-pattern" style="background: var(--bg)"><div class="max-w-md mx-auto px-4"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-hospital-symbol text-sm" style="color: var(--hospital)"></i></div><h2 class="text-2xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">المشافي والمرافق الكبرى</h2><p class="text-sm" style="color: var(--muted)">المشافي الوطنية والخاصة في سوريا وريف دمشق</p></div><div class="grid grid-cols-1 gap-5" id="hospitalsGrid"></div></div><div class="text-center mt-8 mb-10">
+    <section id="hospitals" class="py-12 sm:py-16 dot-pattern" style="background: var(--bg)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-hospital-symbol text-sm" style="color: var(--hospital)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">المشافي والمرافق الكبرى</h2><p class="text-sm" style="color: var(--muted)">المشافي الوطنية والخاصة في سوريا وريف دمشق</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="hospitalsGrid"></div></div><div class="text-center mt-8 mb-10">
     <button onclick="loadMoreSection('hospital')" id="loadMore_hospital" class="hidden px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background: var(--hospital); color: white;">
         <i class="fas fa-chevron-down"></i> عرض المزيد من المشافي
     </button>
     </div></section>
-    
-    <section id="centers" class="py-12 dot-pattern" style="background: var(--bg)"><div class="max-w-md mx-auto px-4"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-clinic-medical text-sm" style="color: var(--center)"></i></div><h2 class="text-2xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">المراكز الطبية</h2><p class="text-sm" style="color: var(--muted)">المراكز الطبية المتكاملة تقدم الخدمات الصحية الشاملة</p></div><div class="grid grid-cols-1 gap-5" id="centersGrid"></div></div><div class="text-center mt-8 mb-10">
+    <section id="centers" class="py-12 sm:py-16 dot-pattern" style="background: var(--bg)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-clinic-medical text-sm" style="color: var(--center)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">المراكز الطبية</h2><p class="text-sm" style="color: var(--muted)">المراكز الطبية المتكاملة تقدم الخدمات الصحية الشاملة</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="centersGrid"></div></div><div class="text-center mt-8 mb-10">
     <button onclick="loadMoreSection('center')" id="loadMore_center" class="hidden px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background: var(--center); color: white;">
         <i class="fas fa-chevron-down"></i> عرض المزيد من المراكز
     </button>
     </div></section>
-    
-    <section id="labs" class="py-12" style="background: var(--bg-deep)"><div class="max-w-md mx-auto px-4"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-flask text-sm" style="color: var(--lab)"></i></div><h2 class="text-2xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">مخابر التحاليل الطبية</h2><p class="text-sm" style="color: var(--muted)">مخابر مجهزة بأحدث الأجهزة لجميع أنواع التحاليل</p></div><div class="grid grid-cols-1 gap-5" id="labsGrid"></div></div><div class="text-center mt-8 mb-10">
+    <section id="labs" class="py-12 sm:py-16" style="background: var(--bg-deep)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-flask text-sm" style="color: var(--lab)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">مخابر التحاليل الطبية</h2><p class="text-sm" style="color: var(--muted)">مخابر مجهزة بأحدث الأجهزة لجميع أنواع التحاليل</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="labsGrid"></div></div><div class="text-center mt-8 mb-10">
     <button onclick="loadMoreSection('lab')" id="loadMore_lab" class="hidden px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background: var(--lab); color: white;">
         <i class="fas fa-chevron-down"></i> عرض المزيد من المخابر
     </button>
     </div></section>
-    
-    <section id="doctors" class="py-12 dot-pattern" style="background: var(--bg)"><div class="max-w-md mx-auto px-4"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-user-md text-sm" style="color: var(--doctor)"></i></div><h2 class="text-2xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">الأطباء المختصون</h2><p class="text-sm" style="color: var(--muted)">نخبة من الأطباء في مختلف التخصصات الطبية</p></div><div class="grid grid-cols-1 gap-5" id="doctorsGrid"></div></div><div class="text-center mt-8 mb-10">
+    <section id="doctors" class="py-12 sm:py-16 dot-pattern" style="background: var(--bg)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-user-md text-sm" style="color: var(--doctor)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">الأطباء المختصون</h2><p class="text-sm" style="color: var(--muted)">نخبة من الأطباء في مختلف التخصصات الطبية</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="doctorsGrid"></div></div><div class="text-center mt-8 mb-10">
     <button onclick="loadMoreSection('doctor')" id="loadMore_doctor" class="hidden px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background: var(--doctor); color: white;">
         <i class="fas fa-chevron-down"></i> عرض المزيد من الأطباء
     </button>
     </div></section>
-    
-    <section id="pharmacies" class="py-12" style="background: var(--bg-deep)"><div class="max-w-md mx-auto px-4"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-pills text-sm" style="color: var(--pharmacy)"></i></div><h2 class="text-2xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">الصيدليات</h2><p class="text-sm" style="color: var(--muted)">الصيدليات المتوفرة على مدار الساعة</p></div><div class="grid grid-cols-1 gap-5" id="pharmaciesGrid"></div></div><div class="text-center mt-8 mb-10">
+    <section id="pharmacies" class="py-12 sm:py-16" style="background: var(--bg-deep)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-pills text-sm" style="color: var(--pharmacy)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">الصيدليات</h2><p class="text-sm" style="color: var(--muted)">الصيدليات المتوفرة على مدار الساعة</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="pharmaciesGrid"></div></div><div class="text-center mt-8 mb-10">
     <button onclick="loadMoreSection('pharmacy')" id="loadMore_pharmacy" class="hidden px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background: var(--pharmacy); color: white;">
         <i class="fas fa-chevron-down"></i> عرض المزيد من الصيدليات
     </button>
     </div></section>
 
-    <div id="noResults" class="hidden py-20 text-center" style="background: var(--bg)">
-        <div class="max-w-md mx-auto px-4">
-            <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-5">
-                <i class="fas fa-city text-3xl text-gray-300"></i>
-            </div>
-            <h3 class="text-xl font-bold mb-2" style="font-family: 'Noto Kufi Arabic'">لا توجد نتائج مطابقة</h3>
-            <p class="text-sm mb-6" style="color: var(--muted)">لم نتمكن من العثور على أطباء أو مشافي تطابق بحثك في هذه المنطقة.</p>
-            <div class="flex flex-col gap-3 justify-center">
-                <button onclick="resetSearch()" class="px-6 py-2.5 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90" style="background: var(--accent)">عرض المنشآت المتوفرة</button>
-                <a href="#contact" onclick="resetSearch()" class="px-6 py-2.5 rounded-xl border text-sm font-semibold transition-all hover:bg-gray-50" style="border-color: var(--border); color: var(--accent)">سجل منشأتك مجاناً الآن</a>
-            </div>
+      <div id="noResults" class="hidden py-20 text-center" style="background: var(--bg)">
+    <div class="max-w-md mx-auto">
+        <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-5">
+            <i class="fas fa-city text-3xl text-gray-300"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2" style="font-family: 'Noto Kufi Arabic'">لا توجد نتائج مطابقة</h3>
+        <p class="text-sm mb-6" style="color: var(--muted)">لم نتمكن من العثور على أطباء أو مشافي تطابق بحثك في هذه المنطقة. جرب تغيير الكلمات الرئيسية أو إعادة ضبط الفلاتر. نعمل على توسيع تغطيتنا باستمرار، وإذا كنت طبيباً أو صاحب منشأة طبية هنا يمكنك إضافتها مجاناً!</p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <button onclick="resetSearch()" class="px-6 py-2.5 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90" style="background: var(--accent)">عرض المنشآت المتوفرة</button>
+            <a href="#contact" onclick="resetSearch()" class="px-6 py-2.5 rounded-xl border text-sm font-semibold transition-all hover:bg-gray-50" style="border-color: var(--border); color: var(--accent)">سجل منشأتك مجاناً الآن</a>
         </div>
     </div>
+</div>
 
-    <section id="contact" class="py-12" style="background: var(--bg-deep)">
-        <div class="max-w-md mx-auto px-4">
-            <div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-envelope text-sm" style="color: var(--gold)"></i></div><h2 class="text-2xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">تواصل معنا</h2><p class="text-sm" style="color: var(--muted)">ساعدنا في تحديث البيانات أو أضف مشفاك، عيادتك، مركزك، أو مخبرك</p></div>
-            <div class="max-w-md mx-auto">
-                <div class="card p-6 border-0 shadow-lg">
+    <section id="contact" class="py-12 sm:py-16" style="background: var(--bg-deep)">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-envelope text-sm" style="color: var(--gold)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">تواصل معنا</h2><p class="text-sm" style="color: var(--muted)">ساعدنا في تحديث البيانات أو أضف مشفاك، عيادتك، مركزك، أو مخبرك</p></div>
+            <div class="max-w-2xl mx-auto">
+                <div class="card p-6 sm:p-8 border-0 shadow-lg">
                     <form onsubmit="handleContactSubmit(event)">
-                        <div class="grid grid-cols-1 gap-4 mb-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                             <div><label class="block text-sm font-semibold mb-2" style="color: var(--fg-light)">الاسم الكامل</label><input type="text" required id="contactName" class="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all focus:ring-2" style="border-color: var(--border); background: var(--bg)" placeholder="أدخل اسمك"></div>
                             <div><label class="block text-sm font-semibold mb-2" style="color: var(--fg-light)">رقم الهاتف</label><input type="tel" required id="contactPhone" class="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all focus:ring-2" style="border-color: var(--border); background: var(--bg)" placeholder="09XXXXXXXX"></div>
                         </div>
@@ -594,15 +689,18 @@
         </div>
     </section>
         
-    <footer class="relative pt-16 pb-8 overflow-hidden" style="background: #052E22; color: white;">
+        <footer class="relative pt-16 pb-8 overflow-hidden" style="background: #052E22; color: white;">
+        <!-- خط ذهبي علوي أنيق -->
         <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent"></div>
-        <div class="max-w-md mx-auto px-4">
-            <div class="grid grid-cols-1 gap-10 mb-12">
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
                 
-                <div class="flex flex-col items-start gap-4">
+                <!-- القسم الأول: الشعار والوصف -->
+                <div class="md:col-span-5 flex flex-col items-start gap-4">
                     <div class="flex items-center gap-4">
                         <div class="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center border-2 border-[var(--gold)]/30" style="box-shadow: 0 0 20px rgba(196, 150, 44, 0.2);">
-                            <img src="https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg" alt="الشعار الدليل الطبي" class="w-full h-full object-cover" loading="lazy">
+                            <img src="https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg?auth_key=1885239914-cbdf24db3e384494b76a36d7b2c9a35a-0-3aee9630f51ea0cb177c216a24d9f061" alt="الشعار الدليل الطبي" class="w-full h-full object-cover" loading="lazy">
                         </div>
                         <div>
                             <h3 class="text-2xl lomedx-brand">LomedX</h3>
@@ -614,7 +712,8 @@
                     </p>
                 </div>
 
-                <div>
+                <!-- قسم روابط الـ SEO في الفوتر -->
+                <div class="md:col-span-4">
                     <h4 class="text-sm font-bold mb-5 text-white/90 relative pr-4 before:content-[''] before:absolute before:right-0 before:top-1/2 before:-translate-y-1/2 before:w-1.5 before:h-5 before:bg-[var(--gold)] before:rounded-full" style="font-family: 'Noto Kufi Arabic';">الأدوات والخدمات</h4>
                     <ul class="grid grid-cols-2 gap-2 text-sm">
                         <li><a href="/blog" class="text-white/50 hover:text-[var(--gold)] transition-colors">المدونة الطبية</a></li>
@@ -626,7 +725,8 @@
                     </ul>
                 </div>
 
-                <div>
+                <!-- القسم الثاني: روابط سريعة -->
+                <div class="md:col-span-3">
                     <h4 class="text-sm font-bold mb-5 text-white/90 relative pr-4 before:content-[''] before:absolute before:right-0 before:top-1/2 before:-translate-y-1/2 before:w-1.5 before:h-5 before:bg-[var(--gold)] before:rounded-full" style="font-family: 'Noto Kufi Arabic';">روابط سريعة</h4>
                     <ul class="space-y-3 text-sm">
                         <li><a href="#home" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> الرئيسية</a></li>
@@ -634,12 +734,13 @@
                         <li><a href="#doctors" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> الأطباء</a></li>
                         <li><a href="#labs" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> المخابر الطبية</a></li>
                         <li><a href="#pharmacies" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> الصيدليات</a></li>
-                        <li><button onclick="toggleEmergencyPopup()" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group w-full text-right"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> أرقام الطوارئ والجهات الصحية</button></li>
+                        <li><button onclick="toggleEmergencyPopup()" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group w-full text-right"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> أرقام الطوارئ و الجهات الصحية</button></li>
                         <li><a href="#contact" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> تواصل معنا</a></li>
                     </ul>
                 </div>
 
-                <div>
+                <!-- القسم الثالث: عن المنصة وتواصل + الأزرار القابلة للطي -->
+                <div class="md:col-span-4">
                     <h4 class="text-sm font-bold mb-5 text-white/90 relative pr-4 before:content-[''] before:absolute before:right-0 before:top-1/2 before:-translate-y-1/2 before:w-1.5 before:h-5 before:bg-[var(--gold)] before:rounded-full" style="font-family: 'Noto Kufi Arabic';">عن المنصة</h4>
                     <div class="space-y-3 text-sm text-white/50">
                         <div class="flex items-start gap-3">
@@ -658,6 +759,7 @@
                         </a>
                     </div>
 
+                    <!-- أزرار إخلاء المسؤولية وسياسة الخصوصية -->
                     <div class="mt-6 border-t border-white/10 pt-4 space-y-2">
                         <button onclick="toggleFooterBox('disclaimerContentFooter', 'disclaimerIconFooter')" class="w-full flex items-center justify-between text-sm font-semibold text-white/80 hover:text-white transition-colors py-2">
                             <span class="flex items-center gap-2"><i class="fas fa-shield-alt text-[var(--gold)]"></i> إخلاء المسؤولية وشروط الاستخدام</span>
@@ -717,9 +819,10 @@
                 </div>
             </div>
             
-            <div class="pt-6 border-t border-white/10 flex flex-col items-center justify-between gap-4">
+            <!-- الشريط السفلي لحقوق النشر -->
+            <div class="pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
                 <p class="text-white/40 text-xs">جميع الحقوق محفوظة © 2026 -  <span class="lomedx-brand text-sm">LomedX</span></p>
-                <div class="alixjori-dev text-center">
+                <div class="alixjori-dev text-center md:text-left">
                     <span class="dev-subtext">صُنع بكل عناية لخدمة مجتمعنا</span>
                     <div class="dev-credit-wrapper">
                         <span class="dev-label">Designed & Developed by</span>
@@ -729,6 +832,7 @@
                 </div>
             </div>
 
+            <!-- خريطة نصية لمحركات البحث (SEO Keywords) -->
             <div class="w-full mt-8 pt-6 border-t border-white/10 text-center">
                 <p class="text-[10px] text-white/30 leading-relaxed">
                     <a href="#" class="hover:text-white/50">منصة طبية في سوريا</a> | 
@@ -741,103 +845,113 @@
             </div>
         </div>
     </footer>
-
-    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-chevron-up"></i></button>
+<!-- ( زر العودة للأعلى ) -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-chevron-up"></i></button>
     <div class="toast" id="toast"></div>
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)"><div class="modal-content" id="modalContent" onclick="event.stopPropagation()"></div></div>
     <div id="lightbox" class="lightbox-overlay"><img src="" alt="معاينة الصورة"></div>
 
-    <div id="google_translate_element" style="display:none;"></div>
-    <script type="text/javascript">
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({pageLanguage: 'ar', includedLanguages: 'en', autoDisplay: false}, 'google_translate_element');
-        }
-    </script>
-    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<!-- محرك ترجمة جوجل المخفي -->
+<div id="google_translate_element" style="display:none;"></div>
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({pageLanguage: 'ar', includedLanguages: 'en', autoDisplay: false}, 'google_translate_element');
+    }
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-    <div id="citySelectorOverlay" class="city-selector-overlay" onclick="closeCitySelector()">
-        <div class="city-selector-panel" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-lg" style="font-family: 'Noto Kufi Arabic';">اختر مدينتك</h3>
-                <button onclick="closeCitySelector()" class="text-2xl hover:text-gray-400">&times;</button>
-            </div>
-            <div id="cityListContainer"></div>
+
+    <!-- لوحة اختيار المدينة المنزلقة -->
+<div id="citySelectorOverlay" class="city-selector-overlay" onclick="closeCitySelector()">
+    <div class="city-selector-panel" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="font-bold text-lg" style="font-family: 'Noto Kufi Arabic';">اختر مدينتك</h3>
+            <button onclick="closeCitySelector()" class="text-2xl hover:text-gray-400">&times;</button>
         </div>
+        <div id="cityListContainer"></div>
     </div>
-    
-    <div id="blogCategoryOverlay" class="city-selector-overlay" onclick="closeBlogCategory()">
-        <div class="city-selector-panel" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-lg" style="font-family: 'Noto Kufi Arabic';">اختر التصنيف الطبي</h3>
-                <button onclick="closeBlogCategory()" class="text-2xl hover:text-gray-400">&times;</button>
-            </div>
-            <div id="blogCategoryList"></div>
+</div>
+<!-- لوحة تصنيفات المدونة المنزلقة -->
+<div id="blogCategoryOverlay" class="city-selector-overlay" onclick="closeBlogCategory()">
+    <div class="city-selector-panel" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="font-bold text-lg" style="font-family: 'Noto Kufi Arabic';">اختر التصنيف الطبي</h3>
+            <button onclick="closeBlogCategory()" class="text-2xl hover:text-gray-400">&times;</button>
         </div>
+        <div id="blogCategoryList"></div>
     </div>
-    
-    <div id="emergencyFabWrapper" style="position: fixed; bottom: 90px; left: 30px; z-index: 1001;">
-        <button onclick="toggleEmergencyPopup()" id="emergencyFabBtn" style="width: 52px; height: 52px; background: #DC2626; color: white; border-radius: 50%; border: none; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.5); cursor: pointer; font-size: 1.3rem; display: flex; align-items: center; justify-content: center;">
-            <i class="fas fa-ambulance"></i>
+</div>
+    <!-- زر الطوارئ العائم الجديد -->
+<div id="emergencyFabWrapper" style="position: fixed; bottom: 90px; left: 30px; z-index: 1001;">
+    <button onclick="toggleEmergencyPopup()" id="emergencyFabBtn" style="width: 52px; height: 52px; background: #DC2626; color: white; border-radius: 50%; border: none; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.5); cursor: pointer; font-size: 1.3rem; display: flex; align-items: center; justify-content: center;">
+        <i class="fas fa-ambulance"></i>
+    </button>
+    <button onclick="hideEmergencyFab()" style="position: absolute; top: -6px; right: -6px; width: 24px; height: 24px; background: white; border: 2px solid #DC2626; color: #DC2626; border-radius: 50%; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center;">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<!-- النافذة المنبثقة الجديدة -->
+<div id="emergencyPopup" style="display: none; position: fixed; bottom: 155px; left: 20px; width: 280px; background: var(--card); border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 1002; border: 1px solid var(--border); overflow: hidden;">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #052E22; color: white;">
+        <h3 style="font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-triangle-exclamation" style="color: #F87171;"></i> الطوارئ السريعة
+        </h3>
+        <button onclick="toggleEmergencyPopup()" style="background: rgba(255,255,255,0.1); color: white; width: 26px; height: 26px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-times" style="font-size: 0.8rem;"></i>
         </button>
-        <button onclick="hideEmergencyFab()" style="position: absolute; top: -6px; right: -6px; width: 24px; height: 24px; background: white; border: 2px solid #DC2626; color: #DC2626; border-radius: 50%; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center;">
-            <i class="fas fa-times"></i>
-        </button>
     </div>
-
-    <div id="emergencyPopup" style="display: none; position: fixed; bottom: 155px; left: 20px; width: 280px; background: var(--card); border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 1002; border: 1px solid var(--border); overflow: hidden;">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #052E22; color: white;">
-            <h3 style="font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-triangle-exclamation" style="color: #F87171;"></i> الطوارئ السريعة
-            </h3>
-            <button onclick="toggleEmergencyPopup()" style="background: rgba(255,255,255,0.1); color: white; width: 26px; height: 26px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-times" style="font-size: 0.8rem;"></i>
-            </button>
-        </div>
-        <div id="popupBodyContainer" style="padding: 12px; display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;">
-            <p style="text-align: center; color: gray; font-size: 0.875rem; padding: 16px 0;">جاري تحميل الأرقام...</p>
-        </div>
+    <div id="popupBodyContainer" style="padding: 12px; display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;">
+        <p style="text-align: center; color: gray; font-size: 0.875rem; padding: 16px 0;">جاري تحميل الأرقام...</p>
     </div>
-                
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</div>
+                <!-- ========================================== -->
+<!-- المكتبات الثقيلة المنقولة للأسفل لتحسين السرعة -->
+<!-- ========================================== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
-    <script>
-      (function() {
-        const hasSeenCinematic = localStorage.getItem('lomedx_cinematic_seen');
-        const isBot = navigator.userAgent.toLowerCase().includes('bot');
+        
 
-        if (!hasSeenCinematic && !isBot) {
-          const overlay = document.getElementById('cinematicIntroOverlay');
-          if (overlay) overlay.style.display = 'block';
+<!-- تحميل مكتبة Three.js والعرض السينمائي لمرة واحدة -->
+<script>
+  (function() {
+    const hasSeenCinematic = localStorage.getItem('lomedx_cinematic_seen');
+    const isBot = navigator.userAgent.toLowerCase().includes('bot');
 
-          const loadScript = (src) => {
-            return new Promise((resolve, reject) => {
-              const script = document.createElement('script');
-              script.src = src;
-              script.onload = resolve;
-              script.onerror = reject;
-              document.head.appendChild(script);
-            });
-          };
+    if (!hasSeenCinematic && !isBot) {
+      const overlay = document.getElementById('cinematicIntroOverlay');
+      if (overlay) overlay.style.display = 'block';
 
-          Promise.all([
-            loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'),
-            loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js')
-          ]).then(() => {
-            return loadScript('./js/cinematic-intro.js');
-          }).then(() => {
-            if (typeof initializeCinematicIntro === 'function') {
-              initializeCinematicIntro();
-            } else {
-              console.error("Cinematic function not found!");
-              if (overlay) overlay.style.display = 'none';
-            }
-          }).catch(err => {
-            console.error("Failed to load cinematic intro", err);
-            if (overlay) overlay.style.display = 'none';
-          });
+      const loadScript = (src) => {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      };
+
+      Promise.all([
+        loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'),
+        loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js')
+      ]).then(() => {
+        // تحميل ملف السينمائي من مجلد js (تأكد أن الملف موجود في GitHub باسم cinematic-intro.js)
+        return loadScript('./js/cinematic-intro.js');
+      }).then(() => {
+        if (typeof initializeCinematicIntro === 'function') {
+          initializeCinematicIntro();
+        } else {
+          console.error("Cinematic function not found!");
+          if (overlay) overlay.style.display = 'none';
         }
-      })();
-    </script>  
+      }).catch(err => {
+        console.error("Failed to load cinematic intro", err);
+        if (overlay) overlay.style.display = 'none';
+      });
+    }
+  })();
+</script>  
 </body>
 </html>
