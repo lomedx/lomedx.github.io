@@ -721,6 +721,65 @@ html.dark .filter-btn { background: var(--card) !important; border-color: var(--
         .pulse-register { animation: pulse-btn 2s infinite; }
         @keyframes pulse-btn { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5); } 70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
 
+
+
+
+.splash-3d-css {
+    position: fixed; inset: 0; z-index: 99999;
+    background: radial-gradient(circle at center, #073D2E 0%, #052E22 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+.splash-3d-css.hidden { opacity: 0; visibility: hidden; }
+
+.solar-system {
+    position: relative; width: 200px; height: 200px;
+    transform-style: preserve-3d;
+    animation: rotate-system 8s linear infinite;
+}
+
+.orbit {
+    position: absolute; top: 50%; left: 50%;
+    border: 1px solid rgba(196, 150, 44, 0.3);
+    border-radius: 50%;
+    transform-style: preserve-3d;
+}
+.orbit-1 { width: 150px; height: 150px; margin: -75px 0 0 -75px; animation: spin 3s linear infinite; transform: rotateX(70deg); }
+.orbit-2 { width: 200px; height: 200px; margin: -100px 0 0 -100px; animation: spin 5s linear infinite reverse; transform: rotateY(70deg) rotateX(20deg); }
+.orbit-3 { width: 250px; height: 250px; margin: -125px 0 0 -125px; animation: spin 7s linear infinite; transform: rotateX(110deg); }
+
+.orbit-icon {
+    position: absolute; top: -12px; left: 50%; margin-left: -12px;
+    width: 24px; height: 24px; font-size: 20px;
+    color: var(--gold);
+    filter: drop-shadow(0 0 5px var(--gold));
+    transform: rotateX(-70deg); /* لإبقاء الأيقونة واقفة */
+}
+
+.core-logo {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 80px; height: 80px;
+    animation: pulse-core 2s ease-in-out infinite;
+}
+.core-logo img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 15px rgba(14, 124, 95, 0.8)); }
+
+.splash-text-3d-css { margin-top: 40px; text-align: center; color: white; }
+.splash-text-3d-css h2 { font-size: 28px; margin: 0; color: white; }
+.splash-text-3d-css p { font-size: 12px; opacity: 0.6; margin-top: 5px; }
+
+@keyframes rotate-system { from { transform: rotateZ(0deg); } to { transform: rotateZ(360deg); } }
+@keyframes spin { from { transform: rotateZ(0deg) rotateX(70deg); } to { transform: rotateZ(360deg) rotateX(70deg); } }
+@keyframes pulse-core { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.1); } }
+
+
+
+
+
+
+
+
+
 /* تنسيقات شارة الزوار */
 .stat-pill-pro {
     display: inline-flex; align-items: center; gap: 8px;
