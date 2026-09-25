@@ -765,7 +765,7 @@
 
                     <!-- أزرار إخلاء المسؤولية وسياسة الخصوصية -->
                     <div class="mt-6 border-t border-white/10 pt-4 space-y-2">
-                        <a href="/disclaimer" onclick="event.preventDefault(); toggleFooterBox('disclaimerContentFooter', 'disclaimerIconFooter')" class="w-full flex items-center justify-between text-sm font-semibold text-white/80 hover:text-white transition-colors py-2 cursor-pointer" style="text-decoration:none;">
+                        <a href="/disclaimer" onclick="event.preventDefault(); toggleFooterBox('disclaimerContentFooter', 'disclaimerIconFooter'); return false;" class="w-full flex items-center justify-between text-sm font-semibold text-white/80 hover:text-white transition-colors py-2 cursor-pointer" style="text-decoration:none;">
     <span class="flex items-center gap-2"><i class="fas fa-shield-alt text-[var(--gold)]"></i> إخلاء المسؤولية وشروط الاستخدام</span>
     <i class="fas fa-chevron-down text-xs transition-transform" id="disclaimerIconFooter"></i>
 </a>
@@ -773,7 +773,7 @@
                             هذا الموقع هو دليل إرشادي تطوعي يهدف لتسهيل الوصول للخدمات الطبية في مختلف المناطق. المعلومات الواردة في الموقع تم جمعها من مصادر عامة أو أرسلها أصحاب الفعاليات أنفسهم. لا يتحمل الموقع أو إدارته أي مسؤولية عن صحة البيانات أو جودة الخدمات الطبية المقدمة. الأدوات الطبية التفاعلية هي أدوات استرشادية ولا تغني عن استشارة الطبيب أو الصيدلاني. للتبليغ عن أي خطأ أو لطلب حذف بياناتك، يرجى التواصل معنا فوراً عبر <a href="#contact" class="text-yellow-400 underline hover:text-yellow-300 transition-colors font-semibold">صفحة اتصل بنا</a>.
                         </div>
 
-                        <a href="/privacy-policy" onclick="event.preventDefault(); toggleFooterBox('privacyContentFooter', 'privacyIconFooter')" class="w-full flex items-center justify-between text-sm font-semibold text-white/80 hover:text-white transition-colors py-2 cursor-pointer" style="text-decoration:none;">
+                        <a href="/privacy-policy" onclick="event.preventDefault(); toggleFooterBox('privacyContentFooter', 'privacyIconFooter'); return false;" class="w-full flex items-center justify-between text-sm font-semibold text-white/80 hover:text-white transition-colors py-2 cursor-pointer" style="text-decoration:none;">
     <span class="flex items-center gap-2"><i class="fas fa-user-shield text-[var(--gold)]"></i> سياسة الخصوصية وأمن البيانات</span>
     <i class="fas fa-chevron-down text-xs transition-transform" id="privacyIconFooter"></i>
 </a>
@@ -814,7 +814,14 @@
                                     <h3 class="font-bold text-sm mb-1 text-white/80">4. حقك في حذف بياناتك</h3>
                                     <p>لديك الحق الكامل في التحكم ببياناتك ويمكنك طلب حذفها بالكامل عبر التواصل معنا.</p>
                                 </div>
-                            </div>              
+                            </div>       
+                            <div class="flex items-start gap-3">
+    <i class="fas fa-cookie-bite mt-1" style="color: var(--accent)"></i>
+    <div>
+        <h3 class="font-bold text-sm mb-1 text-white/80">5. ملفات تعريف الارتباط (Cookies)</h3>
+        <p>نستخدم ملفات تعريف الارتباط (Cookies) لتحسين تجربتك في المنصة وتحليل حركة المرور عبر أدوات مثل Google Analytics، ولا نستخدمها لتخزين بياناتك الشخصية أو الطبية الحساسة. يمكنك تعطيل الكوكيز من إعدادات متصفحك في أي وقت.</p>
+    </div>
+                            </div>
                             <p class="text-[10px] text-white/40 text-center pt-2 border-t border-white/10">
                                 آخر تحديث: يوليو 2026 | منصة LomedX الطبية
                             </p>
