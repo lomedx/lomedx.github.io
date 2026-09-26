@@ -654,17 +654,7 @@ html.dark .lomedx-brand {
     -webkit-text-fill-color: transparent;
 }
 
-/* تعديل شاشة التحميل لتبدو احترافية بالتدرج */
-.splash-text-3d {
-    font-family: 'Outfit', sans-serif;
-    background: linear-gradient(135deg, #ffffff 0%, var(--gold) 50%, var(--accent) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
-    /* تم إزالة الظلال القديمة لأن التدرج لا يدعم text-shadow مباشرة */
-}
+
 /* === تحسينات حقول البحث والاستعلام === */
 .search-container, .quick-lookup-box {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -737,8 +727,6 @@ html.dark .search-input::placeholder {
     color: white;
     transform: scale(1.1);
 }
-/* ===
-/* === تنسيقات قائمة الجوال المطورة حسب التصميم === */
 
 /* الأزرار الشبكية (الاختصارات والبوابات) */
 .mobile-grid-btn {
@@ -1067,25 +1055,7 @@ body.stop-animations .btn-health-glow span::before {
 
 
 
-/* =========================================================
-   التدرج المتحرك المتوهج مع اللمعان الزجاجي (Glassy Glow Border)
-   ========================================================= */
-
-/* =========================================================
-   التدرج المتحرك المتوهج مع اللمعان الزجاجي (مصحح بالكامل)
-   ========================================================= */
-
-/* =========================================================
-   الزر المتوهج مع حركة اللمعان الزجاجي (يمين إلى يسار)
-   ========================================================= */
-/* =========================================================
-   الزر المتوهج باستمرار مع اللمعان الزجاجي (يمين إلى يسار)
-   ========================================================= */
-
-/* =========================================================
-   الزر المتوهج باستمرار مع اللمعان الزجاجي الظاهر
-   ========================================================= */
-/* تأثير الضغط على الأزرار والبطاقات في الجوال */
+/* ==== تأثير الضغط على الأزرار والبطاقات في الجوال*/
 @media (max-width: 768px) {
     .btn, .call-btn, .filter-btn, .portal-grid-btn, .mobile-grid-btn {
         transition: transform 0.1s ease-out, box-shadow 0.2s ease; /* حركة أسرع لللمس */
@@ -1155,30 +1125,6 @@ input:focus, select:focus, textarea:focus, .ctrl-input:focus {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
-
-/* =========================================================
-   الزر المتوهج باستمرار مع الشريط الزجاجي المائل (RTL)
-   ========================================================= */
-/* =========================================================
-   زر الملف الصحي المتوهج (خلفية ذهبية + لمعة زجاجية RTL)
-   ========================================================= */
-
-/* لون الخلفية الذهبي الداكن الأصلي للزر */
-/* =========================================================
-   الزر المتوهج باستمرار مع اللمعان الزجاجي (يمين إلى يسار)
-   ========================================================= */
-
-        /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
-/* خاصية زاوية التدرج */
-
-
-/* حركة المسح من اليمين إلى اليسار (RTL) معالجة عبر Transform */
-/* =========================================================
-   زر الملف الصحي المتوهج مع اللمعة الزجاجية (RTL) - مصحح
-   ========================================================= */
 
 /* خاصية مطلوبة لجعل زاوية التدرج (border-angle) قابلة للتحريك */
 @property --border-angle {
@@ -1297,7 +1243,6 @@ input:focus, select:focus, textarea:focus, .ctrl-input:focus {
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 30px rgba(196, 150, 44, 1), 0 0 20px rgba(16, 185, 129, 0.8);
     }
 }
-/* === تحسينات نافذة الحجز الاحترافية (الوضع النهاري والليلي) === */
 
 /* 1. تحسين حقول الإدخال (الاسم، الهاتف، الملاحظات) */
 .ctrl-input {
@@ -1500,3 +1445,106 @@ html.dark .booking-step {
     padding: 12px 20px;
     color: #FFFFFF !important;
 }   
+/* ==========================================
+   شاشة التحميل الاحترافية (Pure CSS 3D)
+========================================== */
+.lomedx-splash {
+    position: fixed; inset: 0; z-index: 99999;
+    background: radial-gradient(circle at center, #064D3A 0%, #021410 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    perspective: 1200px;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+.lomedx-splash.hidden { opacity: 0; visibility: hidden; }
+
+/* المسرح ثلاثي الأبعاد */
+.splash-core-system {
+    position: relative; width: 260px; height: 260px;
+    transform-style: preserve-3d;
+    animation: stage-rotate 12s linear infinite;
+}
+@keyframes stage-rotate {
+    from { transform: rotateX(65deg) rotateZ(0deg); }
+    to { transform: rotateX(65deg) rotateZ(360deg); }
+}
+
+/* المدارات */
+.splash-orbit {
+    position: absolute; top: 50%; left: 50%;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: rgba(196, 150, 44, 0.9);
+    border-right-color: rgba(14, 124, 95, 0.4);
+    box-shadow: 0 0 15px rgba(196, 150, 44, 0.2), inset 0 0 15px rgba(196, 150, 44, 0.1);
+    transform-style: preserve-3d;
+}
+.splash-orbit-1 { width: 160px; height: 160px; margin: -80px 0 0 -80px; animation: spin1 3s linear infinite; }
+.splash-orbit-2 { width: 230px; height: 230px; margin: -115px 0 0 -115px; animation: spin2 5s linear infinite reverse; transform: rotateY(60deg); }
+.splash-orbit-3 { width: 300px; height: 300px; margin: -150px 0 0 -150px; animation: spin3 7s linear infinite; transform: rotateX(60deg) rotateY(30deg); }
+
+@keyframes spin1 { from { transform: rotateZ(0deg); } to { transform: rotateZ(360deg); } }
+@keyframes spin2 { from { transform: rotateY(60deg) rotateZ(0deg); } to { transform: rotateY(60deg) rotateZ(360deg); } }
+@keyframes spin3 { from { transform: rotateX(60deg) rotateY(30deg) rotateZ(0deg); } to { transform: rotateX(60deg) rotateY(30deg) rotateZ(360deg); } }
+
+/* الكواكب (الأيقونات الطبية) */
+.splash-planet {
+    position: absolute; top: -18px; left: 50%; margin-left: -18px;
+    width: 36px; height: 36px; font-size: 26px;
+    color: #C4962C;
+    filter: drop-shadow(0 0 10px rgba(196, 150, 44, 1));
+    background: rgba(2, 20, 16, 0.9);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 15px rgba(196, 150, 44, 0.5);
+}
+
+/* النواة (الشعار) */
+.splash-logo-core {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    box-shadow: 0 0 40px rgba(14, 124, 95, 0.8), 0 0 80px rgba(196, 150, 44, 0.4);
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    animation: core-pulse 2.5s ease-in-out infinite;
+    overflow: hidden; /* لضمان عدم خروج الصورة */
+}
+.splash-logo-core img {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+@keyframes core-pulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(14, 124, 95, 0.6), 0 0 60px rgba(196, 150, 44, 0.3); transform: translate(-50%, -50%) scale(1); }
+    50% { box-shadow: 0 0 50px rgba(14, 124, 95, 1), 0 0 100px rgba(196, 150, 44, 0.6); transform: translate(-50%, -50%) scale(1.05); }
+}
+
+/* النص وشريط التحميل */
+.splash-content {
+    margin-top: 70px; text-align: center; z-index: 10;
+}
+.splash-content h2 {
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 34px;
+    background: linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #0E7C5F 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+    margin: 0; letter-spacing: 1px;
+}
+.splash-tagline {
+    font-size: 12px; opacity: 0.6; margin-top: 10px; color: white;
+    letter-spacing: 2px; text-transform: uppercase;
+}
+.splash-loader {
+    margin: 25px auto 0; width: 220px; height: 4px;
+    background: rgba(255,255,255,0.1); border-radius: 10px;
+    overflow: hidden; position: relative;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+.splash-loader::after {
+    content: ''; position: absolute; top: 0; left: 0; width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, #C4962C, transparent);
+    box-shadow: 0 0 15px #C4962C;
+    animation: loaderSlide 1.5s ease-in-out infinite;
+}
+@keyframes loaderSlide { 0% { left: -40%; } 100% { left: 100%; } 
+}
