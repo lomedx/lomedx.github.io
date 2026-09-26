@@ -1620,12 +1620,23 @@ html.dark .booking-step {
 }
 
 .splash-text-3d {
-    font-family: 'Noto Kufi Arabic', sans-serif;
-    font-size: 2rem; font-weight: 900;
-    color: #FFFFFF; letter-spacing: 1px;
-    text-shadow: 
-        1px 1px 0 #0E7C5F, 2px 2px 0 #0E7C5F, 3px 3px 0 #0E7C5F, 
-        4px 4px 0 #0E7C5F, 5px 5px 10px rgba(0,0,0,0.5), 0 0 20px rgba(196, 150, 44, 0.5);
+    font-family: 'Outfit', sans-serif; /* خط عصري للاسم */
+    font-size: 2.5rem; 
+    font-weight: 800;
+    letter-spacing: 1px;
+    /* الألوان الحقيقية (التدرج الذهبي والأخضر) */
+    background: linear-gradient(135deg, #F0D77B 0%, #C4962C 50%, #0E7C5F 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    /* تأثير ثلاثي الأبعاد يعمل مع التدرج اللوني */
+    filter: 
+        drop-shadow(1px 1px 0px #073D2E) 
+        drop-shadow(2px 2px 0px #073D2E)
+        drop-shadow(3px 3px 0px #073D2E)
+        drop-shadow(4px 4px 0px #073D2E)
+        drop-shadow(5px 5px 8px rgba(0,0,0,0.6));
 }
 
 .splash-subtext {
