@@ -122,6 +122,7 @@ function loadChartJs() {
         document.head.appendChild(script);
     });
 }
+
 // دالة تحميل أي مكتبة ديناميكياً عند الطلب فقط
 function loadDynamicScript(src, globalVarName) {
     return new Promise((resolve, reject) => {
@@ -1502,6 +1503,54 @@ window.toggleFooterBox = (contentId, iconId) => {
     else { content.classList.add('hidden'); icon.style.transform = 'rotate(0deg)'; }
 }
 
+window.handleContactSubmit = (e) => { 
+    e.preventDefault(); 
+    const phoneInput = document.getElementById('contactPhone'); 
+    const phone = phoneInput.value.trim(); 
+    
+    if (!/^09\d{8}$/.test(phone)) { 
+        phoneInput.classList.add('input-invalid'); 
+        showToast('رقم الهاتف غير صحيح', 'error'); 
+        return; 
+    } 
+    phoneInput.classList.remove('input-invalid'); 
+    
+    // 1. تعريف المتغيرات أولاً
+    const name = document.getElementById('contactName').value; 
+    const type = document.getElementById('contactType').value; 
+    const message = document.getElementById('contactMessage').value; 
+
+    // 2. ثم فحص الكلمات المسيئة
+    if (containsBadWords(name) || containsBadWords(message)) {
+        showToast('تم رفض الرسالة لاحتوائها على كلمات غير لائقة.', 'error');
+        return;
+    }
+    
+    const text = `*رسالة جديدة من منصة LomedX الطبية*\n*الاسم:* ${name}\n*الهاتف:* ${phone}\n*النوع:* ${type}\n*الرسالة:* ${message}`; 
+    
+    const adminWhatsAppNumber = "963980390813";
+    const whatsappUrl = `https://wa.me/${adminWhatsAppNumber}?text=${encodeURIComponent(text)}`;
+    
+    window.open(whatsappUrl, '_blank'); 
+    showToast('جاري تحويلك إلى واتساب لإرسال الرسالة...', 'success'); 
+    e.target.reset(); 
+}
+
+let scrollTicking = false;
+window.addEventListener('scroll', () => {
+    if (!scrollTicking) {
+        window.requestAnimationFrame(() => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 80);
+            document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 500);
+            scrollTicking = false;
+        });
+        scrollTicking = true;
+    }
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (document.getElementById('lightbox').classList.contains('active')) { document.getElementById('lightbox').classList.remove('active'); unlockScroll(); } if (document.getElementById('modalOverlay').classList.contains('active')) closeModal(); if (document.getElementById('ctrlOverlay').classList.contains('active')) closeCtrlPanel(); if (document.getElementById('mobileMenu').classList.contains('open')) toggleMobileMenu(); } });
+
+const allBtn = document.querySelector('[data-filter="all"]'); 
+if(allBtn) { allBtn.style.background = 'var(--accent)'; allBtn.style.color = 'white'; allBtn.style.borderColor = 'var(--accent)'; }
 
 window.openCtrlPanel = (title, contentHtml, headerColor = '#073D2E', preventClose = false) => { 
     document.getElementById('ctrlTitle').textContent = title; 
@@ -6890,95 +6939,57 @@ if (window.location.pathname !== '/' && window.location.pathname !== '/index.htm
     }
 }
 // نهاية ملف app.js
-/* ═══════════════════════════════════════════════════════════════════
-   ═══════════════ LMX MODAL — Add Facility ═══════════════
-   ═══════════════════════════════════════════════════════════════════ */
+// ═══════════════════════════════════════════════════════════
+// CTA Modal — Add Facility
+// ═══════════════════════════════════════════════════════════
 
-/**
- * فتح نافذة إضافة منشأة طبية
- */
 window.openAddFacilityModal = () => {
-    const overlay = document.getElementById('addFacilityOverlay');
-    if (!overlay) return;
-    
-    overlay.classList.add('active');
-    
-    // منع تمرير الصفحة
+    document.getElementById('addFacilityOverlay').classList.add('active');
     document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    window.__scrollY = window.scrollY;
     
-    // تركيز أول حقل
+    // Focus على أول حقل
     setTimeout(() => {
-        const firstInput = document.getElementById('facName');
-        if (firstInput) firstInput.focus({ preventScroll: true });
-    }, 400);
+        document.getElementById('facName').focus();
+    }, 200);
 };
 
-/**
- * إغلاق نافذة إضافة المنشأة
- */
 window.closeAddFacilityModal = () => {
-    const overlay = document.getElementById('addFacilityOverlay');
-    if (!overlay) return;
-    
-    overlay.classList.remove('active');
-    
-    // استعادة التمرير
+    document.getElementById('addFacilityOverlay').classList.remove('active');
     document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.width = '';
     
-    if (window.__scrollY !== undefined) {
-        window.scrollTo(0, window.__scrollY);
-        window.__scrollY = undefined;
-    }
-    
-    // إعادة تعيين النموذج
+    // Reset form
     const form = document.getElementById('addFacilityForm');
     if (form) form.reset();
     
-    // إعادة تعيين زر الإرسال
-    const submitBtn = document.querySelector('.lmx-form__submit');
+    // Reset submit button state
+    const submitBtn = document.querySelector('.submit-facility-btn');
     if (submitBtn && submitBtn.disabled) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>إرسال طلب التسجيل</span>';
     }
-    
-    // إخفاء لوحة المفاتيح (iOS)
-    if (document.activeElement && document.activeElement.blur) {
-        document.activeElement.blur();
-    }
 };
 
-/**
- * معالج النقر على الخلفية
- */
-window.handleLmxOverlayClick = (event) => {
+window.handleOverlayClick = (event) => {
     if (event.target.id === 'addFacilityOverlay') {
         closeAddFacilityModal();
     }
 };
 
-/**
- * إرسال طلب إضافة منشأة عبر WhatsApp
- */
 window.submitFacilityRequest = (e) => {
     e.preventDefault();
-    
+
     const name = document.getElementById('facName').value.trim();
     const type = document.getElementById('facType').value;
     const city = document.getElementById('facCity').value.trim();
     const phone = document.getElementById('facPhone').value.trim();
-    
-    // التحقق
+
+    // Validation
     if (name.length < 3) {
         showToast('الرجاء إدخال اسم كامل للمنشأة', 'error');
         document.getElementById('facName').focus();
         return;
     }
-    
+
     const cleanPhone = phone.replace(/[\s\-()]/g, '');
     const phoneRegex = /^(09\d{8}|9\d{8}|\+?9639\d{8})$/;
     if (!phoneRegex.test(cleanPhone)) {
@@ -6986,19 +6997,19 @@ window.submitFacilityRequest = (e) => {
         document.getElementById('facPhone').focus();
         return;
     }
-    
+
     if (city.length < 2) {
         showToast('الرجاء إدخال اسم المدينة', 'error');
         document.getElementById('facCity').focus();
         return;
     }
-    
+
     // Loading state
-    const submitBtn = document.querySelector('.lmx-form__submit');
+    const submitBtn = document.querySelector('.submit-facility-btn');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>جاري التحويل...</span>';
-    
-    // بناء الرسالة
+
+    // Build WhatsApp message
     const adminWhatsApp = "963980390813";
     const message = [
         '*📋 طلب تسجيل منشأة طبية جديدة على LomedX*',
@@ -7010,20 +7021,22 @@ window.submitFacilityRequest = (e) => {
         '',
         '_تم الإرسال من نموذج LomedX_'
     ].join('\n');
-    
+
     const whatsappUrl = `https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(message)}`;
-    
+
+    // Open WhatsApp (use location.href for better mobile support)
     setTimeout(() => {
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-        showToast('✓ تم تجهيز طلبك! يرجى إرسال الرسالة عبر واتساب.', 'success');
+
+        // Show success message
+        showToast('✓ تم تجهيز طلبك! يرجى إرسال الرسالة عبر واتساب لإتمام التسجيل.', 'success');
+
+        // Close modal
         closeAddFacilityModal();
     }, 400);
 };
 
-/* ═══════════════════════════════════════════════════════════════════
-   ESC + iOS KEYBOARD HANDLING
-   ═══════════════════════════════════════════════════════════════════ */
-
+// ESC to close
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         const modal = document.getElementById('addFacilityOverlay');
@@ -7033,13 +7046,46 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// iOS keyboard handling
-if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', () => {
-        const modal = document.querySelector('.lmx-modal__box');
-        if (!modal || !modal.closest('.lmx-modal.active')) return;
-        
-        const availableHeight = window.visualViewport.height - 40;
-        modal.style.maxHeight = Math.min(availableHeight, window.innerHeight * 0.92) + 'px';
+// ═══════════════════════════════════════════════════════════
+// Toast Notification System
+// ═══════════════════════════════════════════════════════════
+
+window.showToast = (message, type = 'info', duration = 4000) => {
+    // Remove existing toast
+    const existing = document.querySelector('.lomedx-toast');
+    if (existing) existing.remove();
+
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        info: 'fa-info-circle',
+        warning: 'fa-exclamation-triangle'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `lomedx-toast lomedx-toast--${type}`;
+    toast.innerHTML = `
+        <i class="fas ${icons[type] || icons.info}"></i>
+        <span>${message}</span>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Animate in
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => toast.classList.add('show'));
     });
-}
+
+    // Auto dismiss
+    const timer = setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+    }, duration);
+
+    // Click to dismiss
+    toast.addEventListener('click', () => {
+        clearTimeout(timer);
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+    });
+};
