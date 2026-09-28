@@ -6960,6 +6960,19 @@ const routesConfig = {
     '/food-interactions': { title: 'تعارضات الأدوية والطعام | LomedX', desc: 'جدول الصيدلية.', keywords: 'تعارض الأدوية, الأدوية والطعام, Lomedx', handler: 'openFoodInteractions' },
     '/patient-reminder': { title: 'دفتر التذكير الذاتي | LomedX', desc: 'مواعيد الأدوية والزيارات.', keywords: 'تذكير الأدوية, مواعيد الدواء, Lomedx', handler: 'openPatientReminder' },
     '/seasonal-diseases': { title: 'الأمراض الموسمية الشائعة في منطقة القلمون | LomedX', desc: 'دليل توعوي بأبرز الأمراض المنتشرة في منطقة القلمون موسمياً.', keywords: 'الأمراض الموسمية, الرحيبة, القلمون, Lomedx', handler: 'openSeasonalDiseases' },
+    
+    '/contact': { 
+        title: 'تواصل معنا | LomedX', 
+        desc: 'تواصل مع فريق LomedX لأي استفسار، شكوى، أو اقتراح.', 
+        keywords: 'تواصل معنا, دعم فني, شكوى, اقتراح, Lomedx', 
+        handler: 'openContactModal' 
+    },
+    '/add-facility': { 
+        title: 'أضف منشأتك الطبية | LomedX', 
+        desc: 'سجل مشفاك، عيادتك، أو صيدليتك مجاناً على منصة LomedX.', 
+        keywords: 'إضافة منشأة طبية, تسجيل طبيب, انضم إلينا, Lomedx', 
+        handler: 'openAddFacilityModal' 
+    }
 };
 
 function handleRouteChange() {
