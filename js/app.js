@@ -3170,14 +3170,8 @@ window.submitBloodRequest = async (e) => {
         showToast(`لقد أرسلت استغاثة مؤخراً. يرجى الانتظار ${minsLeft} دقيقة.`, 'error');
         return;
     }
-         // فحص الكلمات المسيئة قبل الإرسال
-    if (containsBadWords(name) || containsBadWords(hospital) || containsBadWords(notes)) {
-        showToast('تم رفض الاستغاثة لاحتوائها على كلمات غير لائقة.', 'error');
-        return;
-    }
 
-    submitBtn.disabled = true; submitBtn.innerText = 'جاري النشر...';
-    
+    // 1. تعريف المتغيرات أولاً
     const name = document.getElementById('bloodPatient').value.trim();
     const bloodType = document.getElementById('bloodType').value;
     const hospital = document.getElementById('bloodHospital').value.trim();
@@ -3185,16 +3179,25 @@ window.submitBloodRequest = async (e) => {
     const phone = phoneInput.value.trim();
     const notes = document.getElementById('bloodNotes').value.trim();
 
+    // 2. ثم فحص الكلمات المسيئة
+    if (containsBadWords(name) || containsBadWords(hospital) || containsBadWords(notes)) {
+        showToast('تم رفض الاستغاثة لاحتوائها على كلمات غير لائقة.', 'error');
+        return;
+    }
+
+    submitBtn.disabled = true; 
+    submitBtn.innerText = 'جاري النشر...';
+
     if (!/^09\d{8}$/.test(phone)) { 
         phoneInput.classList.add('input-invalid'); 
         showToast('رقم الهاتف غير صحيح', 'error'); 
-        submitBtn.disabled = false; submitBtn.innerText = 'نشر الاستغاثة';
+        submitBtn.disabled = false; 
+        submitBtn.innerText = 'نشر الاستغاثة';
         return; 
     } 
     phoneInput.classList.remove('input-invalid');
 
     try {
-        
         const { data: funcData, error: funcError } = await supabase.functions.invoke('manage-public-requests', {
             body: { action: 'submit_request', type: 'blood', patient_phone: phone, payload: { patient_name: name, blood_type: bloodType, hospital: hospital, notes: notes } }
         });
@@ -3212,19 +3215,19 @@ window.submitBloodRequest = async (e) => {
         localStorage.setItem('last_blood_request_time', Date.now().toString());
         showToast('تم نشر استغاثتك بنجاح!', 'success');
         e.target.reset();
-            } catch (err) { 
+    } catch (err) { 
         // تفعيل مركز حل المشكلات
         window.handleFetchError('بنك الدم', err);
         // تسجيل دالة إعادة المحاولة
         window.registerRetry(() => submitBloodRequest(e));
         
         // إعادة تفعيل زر الإرسال
-        const submitBtn = e.target.querySelector('button[type="submit"]');
         if(submitBtn) {
             submitBtn.disabled = false; 
             submitBtn.innerText = 'نشر الاستغاثة';
         }
     }
+};
 window.resolveBloodRequest = async (id) => { 
     if (!window.checkOnlineStatus()) return; 
     try { 
