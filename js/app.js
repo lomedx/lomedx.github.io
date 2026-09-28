@@ -7111,18 +7111,43 @@ if (window.visualViewport) {
 window.submitFacilityRequest = (e) => {
     e.preventDefault();
 
-    const name = document.getElementById('facName').value.trim();
+    const nameInput = document.getElementById('facName');
+    const cityInput = document.getElementById('facCity');
+    
+    const name = nameInput.value.trim();
     const type = document.getElementById('facType').value;
-    const city = document.getElementById('facCity').value.trim();
+    const city = cityInput.value.trim();
     const phone = document.getElementById('facPhone').value.trim();
 
-    // Validation
+    // 1. التحقق من الاسم
     if (name.length < 3) {
         showToast('الرجاء إدخال اسم كامل للمنشأة', 'error');
-        document.getElementById('facName').focus();
+        nameInput.focus();
         return;
     }
 
+    // 2. فلتر الكلمات المسيئة (تلوين الحقل بالأحمر)
+    let hasBadWords = false;
+    if (containsBadWords(name)) {
+        nameInput.classList.add('input-invalid');
+        hasBadWords = true;
+    } else {
+        nameInput.classList.remove('input-invalid');
+    }
+
+    if (containsBadWords(city)) {
+        cityInput.classList.add('input-invalid');
+        hasBadWords = true;
+    } else {
+        cityInput.classList.remove('input-invalid');
+    }
+
+    if (hasBadWords) {
+        showToast('تم رفض الطلب لاحتوائه على كلمات غير لائقة.', 'error');
+        return;
+    }
+
+    // 3. التحقق من رقم الهاتف
     const cleanPhone = phone.replace(/[\s\-()]/g, '');
     const phoneRegex = /^(09\d{8}|9\d{8}|\+?9639\d{8})$/;
     if (!phoneRegex.test(cleanPhone)) {
@@ -7131,18 +7156,19 @@ window.submitFacilityRequest = (e) => {
         return;
     }
 
+    // 4. التحقق من المدينة
     if (city.length < 2) {
         showToast('الرجاء إدخال اسم المدينة', 'error');
-        document.getElementById('facCity').focus();
+        cityInput.focus();
         return;
     }
 
-    // Loading state
+    // حالة التحميل
     const submitBtn = document.querySelector('.submit-facility-btn');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>جاري التحويل...</span>';
 
-    // Build WhatsApp message
+    // بناء رسالة الواتساب
     const adminWhatsApp = "963980390813";
     const message = [
         '*📋 طلب تسجيل منشأة طبية جديدة على LomedX*',
@@ -7157,18 +7183,13 @@ window.submitFacilityRequest = (e) => {
 
     const whatsappUrl = `https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(message)}`;
 
-    // Open WhatsApp (use location.href for better mobile support)
+    // فتح واتساب
     setTimeout(() => {
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-
-        // Show success message
         showToast('✓ تم تجهيز طلبك! يرجى إرسال الرسالة عبر واتساب لإتمام التسجيل.', 'success');
-
-        // Close modal
         closeAddFacilityModal();
     }, 400);
 };
-
 
 
 // ═══════════════════════════════════════════════════════════
