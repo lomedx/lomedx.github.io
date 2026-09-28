@@ -6943,6 +6943,9 @@ if (window.location.pathname !== '/' && window.location.pathname !== '/index.htm
           // ═══════════════════════════════════════════════════════════
 // Modal Management
 // ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// LMX MODAL — Add Facility
+// ═══════════════════════════════════════════════════════════
 
 window.openAddFacilityModal = () => {
     const overlay = document.getElementById('addFacilityOverlay');
@@ -6952,16 +6955,12 @@ window.openAddFacilityModal = () => {
     document.body.style.overflow = 'hidden';
     document.body.style.position = 'fixed';
     document.body.style.width = '100%';
-    
-    // Save scroll position
     window.__scrollY = window.scrollY;
     
-    // Focus first input (after animation)
+    // Focus first input
     setTimeout(() => {
         const firstInput = document.getElementById('facName');
-        if (firstInput) {
-            firstInput.focus({ preventScroll: true });
-        }
+        if (firstInput) firstInput.focus({ preventScroll: true });
     }, 400);
 };
 
@@ -6984,13 +6983,13 @@ window.closeAddFacilityModal = () => {
     if (form) form.reset();
     
     // Reset submit button
-    const submitBtn = document.querySelector('.submit-facility-btn');
+    const submitBtn = document.querySelector('.lmx-form__submit');
     if (submitBtn && submitBtn.disabled) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>إرسال طلب التسجيل</span>';
     }
     
-    // Blur focused input (fix iOS keyboard)
+    // Blur active element (fix iOS keyboard)
     if (document.activeElement && document.activeElement.blur) {
         document.activeElement.blur();
     }
@@ -7013,14 +7012,73 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ═══════════════════════════════════════════════════════════
-// Handle iOS keyboard (يُصلح مشكلة الجوال)
+// Submit Form → WhatsApp
+// ═══════════════════════════════════════════════════════════
+
+window.submitFacilityRequest = (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('facName').value.trim();
+    const type = document.getElementById('facType').value;
+    const city = document.getElementById('facCity').value.trim();
+    const phone = document.getElementById('facPhone').value.trim();
+
+    // Validation
+    if (name.length < 3) {
+        showToast('الرجاء إدخال اسم كامل للمنشأة', 'error');
+        document.getElementById('facName').focus();
+        return;
+    }
+
+    const cleanPhone = phone.replace(/[\s\-()]/g, '');
+    const phoneRegex = /^(09\d{8}|9\d{8}|\+?9639\d{8})$/;
+    if (!phoneRegex.test(cleanPhone)) {
+        showToast('الرجاء إدخال رقم هاتف سوري صحيح', 'error');
+        document.getElementById('facPhone').focus();
+        return;
+    }
+
+    if (city.length < 2) {
+        showToast('الرجاء إدخال اسم المدينة', 'error');
+        document.getElementById('facCity').focus();
+        return;
+    }
+
+    // Loading state
+    const submitBtn = document.querySelector('.lmx-form__submit');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>جاري التحويل...</span>';
+
+    // Build WhatsApp message
+    const adminWhatsApp = "963980390813";
+    const message = [
+        '*📋 طلب تسجيل منشأة طبية جديدة على LomedX*',
+        '',
+        `*🏥 اسم المنشأة/الطبيب:* ${name}`,
+        `*📌 النوع:* ${type}`,
+        `*📍 المدينة:* ${city}`,
+        `*📞 هاتف التواصل:* ${phone}`,
+        '',
+        '_تم الإرسال من نموذج LomedX_'
+    ].join('\n');
+
+    const whatsappUrl = `https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(message)}`;
+
+    setTimeout(() => {
+        window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+        showToast('✓ تم تجهيز طلبك! يرجى إرسال الرسالة عبر واتساب.', 'success');
+        closeAddFacilityModal();
+    }, 400);
+};
+
+// ═══════════════════════════════════════════════════════════
+// iOS Keyboard handling
 // ═══════════════════════════════════════════════════════════
 if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', () => {
-        const modal = document.querySelector('.add-facility-modal');
-        if (!modal || !modal.closest('.modal-overlay.active')) return;
+        const modal = document.querySelector('.lmx-modal__box');
+        if (!modal || !modal.closest('.lmx-modal.active')) return;
         
-        // Adjust max-height when keyboard opens
         const availableHeight = window.visualViewport.height - 40;
         modal.style.maxHeight = Math.min(availableHeight, window.innerHeight * 0.92) + 'px';
     });
