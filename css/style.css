@@ -1687,9 +1687,10 @@ html.dark .booking-step {
 /* CTA Section */
 /* === CTA Section Styles === */
 /* ═══════════════════════════════════════════════════════════
-   MODAL OVERLAY
+   LMX MODAL — LomedX Add Facility Modal
    ═══════════════════════════════════════════════════════════ */
-.modal-overlay {
+
+.lmx-modal {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.75);
@@ -1703,12 +1704,11 @@ html.dark .booking-step {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s;
-  /* دعم safe area للآيفون */
   padding-top: max(20px, env(safe-area-inset-top));
   padding-bottom: max(20px, env(safe-area-inset-bottom));
 }
 
-.modal-overlay.active {
+.lmx-modal.active {
   opacity: 1;
   visibility: visible;
 }
@@ -1716,7 +1716,7 @@ html.dark .booking-step {
 /* ═══════════════════════════════════════════════════════════
    MODAL BOX
    ═══════════════════════════════════════════════════════════ */
-.add-facility-modal {
+.lmx-modal__box {
   position: relative;
   background: var(--card, #0a1f1a);
   border-radius: 20px;
@@ -1731,32 +1731,31 @@ html.dark .booking-step {
     0 0 0 1px rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border, rgba(196, 150, 44, 0.2));
   
-  /* Animation */
   transform: scale(0.95) translateY(10px);
   opacity: 0;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
               opacity 0.3s ease;
   
-  /* Custom scrollbar */
   scrollbar-width: thin;
   scrollbar-color: rgba(196, 150, 44, 0.4) transparent;
 }
 
-.modal-overlay.active .add-facility-modal {
+.lmx-modal.active .lmx-modal__box {
   transform: scale(1) translateY(0);
   opacity: 1;
 }
 
-.add-facility-modal::-webkit-scrollbar {
+.lmx-modal__box::-webkit-scrollbar {
   width: 4px;
 }
-.add-facility-modal::-webkit-scrollbar-thumb {
+
+.lmx-modal__box::-webkit-scrollbar-thumb {
   background: rgba(196, 150, 44, 0.4);
   border-radius: 4px;
 }
 
-/* Handle bar (يظهر فقط على الموبايل) */
-.modal-handle {
+/* Handle bar */
+.lmx-modal__handle {
   display: none;
   position: absolute;
   top: 8px;
@@ -1771,7 +1770,7 @@ html.dark .booking-step {
 /* ═══════════════════════════════════════════════════════════
    CLOSE BUTTON
    ═══════════════════════════════════════════════════════════ */
-.modal-close-btn {
+.lmx-modal__close {
   position: absolute;
   top: 16px;
   left: 16px;
@@ -1786,33 +1785,32 @@ html.dark .booking-step {
   place-items: center;
   transition: all 0.25s ease;
   font-size: 14px;
-  /* تحسين للمس */
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
-.modal-close-btn:hover,
-.modal-close-btn:focus-visible {
+.lmx-modal__close:hover,
+.lmx-modal__close:focus-visible {
   background: #ef4444;
   color: #fff;
   border-color: #ef4444;
   transform: rotate(90deg);
 }
 
-.modal-close-btn:active {
+.lmx-modal__close:active {
   transform: rotate(90deg) scale(0.9);
 }
 
 /* ═══════════════════════════════════════════════════════════
    MODAL HEADER
    ═══════════════════════════════════════════════════════════ */
-.modal-header {
+.lmx-modal__header {
   text-align: center;
   margin-bottom: 28px;
   padding-top: 4px;
 }
 
-.modal-header-icon {
+.lmx-modal__icon {
   width: 64px;
   height: 64px;
   border-radius: 50%;
@@ -1828,7 +1826,7 @@ html.dark .booking-step {
   box-shadow: 0 0 30px rgba(196, 150, 44, 0.15);
 }
 
-.modal-header h3 {
+.lmx-modal__header h3 {
   font-family: 'Noto Kufi Arabic', sans-serif;
   font-size: 20px;
   font-weight: 700;
@@ -1838,7 +1836,7 @@ html.dark .booking-step {
   letter-spacing: -0.3px;
 }
 
-.modal-header p {
+.lmx-modal__header p {
   font-size: 13px;
   color: var(--muted, #94a3b8);
   line-height: 1.6;
@@ -1849,11 +1847,11 @@ html.dark .booking-step {
 /* ═══════════════════════════════════════════════════════════
    FORM
    ═══════════════════════════════════════════════════════════ */
-.form-group {
+.lmx-form__group {
   margin-bottom: 18px;
 }
 
-.form-group label {
+.lmx-form__group label {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -1864,19 +1862,19 @@ html.dark .booking-step {
   letter-spacing: 0.2px;
 }
 
-.required-mark {
+.lmx-form__required {
   color: #ef4444;
   font-size: 14px;
   line-height: 1;
 }
 
 /* Input wrapper with icon */
-.input-wrap {
+.lmx-form__wrap {
   position: relative;
   display: block;
 }
 
-.input-icon {
+.lmx-form__icon {
   position: absolute;
   top: 50%;
   right: 16px;
@@ -1888,14 +1886,14 @@ html.dark .booking-step {
   z-index: 2;
 }
 
-.input-wrap:focus-within .input-icon {
+.lmx-form__wrap:focus-within .lmx-form__icon {
   color: var(--accent, #C4962C);
 }
 
-.form-group input,
-.form-group select {
+.lmx-form__group input,
+.lmx-form__group select {
   width: 100%;
-  padding: 14px 44px 14px 16px; /* icon space on right (RTL) */
+  padding: 14px 44px 14px 16px;
   border-radius: 12px;
   border: 1.5px solid var(--border, rgba(148, 163, 184, 0.15));
   background: var(--bg, rgba(0, 0, 0, 0.2));
@@ -1905,35 +1903,33 @@ html.dark .booking-step {
   font-weight: 500;
   outline: none;
   transition: all 0.25s ease;
-  /* تحسينات للموبايل */
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  min-height: 52px; /* minimum touch target */
+  min-height: 52px;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Remove iOS inner shadow */
-.form-group input[type="text"],
-.form-group input[type="tel"] {
+.lmx-form__group input[type="text"],
+.lmx-form__group input[type="tel"] {
   -webkit-box-shadow: 0 0 0 1000px transparent inset;
 }
 
-.form-group input::placeholder {
+.lmx-form__group input::placeholder {
   color: var(--muted, #64748b);
   opacity: 0.7;
   font-weight: 400;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.lmx-form__group input:focus,
+.lmx-form__group select:focus {
   border-color: var(--accent, #C4962C);
   background: rgba(196, 150, 44, 0.05);
   box-shadow: 0 0 0 4px rgba(196, 150, 44, 0.15);
 }
 
 /* Select arrow custom */
-.form-group select {
+.lmx-form__group select {
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C4962C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: left 16px center;
@@ -1942,14 +1938,14 @@ html.dark .booking-step {
   cursor: pointer;
 }
 
-.form-group select option {
+.lmx-form__group select option {
   background: #052E22;
   color: #fff;
   padding: 10px;
 }
 
 /* Hint text */
-.input-hint {
+.lmx-form__hint {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1959,14 +1955,14 @@ html.dark .booking-step {
   font-weight: 500;
 }
 
-.input-hint i {
+.lmx-form__hint i {
   color: var(--accent, #C4962C);
   font-size: 11px;
   opacity: 0.8;
 }
 
-/* Form row (two-column) */
-.form-row {
+/* Form row */
+.lmx-form__row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
@@ -1975,7 +1971,7 @@ html.dark .booking-step {
 /* ═══════════════════════════════════════════════════════════
    SUBMIT BUTTON
    ═══════════════════════════════════════════════════════════ */
-.submit-facility-btn {
+.lmx-form__submit {
   width: 100%;
   padding: 16px 24px;
   border-radius: 12px;
@@ -2001,18 +1997,18 @@ html.dark .booking-step {
   letter-spacing: 0.3px;
 }
 
-.submit-facility-btn:hover:not(:disabled) {
+.lmx-form__submit:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 
     0 16px 40px rgba(196, 150, 44, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
-.submit-facility-btn:active:not(:disabled) {
+.lmx-form__submit:active:not(:disabled) {
   transform: translateY(0) scale(0.98);
 }
 
-.submit-facility-btn:disabled {
+.lmx-form__submit:disabled {
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
@@ -2021,7 +2017,7 @@ html.dark .booking-step {
 /* ═══════════════════════════════════════════════════════════
    FORM FOOTER NOTE
    ═══════════════════════════════════════════════════════════ */
-.form-footer-note {
+.lmx-form__note {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2035,7 +2031,7 @@ html.dark .booking-step {
   text-align: center;
 }
 
-.form-footer-note i {
+.lmx-form__note i {
   color: #10B981;
   font-size: 12px;
 }
@@ -2044,14 +2040,13 @@ html.dark .booking-step {
    MOBILE RESPONSIVE
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 700px) {
-  /* Overlay على الموبايل: من أسفل الشاشة */
-  .modal-overlay {
+  .lmx-modal {
     align-items: flex-end;
     padding: 0;
     padding-bottom: env(safe-area-inset-bottom);
   }
   
-  .add-facility-modal {
+  .lmx-modal__box {
     max-width: 100%;
     width: 100%;
     border-radius: 24px 24px 0 0;
@@ -2065,12 +2060,11 @@ html.dark .booking-step {
     border-top: 1px solid rgba(196, 150, 44, 0.2);
   }
   
-  .modal-overlay.active .add-facility-modal {
+  .lmx-modal.active .lmx-modal__box {
     transform: translateY(0);
   }
   
-  /* Handle bar visible */
-  .modal-handle {
+  .lmx-modal__handle {
     display: block;
     top: 10px;
     width: 44px;
@@ -2078,8 +2072,7 @@ html.dark .booking-step {
     background: rgba(255, 255, 255, 0.2);
   }
   
-  /* Close button top-right (better for thumb reach) */
-  .modal-close-btn {
+  .lmx-modal__close {
     top: 20px;
     left: auto;
     right: 20px;
@@ -2088,70 +2081,66 @@ html.dark .booking-step {
     font-size: 16px;
   }
   
-  /* Header adjustments */
-  .modal-header {
+  .lmx-modal__header {
     margin-bottom: 24px;
     padding-top: 8px;
   }
   
-  .modal-header-icon {
+  .lmx-modal__icon {
     width: 56px;
     height: 56px;
     font-size: 20px;
     margin-bottom: 14px;
   }
   
-  .modal-header h3 {
+  .lmx-modal__header h3 {
     font-size: 18px;
   }
   
-  .modal-header p {
+  .lmx-modal__header p {
     font-size: 12px;
   }
   
-  /* Form adjustments */
-  .form-group {
+  .lmx-form__group {
     margin-bottom: 16px;
   }
   
-  .form-group label {
+  .lmx-form__group label {
     font-size: 12px;
     margin-bottom: 7px;
   }
   
-  .form-group input,
-  .form-group select {
+  .lmx-form__group input,
+  .lmx-form__group select {
     padding: 14px 42px 14px 14px;
-    font-size: 16px; /* Prevents iOS zoom on focus */
+    font-size: 16px;
     min-height: 54px;
     border-radius: 11px;
   }
   
-  .input-icon {
+  .lmx-form__icon {
     right: 14px;
     font-size: 15px;
   }
   
-  .form-group select {
+  .lmx-form__group select {
     background-position: left 14px center;
     padding-left: 40px;
   }
   
-  /* Row becomes column on mobile */
-  .form-row {
+  .lmx-form__row {
     grid-template-columns: 1fr;
     gap: 0;
   }
   
-  /* Submit button */
-  .submit-facility-btn {
+  .lmx-form__submit {
     padding: 17px 24px;
     font-size: 15px;
     margin-top: 8px;
     min-height: 56px;
   }
   
-  .form-footer-note {
+  .lmx-form__note {
     font-size: 10px;
     margin-top: 14px;
     padding-top: 14px;
@@ -2164,63 +2153,63 @@ html.dark .booking-step {
    EXTRA SMALL SCREENS (< 380px)
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 380px) {
-  .add-facility-modal {
+  .lmx-modal__box {
     padding: 36px 18px 24px;
   }
   
-  .modal-header-icon {
+  .lmx-modal__icon {
     width: 50px;
     height: 50px;
     font-size: 18px;
   }
   
-  .modal-header h3 {
+  .lmx-modal__header h3 {
     font-size: 16px;
   }
   
-  .form-group input,
-  .form-group select {
+  .lmx-form__group input,
+  .lmx-form__group select {
     font-size: 15px;
     min-height: 50px;
   }
   
-  .submit-facility-btn {
+  .lmx-form__submit {
     font-size: 14px;
     padding: 15px 20px;
   }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   LANDSCAPE MODE (الجوال بالعرض)
+   LANDSCAPE MODE
    ═══════════════════════════════════════════════════════════ */
 @media (max-height: 600px) and (max-width: 900px) {
-  .add-facility-modal {
+  .lmx-modal__box {
     max-height: 95dvh;
     padding-top: 32px;
   }
   
-  .modal-header-icon {
+  .lmx-modal__icon {
     width: 44px;
     height: 44px;
     font-size: 16px;
     margin-bottom: 10px;
   }
   
-  .modal-header h3 {
+  .lmx-modal__header h3 {
     font-size: 16px;
     margin-bottom: 4px;
   }
   
-  .modal-header p {
+  .lmx-modal__header p {
     font-size: 11px;
   }
   
-  .form-group {
+  .lmx-form__group {
     margin-bottom: 12px;
   }
   
-  .form-group input,
-  .form-group select {
+  .lmx-form__group input,
+  .lmx-form__group select {
     min-height: 46px;
     padding-top: 11px;
     padding-bottom: 11px;
@@ -2231,10 +2220,10 @@ html.dark .booking-step {
    REDUCED MOTION
    ═══════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
-  .modal-overlay,
-  .add-facility-modal,
-  .modal-close-btn,
-  .submit-facility-btn {
+  .lmx-modal,
+  .lmx-modal__box,
+  .lmx-modal__close,
+  .lmx-form__submit {
     transition-duration: 0.01ms !important;
   }
 }
