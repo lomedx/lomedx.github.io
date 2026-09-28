@@ -2287,4 +2287,20 @@ html.dark .booking-step {
     transition-duration: 0.01ms !important;
   }
 }
+/* === تنسيقات نموذج اتصل بنا === */
+.contact-field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.2rem; }
+.contact-label { font-size: 0.85rem; font-weight: 600; color: var(--fg-light); display: flex; align-items: center; gap: 6px; }
+.contact-required { color: var(--danger); font-size: 0.9rem; }
+.contact-input { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: var(--fg); font-family: 'IBM Plex Sans Arabic', sans-serif; outline: none; transition: all 0.3s ease; }
+.contact-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+.contact-input::placeholder { color: var(--muted); opacity: 0.7; }
 
+/* تخصيص القائمة المنسدلة (Select) */
+.contact-select-wrapper { position: relative; width: 100%; }
+.contact-select { appearance: none; -webkit-appearance: none; cursor: pointer; padding-left: 40px; /* مساحة للسهم */ }
+.contact-select-arrow { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; font-size: 0.8rem; transition: transform 0.3s; }
+.contact-select-wrapper:hover .contact-select-arrow { color: var(--accent); }
+
+/* دعم الوضع المظلم للحقول */
+html.dark .contact-input { background-color: var(--bg-deep) !important; border-color: var(--border) !important; color: var(--fg) !important; }
+html.dark .contact-input:focus { background-color: var(--card) !important; border-color: var(--accent) !important; }
