@@ -672,24 +672,75 @@
     </div>
 </div>
 
-    <section id="contact" class="py-12 sm:py-16" style="background: var(--bg-deep)">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-envelope text-sm" style="color: var(--gold)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">تواصل معنا</h2><p class="text-sm" style="color: var(--muted)">ساعدنا في تحديث البيانات أو أضف مشفاك، عيادتك، مركزك، أو مخبرك</p></div>
-            <div class="max-w-2xl mx-auto">
-                <div class="card p-6 sm:p-8 border-0 shadow-lg">
-                    <form onsubmit="handleContactSubmit(event)">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                            <div><label class="block text-sm font-semibold mb-2" style="color: var(--fg-light)">الاسم الكامل</label><input type="text" required id="contactName" class="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all focus:ring-2" style="border-color: var(--border); background: var(--bg)" placeholder="أدخل اسمك"></div>
-                            <div><label class="block text-sm font-semibold mb-2" style="color: var(--fg-light)">رقم الهاتف</label><input type="tel" required id="contactPhone" class="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all focus:ring-2" style="border-color: var(--border); background: var(--bg)" placeholder="09XXXXXXXX"></div>
-                        </div>
-                        <div class="mb-4"><label class="block text-sm font-semibold mb-2" style="color: var(--fg-light)">نوع الإضافة</label><select required id="contactType" class="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all focus:ring-2" style="border-color: var(--border); background: var(--bg)"><option value="">اختر النوع</option><option value="hospital">إضافة مشفى</option><option value="center">إضافة مركز طبي</option><option value="lab">إضافة مخبر</option><option value="doctor">إضافة طبيب</option><option value="pharmacy">إضافة صيدلية</option><option value="update">تحديث بيانات</option><option value="other">أخرى</option></select></div>
-                        <div class="mb-5"><label class="block text-sm font-semibold mb-2" style="color: var(--fg-light)">الرسالة</label><textarea required id="contactMessage" rows="4" class="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all focus:ring-2 resize-none" style="border-color: var(--border); background: var(--bg)" placeholder="اكتب رسالتك هنا..."></textarea></div>
-                        <button type="submit" class="w-full py-3.5 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90 flex items-center justify-center gap-2" style="background: var(--accent)"><i class="fas fa-paper-plane"></i> إرسال الطلب</button>
-                    </form>
-                </div>
-            </div>
+    <section class="cta-section" id="join-us">
+  <div class="container">
+    <div class="cta-box">
+      <div class="cta-decoration cta-decoration--top"></div>
+      <div class="cta-decoration cta-decoration--bottom"></div>
+      
+      <div class="cta-badge">
+        <span class="cta-badge-dot"></span>
+        <span>التسجيل مجاني بالكامل</span>
+      </div>
+      
+      <div class="cta-icon-wrap">
+        <div class="cta-icon-pulse"></div>
+        <div class="cta-icon-pulse cta-icon-pulse--delay"></div>
+        <div class="cta-icon">
+          <i class="fas fa-plus"></i>
         </div>
-    </section>
+      </div>
+      
+      <div class="cta-eyebrow">
+        <i class="fas fa-hand-holding-medical"></i>
+        <span>انضم إلى المنصة</span>
+      </div>
+      
+      <h2 class="cta-title">
+        هل تمتلك <span class="cta-title-accent">منشأة طبية</span>؟
+      </h2>
+      
+      <p class="cta-desc">
+        أضف مشفاك، عيادتك، مركزك، مخبرك، أو صيدليتك مجاناً على LomedX.
+        ساعدنا في توسيع التغطية الطبية في سوريا، وكن جزءاً من شبكة الرعاية الصحية الرقمية.
+      </p>
+      
+      <div class="cta-actions">
+        <button class="cta-btn cta-btn--primary" type="button" id="cta-add-facility">
+          <i class="fas fa-plus-circle"></i>
+          <span>أضف منشأتك الآن</span>
+        </button>
+        <a href="https://wa.me/963980390813" 
+           target="_blank" 
+           rel="noopener"
+           class="cta-btn cta-btn--whatsapp">
+          <i class="fab fa-whatsapp"></i>
+          <span>تواصل معنا</span>
+        </a>
+      </div>
+      
+      <div class="cta-features">
+        <div class="cta-feature">
+          <i class="fas fa-check-circle"></i>
+          <span>التسجيل مجاني</span>
+        </div>
+        <div class="cta-feature">
+          <i class="fas fa-bolt"></i>
+          <span>تفعيل خلال 24 ساعة</span>
+        </div>
+        <div class="cta-feature">
+          <i class="fas fa-chart-line"></i>
+          <span>زيارات مباشرة لعيادتك</span>
+        </div>
+        <div class="cta-feature">
+          <i class="fas fa-headset"></i>
+          <span>دعم تقني مجاني</span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
         
         <footer class="relative pt-16 pb-8 overflow-hidden" style="background: #052E22; color: white;">
         <!-- خط ذهبي علوي أنيق -->
