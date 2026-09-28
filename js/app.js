@@ -6943,29 +6943,59 @@ if (window.location.pathname !== '/' && window.location.pathname !== '/index.htm
 // CTA Modal — Add Facility
 // ═══════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════
+// Modal Management
+// ═══════════════════════════════════════════════════════════
+
 window.openAddFacilityModal = () => {
-    document.getElementById('addFacilityOverlay').classList.add('active');
-    document.body.style.overflow = 'hidden';
+    const overlay = document.getElementById('addFacilityOverlay');
+    overlay.classList.add('active');
     
-    // Focus على أول حقل
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    
+    // Save scroll position
+    window.__scrollY = window.scrollY;
+    
+    // Focus first input (after animation)
     setTimeout(() => {
-        document.getElementById('facName').focus();
-    }, 200);
+        const firstInput = document.getElementById('facName');
+        if (firstInput) {
+            firstInput.focus({ preventScroll: true });
+        }
+    }, 400);
 };
 
 window.closeAddFacilityModal = () => {
-    document.getElementById('addFacilityOverlay').classList.remove('active');
+    const overlay = document.getElementById('addFacilityOverlay');
+    overlay.classList.remove('active');
+    
+    // Restore scroll
     document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+    
+    if (window.__scrollY !== undefined) {
+        window.scrollTo(0, window.__scrollY);
+        window.__scrollY = undefined;
+    }
     
     // Reset form
     const form = document.getElementById('addFacilityForm');
     if (form) form.reset();
     
-    // Reset submit button state
+    // Reset submit button
     const submitBtn = document.querySelector('.submit-facility-btn');
     if (submitBtn && submitBtn.disabled) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>إرسال طلب التسجيل</span>';
+    }
+    
+    // Blur focused input (fix iOS keyboard)
+    if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
     }
 };
 
@@ -6974,6 +7004,30 @@ window.handleOverlayClick = (event) => {
         closeAddFacilityModal();
     }
 };
+
+// ESC to close
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('addFacilityOverlay');
+        if (modal && modal.classList.contains('active')) {
+            closeAddFacilityModal();
+        }
+    }
+});
+
+// ═══════════════════════════════════════════════════════════
+// Handle iOS keyboard (يُصلح مشكلة الجوال)
+// ═══════════════════════════════════════════════════════════
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+        const modal = document.querySelector('.add-facility-modal');
+        if (!modal || !modal.closest('.modal-overlay.active')) return;
+        
+        // Adjust max-height when keyboard opens
+        const availableHeight = window.visualViewport.height - 40;
+        modal.style.maxHeight = Math.min(availableHeight, window.innerHeight * 0.92) + 'px';
+    });
+}
 
 window.submitFacilityRequest = (e) => {
     e.preventDefault();
@@ -7036,15 +7090,7 @@ window.submitFacilityRequest = (e) => {
     }, 400);
 };
 
-// ESC to close
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        const modal = document.getElementById('addFacilityOverlay');
-        if (modal && modal.classList.contains('active')) {
-            closeAddFacilityModal();
-        }
-    }
-});
+
 
 // ═══════════════════════════════════════════════════════════
 // Toast Notification System
