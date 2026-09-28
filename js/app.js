@@ -7340,3 +7340,63 @@ window.addEventListener('load', () => {
 /* ═══════════════════════════════════════════════════════════════════
    ═══════════════ END OF FILE ═══════════════
    ═══════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════
+   ═══════════════ EXPOSE GLOBALS TO WINDOW ═══════════════
+   ═══════════════════════════════════════════════════════════════════ */
+
+// ⚠️ اجعل الدوال المشتركة متاحة لـ tools.js
+window.escapeHtml = escapeHtml;
+window.showToast = showToast;
+window.lockScroll = lockScroll;
+window.unlockScroll = unlockScroll;
+window.sendPushNotification = sendPushNotification;
+window.generateSecureToken = generateSecureToken;
+window.containsBadWords = containsBadWords;
+window.loadChartJs = loadChartJs;
+window.loadDynamicScript = loadDynamicScript;
+window.updateTipDisplay = updateTipDisplay;
+
+// البيانات المشتركة (مع getters لضمان التحديث)
+Object.defineProperty(window, 'allData', {
+    get: () => allData,
+    configurable: true
+});
+Object.defineProperty(window, 'allCities', {
+    get: () => allCities,
+    configurable: true
+});
+Object.defineProperty(window, 'allEmergencyContacts', {
+    get: () => allEmergencyContacts,
+    configurable: true
+});
+Object.defineProperty(window, 'favoriteDoctors', {
+    get: () => favoriteDoctors,
+    set: (v) => { favoriteDoctors = v; },
+    configurable: true
+});
+Object.defineProperty(window, 'currentHealthFileId', {
+    get: () => currentHealthFileId,
+    set: (v) => { currentHealthFileId = v; },
+    configurable: true
+});
+Object.defineProperty(window, 'activeQrScanner', {
+    get: () => activeQrScanner,
+    set: (v) => { activeQrScanner = v; },
+    configurable: true
+});
+Object.defineProperty(window, 'activeAds', {
+    get: () => activeAds,
+    configurable: true
+});
+Object.defineProperty(window, 'bloodRequests', {
+    get: () => bloodRequests,
+    configurable: true
+});
+Object.defineProperty(window, 'medicineDonations', {
+    get: () => medicineDonations,
+    configurable: true
+});
+Object.defineProperty(window, 'bookings', {
+    get: () => bookings,
+    configurable: true
+});
