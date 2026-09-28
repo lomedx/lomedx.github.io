@@ -673,78 +673,98 @@
 </div>
 
     <!-- ══════════════ CTA: أضف منشأتك الطبية ══════════════ -->
-<section id="join-us" class="cta-section" style="padding: 80px 24px; background: var(--bg-deep);">
-  <div style="max-width: 1140px; margin: 0 auto; position: relative; background: linear-gradient(135deg, #021410 0%, #052E22 100%); border-radius: 24px; padding: 80px 40px; text-align: center; overflow: hidden; color: #fff; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-    
-    <!-- تأثيرات الخلفية الزخرفية -->
-    <div style="position: absolute; top: -50%; right: -20%; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(196, 150, 44, 0.15), transparent 65%); pointer-events: none; animation: ctaGlowShift 8s ease-in-out infinite;"></div>
-    <div style="position: absolute; bottom: -40%; left: -10%; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(14, 124, 95, 0.2), transparent 70%); pointer-events: none; animation: ctaGlowShift 8s ease-in-out infinite reverse;"></div>
-    
-    <style>
-      @keyframes ctaGlowShift { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, -30px) scale(1.1); } }
-      @keyframes ctaRingOut { 0% { transform: scale(0.9); opacity: 0.9; } 100% { transform: scale(2.2); opacity: 0; } }
-      @keyframes badgePulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.6; } }
-    </style>
+    <!-- ══════════════ CTA: أضف منشأتك الطبية ══════════════ -->
+<section id="join-us" class="cta-section">
+  <div class="cta-box">
+    <div class="cta-grid"></div>
 
     <!-- شارة مجانية -->
-    <div style="position: absolute; top: 24px; left: 24px; z-index: 2; padding: 8px 16px; border-radius: 9999px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #6EE7B7; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
-      <span style="width: 6px; height: 6px; border-radius: 50%; background: #10B981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); animation: badgePulse 2s ease-in-out infinite;"></span>
-      التسجيل مجاني بالكامل
+    <div class="cta-badge">
+      <span class="badge-dot"></span>
+      <span>التسجيل مجاني بالكامل</span>
     </div>
 
     <!-- الأيقونة مع الحلقات النابضة -->
-    <div style="position: relative; width: 96px; height: 96px; margin: 0 auto 32px; display: grid; place-items: center; z-index: 1;">
-      <div style="position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid rgba(196, 150, 44, 0.4); animation: ctaRingOut 3s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-      <div style="position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid rgba(196, 150, 44, 0.4); animation: ctaRingOut 3s cubic-bezier(0, 0, 0.2, 1) infinite; animation-delay: 1.5s;"></div>
-      <div style="width: 88px; height: 88px; border-radius: 50%; background: linear-gradient(135deg, rgba(196, 150, 44, 0.25), rgba(196, 150, 44, 0.1)); border: 1.5px solid rgba(196, 150, 44, 0.4); color: #F0D77B; display: grid; place-items: center; font-size: 34px; z-index: 2; box-shadow: 0 0 40px rgba(196, 150, 44, 0.2);">
-        <i class="fas fa-plus"></i>
-      </div>
+    <div class="cta-icon-wrap">
+      <div class="cta-icon"><i class="fas fa-plus"></i></div>
     </div>
 
     <!-- النص الرئيسي -->
-    <div style="position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 10px; padding: 6px 16px; border-radius: 9999px; background: rgba(196, 150, 44, 0.15); border: 1px solid rgba(196, 150, 44, 0.3); color: #F0D77B; font-size: 12px; font-weight: 600; letter-spacing: 2px; margin-bottom: 24px;">
-      <i class="fas fa-hand-holding-medical"></i> انضم إلى المنصة
+    <div class="cta-eyebrow">
+      <i class="fas fa-hand-holding-medical"></i>
+      <span>انضم إلى المنصة</span>
     </div>
 
-    <h2 style="font-size: clamp(28px, 3.5vw, 40px); font-weight: 800; line-height: 1.2; margin-bottom: 20px; color: #fff; font-family: 'Noto Kufi Arabic';">
-      هل تمتلك <span style="color: #F0D77B;">منشأة طبية</span>؟
-    </h2>
+    <h2 class="cta-title">هل تمتلك <span class="gold">منشأة طبية</span>؟</h2>
 
-    <p style="font-size: 17px; line-height: 1.7; color: rgba(255, 255, 255, 0.75); max-width: 600px; margin: 0 auto 40px;">
+    <p class="cta-desc">
       أضف مشفاك، عيادتك، مركزك، مخبرك، أو صيدليتك مجاناً على LomedX. ساعدنا في توسيع التغطية الطبية في سوريا، وكن جزءاً من شبكة الرعاية الصحية الرقمية.
     </p>
 
     <!-- الأزرار -->
-    <div style="position: relative; z-index: 1; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-      <!-- استبدل onclick بالدالة الخاصة بك مثلاً openAdminLogin() -->
-      <button onclick="openAdminLogin()" style="padding: 16px 32px; border-radius: 12px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #C4962C 0%, #F0D77B 100%); color: #052E22; box-shadow: 0 8px 24px rgba(196, 150, 44, 0.35); transition: all 0.3s;">
-        <i class="fas fa-plus-circle"></i> أضف منشأتك الآن
+    <div class="cta-actions">
+      <!-- استبدلنا openAdminLogin بـ openAddFacilityModal -->
+      <button class="cta-btn primary" type="button" onclick="openAddFacilityModal()">
+        <i class="fas fa-plus-circle"></i>
+        <span>أضف منشأتك الآن</span>
       </button>
       
-      <!-- رابط واتساب الإدارة -->
-      <a href="https://wa.me/963980390813" target="_blank" style="text-decoration: none; padding: 16px 32px; border-radius: 12px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.08); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); transition: all 0.3s;">
-        <i class="fas fa-headset"></i> تواصل معنا
+      <a href="https://wa.me/963980390813" target="_blank" class="cta-btn ghost">
+        <i class="fas fa-headset"></i>
+        <span>تواصل معنا</span>
       </a>
     </div>
 
     <!-- المزايا -->
-    <div style="position: relative; z-index: 1; display: flex; justify-content: center; gap: 32px; margin-top: 48px; padding-top: 32px; border-top: 1px solid rgba(255, 255, 255, 0.1); flex-wrap: wrap;">
-      <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255, 255, 255, 0.7); font-weight: 500;">
-        <i class="fas fa-check-circle" style="color: #F0D77B;"></i> التسجيل مجاني
-      </div>
-      <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255, 255, 255, 0.7); font-weight: 500;">
-        <i class="fas fa-bolt" style="color: #F0D77B;"></i> تفعيل خلال 24 ساعة
-      </div>
-      <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255, 255, 255, 0.7); font-weight: 500;">
-        <i class="fas fa-chart-line" style="color: #F0D77B;"></i> زيارات مباشرة لعيادتك
-      </div>
-      <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255, 255, 255, 0.7); font-weight: 500;">
-        <i class="fas fa-headset" style="color: #F0D77B;"></i> دعم تقني مجاني
-      </div>
+    <div class="cta-features">
+      <div class="cta-feature"><i class="fas fa-check-circle"></i> التسجيل مجاني</div>
+      <div class="cta-feature"><i class="fas fa-bolt"></i> تفعيل خلال 24 ساعة</div>
+      <div class="cta-feature"><i class="fas fa-chart-line"></i> زيارات مباشرة لعيادتك</div>
+      <div class="cta-feature"><i class="fas fa-headset"></i> دعم تقني مجاني</div>
     </div>
-
   </div>
 </section>
+
+<!-- ══════════════ نافذة إضافة منشأة (Modal) ══════════════ -->
+<div id="addFacilityOverlay" class="modal-overlay" onclick="closeAddFacilityModal(event)">
+  <div class="add-facility-modal" onclick="event.stopPropagation()">
+    <button class="modal-close-btn" onclick="closeAddFacilityModal()"><i class="fas fa-times"></i></button>
+    <div class="modal-header">
+      <i class="fas fa-hospital-user"></i>
+      <h3>تسجيل منشأة طبية جديدة</h3>
+      <p>املأ النموذج التالي وسيتم التواصل معك لإتمام التفعيل.</p>
+    </div>
+    <form id="addFacilityForm" onsubmit="submitFacilityRequest(event)">
+      <div class="form-group">
+        <label>اسم المنشأة / الطبيب</label>
+        <input type="text" id="facName" required placeholder="مثال: د. أحمد العلي">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>نوع المنشأة</label>
+          <select id="facType" required>
+            <option value="طبيب">طبيب (عيادة)</option>
+            <option value="صيدلية">صيدلية</option>
+            <option value="مشفى">مشفى</option>
+            <option value="مخبر">مخبر طبي</option>
+            <option value="مركز">مركز طبي</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>المدينة</label>
+          <input type="text" id="facCity" required placeholder="مثال: الرحيبة">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>رقم الهاتف للتواصل</label>
+        <input type="tel" id="facPhone" required placeholder="09XXXXXXXX">
+      </div>
+      <button type="submit" class="submit-facility-btn">
+        <i class="fas fa-paper-plane"></i> إرسال طلب التسجيل
+      </button>
+    </form>
+  </div>
+</div>
         
         <footer class="relative pt-16 pb-8 overflow-hidden" style="background: #052E22; color: white;">
         <!-- خط ذهبي علوي أنيق -->
