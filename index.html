@@ -721,6 +721,7 @@
 </section>
 
 <!-- ══════════════ Modal ══════════════ -->
+<!-- ══════════════ Modal: Add Facility ══════════════ -->
 <div id="addFacilityOverlay" 
      class="modal-overlay" 
      role="dialog"
@@ -728,56 +729,129 @@
      aria-labelledby="modalTitle"
      onclick="handleOverlayClick(event)">
   <div class="add-facility-modal" onclick="event.stopPropagation()">
+    
+    <!-- Handle bar للموبايل (اختياري — يبدو native) -->
+    <div class="modal-handle" aria-hidden="true"></div>
+    
     <button class="modal-close-btn" type="button" onclick="closeAddFacilityModal()" aria-label="إغلاق">
       <i class="fas fa-times"></i>
     </button>
+    
     <div class="modal-header">
-      <i class="fas fa-hospital-user"></i>
-      <h3 id="modalTitle">تسجيل منشأة طبية جديدة</h3>
-      <p>املأ النموذج التالي وسيتم التواصل معك لإتمام التفعيل.</p>
-    </div>
-    <form id="addFacilityForm" onsubmit="submitFacilityRequest(event)" novalidate>
-      <div class="form-group">
-        <label for="facName">اسم المنشأة / الطبيب</label>
-        <input type="text" id="facName" required placeholder="مثال: د. أحمد العلي" autocomplete="name">
+      <div class="modal-header-icon">
+        <i class="fas fa-hospital-user"></i>
       </div>
+      <h3 id="modalTitle">تسجيل منشأة طبية جديدة</h3>
+      <p>املأ النموذج وسنتواصل معك لإتمام التفعيل خلال 24 ساعة.</p>
+    </div>
+    
+    <form id="addFacilityForm" onsubmit="submitFacilityRequest(event)" novalidate>
+      
+      <!-- اسم المنشأة -->
+      <div class="form-group">
+        <label for="facName">
+          اسم المنشأة / الطبيب
+          <span class="required-mark">*</span>
+        </label>
+        <div class="input-wrap">
+          <i class="fas fa-hospital input-icon"></i>
+          <input 
+            type="text" 
+            id="facName" 
+            required 
+            placeholder="مثال: د. أحمد العلي"
+            autocomplete="name"
+          >
+        </div>
+      </div>
+      
+      <!-- النوع + المدينة -->
       <div class="form-row">
         <div class="form-group">
-          <label for="facType">نوع المنشأة</label>
-          <select id="facType" required>
-            <option value="طبيب">طبيب (عيادة)</option>
-            <option value="صيدلية">صيدلية</option>
-            <option value="مشفى">مشفى</option>
-            <option value="مخبر">مخبر طبي</option>
-            <option value="مركز">مركز طبي</option>
-            
-                  <option value="استفسار عام">استفسار عام</option>
+          <label for="facType">
+            نوع المنشأة
+            <span class="required-mark">*</span>
+          </label>
+          <div class="input-wrap">
+            <i class="fas fa-tag input-icon"></i>
+            <select id="facType" required>
+              <option value="طبيب">طبيب (عيادة)</option>
+              <option value="صيدلية">صيدلية</option>
+              <option value="مشفى">مشفى</option>
+              <option value="مخبر">مخبر طبي</option>
+              <option value="مركز">مركز طبي</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="facCity">
+            المدينة
+            <span class="required-mark">*</span>
+          </label>
+          <div class="input-wrap">
+            <i class="fas fa-map-marker-alt input-icon"></i>
+            <input 
+              type="text" 
+              id="facCity" 
+              required 
+              placeholder="مثال: الرحيبة"
+              autocomplete="address-level2"
+            >
+          </div>
+        </div>
+      </div>
+      
+      <!-- رقم الهاتف -->
+      <div class="form-group">
+        <label for="facPhone">
+          رقم الهاتف للتواصل
+          <span class="required-mark">*</span>
+        </label>
+        <div class="input-wrap">
+          <i class="fas fa-phone input-icon"></i>
+          <input 
+            type="tel" 
+            id="facPhone" 
+            required 
+            placeholder="09XXXXXXXX"
+            autocomplete="tel"
+            inputmode="tel"
+            dir="ltr"
+            style="text-align: right; padding-right: 44px; padding-left: 14px;"
+          >
+        </div>
+        <div class="input-hint">
+          <i class="fas fa-info-circle"></i>
+          <span>رقم سوري يبدأ بـ 09</span>
+        </div>
+      </div>
+      
+      <!-- زر الإرسال -->
+      <button type="submit" class="submit-facility-btn">
+        <i class="fas fa-paper-plane"></i>
+        <span>إرسال طلب التسجيل</span>
+      </button>
+      
+      <!-- ملاحظة أمان -->
+      <div class="form-footer-note">
+        <i class="fas fa-shield-alt"></i>
+        <span>بياناتك محفوظة ولن تُشارك مع أي طرف ثالث</span>
+      </div>
+      
+    </form>
+  </div>
+</div>
+          <!--       <option value="استفسار عام">استفسار عام</option>
                 
                   <option value="تحديث بيانات">تحديث بيانات منشأة موجودة</option>
                   <option value="الإبلاغ عن خطأ">الإبلاغ عن خطأ في الموقع</option>
                   <option value="اقتراح ميزة">اقتراح ميزة جديدة</option>
                   <option value="شكوى">شكوى</option>
                   <option value="تعاون تجاري">تعاون تجاري / إعلان</option>
-                  <option value="أخرى">أخرى</option>
+                  <option value="أخرى">أخرى</option> -->
                 
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="facCity">المدينة</label>
-          <input type="text" id="facCity" required placeholder="مثال: الرحيبة" autocomplete="address-level2">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="facPhone">رقم الهاتف للتواصل</label>
-        <input type="tel" id="facPhone" required placeholder="09XXXXXXXX" autocomplete="tel" inputmode="tel">
-      </div>
-      <button type="submit" class="submit-facility-btn">
-        <i class="fas fa-paper-plane"></i>
-        <span>إرسال طلب التسجيل</span>
-      </button>
-    </form>
-  </div>
-</div>
+          
 
 
 
