@@ -477,8 +477,14 @@
           <p class="text-sm text-gray-700 leading-relaxed">${escapeHTML(issue.solution)}</p>
         </div>
 
-        ${quickFixesHTML ? `<div class="flex flex-col gap-2 mt-1">${quickFixesHTML}</div>` : ''}
-
+                ${quickFixesHTML ? `
+        <div class="flex flex-col gap-2 mt-1">
+            <div class="text-xs font-bold text-gray-500 mb-1 flex items-center gap-2">
+                <i class="fas fa-bolt"></i> حلول سريعة:
+            </div>
+            ${quickFixesHTML}
+        </div>` : ''}
+        
         <div class="connection-result hidden bg-gray-50 rounded-xl p-3 border border-gray-100 text-right"></div>
 
         <details class="text-right bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
@@ -728,12 +734,19 @@
         return;
       }
 
-      if (action === 'support') {
-        // اترك الرابط يعمل
+            if (action === 'support') {
+        e.preventDefault();
         window.closeCtrlPanel?.();
+        // فتح نافذة التواصل مباشرة بدلاً من تحويله لرابط
+        setTimeout(() => { 
+            if (typeof window.openContactModal === 'function') {
+                window.openContactModal(); 
+            } else {
+                location.href = '/contact';
+            }
+        }, 300);
         return;
       }
-    });
 
     // Toggle arrow
     document.addEventListener('toggle', (e) => {
