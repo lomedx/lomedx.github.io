@@ -3212,12 +3212,19 @@ window.submitBloodRequest = async (e) => {
         localStorage.setItem('last_blood_request_time', Date.now().toString());
         showToast('تم نشر استغاثتك بنجاح!', 'success');
         e.target.reset();
-    } catch (err) { 
-        showToast('حدث خطأ اثناء النشر: ' + err.message, 'error'); 
-    } finally {
-        submitBtn.disabled = false; submitBtn.innerText = 'نشر الاستغاثة';
-    }
-};
+        } catch (err) { 
+        // تفعيل مركز حل المشكلات
+        window.handleFetchError('البحث عن دواء', err);
+        // تسجيل دالة إعادة المحاولة ليعمل زر "أعد المحاولة" في النافذة
+        window.registerRetry(() => submitMedicineRequest(e));
+        
+        // إعادة تفعيل زر الإرسال
+        const submitBtn = document.getElementById('medSubmitBtn'); 
+        if(submitBtn) {
+            submitBtn.disabled = false; 
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال لصيدليات مدينتي'; 
+        }
+    } 
 
 window.resolveBloodRequest = async (id) => { 
     if (!window.checkOnlineStatus()) return; 
