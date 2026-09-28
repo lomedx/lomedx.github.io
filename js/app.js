@@ -122,37 +122,7 @@ function loadChartJs() {
         document.head.appendChild(script);
     });
 }
-// === دوال نافذة إضافة منشأة طبية ===
-window.openAddFacilityModal = () => {
-    document.getElementById('addFacilityOverlay').classList.add('active');
-    document.body.style.overflow = 'hidden'; // منع التمرير في الخلفية
-};
 
-window.closeAddFacilityModal = (event) => {
-    if (event && event.target.id !== 'addFacilityOverlay') return; // إغلاق فقط عند الضغط خارج النافذة
-    document.getElementById('addFacilityOverlay').classList.remove('active');
-    document.body.style.overflow = ''; // إعادة التمرير
-};
-
-window.submitFacilityRequest = (e) => {
-    e.preventDefault();
-    const name = document.getElementById('facName').value;
-    const type = document.getElementById('facType').value;
-    const city = document.getElementById('facCity').value;
-    const phone = document.getElementById('facPhone').value;
-
-    // تجهيز رسالة واتساب لإرسالها للإدارة (963980390813)
-    const adminWhatsApp = "963980390813";
-    const text = `*طلب تسجيل منشأة طبية جديدة على LomedX*%0A%0A*اسم المنشأة/الطبيب:* ${name}%0A*النوع:* ${type}%0A*المدينة:* ${city}%0A*هاتف التواصل:* ${phone}`;
-    
-    const whatsappUrl = `https://wa.me/${adminWhatsApp}?text=${text}`;
-    window.open(whatsappUrl, '_blank');
-    
-    // إغلاق النافذة وإظهار رسالة نجاح
-    closeAddFacilityModal();
-    showToast('تم تجهيز طلبك! يرجى إرسال الرسالة عبر واتساب لإتمام التسجيل.', 'success');
-    document.getElementById('addFacilityForm').reset();
-};
 // دالة تحميل أي مكتبة ديناميكياً عند الطلب فقط
 function loadDynamicScript(src, globalVarName) {
     return new Promise((resolve, reject) => {
@@ -6969,3 +6939,153 @@ if (window.location.pathname !== '/' && window.location.pathname !== '/index.htm
     }
 }
 // نهاية ملف app.js
+// ═══════════════════════════════════════════════════════════
+// CTA Modal — Add Facility
+// ═══════════════════════════════════════════════════════════
+
+window.openAddFacilityModal = () => {
+    document.getElementById('addFacilityOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Focus على أول حقل
+    setTimeout(() => {
+        document.getElementById('facName').focus();
+    }, 200);
+};
+
+window.closeAddFacilityModal = () => {
+    document.getElementById('addFacilityOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // Reset form
+    const form = document.getElementById('addFacilityForm');
+    if (form) form.reset();
+    
+    // Reset submit button state
+    const submitBtn = document.querySelector('.submit-facility-btn');
+    if (submitBtn && submitBtn.disabled) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>إرسال طلب التسجيل</span>';
+    }
+};
+
+window.handleOverlayClick = (event) => {
+    if (event.target.id === 'addFacilityOverlay') {
+        closeAddFacilityModal();
+    }
+};
+
+window.submitFacilityRequest = (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('facName').value.trim();
+    const type = document.getElementById('facType').value;
+    const city = document.getElementById('facCity').value.trim();
+    const phone = document.getElementById('facPhone').value.trim();
+
+    // Validation
+    if (name.length < 3) {
+        showToast('الرجاء إدخال اسم كامل للمنشأة', 'error');
+        document.getElementById('facName').focus();
+        return;
+    }
+
+    const cleanPhone = phone.replace(/[\s\-()]/g, '');
+    const phoneRegex = /^(09\d{8}|9\d{8}|\+?9639\d{8})$/;
+    if (!phoneRegex.test(cleanPhone)) {
+        showToast('الرجاء إدخال رقم هاتف سوري صحيح', 'error');
+        document.getElementById('facPhone').focus();
+        return;
+    }
+
+    if (city.length < 2) {
+        showToast('الرجاء إدخال اسم المدينة', 'error');
+        document.getElementById('facCity').focus();
+        return;
+    }
+
+    // Loading state
+    const submitBtn = document.querySelector('.submit-facility-btn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>جاري التحويل...</span>';
+
+    // Build WhatsApp message
+    const adminWhatsApp = "963980390813";
+    const message = [
+        '*📋 طلب تسجيل منشأة طبية جديدة على LomedX*',
+        '',
+        `*🏥 اسم المنشأة/الطبيب:* ${name}`,
+        `*📌 النوع:* ${type}`,
+        `*📍 المدينة:* ${city}`,
+        `*📞 هاتف التواصل:* ${phone}`,
+        '',
+        '_تم الإرسال من نموذج LomedX_'
+    ].join('\n');
+
+    const whatsappUrl = `https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(message)}`;
+
+    // Open WhatsApp (use location.href for better mobile support)
+    setTimeout(() => {
+        window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+
+        // Show success message
+        showToast('✓ تم تجهيز طلبك! يرجى إرسال الرسالة عبر واتساب لإتمام التسجيل.', 'success');
+
+        // Close modal
+        closeAddFacilityModal();
+    }, 400);
+};
+
+// ESC to close
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('addFacilityOverlay');
+        if (modal && modal.classList.contains('active')) {
+            closeAddFacilityModal();
+        }
+    }
+});
+
+// ═══════════════════════════════════════════════════════════
+// Toast Notification System
+// ═══════════════════════════════════════════════════════════
+
+window.showToast = (message, type = 'info', duration = 4000) => {
+    // Remove existing toast
+    const existing = document.querySelector('.lomedx-toast');
+    if (existing) existing.remove();
+
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        info: 'fa-info-circle',
+        warning: 'fa-exclamation-triangle'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `lomedx-toast lomedx-toast--${type}`;
+    toast.innerHTML = `
+        <i class="fas ${icons[type] || icons.info}"></i>
+        <span>${message}</span>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Animate in
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => toast.classList.add('show'));
+    });
+
+    // Auto dismiss
+    const timer = setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+    }, duration);
+
+    // Click to dismiss
+    toast.addEventListener('click', () => {
+        clearTimeout(timer);
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+    });
+};
