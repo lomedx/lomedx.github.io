@@ -1,8 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Secure Troubleshoot Modal — v3.0
-// Zero console output in production
-// ═══════════════════════════════════════════════════════════
-
 (function () {
   'use strict';
 
