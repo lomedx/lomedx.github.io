@@ -3110,6 +3110,7 @@ window.openBloodBank = () => {
                     <button type="submit" class="col-span-1 sm:col-span-2 py-3 rounded-xl text-white font-bold text-sm" style="background: #DC2626;">
                         <i class="fas fa-bullhorn ml-2"></i> نشر الاستغاثة
                     </button>
+                    <div id="troubleshootBox" class="col-span-1 sm:col-span-2"></div>
                 </form>
             </div>
             
@@ -3215,13 +3216,20 @@ window.submitBloodRequest = async (e) => {
         localStorage.setItem('last_blood_request_time', Date.now().toString());
         showToast('تم نشر استغاثتك بنجاح!', 'success');
         e.target.reset();
-    } catch (err) { 
-        // تفعيل مركز حل المشكلات
-        window.handleFetchError('بنك الدم', err);
-        // تسجيل دالة إعادة المحاولة
-        window.registerRetry(() => submitBloodRequest(e));
+        } catch (err) { 
+        // 1. طباعة الخطأ للمطور فقط
+        console.error('Blood Request Error:', err);
         
-        // إعادة تفعيل زر الإرسال
+        // 2. تحديد نوع الخطأ
+        let errorType = 'unknown';
+        if (!navigator.onLine) errorType = 'network';
+        else if (err.message && err.message.includes('rate limit')) errorType = 'rate_limit';
+        
+        // 3. عرض الخطأ داخل النموذج دون إغلاقه (في حاوية troubleshootBox)
+        window.showInlineTroubleshoot('بنك الدم', errorType, 'troubleshootBox');
+        
+        // 4. إعادة تفعيل زر الإرسال
+        const submitBtn = e.target.querySelector('button[type="submit"]');
         if(submitBtn) {
             submitBtn.disabled = false; 
             submitBtn.innerText = 'نشر الاستغاثة';
