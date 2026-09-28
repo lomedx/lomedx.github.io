@@ -1502,54 +1502,6 @@ window.toggleFooterBox = (contentId, iconId) => {
     else { content.classList.add('hidden'); icon.style.transform = 'rotate(0deg)'; }
 }
 
-window.handleContactSubmit = (e) => { 
-    e.preventDefault(); 
-    const phoneInput = document.getElementById('contactPhone'); 
-    const phone = phoneInput.value.trim(); 
-    
-    if (!/^09\d{8}$/.test(phone)) { 
-        phoneInput.classList.add('input-invalid'); 
-        showToast('رقم الهاتف غير صحيح', 'error'); 
-        return; 
-    } 
-    phoneInput.classList.remove('input-invalid'); 
-    
-    // 1. تعريف المتغيرات أولاً
-    const name = document.getElementById('contactName').value; 
-    const type = document.getElementById('contactType').value; 
-    const message = document.getElementById('contactMessage').value; 
-
-    // 2. ثم فحص الكلمات المسيئة
-    if (containsBadWords(name) || containsBadWords(message)) {
-        showToast('تم رفض الرسالة لاحتوائها على كلمات غير لائقة.', 'error');
-        return;
-    }
-    
-    const text = `*رسالة جديدة من منصة LomedX الطبية*\n*الاسم:* ${name}\n*الهاتف:* ${phone}\n*النوع:* ${type}\n*الرسالة:* ${message}`; 
-    
-    const adminWhatsAppNumber = "963980390813";
-    const whatsappUrl = `https://wa.me/${adminWhatsAppNumber}?text=${encodeURIComponent(text)}`;
-    
-    window.open(whatsappUrl, '_blank'); 
-    showToast('جاري تحويلك إلى واتساب لإرسال الرسالة...', 'success'); 
-    e.target.reset(); 
-}
-
-let scrollTicking = false;
-window.addEventListener('scroll', () => {
-    if (!scrollTicking) {
-        window.requestAnimationFrame(() => {
-            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 80);
-            document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 500);
-            scrollTicking = false;
-        });
-        scrollTicking = true;
-    }
-});
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (document.getElementById('lightbox').classList.contains('active')) { document.getElementById('lightbox').classList.remove('active'); unlockScroll(); } if (document.getElementById('modalOverlay').classList.contains('active')) closeModal(); if (document.getElementById('ctrlOverlay').classList.contains('active')) closeCtrlPanel(); if (document.getElementById('mobileMenu').classList.contains('open')) toggleMobileMenu(); } });
-
-const allBtn = document.querySelector('[data-filter="all"]'); 
-if(allBtn) { allBtn.style.background = 'var(--accent)'; allBtn.style.color = 'white'; allBtn.style.borderColor = 'var(--accent)'; }
 
 window.openCtrlPanel = (title, contentHtml, headerColor = '#073D2E', preventClose = false) => { 
     document.getElementById('ctrlTitle').textContent = title; 
