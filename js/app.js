@@ -1502,7 +1502,73 @@ window.toggleFooterBox = (contentId, iconId) => {
     if (content.classList.contains('hidden')) { content.classList.remove('hidden'); icon.style.transform = 'rotate(180deg)'; } 
     else { content.classList.add('hidden'); icon.style.transform = 'rotate(0deg)'; }
 }
+// دالة فتح نافذة "اتصل بنا"
+window.openContactModal = () => {
+    const contactHtml = `
+        <div class="flex flex-col gap-3 max-w-md mx-auto w-full py-4">
+            <div class="bg-emerald-50 dark:bg-slate-700/50 border border-emerald-100 dark:border-slate-600 rounded-xl p-4 text-emerald-800 dark:text-emerald-200 text-sm flex items-center gap-3 mb-2">
+                <i class="fas fa-headset text-xl"></i>
+                <span>نحن هنا للاستماع إليك. اختر نوع رسالتك واملأ التفاصيل وسنقوم بالرد عليك في أقرب وقت ممكن.</span>
+            </div>
 
+            <form onsubmit="handleContactSubmit(event)" class="flex flex-col gap-1">
+                
+                <div class="contact-field">
+                    <label class="contact-label" for="contactName">
+                        <i class="fas fa-user"></i> الاسم الكامل
+                        <span class="contact-required">*</span>
+                    </label>
+                    <input type="text" id="contactName" class="contact-input" placeholder="مثال: أحمد محمد" required>
+                </div>
+
+                <div class="contact-field">
+                    <label class="contact-label" for="contactPhone">
+                        <i class="fas fa-phone"></i> رقم الهاتف
+                        <span class="contact-required">*</span>
+                    </label>
+                    <input type="tel" id="contactPhone" class="contact-input" placeholder="09XXXXXXXX" dir="ltr" style="text-align: right;" required>
+                </div>
+
+                <!-- نوع الرسالة -->
+                <div class="contact-field contact-field--full">
+                    <label class="contact-label" for="contactType">
+                        <i class="fas fa-tag"></i> نوع الرسالة
+                        <span class="contact-required">*</span>
+                    </label>
+                    <div class="contact-select-wrapper">
+                        <select id="contactType" name="contactType" class="contact-input contact-select" required>
+                            <option value="">اختر نوع الرسالة...</option>
+                            <option value="استفسار عام">استفسار عام</option>
+                            <option value="تحديث بيانات">تحديث بيانات منشأة موجودة</option>
+                            <option value="الإبلاغ عن خطأ">الإبلاغ عن خطأ في الموقع</option>
+                            <option value="اقتراح ميزة">اقتراح ميزة جديدة</option>
+                            <option value="شكوى">شكوى</option>
+                            <option value="تعاون تجاري">تعاون تجاري / إعلان</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                        <i class="fas fa-chevron-down contact-select-arrow"></i>
+                    </div>
+                    <span class="contact-error" id="err-contactType"></span>
+                </div>
+
+                <div class="contact-field">
+                    <label class="contact-label" for="contactMessage">
+                        <i class="fas fa-comment-dots"></i> الرسالة
+                        <span class="contact-required">*</span>
+                    </label>
+                    <textarea id="contactMessage" class="contact-input" rows="4" placeholder="اكتب تفاصيل رسالتك هنا..." required></textarea>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90 flex items-center justify-center gap-2 mt-3" style="background: var(--accent);">
+                    <i class="fas fa-paper-plane"></i> إرسال الرسالة
+                </button>
+            </form>
+        </div>
+    `;
+    
+    // استخدام دالة اللوحة المنبثقة الموجودة في كودك
+    openCtrlPanel('اتصل بنا', contactHtml, '#0E7C5F');
+};
 window.handleContactSubmit = (e) => { 
     e.preventDefault(); 
     const phoneInput = document.getElementById('contactPhone'); 
