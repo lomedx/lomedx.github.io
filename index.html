@@ -667,7 +667,11 @@
         <p class="text-sm mb-6" style="color: var(--muted)">لم نتمكن من العثور على أطباء أو مشافي تطابق بحثك في هذه المنطقة. جرب تغيير الكلمات الرئيسية أو إعادة ضبط الفلاتر. نعمل على توسيع تغطيتنا باستمرار، وإذا كنت طبيباً أو صاحب منشأة طبية هنا يمكنك إضافتها مجاناً!</p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
             <button onclick="resetSearch()" class="px-6 py-2.5 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90" style="background: var(--accent)">عرض المنشآت المتوفرة</button>
-            <a href="#contact" onclick="resetSearch()" class="px-6 py-2.5 rounded-xl border text-sm font-semibold transition-all hover:bg-gray-50" style="border-color: var(--border); color: var(--accent)">سجل منشأتك مجاناً الآن</a>
+            
+            <!-- تم تحويله لرابط مستقل -->
+            <a href="/add-facility" onclick="resetSearch()" class="px-6 py-2.5 rounded-xl border text-sm font-semibold transition-all hover:bg-gray-50 flex items-center justify-center" style="border-color: var(--border); color: var(--accent)">
+                سجل منشأتك مجاناً الآن
+            </a>
         </div>
     </div>
 </div>
@@ -904,7 +908,7 @@
         <li><a href="#labs" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> المخابر الطبية</a></li>
         <li><a href="#pharmacies" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> الصيدليات</a></li>
         <li><button onclick="toggleEmergencyPopup()" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group w-full text-right"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> أرقام الطوارئ و الجهات الصحية</button></li>
-        <li><a href="#contact" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> تواصل معنا</a></li>
+        
     </ul>
 </div>
 
@@ -935,7 +939,7 @@
     <i class="fas fa-chevron-down text-xs transition-transform" id="disclaimerIconFooter"></i>
 </a>
                         <div id="disclaimerContentFooter" class="hidden text-xs text-white/50 leading-relaxed mt-1 pr-6">
-                            هذا الموقع هو دليل إرشادي تطوعي يهدف لتسهيل الوصول للخدمات الطبية في مختلف المناطق. المعلومات الواردة في الموقع تم جمعها من مصادر عامة أو أرسلها أصحاب الفعاليات أنفسهم. لا يتحمل الموقع أو إدارته أي مسؤولية عن صحة البيانات أو جودة الخدمات الطبية المقدمة. الأدوات الطبية التفاعلية هي أدوات استرشادية ولا تغني عن استشارة الطبيب أو الصيدلاني. للتبليغ عن أي خطأ أو لطلب حذف بياناتك، يرجى التواصل معنا فوراً عبر <a href="#contact" class="text-yellow-400 underline hover:text-yellow-300 transition-colors font-semibold">صفحة اتصل بنا</a>.
+                        هذا الموقع هو دليل إرشادي تطوعي يهدف لتسهيل الوصول للخدمات الطبية في مختلف المناطق. المعلومات الواردة في الموقع تم جمعها من مصادر عامة أو أرسلها أصحاب الفعاليات أنفسهم. لا يتحمل الموقع أو إدارته أي مسؤولية عن صحة البيانات أو جودة الخدمات الطبية المقدمة. الأدوات الطبية التفاعلية هي أدوات استرشادية ولا تغني عن استشارة الطبيب أو الصيدلاني. للتبليغ عن أي خطأ أو لطلب حذف بياناتك، يرجى التواصل معنا فوراً عبر <a href="/contact" class="text-yellow-400 underline hover:text-yellow-300 transition-colors font-semibold">صفحة اتصل بنا</a>.
                         </div>
 
                         <a href="/privacy-policy" onclick="event.preventDefault(); toggleFooterBox('privacyContentFooter', 'privacyIconFooter'); return false;" class="w-full flex items-center justify-between text-sm font-semibold text-white/80 hover:text-white transition-colors py-2 cursor-pointer" style="text-decoration:none;">
@@ -991,10 +995,20 @@
                                 آخر تحديث: يوليو 2026 | منصة LomedX الطبية
                             </p>
                         </div>
+                    <!-- الروابط المستقلة الجديدة (أسفل السياسة والخصوصية) -->
+                        <div class="mt-4 pt-4 border-t border-white/10 space-y-3">
+                            <a href="/add-facility" class="w-full flex items-center justify-between text-sm font-semibold text-white/80 hover:text-[var(--gold)] transition-colors py-2 cursor-pointer" style="text-decoration:none;">
+                                <span class="flex items-center gap-2"><i class="fas fa-plus-circle text-[var(--gold)]"></i> أضف منشأتك الطبية</span>
+                                <i class="fas fa-chevron-left text-xs text-white/30"></i>
+                            </a>
+                            <a href="/contact" class="w-full flex items-center justify-between text-sm font-semibold text-white/80 hover:text-[var(--gold)] transition-colors py-2 cursor-pointer" style="text-decoration:none;">
+                                <span class="flex items-center gap-2"><i class="fas fa-headset text-[var(--gold)]"></i> تواصل معنا / دعم فني</span>
+                                <i class="fas fa-chevron-left text-xs text-white/30"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
+        </div>
             <!-- الشريط السفلي لحقوق النشر -->
             <div class="pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
                 <p class="text-white/40 text-xs">جميع الحقوق محفوظة © 2026 -  <span class="lomedx-brand text-sm">LomedX</span></p>
