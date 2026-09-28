@@ -3216,7 +3216,7 @@ window.submitBloodRequest = async (e) => {
         localStorage.setItem('last_blood_request_time', Date.now().toString());
         showToast('تم نشر استغاثتك بنجاح!', 'success');
         e.target.reset();
-        } catch (err) { 
+            } catch (err) { 
         // 1. طباعة الخطأ للمطور فقط
         console.error('Blood Request Error:', err);
         
@@ -3226,10 +3226,14 @@ window.submitBloodRequest = async (e) => {
         else if (err.message && err.message.includes('rate limit')) errorType = 'rate_limit';
         
         // 3. عرض الخطأ داخل النموذج دون إغلاقه (في حاوية troubleshootBox)
-        window.showInlineTroubleshoot('بنك الدم', errorType, 'troubleshootBox');
+        // ملاحظة: تأكد أنك أضفت دالة showInlineTroubleshoot في ملف troubleshoot.js
+        if (typeof window.showInlineTroubleshoot === 'function') {
+            window.showInlineTroubleshoot('بنك الدم', errorType, 'troubleshootBox');
+        } else {
+            showToast('حدث خطأ: ' + err.message, 'error');
+        }
         
-        // 4. إعادة تفعيل زر الإرسال
-        const submitBtn = e.target.querySelector('button[type="submit"]');
+        // 4. إعادة تفعيل زر الإرسال (بدون إعادة تعريف المتغير)
         if(submitBtn) {
             submitBtn.disabled = false; 
             submitBtn.innerText = 'نشر الاستغاثة';
