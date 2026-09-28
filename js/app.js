@@ -3216,28 +3216,16 @@ window.submitBloodRequest = async (e) => {
         localStorage.setItem('last_blood_request_time', Date.now().toString());
         showToast('تم نشر استغاثتك بنجاح!', 'success');
         e.target.reset();
-            } catch (err) { 
-        // 1. طباعة الخطأ للمطور فقط
-        console.error('Blood Request Error:', err);
+                } catch (err) { 
+        // 1. تفعيل مركز حل المشكلات (سيفتح النافذة المنبثقة تلقائياً)
+        window.handleFetchError('بنك الدم', err);
         
-        // 2. تحديد نوع الخطأ
-        let errorType = 'unknown';
-        if (!navigator.onLine) errorType = 'network';
-        else if (err.message && err.message.includes('rate limit')) errorType = 'rate_limit';
+        // 2. تسجيل دالة إعادة المحاولة ليعمل زر "أعد المحاولة"
+        window.registerRetry(() => submitBloodRequest(e));
         
-        // 3. عرض الخطأ داخل النموذج دون إغلاقه (في حاوية troubleshootBox)
-        // ملاحظة: تأكد أنك أضفت دالة showInlineTroubleshoot في ملف troubleshoot.js
-        if (typeof window.showInlineTroubleshoot === 'function') {
-            window.showInlineTroubleshoot('بنك الدم', errorType, 'troubleshootBox');
-        } else {
-            showToast('حدث خطأ: ' + err.message, 'error');
-        }
-        
-        // 4. إعادة تفعيل زر الإرسال (بدون إعادة تعريف المتغير)
-        if(submitBtn) {
-            submitBtn.disabled = false; 
-            submitBtn.innerText = 'نشر الاستغاثة';
-        }
+        // 3. إعادة تفعيل زر الإرسال (بدون تعريف المتغير من جديد إذا كان معرفاً بالأعلى)
+        submitBtn.disabled = false; 
+        submitBtn.innerText = 'نشر الاستغاثة';
     }
 };
 window.resolveBloodRequest = async (id) => { 
