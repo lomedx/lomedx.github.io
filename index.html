@@ -674,22 +674,20 @@
 
     <!-- ══════════════ CTA: أضف منشأتك الطبية ══════════════ -->
     <!-- ══════════════ CTA: أضف منشأتك الطبية ══════════════ -->
+<!-- ══════════════ CTA: أضف منشأتك الطبية ══════════════ -->
 <section id="join-us" class="cta-section">
   <div class="cta-box">
     <div class="cta-grid"></div>
 
-    <!-- شارة مجانية -->
     <div class="cta-badge">
       <span class="badge-dot"></span>
       <span>التسجيل مجاني بالكامل</span>
     </div>
 
-    <!-- الأيقونة مع الحلقات النابضة -->
     <div class="cta-icon-wrap">
       <div class="cta-icon"><i class="fas fa-plus"></i></div>
     </div>
 
-    <!-- النص الرئيسي -->
     <div class="cta-eyebrow">
       <i class="fas fa-hand-holding-medical"></i>
       <span>انضم إلى المنصة</span>
@@ -701,21 +699,18 @@
       أضف مشفاك، عيادتك، مركزك، مخبرك، أو صيدليتك مجاناً على LomedX. ساعدنا في توسيع التغطية الطبية في سوريا، وكن جزءاً من شبكة الرعاية الصحية الرقمية.
     </p>
 
-    <!-- الأزرار -->
     <div class="cta-actions">
-      <!-- استبدلنا openAdminLogin بـ openAddFacilityModal -->
       <button class="cta-btn primary" type="button" onclick="openAddFacilityModal()">
         <i class="fas fa-plus-circle"></i>
         <span>أضف منشأتك الآن</span>
       </button>
       
-      <a href="https://wa.me/963980390813" target="_blank" class="cta-btn ghost">
+      <a href="https://wa.me/963980390813" target="_blank" rel="noopener" class="cta-btn ghost">
         <i class="fas fa-headset"></i>
         <span>تواصل معنا</span>
       </a>
     </div>
 
-    <!-- المزايا -->
     <div class="cta-features">
       <div class="cta-feature"><i class="fas fa-check-circle"></i> التسجيل مجاني</div>
       <div class="cta-feature"><i class="fas fa-bolt"></i> تفعيل خلال 24 ساعة</div>
@@ -725,23 +720,30 @@
   </div>
 </section>
 
-<!-- ══════════════ نافذة إضافة منشأة (Modal) ══════════════ -->
-<div id="addFacilityOverlay" class="modal-overlay" onclick="closeAddFacilityModal(event)">
+<!-- ══════════════ Modal ══════════════ -->
+<div id="addFacilityOverlay" 
+     class="modal-overlay" 
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="modalTitle"
+     onclick="handleOverlayClick(event)">
   <div class="add-facility-modal" onclick="event.stopPropagation()">
-    <button class="modal-close-btn" onclick="closeAddFacilityModal()"><i class="fas fa-times"></i></button>
+    <button class="modal-close-btn" type="button" onclick="closeAddFacilityModal()" aria-label="إغلاق">
+      <i class="fas fa-times"></i>
+    </button>
     <div class="modal-header">
       <i class="fas fa-hospital-user"></i>
-      <h3>تسجيل منشأة طبية جديدة</h3>
+      <h3 id="modalTitle">تسجيل منشأة طبية جديدة</h3>
       <p>املأ النموذج التالي وسيتم التواصل معك لإتمام التفعيل.</p>
     </div>
-    <form id="addFacilityForm" onsubmit="submitFacilityRequest(event)">
+    <form id="addFacilityForm" onsubmit="submitFacilityRequest(event)" novalidate>
       <div class="form-group">
-        <label>اسم المنشأة / الطبيب</label>
-        <input type="text" id="facName" required placeholder="مثال: د. أحمد العلي">
+        <label for="facName">اسم المنشأة / الطبيب</label>
+        <input type="text" id="facName" required placeholder="مثال: د. أحمد العلي" autocomplete="name">
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>نوع المنشأة</label>
+          <label for="facType">نوع المنشأة</label>
           <select id="facType" required>
             <option value="طبيب">طبيب (عيادة)</option>
             <option value="صيدلية">صيدلية</option>
@@ -751,16 +753,17 @@
           </select>
         </div>
         <div class="form-group">
-          <label>المدينة</label>
-          <input type="text" id="facCity" required placeholder="مثال: الرحيبة">
+          <label for="facCity">المدينة</label>
+          <input type="text" id="facCity" required placeholder="مثال: الرحيبة" autocomplete="address-level2">
         </div>
       </div>
       <div class="form-group">
-        <label>رقم الهاتف للتواصل</label>
-        <input type="tel" id="facPhone" required placeholder="09XXXXXXXX">
+        <label for="facPhone">رقم الهاتف للتواصل</label>
+        <input type="tel" id="facPhone" required placeholder="09XXXXXXXX" autocomplete="tel" inputmode="tel">
       </div>
       <button type="submit" class="submit-facility-btn">
-        <i class="fas fa-paper-plane"></i> إرسال طلب التسجيل
+        <i class="fas fa-paper-plane"></i>
+        <span>إرسال طلب التسجيل</span>
       </button>
     </form>
   </div>
