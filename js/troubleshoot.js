@@ -747,7 +747,7 @@
         }, 300);
         return;
       }
-
+    });
     // Toggle arrow
     document.addEventListener('toggle', (e) => {
       if (e.target.tagName === 'DETAILS') {
