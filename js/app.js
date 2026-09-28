@@ -122,6 +122,37 @@ function loadChartJs() {
         document.head.appendChild(script);
     });
 }
+// === دوال نافذة إضافة منشأة طبية ===
+window.openAddFacilityModal = () => {
+    document.getElementById('addFacilityOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden'; // منع التمرير في الخلفية
+};
+
+window.closeAddFacilityModal = (event) => {
+    if (event && event.target.id !== 'addFacilityOverlay') return; // إغلاق فقط عند الضغط خارج النافذة
+    document.getElementById('addFacilityOverlay').classList.remove('active');
+    document.body.style.overflow = ''; // إعادة التمرير
+};
+
+window.submitFacilityRequest = (e) => {
+    e.preventDefault();
+    const name = document.getElementById('facName').value;
+    const type = document.getElementById('facType').value;
+    const city = document.getElementById('facCity').value;
+    const phone = document.getElementById('facPhone').value;
+
+    // تجهيز رسالة واتساب لإرسالها للإدارة (963980390813)
+    const adminWhatsApp = "963980390813";
+    const text = `*طلب تسجيل منشأة طبية جديدة على LomedX*%0A%0A*اسم المنشأة/الطبيب:* ${name}%0A*النوع:* ${type}%0A*المدينة:* ${city}%0A*هاتف التواصل:* ${phone}`;
+    
+    const whatsappUrl = `https://wa.me/${adminWhatsApp}?text=${text}`;
+    window.open(whatsappUrl, '_blank');
+    
+    // إغلاق النافذة وإظهار رسالة نجاح
+    closeAddFacilityModal();
+    showToast('تم تجهيز طلبك! يرجى إرسال الرسالة عبر واتساب لإتمام التسجيل.', 'success');
+    document.getElementById('addFacilityForm').reset();
+};
 // دالة تحميل أي مكتبة ديناميكياً عند الطلب فقط
 function loadDynamicScript(src, globalVarName) {
     return new Promise((resolve, reject) => {
