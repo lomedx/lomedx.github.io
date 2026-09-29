@@ -1,1 +1,1 @@
-# rahiba-medical-directory
+# LomedX-medical-directory
