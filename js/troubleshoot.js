@@ -391,139 +391,110 @@
     }
 
     // ── Quick Fixes ──
+        // ── Quick Fixes (Grid Layout) ──
     const quickFixesHTML = (issue.quickFixes || []).map((fix, i) => {
       const actionAttr = fix.action ? `data-ctrl-action="${fix.action}"` : '';
-      const isPrimary = i === 0;
+      const isPrimary = i === 0 && fix.action;
       const btnClass = isPrimary
-        ? 'bg-blue-500 text-white hover:bg-blue-600'
-        : 'bg-gray-100 text-gray-700 hover:bg-gray-200';
+        ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm col-span-2'
+        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200';
       return `
         <button type="button" ${actionAttr}
-                class="w-full py-2.5 px-4 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2 ${btnClass}">
+                class="ts-btn-action ${btnClass} py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2">
           <i class="fas ${fix.icon}"></i>
           <span>${escapeHTML(fix.text)}</span>
         </button>
       `;
     }).join('');
 
-    // ── تفاصيل للدعم (بدون كشف البنية) ──
-    // ✅ فقط ما يحتاجه فريق الدعم فعلاً
-    const supportDetails = {
-      'معرّف الخطأ': errorId,
-      'الأداة': toolName, // اسم ودي فقط
-      'نوع المشكلة': issue.title,
-      'التوقيت': context.localTime,
-      'حالة الإنترنت': context.online ? '✅ متصل' : '❌ غير متصل',
-    };
-
-    if (context.connectionType) {
-      supportDetails['نوع الاتصال'] = context.connectionType.toUpperCase();
-    }
-
-    const supportDetailsHTML = Object.entries(supportDetails).map(([k, v]) => `
-      <div class="flex gap-2 py-1 border-b border-gray-100 last:border-0">
-        <span class="text-gray-500 font-semibold shrink-0 min-w-[100px]">${escapeHTML(k)}:</span>
-        <span class="text-gray-700 break-all text-[11px]">${escapeHTML(v)}</span>
-      </div>
-    `).join('');
-
     // ═══════════════════════════════════════════════════════════
-    // Final HTML
+    // Final HTML (Premium UI)
     // ═══════════════════════════════════════════════════════════
 
     const html = `
-      <div class="text-center py-4 flex flex-col gap-3" role="alert" aria-live="polite">
-
-        <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-1"
-             style="background: ${issue.color}15; border: 1.5px solid ${issue.color}30">
-          <i class="fas ${issue.icon} text-3xl" style="color: ${issue.color}" aria-hidden="true"></i>
-        </div>
+      <div class="ts-modal-container" role="alert" aria-live="polite">
         
-        <h3 class="text-xl font-black text-gray-800" style="font-family: 'Noto Kufi Arabic'">
-          ${escapeHTML(issue.title)}
-        </h3>
-
-        <div class="flex items-center justify-center gap-2 flex-wrap">
-          <span class="text-xs text-gray-500 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
-            <i class="fas fa-toolbox ml-1"></i>
-            ${safeToolName}
-          </span>
-          <button type="button" 
-                  data-ctrl-action="copy-id"
-                  data-error-id="${errorId}"
-                  title="اضغط للنسخ"
-                  class="text-[10px] text-gray-500 bg-gray-50 hover:bg-gray-100 px-2 py-1 rounded-full border border-gray-100 font-mono transition-colors cursor-pointer">
-            <i class="fas fa-fingerprint ml-1"></i>
-            ${errorId}
-          </button>
+        <!-- Header -->
+        <div class="ts-modal-header">
+          <div class="ts-modal-icon" style="background-color: ${issue.color}15; border: 1px solid ${issue.color}30;">
+            <i class="fas ${issue.icon} text-3xl" style="color: ${issue.color}"></i>
+          </div>
+          <h3 class="ts-modal-title">${escapeHTML(issue.title)}</h3>
+          <div class="ts-badges-wrap">
+            <span class="ts-badge-pill">
+              <i class="fas fa-toolbox"></i> ${safeToolName}
+            </span>
+            <button type="button" 
+                    data-ctrl-action="copy-id"
+                    data-error-id="${errorId}"
+                    class="ts-badge-pill">
+              <i class="fas fa-fingerprint"></i> ${errorId}
+            </button>
+          </div>
         </div>
 
         ${countdownHTML}
         ${failedFieldsHTML}
 
-        <div class="bg-red-50/50 p-4 rounded-xl text-right border border-red-100">
-          <div class="text-xs font-bold text-red-600 mb-1 flex items-center gap-2">
-            <i class="fas fa-bug" aria-hidden="true"></i>
-            <span>السبب المحتمل:</span>
+        <!-- Reason Card -->
+        <div class="ts-card ts-reason">
+          <div class="ts-card-title">
+            <i class="fas fa-bug"></i> <span>السبب المحتمل</span>
           </div>
-          <p class="text-sm text-gray-700 leading-relaxed">${escapeHTML(issue.reason)}</p>
+          <p class="ts-card-body">${escapeHTML(issue.reason)}</p>
         </div>
 
-        <div class="bg-green-50/50 p-4 rounded-xl text-right border border-green-100">
-          <div class="text-xs font-bold text-green-600 mb-1 flex items-center gap-2">
-            <i class="fas fa-lightbulb" aria-hidden="true"></i>
-            <span>كيف تحل المشكلة؟</span>
+        <!-- Solution Card -->
+        <div class="ts-card ts-solution">
+          <div class="ts-card-title">
+            <i class="fas fa-lightbulb"></i> <span>كيف تحل المشكلة؟</span>
           </div>
-          <p class="text-sm text-gray-700 leading-relaxed">${escapeHTML(issue.solution)}</p>
+          <p class="ts-card-body">${escapeHTML(issue.solution)}</p>
         </div>
 
-                ${quickFixesHTML ? `
-        <div class="flex flex-col gap-2 mt-1">
-            <div class="text-xs font-bold text-gray-500 mb-1 flex items-center gap-2">
-                <i class="fas fa-bolt"></i> حلول سريعة:
-            </div>
+        <!-- Quick Fixes Grid -->
+        ${quickFixesHTML ? `
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+            <i class="fas fa-bolt"></i> حلول سريعة
+          </div>
+          <div class="ts-actions-grid">
             ${quickFixesHTML}
+          </div>
         </div>` : ''}
-        
-        <div class="connection-result hidden bg-gray-50 rounded-xl p-3 border border-gray-100 text-right"></div>
 
-        <details class="text-right bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
-          <summary class="cursor-pointer px-4 py-3 text-xs font-bold text-gray-600 hover:text-gray-800 select-none flex items-center justify-between">
-            <span><i class="fas fa-headset ml-1"></i> معلومات للدعم الفني</span>
-            <i class="fas fa-chevron-down text-[10px] transition-transform details-arrow"></i>
+        <!-- Connection Result -->
+        <div class="connection-result hidden bg-slate-50 rounded-xl p-3 border border-slate-100 text-right" style="margin-bottom: 16px;"></div>
+
+        <!-- Accordion Details -->
+        <details class="ts-details-box">
+          <summary>
+            <span><i class="fas fa-headset"></i> معلومات للدعم الفني</span>
+            <i class="fas fa-chevron-down text-xs transition-transform details-arrow"></i>
           </summary>
-          <div class="px-4 pb-3 text-[11px] text-gray-700">
+          <div class="ts-details-content">
             ${supportDetailsHTML}
-            <p class="text-[10px] text-gray-400 mt-2 pt-2 border-t border-gray-100">
-              <i class="fas fa-info-circle ml-1"></i>
-              أرسل رقم المعرّف فقط عند التواصل مع الدعم
+            <p style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 0.7rem; display: flex; align-items: center; gap: 4px;">
+              <i class="fas fa-info-circle"></i> أرسل رقم المعرّف فقط عند التواصل مع الدعم
             </p>
           </div>
         </details>
 
-        <div class="flex flex-col gap-2 mt-2">
-          <button type="button" 
-                  data-ctrl-action="copy"
-                  class="w-full py-3 rounded-xl bg-gray-800 text-white font-bold text-sm hover:bg-gray-900 transition-colors">
-            <i class="fas fa-copy ml-1" aria-hidden="true"></i>
-            نسخ رقم المعرّف
+        <!-- Action Buttons -->
+        <div class="ts-actions-grid" style="margin-top: 24px;">
+          <button type="button" data-ctrl-action="copy" class="ts-btn-action ts-btn-dark">
+            <i class="fas fa-copy"></i> نسخ المرجع
           </button>
-          
-          <button type="button" 
-                  data-ctrl-action="close"
-                  class="w-full py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-colors">
-            <i class="fas fa-arrow-rotate-left ml-1" aria-hidden="true"></i>
-            العودة
+          <button type="button" data-ctrl-action="close" class="ts-btn-action ts-btn-light">
+            <i class="fas fa-times"></i> إغلاق
           </button>
         </div>
 
-        <div class="text-center mt-1">
-          <a href="/contact" 
-             data-ctrl-action="support" 
-             class="text-xs text-blue-500 hover:underline inline-flex items-center gap-1">
-            <i class="fas fa-headset"></i>
-            لم تحل المشكلة؟ تواصل مع الدعم الفني
-          </a>
+        <!-- Support Link -->
+        <div class="ts-support-link">
+          <button type="button" data-ctrl-action="support" class="ts-support-btn">
+            <i class="fas fa-headset"></i> لم تحل المشكلة؟ تواصل مع الدعم الفني
+          </button>
         </div>
 
       </div>
