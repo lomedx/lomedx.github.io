@@ -2325,30 +2325,38 @@ html.dark .contact-input:focus { background-color: var(--card) !important; borde
    ═══════════════════════════════════════════════════════════ */
 
 /* ─── 1. الحاوية العامة: تفرض العرض والتباعد ─── */
+    
+/* ═══════════════════════════════════════════════════════════
+   Troubleshoot Panel — LomedX Integration
+   يعمل مع openCtrlPanel + showToast + Light/Dark Mode
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 1. الحاوية العامة: تحل مشكلة عدم الظهور ── */
+#ctrlContent .ts-panel,
+#ctrlPanelBody .ts-panel,
 .ts-panel {
     direction: rtl;
     text-align: right;
     padding: 24px 22px 20px !important;
-    background: var(--bg, #FAF8F4) !important;
-    color: var(--fg, #1B2A1B) !important;
+    background: var(--bg) !important;
+    color: var(--fg) !important;
     animation: tsFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    min-height: 100%;
-    box-sizing: border-box;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
+    min-height: 100%;
+    box-sizing: border-box;
 }
 
-/* إجبار ctrlContent على إزالة الحشو (لأن ts-panel له padding خاص) */
-#ctrlContent.p-6 {
-    padding: 0 !important;
-    background: transparent !important;
-}
-
-/* الوضع المظلم */
 html.dark .ts-panel {
-    background: var(--bg, #0f172a) !important;
-    color: var(--fg, #f8fafc) !important;
+    background: var(--bg) !important;
+    color: var(--fg) !important;
+}
+
+/* إزالة padding من حاوية ctrlContent لتفادي تعارض Tailwind */
+#ctrlContent.p-6,
+#ctrlPanelBody {
+    padding: 0 !important;
 }
 
 @keyframes tsFadeIn {
@@ -2356,23 +2364,18 @@ html.dark .ts-panel {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── 2. العنوان: مضمون الظهور في الوضعين ─── */
+/* ── 2. العنوان ── */
 .ts-title {
     font-size: 19px;
     font-weight: 800;
-    color: #1B2A1B !important;         /* ← قيمة صريحة */
+    color: var(--fg) !important;
     letter-spacing: -0.4px;
     line-height: 1.3;
     margin: 0;
     font-family: 'Noto Kufi Arabic', sans-serif;
-    display: block !important;
 }
 
-html.dark .ts-title {
-    color: #f8fafc !important;
-}
-
-/* ─── 3. رأس النافذة ─── */
+/* ── 3. رأس النافذة ── */
 .ts-header {
     display: flex;
     flex-direction: column;
@@ -2425,25 +2428,20 @@ html.dark .ts-title {
     display: grid;
     place-items: center;
     font-size: 22px;
-    color: #fff !important;
+    color: #fff;
     box-shadow: 0 6px 20px -6px currentColor;
     z-index: 2;
 }
 
-/* ─── 4. الشارات (Badges) ─── */
+/* ── 4. الشارات ── */
 .ts-badges {
     display: inline-flex;
     align-items: center;
     gap: 3px;
     padding: 3px;
     border-radius: 999px;
-    background: #F0EDE6 !important;
-    border: 1px solid #DDE3DD !important;
-}
-
-html.dark .ts-badges {
-    background: #020617 !important;
-    border-color: #334155 !important;
+    background: var(--bg-deep) !important;
+    border: 1px solid var(--border) !important;
 }
 
 .ts-badge {
@@ -2455,41 +2453,28 @@ html.dark .ts-badges {
     font-size: 11px;
     font-weight: 600;
     background: transparent;
-    color: #7A8B7A !important;
+    color: var(--muted) !important;
     border: none;
     font-family: inherit;
 }
 
-html.dark .ts-badge {
-    color: #94a3b8 !important;
-}
-
 .ts-badge--tool {
-    border-left: 1px solid #DDE3DD;
+    border-left: 1px solid var(--border);
     padding-left: 12px;
-}
-
-html.dark .ts-badge--tool {
-    border-left-color: #334155;
 }
 
 .ts-badge--id {
     font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
     cursor: pointer;
-    color: #1B2A1B !important;
-    background: #FFFFFF !important;
+    color: var(--fg) !important;
+    background: var(--card) !important;
     transition: all 0.2s ease;
     direction: ltr;
     letter-spacing: 0.3px;
 }
 
-html.dark .ts-badge--id {
-    color: #f8fafc !important;
-    background: #1e293b !important;
-}
-
 .ts-badge--id:hover {
-    background: var(--gold, #C4962C) !important;
+    background: var(--gold) !important;
     color: #fff !important;
     transform: translateY(-1px);
     box-shadow: 0 3px 10px -2px rgba(196, 150, 44, 0.4);
@@ -2497,7 +2482,7 @@ html.dark .ts-badge--id {
 
 .ts-badge--id:active { transform: scale(0.96); }
 
-/* ─── 5. الأقسام (Sections) ─── */
+/* ── 5. الأقسام ── */
 .ts-section {
     border-radius: 12px;
     padding: 13px 14px;
@@ -2506,7 +2491,6 @@ html.dark .ts-badge--id {
     position: relative;
     overflow: hidden;
     display: block !important;
-    visibility: visible !important;
 }
 
 .ts-section::before {
@@ -2527,7 +2511,6 @@ html.dark .ts-badge--id {
     letter-spacing: 0.3px;
     margin-bottom: 7px;
     text-transform: uppercase;
-    opacity: 0.95;
 }
 
 .ts-section-title i {
@@ -2539,69 +2522,51 @@ html.dark .ts-badge--id {
 .ts-section-body {
     font-size: 13px;
     line-height: 1.7;
-    color: #3D4F3D !important;
+    color: var(--fg-light) !important;
     font-weight: 500;
     margin: 0;
-    display: block !important;
 }
 
-html.dark .ts-section-body {
-    color: #cbd5e1 !important;
-}
-
-/* السبب المحتمل */
+/* السبب */
 .ts-section--reason {
-    background: #FEF2F2 !important;
-    border-color: #FECACA !important;
-}
-html.dark .ts-section--reason {
-    background: rgba(239, 68, 68, 0.15) !important;
-    border-color: rgba(239, 68, 68, 0.4) !important;
+    background: rgba(239, 68, 68, 0.08) !important;
+    border-color: rgba(239, 68, 68, 0.25) !important;
 }
 .ts-section--reason::before { background: linear-gradient(180deg, #ef4444, #dc2626); }
-.ts-section--reason .ts-section-title { color: #B91C1C !important; }
+.ts-section--reason .ts-section-title { color: #DC2626 !important; }
+html.dark .ts-section--reason { background: rgba(239, 68, 68, 0.15) !important; }
 html.dark .ts-section--reason .ts-section-title { color: #fca5a5 !important; }
 
 /* الأسباب الشائعة */
 .ts-section--causes {
-    background: #FFFBEB !important;
-    border-color: #FDE68A !important;
-}
-html.dark .ts-section--causes {
-    background: rgba(245, 158, 11, 0.12) !important;
-    border-color: rgba(245, 158, 11, 0.35) !important;
+    background: rgba(245, 158, 11, 0.07) !important;
+    border-color: rgba(245, 158, 11, 0.25) !important;
 }
 .ts-section--causes::before { background: linear-gradient(180deg, #f59e0b, #d97706); }
-.ts-section--causes .ts-section-title { color: #B45309 !important; }
+.ts-section--causes .ts-section-title { color: #D97706 !important; }
+html.dark .ts-section--causes { background: rgba(245, 158, 11, 0.12) !important; }
 html.dark .ts-section--causes .ts-section-title { color: #fcd34d !important; }
 
 /* الحل */
 .ts-section--solution {
-    background: #F0FDF4 !important;
-    border-color: #BBF7D0 !important;
-}
-html.dark .ts-section--solution {
-    background: rgba(16, 185, 129, 0.12) !important;
-    border-color: rgba(16, 185, 129, 0.35) !important;
+    background: rgba(16, 185, 129, 0.08) !important;
+    border-color: rgba(16, 185, 129, 0.25) !important;
 }
 .ts-section--solution::before { background: linear-gradient(180deg, #10b981, #059669); }
-.ts-section--solution .ts-section-title { color: #047857 !important; }
+.ts-section--solution .ts-section-title { color: #059669 !important; }
+html.dark .ts-section--solution { background: rgba(16, 185, 129, 0.12) !important; }
 html.dark .ts-section--solution .ts-section-title { color: #6ee7b7 !important; }
 
 /* التحقق */
 .ts-section--validation {
-    background: #FFFBEB !important;
-    border-color: #FDE68A !important;
-}
-html.dark .ts-section--validation {
-    background: rgba(245, 158, 11, 0.12) !important;
-    border-color: rgba(245, 158, 11, 0.35) !important;
+    background: rgba(245, 158, 11, 0.08) !important;
+    border-color: rgba(245, 158, 11, 0.25) !important;
 }
 .ts-section--validation::before { background: linear-gradient(180deg, #f59e0b, #d97706); }
-.ts-section--validation .ts-section-title { color: #B45309 !important; }
+.ts-section--validation .ts-section-title { color: #D97706 !important; }
 html.dark .ts-section--validation .ts-section-title { color: #fcd34d !important; }
 
-/* ─── 6. القوائم ─── */
+/* ── 6. القوائم ── */
 .ts-list {
     list-style: none;
     padding: 0;
@@ -2617,18 +2582,10 @@ html.dark .ts-section--validation .ts-section-title { color: #fcd34d !important;
     gap: 9px;
     padding: 7px 9px;
     border-radius: 8px;
-    background: rgba(0, 0, 0, 0.03) !important;
+    background: var(--bg-deep) !important;
     border: 1px solid rgba(251, 191, 36, 0.2);
     font-size: 12px;
-    transition: all 0.2s ease;
 }
-
-html.dark .ts-list-item {
-    background: rgba(255, 255, 255, 0.04) !important;
-    border-color: rgba(251, 191, 36, 0.15);
-}
-
-.ts-list-item:hover { background: rgba(0, 0, 0, 0.06) !important; }
 
 .ts-list-item i {
     color: #f87171;
@@ -2639,39 +2596,30 @@ html.dark .ts-list-item {
     text-align: center;
 }
 
-.ts-list-item strong { color: #1B2A1B !important; font-weight: 700; }
-html.dark .ts-list-item strong { color: #f8fafc !important; }
-
-.ts-list-item span { color: #3D4F3D !important; line-height: 1.6; }
-html.dark .ts-list-item span { color: #cbd5e1 !important; }
+.ts-list-item strong { color: var(--fg) !important; font-weight: 700; }
+.ts-list-item span { color: var(--fg-light) !important; line-height: 1.6; }
 
 .ts-list--causes .ts-list-item--cause {
     border-color: rgba(245, 158, 11, 0.15);
-    background: rgba(0, 0, 0, 0.02) !important;
     padding: 6px 9px;
 }
 
 .ts-list--causes .ts-list-item--cause i {
-    color: #f59e0b;
+    color: var(--warning);
     font-size: 5px;
     margin-top: 8px;
 }
 
-/* ─── 7. العدّاد التنازلي ─── */
+/* ── 7. العدّاد ── */
 .ts-countdown {
-    background: #FFFBEB !important;
-    border: 1.5px solid #FCD34D !important;
+    background: rgba(245, 158, 11, 0.1) !important;
+    border: 1.5px solid rgba(245, 158, 11, 0.35) !important;
     border-radius: 14px;
     padding: 16px 14px;
     text-align: center;
     position: relative;
     overflow: hidden;
     margin-bottom: 10px;
-}
-
-html.dark .ts-countdown {
-    background: rgba(245, 158, 11, 0.12) !important;
-    border-color: rgba(245, 158, 11, 0.4) !important;
 }
 
 .ts-countdown::before {
@@ -2681,7 +2629,7 @@ html.dark .ts-countdown {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.12) 0%, transparent 70%);
     animation: tsRotate 10s linear infinite;
 }
 
@@ -2692,7 +2640,7 @@ html.dark .ts-countdown {
 .ts-countdown-label {
     font-size: 11.5px;
     font-weight: 700;
-    color: #92400E !important;
+    color: #D97706 !important;
     margin-bottom: 6px;
     position: relative;
     z-index: 2;
@@ -2715,7 +2663,6 @@ html.dark .ts-countdown-label { color: #fcd34d !important; }
     z-index: 2;
     font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
     text-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);
-    transition: color 0.3s ease;
 }
 
 html.dark .ts-countdown-value { color: #fbbf24 !important; }
@@ -2726,7 +2673,7 @@ html.dark .ts-countdown-value { color: #fbbf24 !important; }
     letter-spacing: 0;
 }
 
-/* ─── 8. الحلول السريعة ─── */
+/* ── 8. الحلول السريعة ── */
 .ts-quickfixes { margin-top: 6px; }
 
 .ts-quickfixes-title {
@@ -2735,17 +2682,15 @@ html.dark .ts-countdown-value { color: #fbbf24 !important; }
     gap: 6px;
     font-size: 11px;
     font-weight: 800;
-    color: #7A8B7A !important;
+    color: var(--muted) !important;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 8px;
     padding-right: 2px;
 }
 
-html.dark .ts-quickfixes-title { color: #94a3b8 !important; }
-
 .ts-quickfixes-title i {
-    color: #f59e0b;
+    color: var(--warning);
     animation: tsBolt 2s ease-in-out infinite;
 }
 
@@ -2766,11 +2711,11 @@ html.dark .ts-quickfixes-title { color: #94a3b8 !important; }
     gap: 10px;
     padding: 10px 12px;
     border-radius: 12px;
-    border: 1px solid #DDE3DD !important;
-    background: #FFFFFF !important;
+    border: 1px solid var(--border) !important;
+    background: var(--card) !important;
     font-size: 12.5px;
     font-weight: 600;
-    color: #1B2A1B !important;
+    color: var(--fg) !important;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     text-align: right;
@@ -2779,28 +2724,18 @@ html.dark .ts-quickfixes-title { color: #94a3b8 !important; }
     -webkit-tap-highlight-color: transparent;
 }
 
-html.dark .ts-quickfix {
-    background: #1e293b !important;
-    border-color: #334155 !important;
-    color: #f8fafc !important;
-}
-
 .ts-quickfix:hover {
     border-color: #3b82f6 !important;
-    background: #EFF6FF !important;
+    background: rgba(59, 130, 246, 0.08) !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px -4px rgba(59, 130, 246, 0.25);
-}
-
-html.dark .ts-quickfix:hover {
-    background: rgba(59, 130, 246, 0.15) !important;
 }
 
 .ts-quickfix:active { transform: translateY(0) scale(0.99); }
 
 .ts-quickfix--primary {
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-    color: #FFFFFF !important;
+    color: #fff !important;
     border-color: transparent !important;
     box-shadow: 0 4px 14px -4px rgba(37, 99, 235, 0.4);
 }
@@ -2816,16 +2751,10 @@ html.dark .ts-quickfix:hover {
     border-radius: 8px;
     display: grid;
     place-items: center;
-    background: #F0EDE6 !important;
+    background: var(--bg-deep) !important;
     color: #3b82f6 !important;
     font-size: 12px;
     flex-shrink: 0;
-    transition: all 0.2s ease;
-}
-
-html.dark .ts-quickfix-icon {
-    background: rgba(59, 130, 246, 0.15) !important;
-    color: #60a5fa !important;
 }
 
 .ts-quickfix--primary .ts-quickfix-icon {
@@ -2834,15 +2763,10 @@ html.dark .ts-quickfix-icon {
 }
 
 .ts-quickfix:hover .ts-quickfix-icon { transform: scale(1.08); }
-
-.ts-quickfix-text {
-    flex: 1;
-    line-height: 1.4;
-    color: inherit !important;
-}
+.ts-quickfix-text { flex: 1; line-height: 1.4; color: inherit !important; }
 
 .ts-quickfix-arrow {
-    color: #94a3b8;
+    color: var(--muted);
     font-size: 10px;
     opacity: 0;
     transform: translateX(-6px);
@@ -2858,20 +2782,15 @@ html.dark .ts-quickfix-icon {
     color: rgba(255, 255, 255, 0.7);
 }
 
-/* ─── 9. نتيجة اختبار الاتصال ─── */
+/* ── 9. نتيجة اختبار الاتصال ── */
 .ts-connection-result {
     margin-top: 8px;
     border-radius: 12px;
-    border: 1px solid #DDE3DD !important;
-    background: #F0EDE6 !important;
+    border: 1px solid var(--border) !important;
+    background: var(--bg-deep) !important;
     padding: 10px 12px;
     font-size: 12px;
     animation: tsFadeIn 0.3s ease;
-}
-
-html.dark .ts-connection-result {
-    background: #020617 !important;
-    border-color: #334155 !important;
 }
 
 .ts-connection-result.hidden { display: none !important; }
@@ -2886,7 +2805,7 @@ html.dark .ts-connection-result {
 .ts-connection-status i { font-size: 13px; }
 .ts-connection-status--ok { color: #059669 !important; }
 .ts-connection-status--fail { color: #DC2626 !important; }
-.ts-connection-status--loading { color: #7A8B7A !important; }
+.ts-connection-status--loading { color: var(--muted) !important; }
 
 .ts-connection-time {
     font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
@@ -2895,28 +2814,18 @@ html.dark .ts-connection-result {
     margin-right: auto;
 }
 
-/* ─── 10. التفاصيل (Accordion) ─── */
+/* ── 10. التفاصيل ── */
 .ts-details {
     margin-top: 12px;
     border-radius: 12px;
-    border: 1px solid #DDE3DD !important;
-    background: #F0EDE6 !important;
+    border: 1px solid var(--border) !important;
+    background: var(--bg-deep) !important;
     overflow: hidden;
-    transition: all 0.2s ease;
-}
-
-html.dark .ts-details {
-    background: #020617 !important;
-    border-color: #334155 !important;
 }
 
 .ts-details[open] {
-    background: #FFFFFF !important;
+    background: var(--card) !important;
     border-color: rgba(196, 150, 44, 0.3) !important;
-}
-
-html.dark .ts-details[open] {
-    background: #1e293b !important;
 }
 
 .ts-details-summary {
@@ -2924,21 +2833,17 @@ html.dark .ts-details[open] {
     cursor: pointer;
     font-size: 11.5px;
     font-weight: 700;
-    color: #7A8B7A !important;
+    color: var(--muted) !important;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
     user-select: none;
-    transition: color 0.2s ease;
     list-style: none;
 }
 
-html.dark .ts-details-summary { color: #94a3b8 !important; }
-
 .ts-details-summary::-webkit-details-marker { display: none; }
-.ts-details-summary:hover { color: #1B2A1B !important; }
-html.dark .ts-details-summary:hover { color: #f8fafc !important; }
+.ts-details-summary:hover { color: var(--fg) !important; }
 
 .ts-details-summary span {
     display: flex;
@@ -2969,24 +2874,20 @@ html.dark .ts-details-summary:hover { color: #f8fafc !important; }
     align-items: center;
     gap: 10px;
     padding: 9px 0;
-    border-bottom: 1px dashed #DDE3DD;
+    border-bottom: 1px dashed var(--border);
     font-size: 11.5px;
 }
-
-html.dark .ts-details-row { border-bottom-color: #334155; }
 
 .ts-details-row:last-of-type { border-bottom: none; }
 
 .ts-details-key {
-    color: #7A8B7A !important;
+    color: var(--muted) !important;
     font-weight: 600;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 6px;
 }
-
-html.dark .ts-details-key { color: #94a3b8 !important; }
 
 .ts-details-key i {
     font-size: 10px;
@@ -2997,7 +2898,7 @@ html.dark .ts-details-key { color: #94a3b8 !important; }
 }
 
 .ts-details-value {
-    color: #1B2A1B !important;
+    color: var(--fg) !important;
     font-weight: 600;
     text-align: left;
     word-break: break-word;
@@ -3005,28 +2906,21 @@ html.dark .ts-details-key { color: #94a3b8 !important; }
     font-size: 11px;
 }
 
-html.dark .ts-details-value { color: #f8fafc !important; }
-
 .ts-details-note {
     margin-top: 10px;
     padding-top: 10px;
-    border-top: 1px solid #DDE3DD;
+    border-top: 1px solid var(--border);
     font-size: 10px;
-    color: #7A8B7A !important;
+    color: var(--muted) !important;
     display: flex;
     align-items: center;
     gap: 6px;
     line-height: 1.5;
 }
 
-html.dark .ts-details-note {
-    border-top-color: #334155;
-    color: #94a3b8 !important;
-}
-
 .ts-details-note i { color: #3b82f6 !important; flex-shrink: 0; }
 
-/* ─── 11. الأزرار ─── */
+/* ── 11. الأزرار ── */
 .ts-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -3048,13 +2942,12 @@ html.dark .ts-details-note {
     border: none;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
 }
 
 .ts-btn:active { transform: scale(0.97); }
 
 .ts-btn--primary {
-    background: linear-gradient(135deg, #C4962C 0%, #F0D77B 100%) !important;
+    background: linear-gradient(135deg, var(--gold) 0%, #F0D77B 100%) !important;
     color: #052E22 !important;
     box-shadow: 0 4px 14px -4px rgba(196, 150, 44, 0.45);
 }
@@ -3065,29 +2958,19 @@ html.dark .ts-details-note {
 }
 
 .ts-btn--secondary {
-    background: #F0EDE6 !important;
-    color: #1B2A1B !important;
-    border: 1px solid #DDE3DD !important;
-}
-
-html.dark .ts-btn--secondary {
-    background: #1e293b !important;
-    color: #f8fafc !important;
-    border-color: #334155 !important;
+    background: var(--bg-deep) !important;
+    color: var(--fg) !important;
+    border: 1px solid var(--border) !important;
 }
 
 .ts-btn--secondary:hover {
-    background: #E5E1D8 !important;
-    color: #1B2A1B !important;
-}
-
-html.dark .ts-btn--secondary:hover {
-    background: #334155 !important;
+    background: var(--card) !important;
+    color: var(--fg) !important;
 }
 
 .ts-btn i { font-size: 12px; }
 
-/* ─── 12. رابط الدعم ─── */
+/* ── 12. رابط الدعم ── */
 .ts-support-link {
     display: flex;
     align-items: center;
@@ -3096,8 +2979,8 @@ html.dark .ts-btn--secondary:hover {
     margin-top: 12px;
     padding: 11px 14px;
     border-radius: 12px;
-    background: #EFF6FF !important;
-    border: 1px solid #BFDBFE !important;
+    background: rgba(59, 130, 246, 0.08) !important;
+    border: 1px solid rgba(59, 130, 246, 0.25) !important;
     color: #2563EB !important;
     font-size: 12px;
     font-weight: 700;
@@ -3108,25 +2991,17 @@ html.dark .ts-btn--secondary:hover {
     width: 100%;
 }
 
-html.dark .ts-support-link {
-    background: rgba(59, 130, 246, 0.15) !important;
-    border-color: rgba(59, 130, 246, 0.35) !important;
-    color: #93c5fd !important;
-}
+html.dark .ts-support-link { color: #93c5fd !important; }
 
 .ts-support-link:hover {
-    background: #DBEAFE !important;
+    background: rgba(59, 130, 246, 0.15) !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px -4px rgba(59, 130, 246, 0.3);
 }
 
-html.dark .ts-support-link:hover {
-    background: rgba(59, 130, 246, 0.25) !important;
-}
-
 .ts-support-link i { font-size: 12px; }
 
-/* ─── 13. إصلاح شامل للحاوية ─── */
+/* ── 13. إصلاح حاويات openCtrlPanel ── */
 #ctrlOverlay.active .ctrl-content {
     display: flex !important;
     flex-direction: column !important;
@@ -3140,7 +3015,7 @@ html.dark .ts-support-link:hover {
     -webkit-overflow-scrolling: touch !important;
 }
 
-/* ─── 14. الموبايل ─── */
+/* ── 14. الموبايل ── */
 @media (max-width: 700px) {
     .ts-panel { padding: 20px 16px 16px !important; }
     .ts-icon-wrap { width: 56px; height: 56px; }
@@ -3162,7 +3037,6 @@ html.dark .ts-support-link:hover {
     .ts-actions { grid-template-columns: 1fr; }
 }
 
-/* ─── 15. تقليل الحركة ─── */
 @media (prefers-reduced-motion: reduce) {
     .ts-panel,
     .ts-icon-bg,
