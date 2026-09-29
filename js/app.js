@@ -40,23 +40,18 @@ window.executeAction = async function(toolName, actionCallback, options = {}) {
         };
     }
     
-    // 4. فحص الإدخالات (Validation)
+        // 4. فحص الإدخالات (Validation)
     if (options.validate && typeof options.validate === 'function') {
         try {
             const validationError = options.validate();
             if (validationError && validationError.length > 0) {
-                if (hasErrorModal) {
-                    window.openTroubleshootModal(toolName, 'validation', {
-                        fields: validationError
-                    });
-                }
                 if (restoreButton) restoreButton();
-                return { success: false, error: 'validation' }; // إيقاف التنفيذ هنا
+                // تعديل احترافي: لا تفتح النافذة الكبيرة، بل أعد الأخطاء للنموذج ليعالجها برفق
+                return { success: false, error: 'validation', fields: validationError };
             }
         } catch (validationErr) {
             console.error('[Wrapper] Validation crashed:', validationErr);
             if (restoreButton) restoreButton();
-            // إذا تعطلت دالة الفحص نفسها، أظهر خطأ غير معروف بدل الفراغ
             if (hasErrorHandler) window.handleFetchError(toolName, validationErr);
             return { success: false, error: validationErr };
         }
@@ -3503,33 +3498,42 @@ window.previewMedicineImage = (event) => {
     reader.readAsDataURL(file); 
 }
 
-  window.submitMedicineRequest = async (e) => {
+window.submitMedicineRequest = async (e) => {
     e.preventDefault();
-
     const submitBtn = document.getElementById('medSubmitBtn'); 
     
-    // 1. دالة فحص الحقول (Validation)
+    // 1. دالة فحص الحقول (Validation) - محدثة لفحص الكلمات المسيئة
     const validateInputs = () => {
-        const medList = document.getElementById('medList').value.trim();
+        const medListEl = document.getElementById('medList');
         const phoneInput = document.getElementById('medPhone');
+        const medList = medListEl.value.trim();
         const phone = phoneInput.value.trim();
-        const cfToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+        const cfTokenEl = document.querySelector('[name="cf-turnstile-response"]');
         
         let errors = [];
         
-        if (!medList || medList.length < 3) {
-            errors.push({ name: 'الأدوية المطلوبة', error: 'يرجى كتابة اسم الدواء المطلوب بشكل واضح' });
+        // فحص الكلمات المسيئة أولاً
+        if (containsBadWords(medList)) {
+            errors.push({ name: 'الأدوية المطلوبة', error: 'تم رفض الطلب لاحتوائه على كلمات غير لائقة.' });
+            medListEl.classList.add('input-invalid');
+        } else if (medList.length < 3) {
+            errors.push({ name: 'الأدوية المطلوبة', error: 'يرجى كتابة اسم الدواء بوضوح.' });
+            medListEl.classList.add('input-invalid');
+        } else {
+            medListEl.classList.remove('input-invalid');
         }
         
+        // فحص رقم الهاتف
         if (!/^09\d{8}$/.test(phone)) {
-            errors.push({ name: 'رقم الهاتف', error: 'يجب أن يبدأ بـ 09 ويتكون من 10 أرقام' });
+            errors.push({ name: 'رقم الهاتف', error: 'يجب أن يبدأ بـ 09 ويتكون من 10 أرقام.' });
             phoneInput.classList.add('input-invalid');
         } else {
             phoneInput.classList.remove('input-invalid');
         }
         
-        if (!cfToken) {
-            errors.push({ name: 'التحقق الأمني', error: 'يرجى إكمال التحقق الأمني (أنا لست روبوت)' });
+        // فحص التحقق الأمني
+        if (!cfTokenEl || !cfTokenEl.value) {
+            errors.push({ name: 'التحقق الأمني', error: 'يرجى إكمال التحقق الأمني.' });
         }
         
         return errors.length > 0 ? errors : null;
@@ -3539,7 +3543,7 @@ window.previewMedicineImage = (event) => {
     const result = await window.executeAction(
         'البحث عن دواء', 
         async () => {
-            // === كود الإرسال الفعلي فقط (بدون try/catch ولا فحص إنترنت) ===
+            // === كود الإرسال الفعلي ===
             const medList = document.getElementById('medList').value.trim();
             const name = document.getElementById('medName').value.trim() || 'مريض'; 
             const phone = document.getElementById('medPhone').value.trim(); 
@@ -3550,61 +3554,45 @@ window.previewMedicineImage = (event) => {
             const targetCity = citySelect ? citySelect.value : 'الرحيبة';
             const cfToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
 
-            // رفع الصورة (إن وجدت)
             let imageUrl = '';
             if (file) {
                 const formData = new FormData(); 
                 formData.append('image', file); 
                 const { data: imgData, error: imgError } = await supabase.functions.invoke('upload-image', { body: formData });
-                if (imgError) throw imgError; // الـ Wrapper سيمسكه كخطأ Server
+                if (imgError) throw imgError;
                 if (imgData && imgData.success) imageUrl = imgData.data.url;
             }
 
-            // توليد رقم مرجعي
             const medRef = `MED-${Math.floor(Math.random() * 900000) + 100000}`;
             
-            // إرسال الطلب لـ Supabase
             const { data: reqData, error: reqError } = await supabase.functions.invoke('manage-public-requests', {
                 body: { 
-                    action: 'submit_request',
-                    type: 'medicine', 
-                    patient_phone: phone, 
-                    cf_token: cfToken, 
-                    payload: { 
-                        med_ref: medRef, 
-                        med_list: medList, 
-                        urgency: urgency, 
-                        patient_name: name, 
-                        image_url: imageUrl, 
-                        patient_push_id: localStorage.getItem('patient_push_id'), 
-                        city: targetCity 
-                    }
+                    action: 'submit_request', type: 'medicine', patient_phone: phone, cf_token: cfToken, 
+                    payload: { med_ref: medRef, med_list: medList, urgency, patient_name: name, image_url: imageUrl, patient_push_id: localStorage.getItem('patient_push_id'), city: targetCity }
                 }
             });
 
-            if (reqError) {
-                // محرك الأخطاء سيقرأ الكود (مثلاً 429 للـ Rate Limit) ويعرض النافذة المناسبة
-                throw reqError; 
-            }
+            if (reqError) throw reqError; 
             if (reqData && reqData.error) throw new Error(reqData.error);
 
-            // إرسال إشعار للصيدليات
             sendPushNotification(null, "طلب دواء عاجل 💊", `المريض ${name} من ${targetCity} يبحث عن: ${medList}`, 'pharmacies', null, targetCity);
-
-            // إرجاع البيانات لاستخدامها في واجهة النجاح
             return { medRef, targetCity };
         },
-        { 
-            button: submitBtn, 
-            validate: validateInputs,
-            actionName: 'submit_medicine_request' // اسم يُسجل في الـ logs للتحليل
-        }
+        { button: submitBtn, validate: validateInputs, actionName: 'submit_medicine_request' }
     );
 
-    // 3. ماذا يحدث عند النجاح فقط؟
+    // 3. معالجة النتيجة (نجاح أو فشل Validation)
+    
+    // إذا كان الخطأ بسيطاً (Validation) -> نعالجه برفق بدون نافذة كبيرة
+    if (!result.success && result.error === 'validation') {
+        const firstError = result.fields[0];
+        showToast(`${firstError.name}: ${firstError.error}`, 'error');
+        return; // توقف هنا، لا تفتح نافذة الأخطاء
+    }
+
+    // إذا نجحت العملية -> اعرض شاشة النجاح
     if (result.success) {
         const { medRef, targetCity } = result.data;
-        
         document.getElementById('modalContent').innerHTML = `
         <div class="p-8 text-center">
             <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style="background: var(--accent-light)">
@@ -3620,6 +3608,8 @@ window.previewMedicineImage = (event) => {
             <button onclick="closeModal()" class="w-full py-2 mt-2 rounded-xl border font-bold text-sm" style="border-color: var(--border)">إغلاق</button>
         </div>`;
     }
+    
+    // ملاحظة: إذا كان الخطأ من نوع (Network أو Server)، الـ Wrapper سيكون قد فتح نافذة "مركز حل المشكلات" تلقائياً قبل الوصول لهنا.
 };
 window.quickLookup = async () => {
     let val = document.getElementById('quickLookupInput').value.trim().toUpperCase().replace(/#/g, '').replace(/\s/g, '');
