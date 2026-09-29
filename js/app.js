@@ -3752,7 +3752,34 @@ window.renderAdminDashboard = async () => {
         <h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-satellite-dish text-indigo-600"></i> نشاط رادار الرحيبة الصحي</h4>
         <div style="height: 300px;"><canvas id="radarChart"></canvas></div>
     </div>`;
-    
+    const errorsAnalyticsHtml = `
+<div class="bg-white p-5 rounded-xl border shadow-sm" style="border-color: var(--border)">
+    <h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'">
+        <i class="fas fa-bug text-red-600"></i> سجل أخطاء المنصة (آخر 100 خطأ)
+    </h4>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div class="bg-gray-50 p-3 rounded-xl text-center">
+            <div class="text-xl font-black text-red-600" id="errStatNetwork">0</div>
+            <div class="text-[10px] text-gray-500">أخطاء شبكة</div>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-xl text-center">
+            <div class="text-xl font-black text-yellow-600" id="errStatValidation">0</div>
+            <div class="text-[10px] text-gray-500">أخطاء بيانات</div>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-xl text-center">
+            <div class="text-xl font-black text-blue-600" id="errStatAuth">0</div>
+            <div class="text-[10px] text-gray-500">أخطاء دخول</div>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-xl text-center">
+            <div class="text-xl font-black text-purple-600" id="errStatServer">0</div>
+            <div class="text-[10px] text-gray-500">أخطاء خادم</div>
+        </div>
+    </div>
+    <div id="adminErrorLogsList" class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">
+        <p class="text-center text-gray-400 text-sm py-2">جاري تحميل السجل...</p>
+    </div>
+</div>
+`;
     const { data: topArticles } = await supabase.from('medical_articles').select('title, views').order('views', { ascending: false }).limit(5);
     const radarAdminHtml = `<div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-satellite-dish text-indigo-600"></i> إدارة رادار الرحيبة الصحي</h4><div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div class="bg-gray-50 p-3 rounded-xl"><span class="text-xs text-gray-500 block mb-1">الفصل الافتراضي للزوار:</span><select id="adminRadarSeason" onchange="setRadarDefaultSeason()" class="ctrl-input text-sm"><option value="summer">☀️ صيف</option><option value="winter">❄️ شتاء</option></select></div><div class="bg-gray-50 p-3 rounded-xl flex flex-col justify-center"><span class="text-xs text-gray-500 block mb-1">تصفير العدادات الأسبوعي:</span><button onclick="resetRadarVotes()" class="bg-red-500 text-white py-2 rounded-lg text-sm font-bold hover:bg-red-600 transition-all">تصفير العدادات</button></div></div></div>`;
     const homeAdsHtml = `<div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-photo-video text-purple-600"></i> إعلانات الصفحة الرئيسية (صور/فيديو)</h4><form onsubmit="saveHomeAd(event)" class="grid grid-cols-1 gap-3 mb-4"><select id="adType" class="ctrl-input text-sm"><option value="image">صورة (رابط مباشر ينتهي بـ .jpg أو .png)</option><option value="video">فيديو (رابط مباشر ينتهي بـ .mp4 فقط)</option></select><input type="text" id="adContent" class="ctrl-input text-sm" placeholder="الصق الرابط هنا..." required><input type="text" id="adLink" class="ctrl-input text-sm" placeholder="رابط التحويل عند الضغط (اختياري للصور)"><label class="flex items-center gap-2 text-sm"><input type="checkbox" id="adActiveCheck" class="w-5 h-5 accent-purple-600" checked> تفعيل وعرض الإعلان فوراً</label><button type="submit" class="py-2.5 rounded-xl text-white font-semibold text-sm" style="background: #8B5CF6"><i class="fas fa-plus ml-1"></i> إضافة إعلان</button></form><div id="adminHomeAdsList" class="flex flex-col gap-2 max-h-40 overflow-y-auto pr-1"><p class="text-center text-gray-400 text-sm py-2">جاري تحميل الإعلانات...</p></div></div>`;
@@ -3825,6 +3852,7 @@ window.renderAdminDashboard = async () => {
 </div>`;
         openCtrlPanel('لوحة الإدارة', `<div class="flex flex-col gap-6"> 
         ${analyticsHtml} 
+        ${errorsAnalyticsHtml}
         ${announcementsHtml} 
         ${homeAdsHtml} 
         ${radarAdminHtml} ${blogAdminHtml} ${patientsAdminHtml} ${emergencyAdminHtml} <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-tint text-red-600"></i> إدارة استغاثات الدم (${bloodRequests.length})</h4><div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">${bloodHtml}</div></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-hand-holding-medical text-green-600"></i>إدارة المستلزمات الطبية (${medicineDonations.length})</h4><div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">${medDonHtml}</div></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm"><i class="fas fa-plus-circle ml-2" style="color: var(--accent)"></i> <span id="formTitle">إضافة منشأة</span></h4><form onsubmit="saveFacility(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3"><input type="hidden" id="edit_id"><select id="new_type" class="ctrl-input text-sm" required onchange="updateAdminFormFields(this.value)"><option value="hospital">مشفى</option><option value="center">مركز</option><option value="lab">مخبر</option><option value="doctor">طبيب</option><option value="pharmacy">صيدلية</option></select><input type="text" id="new_name" class="ctrl-input text-sm" placeholder="الاسم" required><input type="text" id="new_specialty" class="ctrl-input text-sm" placeholder="التخصص الأساسي" required><input type="text" id="new_address" class="ctrl-input text-sm" placeholder="العنوان / الموقع" required><input type="text" id="new_phone" class="ctrl-input text-sm" placeholder="رقم الهاتف (اختياري)"><input type="text" id="new_hours" class="ctrl-input text-sm" placeholder="أوقات العمل"><input type="text" id="new_image_url" class="ctrl-input text-sm" placeholder="رابط الصورة (URL)"><input type="text" id="new_custom_password" class="ctrl-input text-sm col-span-1 sm:col-span-2" placeholder="كلمة مرور الطبيب/الصيدلية (6 أحرف فأكثر)"><textarea id="new_desc" class="ctrl-input text-sm col-span-2" placeholder="وصف عام (اختياري)" rows="2"></textarea><div id="adminExtraFields" class="contents"></div><button type="submit" class="col-span-1 sm:col-span-2 py-2.5 rounded-xl text-white font-semibold text-sm" style="background: var(--accent)"><i class="fas fa-save ml-1"></i> حفظ</button></form></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm"><i class="fas fa-list ml-2"></i> المنشآت (${allData.length})</h4><div class="flex flex-col gap-2 max-h-96 overflow-y-auto">${listHtml}</div></div> <button onclick="logoutAdmin()" class="w-full py-2.5 rounded-xl border font-semibold text-sm mt-2" style="border-color: #EF4444; color: #EF4444;"><i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج</button> </div>`, '#073D2E'); 
@@ -3834,7 +3862,6 @@ window.renderAdminDashboard = async () => {
     updateAdminFormFields('doctor');
     fetchAdminArticles();
             // === رسم الرسوم البيانية التحليلية ===
-                // === رسم الرسوم البيانية التحليلية ===
     setTimeout(async () => {
         // 1. ننتظر تحميل مكتبة Chart.js أولاً (لتحسين سرعة الموقع)
         await loadChartJs();
