@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
-// Troubleshoot Modal — LomedX Integration
-// يعتمد على: openCtrlPanel + closeCtrlPanel + showToast من app.js
+// Troubleshoot Modal — LomedX Standalone
+// لا يتعارض مع openCtrlPanel و showToast في app.js
 // ═══════════════════════════════════════════════════════════
 
 (function () {
@@ -35,9 +35,9 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // Copy to Clipboard — نسخة مضمونة 100%
+  // Copy to Clipboard — نسخة مضمونة
   // ═══════════════════════════════════════════════════════════
-  async function copyToClipboard(text) {
+  async function tsCopyToClipboard(text) {
     if (!text) return false;
 
     if (navigator.clipboard && window.isSecureContext) {
@@ -51,6 +51,7 @@
       const ta = document.createElement('textarea');
       ta.value = text;
       ta.setAttribute('readonly', '');
+      ta.setAttribute('aria-hidden', 'true');
       ta.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:none;outline:none;box-shadow:none;background:transparent;opacity:0;';
       document.body.appendChild(ta);
 
@@ -74,18 +75,44 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // Toast — يستخدم showToast الموجود في app.js أو fallback
+  // Toast خاص بمركز حل المشكلات (لا يتعارض مع showToast)
   // ═══════════════════════════════════════════════════════════
-  function toast(message, type = 'success') {
-    if (typeof window.showToast === 'function') {
-      window.showToast(message, type);
-    } else {
-      console.log('[Toast]', type, message);
+  function tsToast(message, type = 'success') {
+    // ابحث عن حاوية التوست الموجودة في مشروعك
+    let container = document.getElementById('tsToastContainer');
+    
+    // إن لم توجد، أنشئ واحدة
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'tsToastContainer';
+      container.className = 'ts-toast-container';
+      container.setAttribute('aria-live', 'polite');
+      document.body.appendChild(container);
     }
+
+    const icons = {
+      success: 'fa-circle-check',
+      error: 'fa-circle-exclamation',
+      info: 'fa-circle-info',
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `ts-toast ${type}`;
+    toast.setAttribute('role', 'status');
+    toast.innerHTML = `
+      <i class="fas ${icons[type] || icons.info}" aria-hidden="true"></i>
+      <span>${escapeHTML(message)}</span>
+    `;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add('hiding');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ISSUES MAP (نفس الكود السابق — بدون تغيير)
+  // ISSUES MAP
   // ═══════════════════════════════════════════════════════════
   const ISSUES = {
     support: {
@@ -179,7 +206,9 @@
       reason: 'هذه الأداة تتطلب تسجيل الدخول. ربما انتهت جلستك.',
       solution: 'سجّل الدخول من جديد ثم أعد المحاولة.',
       commonCauses: ['انتهاء صلاحية الجلسة.', 'تسجيل الخروج من تبويب آخر.'],
-      quickFixes: [{ icon: 'fa-right-to-bracket', text: 'تسجيل الدخول', action: 'login' }],
+      quickFixes: [
+        { icon: 'fa-right-to-bracket', text: 'تسجيل الدخول', action: 'login' },
+      ],
     },
     permission: {
       title: 'صلاحيات غير كافية',
@@ -216,7 +245,7 @@
   // ═══════════════════════════════════════════════════════════
   // Connection Test
   // ═══════════════════════════════════════════════════════════
-  async function testServerConnection() {
+  async function tsTestConnection() {
     const url = location.pathname === '/' ? '/favicon.ico' : location.pathname.split('?')[0];
     const start = performance.now();
     try {
@@ -231,40 +260,87 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // Countdown
+  // Control Panel خاص بمركز حل المشكلات (لا يتعارض مع app.js)
   // ═══════════════════════════════════════════════════════════
-  let countdownInterval = null;
+  
+  function ensureTsPanelExists() {
+    if (document.getElementById('tsPanelOverlay')) return;
 
-  function startCountdown(seconds) {
-    if (countdownInterval) clearInterval(countdownInterval);
+    const overlay = document.createElement('div');
+    overlay.id = 'tsPanelOverlay';
+    overlay.className = 'ctrl-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-hidden', 'true');
 
-    const el = document.querySelector('[data-countdown]');
-    if (!el) return;
+    overlay.innerHTML = `
+      <div class="ctrl-panel" role="document">
+        <div class="ctrl-handle" aria-hidden="true"></div>
+        <button class="ctrl-close" type="button" data-ts-close aria-label="إغلاق">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+        <div class="ctrl-header">
+          <h3 id="tsPanelTitle">مركز حل المشكلات</h3>
+        </div>
+        <div class="ctrl-body" id="tsPanelBody"></div>
+      </div>
+    `;
 
-    let remaining = seconds;
-    const retryBtns = document.querySelectorAll('[data-ts-action="retry"]');
-    retryBtns.forEach(b => b.disabled = true);
+    document.body.appendChild(overlay);
 
-    countdownInterval = setInterval(() => {
-      remaining--;
-      el.textContent = formatTime(Math.max(0, remaining));
+    // ربط أحداث الإغلاق
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeTsPanel();
+      if (e.target.closest('[data-ts-close]')) closeTsPanel();
+    });
+  }
 
-      if (remaining <= 0) {
-        clearInterval(countdownInterval);
-        countdownInterval = null;
-        el.textContent = '✅ يمكنك المحاولة الآن';
-        el.classList.add('is-ready');
-        retryBtns.forEach(b => b.disabled = false);
-      }
-    }, 1000);
+  function openTsPanel(title, html) {
+    ensureTsPanelExists();
+    
+    const overlay = document.getElementById('tsPanelOverlay');
+    const titleEl = document.getElementById('tsPanelTitle');
+    const bodyEl = document.getElementById('tsPanelBody');
+    
+    if (!overlay || !titleEl || !bodyEl) return;
+
+    titleEl.textContent = title || 'مركز حل المشكلات';
+    bodyEl.innerHTML = html;
+
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    
+    // إضافة مستمع ESC
+    document.addEventListener('keydown', tsEscHandler);
+  }
+
+  function closeTsPanel() {
+    const overlay = document.getElementById('tsPanelOverlay');
+    if (!overlay) return;
+
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+
+    if (window.__tsCountdown) {
+      clearInterval(window.__tsCountdown);
+      window.__tsCountdown = null;
+    }
+    
+    document.removeEventListener('keydown', tsEscHandler);
+  }
+
+  function tsEscHandler(e) {
+    if (e.key === 'Escape' || e.key === 'Esc') {
+      closeTsPanel();
+    }
   }
 
   // ═══════════════════════════════════════════════════════════
-  // Main Function
+  // Main Function — openTroubleshootModal
   // ═══════════════════════════════════════════════════════════
-  let currentTroubleshoot = null;
-
-  window.openTroubleshootModal = function (toolName = 'غير محددة', issueType = 'unknown', details = {}) {
+  function openTroubleshootModal(toolName = 'غير محددة', issueType = 'unknown', details = {}) {
     if (!ISSUES[issueType]) issueType = 'unknown';
 
     const issue = ISSUES[issueType];
@@ -284,13 +360,13 @@
           <div class="ts-icon-bg" style="background: ${issue.color}"></div>
           <div class="ts-icon-ring"></div>
           <div class="ts-icon-main" style="background: linear-gradient(135deg, ${issue.color} 0%, ${issue.color}cc 100%)">
-            <i class="fas ${issue.icon}"></i>
+            <i class="fas ${issue.icon}" aria-hidden="true"></i>
           </div>
         </div>
         <h3 class="ts-title">${escapeHTML(issue.title)}</h3>
         <div class="ts-badges">
           <span class="ts-badge ts-badge--tool">
-            <i class="fas fa-toolbox"></i>
+            <i class="fas fa-toolbox" aria-hidden="true"></i>
             ${safeToolName}
           </span>
           <button type="button"
@@ -298,7 +374,7 @@
                   data-ts-action="copy-id"
                   data-error-id="${errorId}"
                   title="اضغط للنسخ">
-            <i class="fas fa-fingerprint"></i>
+            <i class="fas fa-fingerprint" aria-hidden="true"></i>
             ${errorId}
           </button>
         </div>
@@ -311,7 +387,7 @@
       countdownHTML = `
         <div class="ts-countdown">
           <div class="ts-countdown-label">
-            <i class="fas fa-hourglass-half"></i>
+            <i class="fas fa-hourglass-half" aria-hidden="true"></i>
             يمكنك المحاولة بعد
           </div>
           <div class="ts-countdown-value" data-countdown="${details.retryAfter}">
@@ -327,13 +403,13 @@
       failedFieldsHTML = `
         <div class="ts-section ts-section--validation">
           <div class="ts-section-title">
-            <i class="fas fa-list-check"></i>
+            <i class="fas fa-list-check" aria-hidden="true"></i>
             <span>حقول تحتاج مراجعة (${details.fields.length})</span>
           </div>
           <ul class="ts-list">
             ${details.fields.map(f => `
               <li class="ts-list-item">
-                <i class="fas fa-circle-xmark"></i>
+                <i class="fas fa-circle-xmark" aria-hidden="true"></i>
                 <span><strong>${escapeHTML(f.name)}:</strong> ${escapeHTML(f.error)}</span>
               </li>
             `).join('')}
@@ -346,7 +422,7 @@
     const reasonHTML = `
       <div class="ts-section ts-section--reason">
         <div class="ts-section-title">
-          <i class="fas fa-bug"></i>
+          <i class="fas fa-bug" aria-hidden="true"></i>
           <span>السبب المحتمل</span>
         </div>
         <p class="ts-section-body">${escapeHTML(issue.reason)}</p>
@@ -359,13 +435,13 @@
       causesHTML = `
         <div class="ts-section ts-section--causes">
           <div class="ts-section-title">
-            <i class="fas fa-magnifying-glass"></i>
+            <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
             <span>أسباب شائعة</span>
           </div>
           <ul class="ts-list ts-list--causes">
             ${issue.commonCauses.map(c => `
               <li class="ts-list-item ts-list-item--cause">
-                <i class="fas fa-circle"></i>
+                <i class="fas fa-circle" aria-hidden="true"></i>
                 <span>${escapeHTML(c)}</span>
               </li>
             `).join('')}
@@ -378,7 +454,7 @@
     const solutionHTML = `
       <div class="ts-section ts-section--solution">
         <div class="ts-section-title">
-          <i class="fas fa-lightbulb"></i>
+          <i class="fas fa-lightbulb" aria-hidden="true"></i>
           <span>كيف تحل المشكلة؟</span>
         </div>
         <p class="ts-section-body">${escapeHTML(issue.solution)}</p>
@@ -391,7 +467,7 @@
       quickFixesHTML = `
         <div class="ts-quickfixes">
           <div class="ts-quickfixes-title">
-            <i class="fas fa-bolt"></i>
+            <i class="fas fa-bolt" aria-hidden="true"></i>
             <span>حلول سريعة</span>
           </div>
           <div class="ts-quickfixes-grid">
@@ -402,10 +478,10 @@
                 <button type="button" ${actionAttr}
                         class="ts-quickfix ${isPrimary ? 'ts-quickfix--primary' : ''}">
                   <span class="ts-quickfix-icon">
-                    <i class="fas ${fix.icon}"></i>
+                    <i class="fas ${fix.icon}" aria-hidden="true"></i>
                   </span>
                   <span class="ts-quickfix-text">${escapeHTML(fix.text)}</span>
-                  ${fix.action ? '<i class="fas fa-arrow-left ts-quickfix-arrow"></i>' : ''}
+                  ${fix.action ? '<i class="fas fa-arrow-left ts-quickfix-arrow" aria-hidden="true"></i>' : ''}
                 </button>
               `;
             }).join('')}
@@ -426,39 +502,36 @@
     const detailsHTML = `
       <details class="ts-details">
         <summary class="ts-details-summary">
-          <span><i class="fas fa-headset"></i> معلومات للدعم الفني</span>
-          <i class="fas fa-chevron-down ts-details-arrow"></i>
+          <span><i class="fas fa-headset" aria-hidden="true"></i> معلومات للدعم الفني</span>
+          <i class="fas fa-chevron-down ts-details-arrow" aria-hidden="true"></i>
         </summary>
         <div class="ts-details-content">
           ${supportDetails.map(d => `
             <div class="ts-details-row">
               <span class="ts-details-key">
-                <i class="fas ${d.icon}"></i>
+                <i class="fas ${d.icon}" aria-hidden="true"></i>
                 ${escapeHTML(d.key)}
               </span>
               <span class="ts-details-value">${escapeHTML(d.value)}</span>
             </div>
           `).join('')}
           <div class="ts-details-note">
-            <i class="fas fa-info-circle"></i>
+            <i class="fas fa-info-circle" aria-hidden="true"></i>
             <span>أرسل رقم المرجع فقط عند التواصل مع الدعم</span>
           </div>
         </div>
       </details>
     `;
 
-    // ── Connection Result ──
-    const connectionResultHTML = `<div class="ts-connection-result hidden"></div>`;
-
     // ── Actions ──
     const actionsHTML = `
       <div class="ts-actions">
         <button type="button" class="ts-btn ts-btn--primary" data-ts-action="copy">
-          <i class="fas fa-copy"></i>
+          <i class="fas fa-copy" aria-hidden="true"></i>
           <span>نسخ رقم المرجع</span>
         </button>
         <button type="button" class="ts-btn ts-btn--secondary" data-ts-action="close">
-          <i class="fas fa-arrow-rotate-left"></i>
+          <i class="fas fa-arrow-rotate-left" aria-hidden="true"></i>
           <span>العودة</span>
         </button>
       </div>
@@ -467,10 +540,13 @@
     // ── Support Link ──
     const supportLinkHTML = `
       <button type="button" class="ts-support-link" data-ts-action="support">
-        <i class="fas fa-headset"></i>
+        <i class="fas fa-headset" aria-hidden="true"></i>
         <span>لم تحل المشكلة؟ تواصل مع الدعم</span>
       </button>
     `;
+
+    // ── Connection Result placeholder ──
+    const connectionResultHTML = `<div class="ts-connection-result hidden"></div>`;
 
     // ── Final HTML ──
     const html = `
@@ -489,13 +565,8 @@
       </div>
     `;
 
-    // ── Open Panel — استخدام openCtrlPanel الموجودة في app.js ──
-    if (typeof window.openCtrlPanel === 'function') {
-      window.openCtrlPanel('مركز حل المشكلات', html, issue.color);
-    } else {
-      toast('عذراً، حدث خطأ في عرض المساعدة.', 'error');
-      return;
-    }
+    // ── Open Panel ──
+    openTsPanel('مركز حل المشكلات', html);
 
     // ── Countdown ──
     if (issueType === 'rate_limit' && details.retryAfter) {
@@ -503,22 +574,47 @@
     }
 
     // ── Save state ──
-    currentTroubleshoot = { errorId, toolName, issueType };
-  };
+    window.__tsCurrent = { errorId, toolName, issueType };
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // Countdown
+  // ═══════════════════════════════════════════════════════════
+  function startCountdown(seconds) {
+    if (window.__tsCountdown) clearInterval(window.__tsCountdown);
+
+    const el = document.querySelector('[data-countdown]');
+    if (!el) return;
+
+    let remaining = seconds;
+    const retryBtns = document.querySelectorAll('[data-ts-action="retry"]');
+    retryBtns.forEach(b => b.disabled = true);
+
+    window.__tsCountdown = setInterval(() => {
+      remaining--;
+      el.textContent = formatTime(Math.max(0, remaining));
+
+      if (remaining <= 0) {
+        clearInterval(window.__tsCountdown);
+        window.__tsCountdown = null;
+        el.textContent = '✅ يمكنك المحاولة الآن';
+        el.classList.add('is-ready');
+        retryBtns.forEach(b => b.disabled = false);
+      }
+    }, 1000);
+  }
 
   // ═══════════════════════════════════════════════════════════
   // Retry System
   // ═══════════════════════════════════════════════════════════
-  let retryFunction = null;
-
-  window.registerRetry = (fn) => { retryFunction = fn; };
+  window.registerRetry = (fn) => { window.__tsRetry = fn; };
 
   window.retryLastAction = async () => {
-    if (typeof retryFunction === 'function') {
-      try { await retryFunction(); }
-      catch { toast('فشلت المحاولة مرة أخرى', 'error'); }
+    if (typeof window.__tsRetry === 'function') {
+      try { await window.__tsRetry(); }
+      catch { tsToast('فشلت المحاولة مرة أخرى', 'error'); }
     } else {
-      toast('لا توجد عملية لإعادة المحاولة', 'info');
+      tsToast('لا توجد عملية لإعادة المحاولة', 'info');
     }
   };
 
@@ -534,14 +630,14 @@
     // ── Close ──
     if (action === 'close') {
       e.preventDefault();
-      if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
+      closeTsPanel();
       return;
     }
 
     // ── Retry ──
     if (action === 'retry') {
       e.preventDefault();
-      if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
+      closeTsPanel();
       setTimeout(() => window.retryLastAction(), 300);
       return;
     }
@@ -549,7 +645,7 @@
     // ── Reload ──
     if (action === 'reload') {
       e.preventDefault();
-      if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
+      closeTsPanel();
       setTimeout(() => location.reload(), 200);
       return;
     }
@@ -557,7 +653,7 @@
     // ── Home ──
     if (action === 'home') {
       e.preventDefault();
-      if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
+      closeTsPanel();
       setTimeout(() => { location.href = '/'; }, 200);
       return;
     }
@@ -565,7 +661,7 @@
     // ── Login ──
     if (action === 'login') {
       e.preventDefault();
-      if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
+      closeTsPanel();
       setTimeout(() => { location.href = '/login'; }, 200);
       return;
     }
@@ -584,7 +680,7 @@
         </div>
       `;
 
-      const result = await testServerConnection();
+      const result = await tsTestConnection();
       const ok = result.ok;
       box.innerHTML = `
         <div class="ts-connection-status ${ok ? 'ts-connection-status--ok' : 'ts-connection-status--fail'}">
@@ -594,25 +690,25 @@
         </div>
       `;
 
-      toast(ok ? '✅ الاتصال بالخادم سليم' : '⚠️ مشاكل في الاتصال', ok ? 'success' : 'error');
+      tsToast(ok ? '✅ الاتصال بالخادم سليم' : '⚠️ مشاكل في الاتصال', ok ? 'success' : 'error');
       return;
     }
 
-    // ── Copy ID ──
+    // ── Copy ID (badge) ──
     if (action === 'copy-id') {
       e.preventDefault();
       const id = btn.dataset.errorId;
-      const ok = await copyToClipboard(id);
-      toast(ok ? '✅ تم نسخ المعرّف' : '❌ تعذّر النسخ', ok ? 'success' : 'error');
+      const ok = await tsCopyToClipboard(id);
+      tsToast(ok ? '✅ تم نسخ المعرّف' : '❌ تعذّر النسخ', ok ? 'success' : 'error');
       return;
     }
 
-    // ── Copy Full ──
+    // ── Copy full reference ──
     if (action === 'copy') {
       e.preventDefault();
-      const id = currentTroubleshoot?.errorId;
+      const id = window.__tsCurrent?.errorId;
       if (!id) {
-        toast('لا يوجد معرّف للنسخ', 'error');
+        tsToast('لا يوجد معرّف للنسخ', 'error');
         return;
       }
 
@@ -620,11 +716,11 @@
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>جارٍ النسخ...</span>';
 
-      const ok = await copyToClipboard(id);
+      const ok = await tsCopyToClipboard(id);
 
       if (ok) {
         btn.innerHTML = '<i class="fas fa-check"></i><span>تم النسخ ✓</span>';
-        toast(`تم نسخ المعرّف: ${id}`, 'success');
+        tsToast(`تم نسخ المعرّف: ${id}`, 'success');
         setTimeout(() => {
           btn.disabled = false;
           btn.innerHTML = originalHTML;
@@ -632,7 +728,7 @@
       } else {
         btn.disabled = false;
         btn.innerHTML = originalHTML;
-        toast('تعذّر النسخ — انسخ يدوياً: ' + id, 'error');
+        tsToast('تعذّر النسخ — انسخ يدوياً: ' + id, 'error');
       }
       return;
     }
@@ -640,7 +736,7 @@
     // ── Support ──
     if (action === 'support') {
       e.preventDefault();
-      if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
+      closeTsPanel();
       setTimeout(() => {
         if (typeof window.openContactModal === 'function') {
           window.openContactModal();
@@ -653,9 +749,14 @@
   });
 
   // ═══════════════════════════════════════════════════════════
-  // Public API
+  // Expose public API
   // ═══════════════════════════════════════════════════════════
-  window.reportIssue = (toolName, issueType) => {
+  window.openTroubleshootModal = openTroubleshootModal;
+  window.closeTsPanel = closeTsPanel;
+  window.openTsPanel = openTsPanel;
+
+  // Helpers — يستخدمها app.js
+  window.reportIssue = (toolName, issueType, error) => {
     window.openTroubleshootModal(toolName, issueType);
   };
 
@@ -669,7 +770,9 @@
       const retryAfter = parseInt(response.headers?.get?.('Retry-After')) || 60;
       return window.openTroubleshootModal(toolName, 'rate_limit', { retryAfter, ...extraDetails });
     }
-    if (status === 422 || status === 400) return window.openTroubleshootModal(toolName, 'validation', extraDetails);
+    if (status === 422 || status === 400) {
+      return window.openTroubleshootModal(toolName, 'validation', extraDetails);
+    }
     if (status === 408 || status === 504) return window.openTroubleshootModal(toolName, 'timeout');
     if (status >= 500) return window.openTroubleshootModal(toolName, 'server');
     return window.openTroubleshootModal(toolName, 'unknown', extraDetails);
@@ -677,8 +780,12 @@
 
   window.handleFetchError = (toolName, error) => {
     if (!navigator.onLine) return window.openTroubleshootModal(toolName, 'network');
-    if (error?.name === 'AbortError' || error?.name === 'TimeoutError') return window.openTroubleshootModal(toolName, 'timeout');
-    if (error?.message?.includes('Failed to fetch') || error?.message?.includes('NetworkError')) return window.openTroubleshootModal(toolName, 'network');
+    if (error?.name === 'AbortError' || error?.name === 'TimeoutError') {
+      return window.openTroubleshootModal(toolName, 'timeout');
+    }
+    if (error?.message?.includes('Failed to fetch') || error?.message?.includes('NetworkError')) {
+      return window.openTroubleshootModal(toolName, 'network');
+    }
     return window.openTroubleshootModal(toolName, 'unknown');
   };
 
