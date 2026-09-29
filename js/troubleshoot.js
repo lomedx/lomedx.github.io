@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
-// Troubleshoot Modal — LomedX Integrated
-// يتكامل تلقائياً مع openCtrlPanel + showToast من app.js
+// Troubleshoot Modal — LomedX Integration
+// يعتمد على: openCtrlPanel + closeCtrlPanel + showToast من app.js
 // ═══════════════════════════════════════════════════════════
 
 (function () {
@@ -9,7 +9,7 @@
   // ═══════════════════════════════════════════════════════════
   // Utilities
   // ═══════════════════════════════════════════════════════════
-  function tsEscape(str) {
+  function escapeHTML(str) {
     return String(str ?? '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -18,7 +18,7 @@
       .replace(/'/g, '&#39;');
   }
 
-  function tsGenerateErrorId() {
+  function generateErrorId() {
     if (window.crypto?.getRandomValues) {
       const arr = new Uint8Array(4);
       crypto.getRandomValues(arr);
@@ -28,16 +28,16 @@
     return 'ERR-' + Date.now().toString(36).toUpperCase().slice(-8);
   }
 
-  function tsFormatTime(seconds) {
+  function formatTime(seconds) {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }
 
   // ═══════════════════════════════════════════════════════════
-  // Clipboard — نسخة مضمونة (تعمل على كل البيئات)
+  // Copy to Clipboard — نسخة مضمونة 100%
   // ═══════════════════════════════════════════════════════════
-  async function tsCopyToClipboard(text) {
+  async function copyToClipboard(text) {
     if (!text) return false;
 
     if (navigator.clipboard && window.isSecureContext) {
@@ -74,9 +74,20 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ISSUES MAP
+  // Toast — يستخدم showToast الموجود في app.js أو fallback
   // ═══════════════════════════════════════════════════════════
-  const TS_ISSUES = {
+  function toast(message, type = 'success') {
+    if (typeof window.showToast === 'function') {
+      window.showToast(message, type);
+    } else {
+      console.log('[Toast]', type, message);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ISSUES MAP (نفس الكود السابق — بدون تغيير)
+  // ═══════════════════════════════════════════════════════════
+  const ISSUES = {
     support: {
       title: 'مركز الدعم والمساعدة',
       icon: 'fa-headset',
@@ -113,13 +124,8 @@
       color: '#F59E0B',
       reason: 'قمت بإرسال الطلب عدة مرات في وقت قصير، فتم إيقافك مؤقتاً لمنع السبام.',
       solution: 'انتظر انتهاء العدّاد التنازلي أدناه قبل المحاولة مرة أخرى.',
-      commonCauses: [
-        'النقر المتكرر على زر الإرسال.',
-        'تحديث الصفحة بشكل متكرر.',
-      ],
-      quickFixes: [
-        { icon: 'fa-clock', text: 'انتظر انتهاء العدّاد' },
-      ],
+      commonCauses: ['النقر المتكرر على زر الإرسال.', 'تحديث الصفحة بشكل متكرر.'],
+      quickFixes: [{ icon: 'fa-clock', text: 'انتظر انتهاء العدّاد' }],
     },
     validation: {
       title: 'بيانات غير مكتملة',
@@ -139,10 +145,7 @@
       color: '#EF4444',
       reason: 'لم يتمكن النظام من التأكد أنك لست روبوت، ربما بسبب إضافة مانع الإعلانات.',
       solution: 'أوقف مانع الإعلانات على موقعنا، أو حدّث الصفحة.',
-      commonCauses: [
-        'استخدام إضافات AdBlocker.',
-        'وضع التصفح الخفي.',
-      ],
+      commonCauses: ['استخدام إضافات AdBlocker.', 'وضع التصفح الخفي.'],
       quickFixes: [
         { icon: 'fa-shield-halved', text: 'أوقف AdBlocker' },
         { icon: 'fa-sync', text: 'أعد تحميل الصفحة', action: 'reload' },
@@ -176,7 +179,7 @@
       reason: 'هذه الأداة تتطلب تسجيل الدخول. ربما انتهت جلستك.',
       solution: 'سجّل الدخول من جديد ثم أعد المحاولة.',
       commonCauses: ['انتهاء صلاحية الجلسة.', 'تسجيل الخروج من تبويب آخر.'],
-      quickFixes: [],
+      quickFixes: [{ icon: 'fa-right-to-bracket', text: 'تسجيل الدخول', action: 'login' }],
     },
     permission: {
       title: 'صلاحيات غير كافية',
@@ -211,19 +214,9 @@
   };
 
   // ═══════════════════════════════════════════════════════════
-  // State
-  // ═══════════════════════════════════════════════════════════
-  const tsState = {
-    current: null,
-    countdown: null,
-    retry: null,
-    bound: false,
-  };
-
-  // ═══════════════════════════════════════════════════════════
   // Connection Test
   // ═══════════════════════════════════════════════════════════
-  async function tsTestConnection() {
+  async function testServerConnection() {
     const url = location.pathname === '/' ? '/favicon.ico' : location.pathname.split('?')[0];
     const start = performance.now();
     try {
@@ -240,23 +233,25 @@
   // ═══════════════════════════════════════════════════════════
   // Countdown
   // ═══════════════════════════════════════════════════════════
-  function tsStartCountdown(seconds) {
-    if (tsState.countdown) clearInterval(tsState.countdown);
+  let countdownInterval = null;
 
-    const el = document.querySelector('.ts-countdown-value[data-countdown]');
+  function startCountdown(seconds) {
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    const el = document.querySelector('[data-countdown]');
     if (!el) return;
 
     let remaining = seconds;
     const retryBtns = document.querySelectorAll('[data-ts-action="retry"]');
     retryBtns.forEach(b => b.disabled = true);
 
-    tsState.countdown = setInterval(() => {
+    countdownInterval = setInterval(() => {
       remaining--;
-      el.textContent = tsFormatTime(Math.max(0, remaining));
+      el.textContent = formatTime(Math.max(0, remaining));
 
       if (remaining <= 0) {
-        clearInterval(tsState.countdown);
-        tsState.countdown = null;
+        clearInterval(countdownInterval);
+        countdownInterval = null;
         el.textContent = '✅ يمكنك المحاولة الآن';
         el.classList.add('is-ready');
         retryBtns.forEach(b => b.disabled = false);
@@ -267,19 +262,22 @@
   // ═══════════════════════════════════════════════════════════
   // Main Function
   // ═══════════════════════════════════════════════════════════
-  window.openTroubleshootModal = function (toolName = 'غير محددة', issueType = 'unknown', details = {}) {
-    if (!TS_ISSUES[issueType]) issueType = 'unknown';
+  let currentTroubleshoot = null;
 
-    const issue = TS_ISSUES[issueType];
-    const errorId = tsGenerateErrorId();
-    const safeToolName = tsEscape(toolName);
+  window.openTroubleshootModal = function (toolName = 'غير محددة', issueType = 'unknown', details = {}) {
+    if (!ISSUES[issueType]) issueType = 'unknown';
+
+    const issue = ISSUES[issueType];
+    const errorId = generateErrorId();
+    const safeToolName = escapeHTML(toolName);
+
     const isOnline = navigator.onLine;
     const localTime = new Date().toLocaleString('ar-SY', {
       year: 'numeric', month: '2-digit', day: '2-digit',
       hour: '2-digit', minute: '2-digit',
     });
 
-    // ─── Header ───
+    // ── Header ──
     const headerHTML = `
       <div class="ts-header">
         <div class="ts-icon-wrap" style="color: ${issue.color}">
@@ -289,36 +287,41 @@
             <i class="fas ${issue.icon}"></i>
           </div>
         </div>
-        <h3 class="ts-title">${tsEscape(issue.title)}</h3>
+        <h3 class="ts-title">${escapeHTML(issue.title)}</h3>
         <div class="ts-badges">
           <span class="ts-badge ts-badge--tool">
-            <i class="fas fa-toolbox"></i> ${safeToolName}
+            <i class="fas fa-toolbox"></i>
+            ${safeToolName}
           </span>
-          <button type="button" class="ts-badge ts-badge--id"
-                  data-ts-action="copy-id" data-error-id="${errorId}"
+          <button type="button"
+                  class="ts-badge ts-badge--id"
+                  data-ts-action="copy-id"
+                  data-error-id="${errorId}"
                   title="اضغط للنسخ">
-            <i class="fas fa-fingerprint"></i> ${errorId}
+            <i class="fas fa-fingerprint"></i>
+            ${errorId}
           </button>
         </div>
       </div>
     `;
 
-    // ─── Countdown ───
+    // ── Countdown ──
     let countdownHTML = '';
     if (issueType === 'rate_limit' && details.retryAfter) {
       countdownHTML = `
         <div class="ts-countdown">
           <div class="ts-countdown-label">
-            <i class="fas fa-hourglass-half"></i> يمكنك المحاولة بعد
+            <i class="fas fa-hourglass-half"></i>
+            يمكنك المحاولة بعد
           </div>
           <div class="ts-countdown-value" data-countdown="${details.retryAfter}">
-            ${tsFormatTime(details.retryAfter)}
+            ${formatTime(details.retryAfter)}
           </div>
         </div>
       `;
     }
 
-    // ─── Failed Fields ───
+    // ── Failed Fields ──
     let failedFieldsHTML = '';
     if (issueType === 'validation' && Array.isArray(details.fields) && details.fields.length) {
       failedFieldsHTML = `
@@ -331,7 +334,7 @@
             ${details.fields.map(f => `
               <li class="ts-list-item">
                 <i class="fas fa-circle-xmark"></i>
-                <span><strong>${tsEscape(f.name)}:</strong> ${tsEscape(f.error)}</span>
+                <span><strong>${escapeHTML(f.name)}:</strong> ${escapeHTML(f.error)}</span>
               </li>
             `).join('')}
           </ul>
@@ -339,29 +342,31 @@
       `;
     }
 
-    // ─── Reason ───
+    // ── Reason ──
     const reasonHTML = `
       <div class="ts-section ts-section--reason">
         <div class="ts-section-title">
-          <i class="fas fa-bug"></i> <span>السبب المحتمل</span>
+          <i class="fas fa-bug"></i>
+          <span>السبب المحتمل</span>
         </div>
-        <p class="ts-section-body">${tsEscape(issue.reason)}</p>
+        <p class="ts-section-body">${escapeHTML(issue.reason)}</p>
       </div>
     `;
 
-    // ─── Common Causes ───
+    // ── Common Causes ──
     let causesHTML = '';
     if (issue.commonCauses?.length) {
       causesHTML = `
         <div class="ts-section ts-section--causes">
           <div class="ts-section-title">
-            <i class="fas fa-magnifying-glass"></i> <span>أسباب شائعة</span>
+            <i class="fas fa-magnifying-glass"></i>
+            <span>أسباب شائعة</span>
           </div>
           <ul class="ts-list ts-list--causes">
             ${issue.commonCauses.map(c => `
               <li class="ts-list-item ts-list-item--cause">
                 <i class="fas fa-circle"></i>
-                <span>${tsEscape(c)}</span>
+                <span>${escapeHTML(c)}</span>
               </li>
             `).join('')}
           </ul>
@@ -369,23 +374,25 @@
       `;
     }
 
-    // ─── Solution ───
+    // ── Solution ──
     const solutionHTML = `
       <div class="ts-section ts-section--solution">
         <div class="ts-section-title">
-          <i class="fas fa-lightbulb"></i> <span>كيف تحل المشكلة؟</span>
+          <i class="fas fa-lightbulb"></i>
+          <span>كيف تحل المشكلة؟</span>
         </div>
-        <p class="ts-section-body">${tsEscape(issue.solution)}</p>
+        <p class="ts-section-body">${escapeHTML(issue.solution)}</p>
       </div>
     `;
 
-    // ─── Quick Fixes ───
+    // ── Quick Fixes ──
     let quickFixesHTML = '';
     if (issue.quickFixes?.length) {
       quickFixesHTML = `
         <div class="ts-quickfixes">
           <div class="ts-quickfixes-title">
-            <i class="fas fa-bolt"></i> <span>حلول سريعة</span>
+            <i class="fas fa-bolt"></i>
+            <span>حلول سريعة</span>
           </div>
           <div class="ts-quickfixes-grid">
             ${issue.quickFixes.map((fix, i) => {
@@ -394,8 +401,10 @@
               return `
                 <button type="button" ${actionAttr}
                         class="ts-quickfix ${isPrimary ? 'ts-quickfix--primary' : ''}">
-                  <span class="ts-quickfix-icon"><i class="fas ${fix.icon}"></i></span>
-                  <span class="ts-quickfix-text">${tsEscape(fix.text)}</span>
+                  <span class="ts-quickfix-icon">
+                    <i class="fas ${fix.icon}"></i>
+                  </span>
+                  <span class="ts-quickfix-text">${escapeHTML(fix.text)}</span>
                   ${fix.action ? '<i class="fas fa-arrow-left ts-quickfix-arrow"></i>' : ''}
                 </button>
               `;
@@ -405,7 +414,7 @@
       `;
     }
 
-    // ─── Support Details ───
+    // ── Support Details ──
     const supportDetails = [
       { key: 'معرّف الخطأ', value: errorId, icon: 'fa-fingerprint' },
       { key: 'الأداة', value: toolName, icon: 'fa-toolbox' },
@@ -424,9 +433,10 @@
           ${supportDetails.map(d => `
             <div class="ts-details-row">
               <span class="ts-details-key">
-                <i class="fas ${d.icon}"></i> ${tsEscape(d.key)}
+                <i class="fas ${d.icon}"></i>
+                ${escapeHTML(d.key)}
               </span>
-              <span class="ts-details-value">${tsEscape(d.value)}</span>
+              <span class="ts-details-value">${escapeHTML(d.value)}</span>
             </div>
           `).join('')}
           <div class="ts-details-note">
@@ -437,19 +447,24 @@
       </details>
     `;
 
+    // ── Connection Result ──
     const connectionResultHTML = `<div class="ts-connection-result hidden"></div>`;
 
+    // ── Actions ──
     const actionsHTML = `
       <div class="ts-actions">
         <button type="button" class="ts-btn ts-btn--primary" data-ts-action="copy">
-          <i class="fas fa-copy"></i> <span>نسخ رقم المرجع</span>
+          <i class="fas fa-copy"></i>
+          <span>نسخ رقم المرجع</span>
         </button>
         <button type="button" class="ts-btn ts-btn--secondary" data-ts-action="close">
-          <i class="fas fa-arrow-rotate-left"></i> <span>العودة</span>
+          <i class="fas fa-arrow-rotate-left"></i>
+          <span>العودة</span>
         </button>
       </div>
     `;
 
+    // ── Support Link ──
     const supportLinkHTML = `
       <button type="button" class="ts-support-link" data-ts-action="support">
         <i class="fas fa-headset"></i>
@@ -457,7 +472,7 @@
       </button>
     `;
 
-    // ─── Final HTML ───
+    // ── Final HTML ──
     const html = `
       <div class="ts-panel">
         ${headerHTML}
@@ -474,170 +489,172 @@
       </div>
     `;
 
-    // ─── Open via openCtrlPanel ───
+    // ── Open Panel — استخدام openCtrlPanel الموجودة في app.js ──
     if (typeof window.openCtrlPanel === 'function') {
       window.openCtrlPanel('مركز حل المشكلات', html, issue.color);
     } else {
-      if (typeof window.showToast === 'function') {
-        window.showToast('عذراً، حدث خطأ في عرض المساعدة.', 'error');
+      toast('عذراً، حدث خطأ في عرض المساعدة.', 'error');
+      return;
+    }
+
+    // ── Countdown ──
+    if (issueType === 'rate_limit' && details.retryAfter) {
+      startCountdown(details.retryAfter);
+    }
+
+    // ── Save state ──
+    currentTroubleshoot = { errorId, toolName, issueType };
+  };
+
+  // ═══════════════════════════════════════════════════════════
+  // Retry System
+  // ═══════════════════════════════════════════════════════════
+  let retryFunction = null;
+
+  window.registerRetry = (fn) => { retryFunction = fn; };
+
+  window.retryLastAction = async () => {
+    if (typeof retryFunction === 'function') {
+      try { await retryFunction(); }
+      catch { toast('فشلت المحاولة مرة أخرى', 'error'); }
+    } else {
+      toast('لا توجد عملية لإعادة المحاولة', 'info');
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════
+  // Event Delegation
+  // ═══════════════════════════════════════════════════════════
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-ts-action]');
+    if (!btn) return;
+
+    const action = btn.dataset.tsAction;
+
+    // ── Close ──
+    if (action === 'close') {
+      e.preventDefault();
+      if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
+      return;
+    }
+
+    // ── Retry ──
+    if (action === 'retry') {
+      e.preventDefault();
+      if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
+      setTimeout(() => window.retryLastAction(), 300);
+      return;
+    }
+
+    // ── Reload ──
+    if (action === 'reload') {
+      e.preventDefault();
+      if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
+      setTimeout(() => location.reload(), 200);
+      return;
+    }
+
+    // ── Home ──
+    if (action === 'home') {
+      e.preventDefault();
+      if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
+      setTimeout(() => { location.href = '/'; }, 200);
+      return;
+    }
+
+    // ── Login ──
+    if (action === 'login') {
+      e.preventDefault();
+      if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
+      setTimeout(() => { location.href = '/login'; }, 200);
+      return;
+    }
+
+    // ── Test Connection ──
+    if (action === 'test-connection') {
+      e.preventDefault();
+      const box = document.querySelector('.ts-connection-result');
+      if (!box) return;
+
+      box.classList.remove('hidden');
+      box.innerHTML = `
+        <div class="ts-connection-status ts-connection-status--loading">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>جارٍ اختبار الاتصال...</span>
+        </div>
+      `;
+
+      const result = await testServerConnection();
+      const ok = result.ok;
+      box.innerHTML = `
+        <div class="ts-connection-status ${ok ? 'ts-connection-status--ok' : 'ts-connection-status--fail'}">
+          <i class="fas ${ok ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
+          <span>${ok ? 'الاتصال سليم' : 'تعذّر الاتصال'}</span>
+          <span class="ts-connection-time">${result.time}ms</span>
+        </div>
+      `;
+
+      toast(ok ? '✅ الاتصال بالخادم سليم' : '⚠️ مشاكل في الاتصال', ok ? 'success' : 'error');
+      return;
+    }
+
+    // ── Copy ID ──
+    if (action === 'copy-id') {
+      e.preventDefault();
+      const id = btn.dataset.errorId;
+      const ok = await copyToClipboard(id);
+      toast(ok ? '✅ تم نسخ المعرّف' : '❌ تعذّر النسخ', ok ? 'success' : 'error');
+      return;
+    }
+
+    // ── Copy Full ──
+    if (action === 'copy') {
+      e.preventDefault();
+      const id = currentTroubleshoot?.errorId;
+      if (!id) {
+        toast('لا يوجد معرّف للنسخ', 'error');
+        return;
+      }
+
+      const originalHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>جارٍ النسخ...</span>';
+
+      const ok = await copyToClipboard(id);
+
+      if (ok) {
+        btn.innerHTML = '<i class="fas fa-check"></i><span>تم النسخ ✓</span>';
+        toast(`تم نسخ المعرّف: ${id}`, 'success');
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.innerHTML = originalHTML;
+        }, 2000);
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+        toast('تعذّر النسخ — انسخ يدوياً: ' + id, 'error');
       }
       return;
     }
 
-    if (issueType === 'rate_limit' && details.retryAfter) {
-      tsStartCountdown(details.retryAfter);
-    }
-
-    tsState.current = { errorId, toolName, issueType, issue, details };
-  };
-
-  // ═══════════════════════════════════════════════════════════
-  // Delegated Actions
-  // ═══════════════════════════════════════════════════════════
-  if (!tsState.bound) {
-    tsState.bound = true;
-
-    document.addEventListener('click', async (e) => {
-      const btn = e.target.closest('[data-ts-action]');
-      if (!btn) return;
-
-      const action = btn.dataset.tsAction;
-
-      // ─── Close ───
-      if (action === 'close') {
-        e.preventDefault();
-        if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
-        return;
-      }
-
-      // ─── Retry ───
-      if (action === 'retry') {
-        e.preventDefault();
-        if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
-        setTimeout(() => {
-          if (typeof tsState.retry === 'function') tsState.retry();
-          else if (typeof window.showToast === 'function') window.showToast('لا توجد عملية لإعادة المحاولة', 'info');
-        }, 300);
-        return;
-      }
-
-      // ─── Reload ───
-      if (action === 'reload') {
-        e.preventDefault();
-        if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
-        setTimeout(() => location.reload(), 200);
-        return;
-      }
-
-      // ─── Home ───
-      if (action === 'home') {
-        e.preventDefault();
-        if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
-        setTimeout(() => { location.href = '/'; }, 200);
-        return;
-      }
-
-      // ─── Test Connection ───
-      if (action === 'test-connection') {
-        e.preventDefault();
-        const box = document.querySelector('.ts-connection-result');
-        if (!box) return;
-
-        box.classList.remove('hidden');
-        box.innerHTML = `
-          <div class="ts-connection-status ts-connection-status--loading">
-            <i class="fas fa-spinner fa-spin"></i>
-            <span>جارٍ اختبار الاتصال...</span>
-          </div>
-        `;
-
-        const result = await tsTestConnection();
-        const ok = result.ok;
-        box.innerHTML = `
-          <div class="ts-connection-status ${ok ? 'ts-connection-status--ok' : 'ts-connection-status--fail'}">
-            <i class="fas ${ok ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
-            <span>${ok ? 'الاتصال سليم' : 'تعذّر الاتصال'}</span>
-            <span class="ts-connection-time">${result.time}ms</span>
-          </div>
-        `;
-
-        if (typeof window.showToast === 'function') {
-          window.showToast(ok ? '✅ الاتصال بالخادم سليم' : '⚠️ مشاكل في الاتصال', ok ? 'success' : 'error');
-        }
-        return;
-      }
-
-      // ─── Copy ID (badge) ───
-      if (action === 'copy-id') {
-        e.preventDefault();
-        const id = btn.dataset.errorId;
-        const ok = await tsCopyToClipboard(id);
-        if (typeof window.showToast === 'function') {
-          window.showToast(ok ? '✅ تم نسخ المعرّف' : '❌ تعذّر النسخ', ok ? 'success' : 'error');
-        }
-        return;
-      }
-
-      // ─── Copy full reference ───
-      if (action === 'copy') {
-        e.preventDefault();
-        const id = tsState.current?.errorId;
-        if (!id) {
-          if (typeof window.showToast === 'function') window.showToast('لا يوجد معرّف للنسخ', 'error');
-          return;
-        }
-
-        const originalHTML = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>جارٍ النسخ...</span>';
-
-        const ok = await tsCopyToClipboard(id);
-
-        if (ok) {
-          btn.innerHTML = '<i class="fas fa-check"></i> <span>تم النسخ ✓</span>';
-          if (typeof window.showToast === 'function') window.showToast(`تم نسخ المعرّف: ${id}`, 'success');
-          setTimeout(() => {
-            btn.disabled = false;
-            btn.innerHTML = originalHTML;
-          }, 2000);
+    // ── Support ──
+    if (action === 'support') {
+      e.preventDefault();
+      if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
+      setTimeout(() => {
+        if (typeof window.openContactModal === 'function') {
+          window.openContactModal();
         } else {
-          btn.disabled = false;
-          btn.innerHTML = originalHTML;
-          if (typeof window.showToast === 'function') window.showToast('تعذّر النسخ — انسخ يدوياً: ' + id, 'error');
+          location.href = '/contact';
         }
-        return;
-      }
-
-      // ─── Support ───
-      if (action === 'support') {
-        e.preventDefault();
-        if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
-        setTimeout(() => {
-          if (typeof window.openContactModal === 'function') {
-            window.openContactModal();
-          } else {
-            location.href = '/contact';
-          }
-        }, 300);
-        return;
-      }
-    });
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // Public API — Helpers
-  // ═══════════════════════════════════════════════════════════
-  window.registerRetry = (fn) => { tsState.retry = fn; };
-
-  window.retryLastAction = async () => {
-    if (typeof tsState.retry === 'function') {
-      try { await tsState.retry(); }
-      catch { if (typeof window.showToast === 'function') window.showToast('فشلت المحاولة مرة أخرى', 'error'); }
-    } else if (typeof window.showToast === 'function') {
-      window.showToast('لا توجد عملية لإعادة المحاولة', 'info');
+      }, 300);
+      return;
     }
-  };
+  });
 
+  // ═══════════════════════════════════════════════════════════
+  // Public API
+  // ═══════════════════════════════════════════════════════════
   window.reportIssue = (toolName, issueType) => {
     window.openTroubleshootModal(toolName, issueType);
   };
