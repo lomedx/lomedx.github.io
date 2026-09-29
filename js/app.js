@@ -7782,79 +7782,60 @@ window.showToast = (message, type = 'info', duration = 4000) => {
   window.retryLastAction = retryLastAction;
   window.reportIssue = (toolName, issueType) => openTroubleshootModal(toolName, issueType);
 
-  window.handleFetchError = (toolName, error, contextData = {}) => {
+    window.handleFetchError = (toolName, error, contextData = {}) => {
     if (!navigator.onLine) return openTroubleshootModal(toolName, 'network');
-    
-    if (error?.name === 'AbortError' || error?.name === 'TimeoutError') {
-        return openTroubleshootModal(toolName, 'timeout');
-    }
-    
-    if (error?.message?.includes('Failed to fetch') || error?.message?.includes('NetworkError')) {
-        return openTroubleshootModal(toolName, 'network');
-    }
-    
-    // إذا كان الخطأ يحمل حالة HTTP (مثل أخطاء Supabase Functions)
-    if (error?.context?.status) {
-        return window.handleHttpError(toolName, error.context, contextData);
-    }
-
-    // لل الأخطاء الغامضة، نمرر البيانات الإضافية لتسجل في القاعدة
+    if (error?.name === 'AbortError' || error?.name === 'TimeoutError') return openTroubleshootModal(toolName, 'timeout');
+    if (error?.message?.includes('Failed to fetch') || error?.message?.includes('NetworkError')) return openTroubleshootModal(toolName, 'network');
+    if (error?.context?.status) return window.handleHttpError(toolName, error.context, contextData);
     return openTroubleshootModal(toolName, 'unknown', contextData);
-};
+  };
 
-window.handleHttpError = (toolName, response, extraDetails = {}) => {
+  window.handleHttpError = (toolName, response, extraDetails = {}) => {
     const status = response?.status;
     if (!navigator.onLine) return openTroubleshootModal(toolName, 'network', extraDetails);
     if (status === 401) return openTroubleshootModal(toolName, 'auth', extraDetails);
     if (status === 403) return openTroubleshootModal(toolName, 'permission', extraDetails);
     if (status === 404) return openTroubleshootModal(toolName, 'not_found', extraDetails);
     if (status === 429) {
-        const retryAfter = parseInt(response.headers?.get?.('Retry-After')) || 60;
-        return openTroubleshootModal(toolName, 'rate_limit', { retryAfter, ...extraDetails });
+      const retryAfter = parseInt(response.headers?.get?.('Retry-After')) || 60;
+      return openTroubleshootModal(toolName, 'rate_limit', { retryAfter, ...extraDetails });
     }
     if (status === 422 || status === 400) return openTroubleshootModal(toolName, 'validation', extraDetails);
     if (status === 408 || status === 504) return openTroubleshootModal(toolName, 'timeout', extraDetails);
     if (status === 503) return openTroubleshootModal(toolName, 'maintenance', extraDetails);
     if (status >= 500) return openTroubleshootModal(toolName, 'server', extraDetails);
     return openTroubleshootModal(toolName, 'unknown', extraDetails);
-};
-// === دالة تسجيل الأخطاء المحصنة ===
-const errorThrottleCache = {}; // ذاكرة مؤقتة لمنع الإغراق
+  };
+})(); // <-- هذا القوس يغلق محرك الأخطاء بالكامل
+
+// === دالة تسجيل الأخطاء المحصنة (خارج المحرك) ===
+const errorThrottleCache = {}; 
 
 async function logErrorToSupabase(errorData) {
     try {
-        // 1. نظام الخنق (Throttling): منع تسجيل نفس الخطأ أكثر من مرة في الدقيقة
         const cacheKey = `${errorData.issueType}_${errorData.toolName}`;
         const now = Date.now();
-        if (errorThrottleCache[cacheKey] && (now - errorThrottleCache[cacheKey] < 60000)) {
-            return; // إذا حدث نفس الخطأ خلال أقل من دقيقة، لا تسجله
-        }
+        if (errorThrottleCache[cacheKey] && (now - errorThrottleCache[cacheKey] < 60000)) return;
         errorThrottleCache[cacheKey] = now;
 
-        // 2. تنظيف وتأمين البيانات (Sanitization): منع حقن الأكواد (XSS)
         const cleanUserAgent = (navigator.userAgent || 'unknown').substring(0, 255);
-        
         let userId = null;
-        let userRole = 'guest'; // افتراضياً زائر
+        let userRole = 'guest';
 
-        // 3. تحديد الدور بأمان (بناءً على نظامك الخاص)
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
             userId = session.user.id;
             const email = session.user.email || '';
-            
             const { data: isAdmin } = await supabase.rpc('is_admin');
             if (isAdmin) {
                 userRole = 'admin';
             } else if (email.endsWith('@lomedx.app')) {
-                // التفريق بين الطبيب والصيدلية بناءً على بريدك الافتراضي
                 userRole = email.startsWith('doc_') ? 'doctor' : 'pharmacy';
             } else {
-                userRole = 'patient'; // صاحب ملف صحي
+                userRole = 'patient';
             }
         }
 
-        // 4. الإرسال الآمن لقاعدة البيانات
         await supabase.from('error_logs').insert([{
             error_code: errorData.errorId,
             issue_type: errorData.issueType,
@@ -7862,11 +7843,8 @@ async function logErrorToSupabase(errorData) {
             user_id: userId,
             user_role: userRole,
             user_agent: cleanUserAgent
-            // يمكننا إضافة حقل duration في القاعدة لاحقاً إذا أردت
-        // duration_ms: errorData.contextData?.duration || null 
         }]);
     } catch (e) {
-        // تجاهل أي خطأ يحدث هنا لكي لا يتسبب في حلقة مفرغة من الأخطاء
         console.error('Silent log error:', e);
     }
 }
