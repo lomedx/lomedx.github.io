@@ -3999,6 +3999,53 @@ async function fetchAnnouncements() {
     }
     renderTopAnnouncement();
 }
+async function fetchAdminErrorLogs() {
+    const { data, error } = await supabase.from('error_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+    const list = document.getElementById('adminErrorLogsList');
+    if (!list) return;
+
+    if (error || !data) { list.innerHTML = '<p class="text-center text-red-500 text-sm py-2">خطأ في تحميل السجل.</p>'; return; }
+    if (data.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 text-sm py-2">لا توجد أخطاء مسجلة. ممتاز!</p>'; return; }
+
+    // تحديث العدادات
+    const counts = { network: 0, validation: 0, auth: 0, server: 0 };
+    data.forEach(e => { if(counts[e.issue_type] !== undefined) counts[e.issue_type]++; });
+    const elNet = document.getElementById('errStatNetwork'); if(elNet) elNet.innerText = counts.network;
+    const elVal = document.getElementById('errStatValidation'); if(elVal) elNet.innerText = counts.validation;
+    const elAuth = document.getElementById('errStatAuth'); if(elAuth) elAuth.innerText = counts.auth;
+    const elServ = document.getElementById('errStatServer'); if(elServ) elServ.innerText = counts.server;
+
+    // عرض السجل (مع استخدام escapeHtml للحماية من XSS)
+    list.innerHTML = data.map(e => {
+        const time = new Date(e.created_at).toLocaleString('ar-EG', { date: 'short', time: 'short' });
+        const roleBadge = {
+            guest: '<span class="text-[9px] bg-gray-100 text-gray-600 px-1 rounded">زائر</span>',
+            patient: '<span class="text-[9px] bg-pink-100 text-pink-600 px-1 rounded">مريض</span>',
+            doctor: '<span class="text-[9px] bg-blue-100 text-blue-600 px-1 rounded">طبيب</span>',
+            pharmacy: '<span class="text-[9px] bg-green-100 text-green-600 px-1 rounded">صيدلي</span>',
+            admin: '<span class="text-[9px] bg-purple-100 text-purple-600 px-1 rounded">أدمن</span>'
+        }[e.user_role] || '';
+
+        return `
+        <div class="flex items-center justify-between p-2 rounded-lg border" style="border-color: var(--border)">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-circle-exclamation text-red-500 text-xs"></i>
+                <div>
+                    <span class="font-mono text-xs font-bold text-gray-700">${escapeHtml(e.error_code)}</span>
+                    <span class="text-xs text-gray-500 mr-1">- ${escapeHtml(e.tool_name)}</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                ${roleBadge}
+                <span class="text-[10px] text-gray-400">${escapeHtml(time)}</span>
+            </div>
+        </div>`;
+    }).join('');
+}
 function renderTopAnnouncement() {
     const navbar = document.getElementById('navbar'); const annBar = document.getElementById('topAnnouncementBar'); const homeSection = document.getElementById('home');
     if (annBar && navbar && homeSection) {
