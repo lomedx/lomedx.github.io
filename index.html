@@ -910,8 +910,45 @@
         <li><a href="#labs" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> المخابر الطبية</a></li>
         <li><a href="#pharmacies" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> الصيدليات</a></li>
         <li><button onclick="toggleEmergencyPopup()" class="text-white/50 hover:text-[var(--gold)] transition-colors flex items-center gap-2 group w-full text-right"><i class="fas fa-angle-left text-xs text-[var(--gold)]/50 group-hover:text-[var(--gold)]"></i> أرقام الطوارئ و الجهات الصحية</button></li>
-        <button onclick="window.TroubleshootEngine.show('تسجيل منشأة', 'server')">تجربة خطأ السيرفر</button>
-<button onclick="window.TroubleshootEngine.show('البحث الطبي', 'network')">تجربة خطأ الإنترنت</button>
+         
+    <!-- أزرار لتجربة جميع الحقول الـ 12 -->
+
+<!-- 1. خطأ الشبكة -->
+<button onclick="window.openTroubleshootModal('البحث الطبي', 'network')" class="bg-red-500 text-white p-2 rounded m-1">1. خطأ شبكة</button>
+
+<!-- 2. كثرة المحاولات (يظهر معه عداد تنازلي) -->
+<button onclick="window.openTroubleshootModal('تسجيل منشأة', 'rate_limit', { retryAfter: 60 })" class="bg-yellow-500 text-white p-2 rounded m-1">2. محاولات كثيرة</button>
+
+<!-- 3. خطأ البيانات (يظهر قائمة بالحقول الخاطئة) -->
+<button onclick="window.openTroubleshootModal('تسجيل منشأة', 'validation', { fields: [{ name: 'رقم الهاتف', error: 'يجب أن يبدأ بـ 09' }, { name: 'الاسم', error: 'مطلوب' }] })" class="bg-yellow-500 text-white p-2 rounded m-1">3. بيانات ناقصة</button>
+
+<!-- 4. فشل التحقق الأمني (Cloudflare) -->
+<button onclick="window.openTroubleshootModal('رفع صورة', 'cloudflare')" class="bg-red-500 text-white p-2 rounded m-1">4. فشل أمني</button>
+
+<!-- 5. انتهاء المهلة -->
+<button onclick="window.openTroubleshootModal('تحميل الملفات', 'timeout')" class="bg-yellow-500 text-white p-2 rounded m-1">5. انتهت المهلة</button>
+
+<!-- 6. خطأ السيرفر -->
+<button onclick="window.openTroubleshootModal('تسجيل منشأة', 'server')" class="bg-red-500 text-white p-2 rounded m-1">6. خطأ خادم</button>
+
+<!-- 7. يحتاج تسجيل دخول -->
+<button onclick="window.openTroubleshootModal('لوحة التحكم', 'auth')" class="bg-blue-500 text-white p-2 rounded m-1">7. تسجيل دخول</button>
+
+<!-- 8. صلاحيات غير كافية -->
+<button onclick="window.openTroubleshootModal('إدارة المستخدمين', 'permission')" class="bg-red-500 text-white p-2 rounded m-1">8. صلاحيات</button>
+
+<!-- 9. غير موجود -->
+<button onclick="window.openTroubleshootModal('صفحة قديمة', 'not_found')" class="bg-yellow-500 text-white p-2 rounded m-1">9. غير موجود</button>
+
+<!-- 10. صيانة -->
+<button onclick="window.openTroubleshootModal('الموقع', 'maintenance')" class="bg-purple-500 text-white p-2 rounded m-1">10. صيانة</button>
+
+<!-- 11. خطأ غير معروف -->
+<button onclick="window.openTroubleshootModal('أداة مجهولة', 'unknown')" class="bg-red-500 text-white p-2 rounded m-1">11. غير معروف</button>
+
+<!-- 12. الدعم الفني -->
+<button onclick="window.openTroubleshootModal('الدعم', 'support')" class="bg-blue-500 text-white p-2 rounded m-1">12. الدعم والمساعدة</button>
+    
     </ul>
 </div>
 
