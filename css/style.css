@@ -2360,8 +2360,7 @@ html.dark .contact-input:focus { background-color: var(--card) !important; borde
 .ts-panel-header { text-align: center; margin-bottom: 18px; padding: 0 40px; }
 .ts-panel-header h3 { font-size: 17px; font-weight: 800; color: #ffffff; }
 
-.ts-panel { direction: rtl; text-align: right; animation: tsFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes tsFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.ts-panel { direction: rtl; text-align: right; opacity: 1; transform: none; }
 
 .ts-header { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 22px; text-align: center; }
 .ts-icon-wrap { position: relative; width: 64px; height: 64px; display: grid; place-items: center; }
