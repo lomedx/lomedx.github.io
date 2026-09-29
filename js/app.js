@@ -7235,3 +7235,124 @@ window.showToast = (message, type = 'info', duration = 4000) => {
         setTimeout(() => toast.remove(), 400);
     });
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// === Troubleshoot Modal Engine (مركز حل المشكلات) ===
+window.TroubleshootEngine = (function() {
+  const ISSUES = {
+    network: { title: 'مشكلة في الاتصال بالإنترنت', icon: 'fa-wifi', color: '#EF4444', reason: 'تعذر الوصول إلى خوادمنا. غالباً السبب هو ضعف شبكة الإنترنت لديك.', solution: 'تأكد من وجود إشارة إنترنت قوية، أعد تشغيل الاتصال، أو جرب شبكة أخرى.', causes: ['انقطاع الإنترنت من مزود الخدمة', 'ضعف إشارة Wi-Fi', 'VPN يعمل في الخلفية'], quickFixes: [{ icon: 'fa-sync', text: 'أعد تحميل الصفحة', action: 'reload' }, { icon: 'fa-wifi', text: 'جرب بيانات الهاتف بدل الواي فاي' }] },
+    rate_limit: { title: 'محاولات كثيرة جداً', icon: 'fa-hourglass-half', color: '#F59E0B', reason: 'لقد قمت بإرسال هذا الطلب عدة مرات في وقت قصير. نظام الحماية قام بإيقافك مؤقتاً.', solution: 'يرجى الانتظار لمدة دقيقة إلى دقيقتين قبل المحاولة مرة أخرى.', causes: ['النقر المتكرر على زر الإرسال', 'تحديث الصفحة بشكل متكرر'], quickFixes: [{ icon: 'fa-clock', text: 'انتظر انتهاء العدّاد التنازلي' }] },
+    validation: { title: 'بيانات غير مكتملة', icon: 'fa-triangle-exclamation', color: '#F59E0B', reason: 'بعض الحقول الإلزامية فارغة أو تحتوي على بيانات غير صحيحة.', solution: 'راجع الحقول ذات العلامة (*) وتأكد من إدخال البيانات بشكل صحيح.', causes: ['حقول مطلوبة تُركت فارغة', 'رقم الهاتف لا يبدأ بـ 09'], quickFixes: [{ icon: 'fa-arrow-rotate-left', text: 'العودة وإصلاح الحقول', action: 'close' }] },
+    auth: { title: 'تحتاج لتسجيل الدخول', icon: 'fa-user-lock', color: '#3B82F6', reason: 'هذه الأداة تتطلب تسجيل الدخول. ربما انتهت جلستك أو لم تسجل الدخول بعد.', solution: 'سجّل الدخول من جديد ثم أعد المحاولة.', causes: ['انتهاء صلاحية الجلسة', 'تسجيل الخروج من تبويب آخر'], quickFixes: [{ icon: 'fa-right-to-bracket', text: 'تسجيل الدخول', action: 'login' }] },
+    permission: { title: 'صلاحيات غير كافية', icon: 'fa-lock', color: '#EF4444', reason: 'حسابك الحالي لا يملك الصلاحيات المطلوبة لتنفيذ هذه العملية.', solution: 'تواصل مع مدير النظام لمنحك الصلاحيات، أو استخدم حساباً آخر.', causes: ['حسابك بدور "مستخدم" لا يملك حق التعديل', 'محاولة الوصول لمورد لا يخصك'], quickFixes: [{ icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }] },
+    not_found: { title: 'العنصر غير موجود', icon: 'fa-magnifying-glass', color: '#F59E0B', reason: 'العنصر الذي تبحث عنه ربما حُذف أو تم نقله أو أن الرابط قديم.', solution: 'تحقق من الرابط أو ارجع للصفحة الرئيسية وابحث يدوياً.', causes: ['استخدام رابط قديم', 'حذف العنصر من قبل مسؤول'], quickFixes: [{ icon: 'fa-home', text: 'العودة للرئيسية', action: 'home' }] },
+    server: { title: 'خطأ مؤقت في الخادم', icon: 'fa-server', color: '#EF4444', reason: 'حدث خطأ داخلي مؤقت في النظام. لا ذنب لك — هذه مشكلتنا.', solution: 'أعد المحاولة بعد دقيقة. إذا استمرت المشكلة، تواصل مع الدعم.', causes: ['صيانة مجدولة', 'ضغط كبير من عدد المستخدمين'], quickFixes: [{ icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' }, { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }] },
+    maintenance: { title: 'الموقع تحت الصيانة', icon: 'fa-screwdriver-wrench', color: '#8B5CF6', reason: 'نقوم حالياً بإجراء تحديثات وتحسينات على الموقع لتحسين الخدمة.', solution: 'يرجى العودة بعد 10-15 دقيقة. نعتذر عن الإزعاج.', causes: ['صيانة مجدولة معلنة مسبقاً', 'تحديث أمني عاجل'], quickFixes: [{ icon: 'fa-clock', text: 'انتظر 10-15 دقيقة' }] },
+    unknown: { title: 'حدث خطأ غير متوقع', icon: 'fa-circle-question', color: '#EF4444', reason: 'لا نعرف بالضبط ما الذي حدث، لكن المشكلة قد تكون مؤقتة.', solution: 'حاول تحديث الصفحة أو إعادة المحاولة.', causes: ['تضارب في ذاكرة المتصفح (Cache)', 'متصفح قديم'], quickFixes: [{ icon: 'fa-sync', text: 'تحديث الصفحة', action: 'reload' }, { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }] },
+    support: { title: 'مركز الدعم والمساعدة', icon: 'fa-headset', color: '#2563EB', reason: 'إذا واجهتك أي صعوبة في استخدام الموقع، نحن هنا لمساعدتك.', solution: 'يمكنك نسخ رقم المرجع أدناه وإرساله لفريق الدعم.', causes: [], quickFixes: [{ icon: 'fa-headset', text: 'تواصل مع الدعم الفني', action: 'support' }] }
+  };
+
+  function generateErrorId() {
+    const arr = new Uint8Array(4);
+    crypto.getRandomValues(arr);
+    return 'ERR-' + Array.from(arr, b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+  }
+
+  function show(toolName = 'المنصة', issueType = 'unknown') {
+    const issue = ISSUES[issueType] || ISSUES.unknown;
+    const errorId = generateErrorId();
+    const localTime = new Date().toLocaleString('ar-SY');
+    
+    if (document.getElementById('tsOverlay')) document.getElementById('tsOverlay').remove();
+    
+    const overlay = document.createElement('div');
+    overlay.id = 'tsOverlay';
+    overlay.className = 'ts-overlay active';
+    overlay.innerHTML = `
+      <div class="ts-panel-wrapper" onclick="event.stopPropagation()">
+        <div class="ts-handle"></div>
+        <button class="ts-close" onclick="window.TroubleshootEngine.close()"><i class="fas fa-times"></i></button>
+        
+        <div class="ts-header">
+          <div class="ts-icon-wrap" style="color: ${issue.color}">
+            <div class="ts-icon-bg" style="background: ${issue.color}"></div>
+            <div class="ts-icon-main" style="background: linear-gradient(135deg, ${issue.color}, ${issue.color}cc)"><i class="fas ${issue.icon}"></i></div>
+          </div>
+          <h3 class="ts-title">${issue.title}</h3>
+          <div class="ts-badges">
+            <span class="ts-badge ts-badge--tool"><i class="fas fa-toolbox"></i> ${toolName}</span>
+            <button class="ts-badge ts-badge--id" onclick="navigator.clipboard.writeText('${errorId}'); showToast('تم نسخ رقم الخطأ', 'success')"><i class="fas fa-fingerprint"></i> ${errorId}</button>
+          </div>
+        </div>
+
+        <div class="ts-section ts-section--reason">
+          <div class="ts-section-title"><i class="fas fa-bug"></i> السبب المحتمل</div>
+          <p class="ts-section-body">${issue.reason}</p>
+        </div>
+
+        ${issue.causes.length ? `
+        <div class="ts-section ts-section--causes">
+          <div class="ts-section-title"><i class="fas fa-magnifying-glass"></i> أسباب شائعة</div>
+          <ul class="ts-list">
+            ${issue.causes.map(c => `<li class="ts-list-item"><i class="fas fa-circle" style="font-size: 5px; margin-top: 8px; color: #f59e0b;"></i> ${c}</li>`).join('')}
+          </ul>
+        </div>` : ''}
+
+        <div class="ts-section ts-section--solution">
+          <div class="ts-section-title"><i class="fas fa-lightbulb"></i> كيف تحل المشكلة؟</div>
+          <p class="ts-section-body">${issue.solution}</p>
+        </div>
+
+        <div class="ts-quickfixes-grid">
+          ${issue.quickFixes.map(f => `<button class="ts-quickfix" data-action="${f.action || ''}"><span class="ts-quickfix-icon"><i class="fas ${f.icon}"></i></span> ${f.text}</button>`).join('')}
+        </div>
+
+        <details class="ts-details">
+          <summary class="ts-details-summary"><span><i class="fas fa-headset"></i> معلومات للدعم الفني</span> <i class="fas fa-chevron-down"></i></summary>
+          <div class="ts-details-content">
+            معرّف الخطأ: <b>${errorId}</b><br>
+            الأداة: ${toolName}<br>
+            التوقيت: ${localTime}<br>
+            حالة الإنترنت: ${navigator.onLine ? 'متصل' : 'غير متصل'}
+          </div>
+        </details>
+
+        <div class="ts-actions">
+          <button class="ts-btn ts-btn--primary" onclick="navigator.clipboard.writeText('${errorId}'); showToast('تم نسخ رقم المرجع', 'success')"><i class="fas fa-copy"></i> نسخ رقم المرجع</button>
+          <button class="ts-btn ts-btn--secondary" onclick="window.TroubleshootEngine.close()"><i class="fas fa-arrow-rotate-left"></i> العودة</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    
+    // ربط الأزرار بالدوال الموجودة في منصتك
+    overlay.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const action = e.currentTarget.dataset.action;
+        if (action === 'reload') location.reload();
+        else if (action === 'home') { window.TroubleshootEngine.close(); window.scrollTo({top:0, behavior:'smooth'}); }
+        else if (action === 'support') { window.TroubleshootEngine.close(); setTimeout(() => window.openContactModal(), 300); }
+        else if (action === 'login') { window.TroubleshootEngine.close(); setTimeout(() => window.openDoctorLogin(), 300); }
+        else if (action === 'close') window.TroubleshootEngine.close();
+      });
+    });
+  }
+
+  return {
+    show: show,
+    close: () => { const o = document.getElementById('tsOverlay'); if(o) o.remove(); }
+  };
+})();
