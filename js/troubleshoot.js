@@ -1,3 +1,8 @@
+// ═══════════════════════════════════════════════════════════
+// Secure Troubleshoot Modal — v3.1
+// Zero console output in production
+// ═══════════════════════════════════════════════════════════
+
 (function () {
   'use strict';
 
@@ -6,63 +11,46 @@
   // ═══════════════════════════════════════════════════════════
 
   const Logger = (() => {
-    // الكشف عن البيئة (production vs development)
     const isDev = (() => {
       try {
-        // طرق آمنة لكشف الإنتاج
         if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return true;
         if (location.hostname.endsWith('.local')) return true;
         if (location.protocol === 'file:') return true;
-        // يمكنك إضافة قائمة بيئات التطوير
         return false;
       } catch {
         return false;
       }
     })();
 
-    // طابور محلي للأحداث (يُرسل للسيرفر لاحقاً)
     const queue = [];
     const MAX_QUEUE = 50;
 
-    // إرسال للسيرفر بدون كشف التفاصيل الحساسة
     async function sendToServer(event) {
-      // إذا كان dev، تجاهل الإرسال
       if (isDev) return;
-
       try {
-        // استخدم endpoint عام لا يكشف شيء
         await fetch('/api/_log', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // بيانات مبسطة، بدون تفاصيل تكشف البنية
           body: JSON.stringify({
             event: event.type,
             id: event.id,
             ts: event.timestamp,
-            // لا ترسل URL أو User-Agent أو أي شيء حساس
           }),
-          keepalive: true, // يعمل حتى لو أُغلقت الصفحة
+          keepalive: true,
         });
-      } catch {
-        // فشل صامت — لا نريد logs إضافية
-      }
+      } catch {}
     }
 
-    // الطابور يُرسل دورياً
     function flush() {
       if (!queue.length) return;
       const events = queue.splice(0, queue.length);
       events.forEach(sendToServer);
     }
 
-    // إرسال كل 30 ثانية
     setInterval(flush, 30000);
-
-    // إرسال قبل إغلاق الصفحة
     window.addEventListener('pagehide', flush, { once: true });
 
     return {
-      // تُستدعى فقط في التطوير
       debug(message, data) {
         if (!isDev) return;
         try { console.debug(message, data); } catch {}
@@ -79,8 +67,6 @@
         if (!isDev) return;
         try { console.error(message, data); } catch {}
       },
-
-      // ── Event Tracking (يعمل في الإنتاج والديف) ──
       event(type, payload = {}) {
         const event = {
           type,
@@ -88,18 +74,13 @@
           timestamp: Date.now(),
         };
 
-        // حفظ محلي فقط
         if (queue.length < MAX_QUEUE) {
           queue.push(event);
         }
 
-        // في التطوير فقط اطبع
         if (isDev) {
           try { console.info(`[Event] ${type}`, payload); } catch {}
-        }
-
-        // في الإنتاج، أرسل للسيرفر
-        if (!isDev) {
+        } else {
           sendToServer(event);
         }
       },
@@ -120,7 +101,6 @@
   }
 
   function generateErrorId() {
-    // توليد آمن بـ crypto
     if (window.crypto?.getRandomValues) {
       const arr = new Uint8Array(6);
       crypto.getRandomValues(arr);
@@ -129,7 +109,6 @@
         .toUpperCase()
         .slice(0, 8);
     }
-    // fallback
     const ts = Date.now().toString(36).toUpperCase().slice(-6);
     const rand = Math.random().toString(36).slice(2, 5).toUpperCase();
     return `ERR-${ts}-${rand}`;
@@ -146,13 +125,14 @@
   // ═══════════════════════════════════════════════════════════
 
   const ISSUES = {
-      support: {
+    support: {
       title: 'مركز الدعم والمساعدة',
       icon: 'fa-headset',
-      color: '#2563EB', // لون أزرق ودي
+      color: '#2563EB',
       severity: 'info',
       reason: 'إذا واجهتك أي صعوبة في استخدام الموقع، أو لم يعمل أي زر بشكل صحيح، أو لديك استفسار، نحن هنا لمساعدتك.',
       solution: 'يمكنك نسخ رقم المرجع أدناه وإرساله لفريق الدعم عبر زر "تواصل مع الدعم الفني"، أو تصفح الحلول السريعة.',
+      commonCauses: [],
       quickFixes: [
         { icon: 'fa-headset', text: 'تواصل مع الدعم الفني', action: 'support' },
         { icon: 'fa-house', text: 'العودة للرئيسية', action: 'home' },
@@ -165,6 +145,11 @@
       severity: 'high',
       reason: 'تعذر الوصول إلى خوادمنا. غالباً السبب هو ضعف شبكة الإنترنت أو بيانات الهاتف لديك.',
       solution: 'تأكد من وجود إشارة إنترنت قوية، أو جرب شبكة أخرى، ثم أعد المحاولة.',
+      commonCauses: [
+        'انقطاع الإنترنت من مزود الخدمة (Wi-Fi أو بيانات الهاتف).',
+        'تطبيق VPN أو Proxy يعمل في الخلفية ويمنع الاتصال.',
+        'إعدادات الوقت والتاريخ في جهازك غير دقيقة (تسبب فشل شهادات الأمان).',
+      ],
       quickFixes: [
         { icon: 'fa-sync', text: 'أعد تحميل الصفحة', action: 'reload' },
         { icon: 'fa-wifi', text: 'اختبار الاتصال', action: 'test-connection' },
@@ -179,6 +164,10 @@
       severity: 'medium',
       reason: 'قمت بإرسال الطلب عدة مرات في وقت قصير، فتم إيقافك مؤقتاً لمنع السبام.',
       solution: 'انتظر انتهاء العدّاد التنازلي أدناه قبل المحاولة مرة أخرى.',
+      commonCauses: [
+        'النقر على زر الإرسال عدة مرات متتالية.',
+        'تحديث الصفحة بشكل متكرر بعد إرسال طلب.',
+      ],
       quickFixes: [
         { icon: 'fa-clock', text: 'انتظر انتهاء العدّاد' },
         { icon: 'fa-ban', text: 'لا تعد النقر بشكل متكرر' },
@@ -191,6 +180,10 @@
       severity: 'medium',
       reason: 'بعض الحقول الإلزامية فارغة أو تحتوي على بيانات غير صحيحة.',
       solution: 'راجع الحقول المُشار إليها أدناه، صحّح البيانات، ثم أعد الإرسال.',
+      commonCauses: [
+        'حقول مطلوبة (*) تُركت فارغة.',
+        'صيغة رقم الهاتف غير صحيحة (يجب أن يبدأ بـ 09 ويتكون من 10 أرقام).',
+      ],
       quickFixes: [],
     },
     cloudflare: {
@@ -200,6 +193,10 @@
       severity: 'high',
       reason: 'لم يتمكن النظام من التأكد أنك لست روبوت، ربما بسبب إضافة مانع الإعلانات.',
       solution: 'أوقف مانع الإعلانات على موقعنا، أو حدّث الصفحة.',
+      commonCauses: [
+        'استخدام إضافات مانع الإعلانات (AdBlocker).',
+        'تصفح الإنترنت في وضع التصفح الخفي أحياناً يمنع تشغيل السكربتات الأمنية.',
+      ],
       quickFixes: [
         { icon: 'fa-shield-halved', text: 'أوقف AdBlocker لهذا الموقع' },
         { icon: 'fa-sync', text: 'أعد تحميل الصفحة', action: 'reload' },
@@ -212,6 +209,10 @@
       severity: 'medium',
       reason: 'الخادم لم يستجب خلال الوقت المحدد.',
       solution: 'حاول مرة أخرى بعد لحظات. إذا تكررت المشكلة، تحقق من سرعة الإنترنت.',
+      commonCauses: [
+        'بطء شديد في اتصال الإنترنت لديك.',
+        'ضغط مؤقت على خوادم الموقع.',
+      ],
       quickFixes: [
         { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' },
       ],
@@ -223,6 +224,10 @@
       severity: 'high',
       reason: 'حدث خطأ داخلي مؤقت في النظام.',
       solution: 'أعد المحاولة بعد دقيقة. إذا استمرت المشكلة، تواصل مع الدعم.',
+      commonCauses: [
+        'الخادم يمر بفترة صيانة مجدولة أو تحديث.',
+        'ضغط كبير جداً من عدد المستخدمين المتصلين حالياً.',
+      ],
       quickFixes: [
         { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' },
         { icon: 'fa-clock', text: 'انتظر دقيقة' },
@@ -235,6 +240,10 @@
       severity: 'info',
       reason: 'هذه الأداة تتطلب تسجيل الدخول. ربما انتهت جلستك.',
       solution: 'سجّل الدخول من جديد ثم أعد المحاولة.',
+      commonCauses: [
+        'انتهاء صلاحية جلسة تسجيل الدخول للموقع.',
+        'محاولة الوصول لصفحة أو أداة محمية دون تسجيل دخول.',
+      ],
       quickFixes: [
         { icon: 'fa-right-to-bracket', text: 'تسجيل الدخول', action: 'login' },
       ],
@@ -246,6 +255,9 @@
       severity: 'high',
       reason: 'حسابك الحالي لا يملك الصلاحيات المطلوبة.',
       solution: 'تواصل مع مدير النظام أو استخدم حساباً آخر.',
+      commonCauses: [
+        'محاولة طبيب الدخول لصفحة خاصة بالمدير، والعكس.',
+      ],
       quickFixes: [],
     },
     not_found: {
@@ -255,6 +267,10 @@
       severity: 'medium',
       reason: 'العنصر الذي تبحث عنه ربما حُذف أو نُقل.',
       solution: 'تحقق من الرابط أو ارجع للصفحة الرئيسية.',
+      commonCauses: [
+        'الرابط الذي ضغطت عليه قديم أو تم تعديله.',
+        'تم حذف العنصر (طبيب/مقال) من النظام.',
+      ],
       quickFixes: [
         { icon: 'fa-home', text: 'العودة للرئيسية', action: 'home' },
       ],
@@ -266,6 +282,10 @@
       severity: 'high',
       reason: 'حدث خطأ غير معروف، لكن يمكنك تجربة الحلول أدناه.',
       solution: 'جرب تحديث الصفحة أو إعادة المحاولة. إذا استمرت المشكلة، تواصل مع الدعم.',
+      commonCauses: [
+        'تضارب مؤقت في ذاكرة المتصفح (Cache).',
+        'استخدام إضافة (Extension) تمنع عمل بعض السكربتات.',
+      ],
       quickFixes: [
         { icon: 'fa-sync', text: 'تحديث الصفحة', action: 'reload' },
         { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' },
@@ -274,32 +294,26 @@
   };
 
   // ═══════════════════════════════════════════════════════════
-  // Context Collector — نسخة نظيفة (لا تسرّب شيئاً)
+  // Context Collector
   // ═══════════════════════════════════════════════════════════
 
   function collectSafeContext() {
-    // ⚠️ فقط ما نحتاجه حقاً في UI ويمكن للمستخدم رؤيته
     const ctx = {
       online: navigator.onLine,
-      // نوع الاتصال — مفيد للمستخدم
       connectionType: navigator.connection?.effectiveType || '',
-      // اللغة — مفيد للترجمة
       language: navigator.language || '',
-      // معلومات عامة للعرض فقط
       screenSize: `${screen.width}×${screen.height}`,
       viewport: `${innerWidth}×${innerHeight}`,
-      // الوقت المحلي
       localTime: new Date().toLocaleString('ar-SY'),
     };
     return ctx;
   }
 
   // ═══════════════════════════════════════════════════════════
-  // Connection Test (بدون كشف endpoint)
+  // Connection Test
   // ═══════════════════════════════════════════════════════════
 
   async function testServerConnection() {
-    // استخدم الـ endpoint الخاص بالصفحة نفسها أو root
     const testUrl = location.pathname === '/' ? '/favicon.ico' : location.pathname.split('?')[0];
 
     const start = performance.now();
@@ -327,7 +341,6 @@
   // ═══════════════════════════════════════════════════════════
 
   window.openTroubleshootModal = (toolName = 'غير محددة', issueType = 'unknown', details = {}) => {
-    // ── Normalize ──
     if (!ISSUES[issueType]) {
       issueType = 'unknown';
     }
@@ -337,13 +350,10 @@
     const safeToolName = escapeHTML(toolName);
     const context = collectSafeContext();
 
-    // ── تسجيل الحدث (آمن) ──
     Logger.event('troubleshoot_shown', {
       id: errorId,
-      // لا نرسل toolName أو issueType
     });
 
-    // ── تتبع محلي فقط ──
     if (!window.__errorHistory) window.__errorHistory = [];
     window.__errorHistory.push({
       id: errorId,
@@ -352,10 +362,6 @@
       time: Date.now(),
     });
     if (window.__errorHistory.length > 10) window.__errorHistory.shift();
-
-    // ═══════════════════════════════════════════════════════════
-    // Sections
-    // ═══════════════════════════════════════════════════════════
 
     // ── Failed fields ──
     let failedFieldsHTML = '';
@@ -390,6 +396,27 @@
       `;
     }
 
+    // ── Common Causes ──
+    let commonCausesHTML = '';
+    if (issue.commonCauses && issue.commonCauses.length > 0) {
+        commonCausesHTML = `
+            <div class="bg-orange-50/50 p-4 rounded-xl text-right border border-orange-100">
+                <div class="text-xs font-bold text-orange-600 mb-2 flex items-center gap-2">
+                    <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+                    <span>أسباب شائعة لهذه المشكلة:</span>
+                </div>
+                <ul class="space-y-1.5">
+                    ${issue.commonCauses.map(cause => `
+                        <li class="text-sm text-gray-700 flex items-start gap-2">
+                            <i class="fas fa-circle text-[6px] text-orange-500 mt-2 shrink-0"></i>
+                            <span>${escapeHTML(cause)}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        `;
+    }
+
     // ── Quick Fixes ──
     const quickFixesHTML = (issue.quickFixes || []).map((fix, i) => {
       const actionAttr = fix.action ? `data-ctrl-action="${fix.action}"` : '';
@@ -406,11 +433,10 @@
       `;
     }).join('');
 
-    // ── تفاصيل للدعم (بدون كشف البنية) ──
-    // ✅ فقط ما يحتاجه فريق الدعم فعلاً
+    // ── Support Details ──
     const supportDetails = {
       'معرّف الخطأ': errorId,
-      'الأداة': toolName, // اسم ودي فقط
+      'الأداة': toolName,
       'نوع المشكلة': issue.title,
       'التوقيت': context.localTime,
       'حالة الإنترنت': context.online ? '✅ متصل' : '❌ غير متصل',
@@ -469,6 +495,8 @@
           <p class="text-sm text-gray-700 leading-relaxed">${escapeHTML(issue.reason)}</p>
         </div>
 
+        ${commonCausesHTML}
+
         <div class="bg-green-50/50 p-4 rounded-xl text-right border border-green-100">
           <div class="text-xs font-bold text-green-600 mb-1 flex items-center gap-2">
             <i class="fas fa-lightbulb" aria-hidden="true"></i>
@@ -477,14 +505,14 @@
           <p class="text-sm text-gray-700 leading-relaxed">${escapeHTML(issue.solution)}</p>
         </div>
 
-                ${quickFixesHTML ? `
+        ${quickFixesHTML ? `
         <div class="flex flex-col gap-2 mt-1">
             <div class="text-xs font-bold text-gray-500 mb-1 flex items-center gap-2">
                 <i class="fas fa-bolt"></i> حلول سريعة:
             </div>
             ${quickFixesHTML}
         </div>` : ''}
-        
+
         <div class="connection-result hidden bg-gray-50 rounded-xl p-3 border border-gray-100 text-right"></div>
 
         <details class="text-right bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
@@ -518,32 +546,28 @@
         </div>
 
         <div class="text-center mt-1">
-          <a href="/contact" 
-             data-ctrl-action="support" 
-             class="text-xs text-blue-500 hover:underline inline-flex items-center gap-1">
+          <button type="button" 
+                  data-ctrl-action="support" 
+                  class="text-xs text-blue-500 hover:underline inline-flex items-center gap-1 cursor-pointer bg-transparent border-none">
             <i class="fas fa-headset"></i>
             لم تحل المشكلة؟ تواصل مع الدعم الفني
-          </a>
+          </button>
         </div>
 
       </div>
     `;
 
-    // ── Open panel ──
     if (typeof window.openCtrlPanel === 'function') {
       window.openCtrlPanel('مركز حل المشكلات', html, issue.color);
     } else {
-      // لا console — استخدم alert كحل أخير
       alert('عذراً، حدث خطأ في عرض المساعدة.');
       return;
     }
 
-    // ── Countdown ──
     if (issueType === 'rate_limit' && details.retryAfter) {
       startCountdown(details.retryAfter);
     }
 
-    // ── State ──
     window.__currentTroubleshoot = {
       errorId,
       toolName,
@@ -585,7 +609,7 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // Copy — نسخ رقم المعرّف فقط (آمن)
+  // Copy to Clipboard
   // ═══════════════════════════════════════════════════════════
 
   async function copyToClipboard(text) {
@@ -719,7 +743,6 @@
 
       if (action === 'copy') {
         e.preventDefault();
-        // ✅ ننسخ رقم المعرّف فقط — لا معلومات تكشف البنية
         const id = window.__currentTroubleshoot?.errorId;
         if (!id) {
           window.showToast?.('تعذّر النسخ', 'error');
@@ -734,7 +757,7 @@
         return;
       }
 
-            if (action === 'support') {
+      if (action === 'support') {
         e.preventDefault();
         window.closeCtrlPanel?.();
         // فتح نافذة التواصل مباشرة بدلاً من تحويله لرابط
@@ -748,6 +771,7 @@
         return;
       }
     });
+
     // Toggle arrow
     document.addEventListener('toggle', (e) => {
       if (e.target.tagName === 'DETAILS') {
@@ -760,16 +784,13 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // Public API — بدون console
+  // Public API
   // ═══════════════════════════════════════════════════════════
 
   window.reportIssue = (toolName, issueType, error) => {
-    // لا console.error
-    // سجّل الحدث بشكل آمن فقط
     Logger.event('issue_reported', {
       tool: toolName,
       type: issueType,
-      // لا ترسل error كامل
       hasError: !!error,
     });
     window.openTroubleshootModal(toolName, issueType);
@@ -818,7 +839,6 @@
   };
 
   window.handleFetchError = (toolName, error) => {
-    // لا console — فقط Logger آمن
     Logger.event('fetch_error', {
       tool: toolName,
       name: error?.name || 'Unknown',
