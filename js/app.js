@@ -1,5 +1,94 @@
 import { supabase } from './supabase.js';
 
+// === النظام الموحد لتنفيذ العمليات وتصيد الأخطاء ===
+window.executeAction = async function(toolName, actionCallback, options = {}) {
+    
+    // حماية: التحقق من وجود الدوال المطلوبة
+    const hasErrorModal = typeof window.openTroubleshootModal === 'function';
+    const hasErrorHandler = typeof window.handleFetchError === 'function';
+    
+    // 1. فحص الإنترنت أولاً
+    if (!navigator.onLine) {
+        if (hasErrorModal) window.openTroubleshootModal(toolName, 'network');
+        return { success: false, error: 'network' };
+    }
+    
+    // 2. فحص Debounce
+    const formKey = options.formId || toolName;
+    const now = Date.now();
+    const cooldown = options.cooldown || 1500;
+    window._lastSubmits = window._lastSubmits || {};
+    if (now - (window._lastSubmits[formKey] || 0) < cooldown) {
+        return { success: false, error: 'too_fast' };
+    }
+    window._lastSubmits[formKey] = now;
+    
+    // 3. تجهيز الزر
+    let restoreButton = null;
+    if (options.button) {
+        if (options.button.dataset.isProcessing === 'true') {
+            return { success: false, error: 'double_click' };
+        }
+        options.button.dataset.isProcessing = 'true';
+        const originalHtml = options.button.innerHTML;
+        options.button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...';
+        options.button.disabled = true;
+        restoreButton = () => {
+            options.button.dataset.isProcessing = 'false';
+            options.button.innerHTML = originalHtml;
+            options.button.disabled = false;
+        };
+    }
+    
+    // 4. فحص الإدخالات (Validation)
+    if (options.validate && typeof options.validate === 'function') {
+        try {
+            const validationError = options.validate();
+            if (validationError && validationError.length > 0) {
+                if (hasErrorModal) {
+                    window.openTroubleshootModal(toolName, 'validation', {
+                        fields: validationError
+                    });
+                }
+                if (restoreButton) restoreButton();
+                return { success: false, error: 'validation' }; // إيقاف التنفيذ هنا
+            }
+        } catch (validationErr) {
+            console.error('[Wrapper] Validation crashed:', validationErr);
+            if (restoreButton) restoreButton();
+            // إذا تعطلت دالة الفحص نفسها، أظهر خطأ غير معروف بدل الفراغ
+            if (hasErrorHandler) window.handleFetchError(toolName, validationErr);
+            return { success: false, error: validationErr };
+        }
+    }
+    
+    // 5. تنفيذ العملية الفعلي
+    const startTime = Date.now();
+    try {
+        const result = await actionCallback();
+        if (restoreButton) restoreButton();
+        const duration = Date.now() - startTime;
+        if (duration > 5000) console.warn(`[Wrapper] ${toolName} بطيء: ${duration}ms`);
+        return { success: true, data: result, duration };
+    } catch (err) {
+        if (restoreButton) restoreButton();
+        if (hasErrorHandler) {
+            try {
+                window.handleFetchError(toolName, err, {
+                    action_name: options.actionName || 'unknown',
+                    form_id: formKey,
+                    duration: Date.now() - startTime,
+                });
+            } catch (handlerErr) {
+                console.error('[Wrapper] Error handler failed:', handlerErr);
+            }
+        } else {
+            console.error('[Wrapper] لا يوجد معالج أخطاء:', err);
+        }
+        return { success: false, error: err };
+    }
+};
+
 const daysOfWeek = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
 
 let currentAnnouncement = null;
@@ -156,108 +245,7 @@ function lockScroll() {
     // إيقاف جميع حركات الـ CSS لتبريد المعالج أثناء فتح النوافذ
     document.body.classList.add('stop-animations'); 
 }
-// === النظام الموحد لتنفيذ العمليات وتصيد الأخطاء ===
-window.executeAction = async function(toolName, actionCallback, options = {}) {
-    
-    // حماية: التحقق من وجود الدوال المطلوبة
-    const hasErrorModal = typeof window.openTroubleshootModal === 'function';
-    const hasErrorHandler = typeof window.handleFetchError === 'function';
-    
-    // 1. فحص الإنترنت أولاً
-    if (!navigator.onLine) {
-        if (hasErrorModal) {
-            window.openTroubleshootModal(toolName, 'network');
-        }
-        return { success: false, error: 'network' };
-    }
-    
-    // 2. فحص Debounce على مستوى النموذج (أدق من الزر)
-    const formKey = options.formId || toolName;
-    const now = Date.now();
-    const cooldown = options.cooldown || 1500; // 1.5 ثانية افتراضياً
-    
-    window._lastSubmits = window._lastSubmits || {};
-    if (now - (window._lastSubmits[formKey] || 0) < cooldown) {
-        return { success: false, error: 'too_fast' };
-    }
-    window._lastSubmits[formKey] = now;
-    
-    // 3. فحص الإدخالات (Validation)
-    if (options.validate && typeof options.validate === 'function') {
-        try {
-            const validationError = options.validate();
-            if (validationError && validationError.length > 0) {
-                if (hasErrorModal) {
-                    window.openTroubleshootModal(toolName, 'validation', {
-                        fields: validationError
-                    });
-                }
-                return { success: false, error: 'validation' };
-            }
-        } catch (validationErr) {
-            console.error('[Wrapper] Validation error:', validationErr);
-        }
-    }
-    
-    // 4. تجهيز الزر
-    let restoreButton = null;
-    if (options.button) {
-        if (options.button.dataset.isProcessing === 'true') {
-            return { success: false, error: 'double_click' };
-        }
-        options.button.dataset.isProcessing = 'true';
-        const originalHtml = options.button.innerHTML;
-        options.button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...';
-        options.button.disabled = true;
-        
-        restoreButton = () => {
-            options.button.dataset.isProcessing = 'false';
-            options.button.innerHTML = originalHtml;
-            options.button.disabled = false;
-        };
-    }
-    
-    // 5. قياس الوقت
-    const startTime = Date.now();
-    
-    try {
-        // تنفيذ العملية
-        const result = await actionCallback();
-        
-        // استعادة الزر
-        if (restoreButton) restoreButton();
-        
-        // تسجيل الوقت
-        const duration = Date.now() - startTime;
-        if (duration > 5000) {
-            console.warn(`[Wrapper] ${toolName} بطيء: ${duration}ms`);
-        }
-        
-        // نجاح
-        return { success: true, data: result, duration };
-        
-    } catch (err) {
-        // استعادة الزر
-        if (restoreButton) restoreButton();
-        
-        // تسجيل الخطأ تلقائياً
-        if (hasErrorHandler) {
-            try {
-                window.handleFetchError(toolName, err, {
-                    action_name: options.actionName || 'unknown',
-                    form_id: formKey,
-                    duration: Date.now() - startTime,
-                });
-            } catch (handlerErr) {
-                console.error('[Wrapper] Error handler failed:', handlerErr);
-            }
-        } else {
-            console.error('[Wrapper] لا يوجد معالج أخطاء:', err);
-        }
-        
-        return { success: false, error: err };
-    }
-};
+
 
 // دالة فتح التمرير مع إعادة الحركات
 function unlockScroll() { 
