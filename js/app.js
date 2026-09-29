@@ -7458,7 +7458,10 @@ window.showToast = (message, type = 'info', duration = 4000) => {
   function openTroubleshootModal(toolName = 'غير محددة', issueType = 'unknown', details = {}) {
     if (!ISSUES[issueType]) issueType = 'unknown';
     const issue = ISSUES[issueType];
-    const errorId = generateErrorId();
+        const errorId = generateErrorId();
+    if (typeof logErrorToSupabase === 'function') {
+        logErrorToSupabase({ errorId, issueType, toolName });
+    }
     const safeToolName = escapeHTML(toolName);
     const isOnline = navigator.onLine;
     const localTime = new Date().toLocaleString('ar-SY', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
@@ -7601,3 +7604,53 @@ window.showToast = (message, type = 'info', duration = 4000) => {
     return openTroubleshootModal(toolName, 'unknown');
   };
 })();
+// === دالة تسجيل الأخطاء المحصنة ===
+const errorThrottleCache = {}; // ذاكرة مؤقتة لمنع الإغراق
+
+async function logErrorToSupabase(errorData) {
+    try {
+        // 1. نظام الخنق (Throttling): منع تسجيل نفس الخطأ أكثر من مرة في الدقيقة
+        const cacheKey = `${errorData.issueType}_${errorData.toolName}`;
+        const now = Date.now();
+        if (errorThrottleCache[cacheKey] && (now - errorThrottleCache[cacheKey] < 60000)) {
+            return; // إذا حدث نفس الخطأ خلال أقل من دقيقة، لا تسجله
+        }
+        errorThrottleCache[cacheKey] = now;
+
+        // 2. تنظيف وتأمين البيانات (Sanitization): منع حقن الأكواد (XSS)
+        const cleanUserAgent = (navigator.userAgent || 'unknown').substring(0, 255);
+        
+        let userId = null;
+        let userRole = 'guest'; // افتراضياً زائر
+
+        // 3. تحديد الدور بأمان (بناءً على نظامك الخاص)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            userId = session.user.id;
+            const email = session.user.email || '';
+            
+            const { data: isAdmin } = await supabase.rpc('is_admin');
+            if (isAdmin) {
+                userRole = 'admin';
+            } else if (email.endsWith('@lomedx.app')) {
+                // التفريق بين الطبيب والصيدلية بناءً على بريدك الافتراضي
+                userRole = email.startsWith('doc_') ? 'doctor' : 'pharmacy';
+            } else {
+                userRole = 'patient'; // صاحب ملف صحي
+            }
+        }
+
+        // 4. الإرسال الآمن لقاعدة البيانات
+        await supabase.from('error_logs').insert([{
+            error_code: errorData.errorId,
+            issue_type: errorData.issueType,
+            tool_name: errorData.toolName,
+            user_id: userId,
+            user_role: userRole,
+            user_agent: cleanUserAgent
+        }]);
+    } catch (e) {
+        // تجاهل أي خطأ يحدث هنا لكي لا يتسبب في حلقة مفرغة من الأخطاء
+        console.error('Silent log error:', e);
+    }
+}
