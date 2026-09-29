@@ -1,7 +1,6 @@
 // ═══════════════════════════════════════════════════════════
-// Troubleshoot Modal — Integrated with LomedX
-// يتكامل مع: openCtrlPanel / closeCtrlPanel / showToast
-// يستخدم: containsBadWords / lockScroll / unlockScroll
+// Troubleshoot Modal — LomedX Integrated
+// يتكامل تلقائياً مع openCtrlPanel + showToast من app.js
 // ═══════════════════════════════════════════════════════════
 
 (function () {
@@ -36,22 +35,18 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // Clipboard — نسخة مضمونة 100% (تعمل على GitHub Pages وHTTP)
+  // Clipboard — نسخة مضمونة (تعمل على كل البيئات)
   // ═══════════════════════════════════════════════════════════
   async function tsCopyToClipboard(text) {
     if (!text) return false;
 
-    // 1) المحاولة الأولى: Clipboard API
     if (navigator.clipboard && window.isSecureContext) {
       try {
         await navigator.clipboard.writeText(text);
         return true;
-      } catch (e) {
-        // فشلت، جرب الطريقة التالية
-      }
+      } catch (e) {}
     }
 
-    // 2) الحل البديل: execCommand (يعمل في كل البيئات)
     try {
       const ta = document.createElement('textarea');
       ta.value = text;
@@ -59,7 +54,6 @@
       ta.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:none;outline:none;box-shadow:none;background:transparent;opacity:0;';
       document.body.appendChild(ta);
 
-      // iOS Safari
       if (navigator.userAgent.match(/ipad|iphone/i)) {
         const range = document.createRange();
         range.selectNodeContents(ta);
@@ -80,7 +74,7 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ISSUES MAP — خريطة الأخطاء
+  // ISSUES MAP
   // ═══════════════════════════════════════════════════════════
   const TS_ISSUES = {
     support: {
@@ -160,13 +154,8 @@
       color: '#F59E0B',
       reason: 'الخادم لم يستجب خلال الوقت المحدد.',
       solution: 'حاول مرة أخرى بعد لحظات. إذا تكررت المشكلة، تحقق من سرعة الإنترنت.',
-      commonCauses: [
-        'بطء شديد في الإنترنت.',
-        'ضغط مؤقت على الخادم.',
-      ],
-      quickFixes: [
-        { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' },
-      ],
+      commonCauses: ['بطء شديد في الإنترنت.', 'ضغط مؤقت على الخادم.'],
+      quickFixes: [{ icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' }],
     },
     server: {
       title: 'حدث خطأ مؤقت',
@@ -174,10 +163,7 @@
       color: '#EF4444',
       reason: 'حدث خطأ داخلي مؤقت في النظام.',
       solution: 'أعد المحاولة بعد دقيقة. إذا استمرت المشكلة، تواصل مع الدعم.',
-      commonCauses: [
-        'صيانة مجدولة على الخادم.',
-        'ضغط كبير من المستخدمين.',
-      ],
+      commonCauses: ['صيانة مجدولة على الخادم.', 'ضغط كبير من المستخدمين.'],
       quickFixes: [
         { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' },
         { icon: 'fa-clock', text: 'انتظر دقيقة' },
@@ -189,10 +175,7 @@
       color: '#3B82F6',
       reason: 'هذه الأداة تتطلب تسجيل الدخول. ربما انتهت جلستك.',
       solution: 'سجّل الدخول من جديد ثم أعد المحاولة.',
-      commonCauses: [
-        'انتهاء صلاحية الجلسة.',
-        'تسجيل الخروج من تبويب آخر.',
-      ],
+      commonCauses: ['انتهاء صلاحية الجلسة.', 'تسجيل الخروج من تبويب آخر.'],
       quickFixes: [],
     },
     permission: {
@@ -201,10 +184,7 @@
       color: '#EF4444',
       reason: 'حسابك الحالي لا يملك الصلاحيات المطلوبة.',
       solution: 'تواصل مع مدير النظام أو استخدم حساباً آخر.',
-      commonCauses: [
-        'دور حسابك محدود.',
-        'محاولة الوصول لمورد لا يخصك.',
-      ],
+      commonCauses: ['دور حسابك محدود.', 'محاولة الوصول لمورد لا يخصك.'],
       quickFixes: [],
     },
     not_found: {
@@ -213,13 +193,8 @@
       color: '#F59E0B',
       reason: 'العنصر الذي تبحث عنه ربما حُذف أو نُقل.',
       solution: 'تحقق من الرابط أو ارجع للصفحة الرئيسية.',
-      commonCauses: [
-        'رابط قديم أو محفوظ.',
-        'حذف العنصر من قبل مسؤول.',
-      ],
-      quickFixes: [
-        { icon: 'fa-home', text: 'العودة للرئيسية', action: 'home' },
-      ],
+      commonCauses: ['رابط قديم أو محفوظ.', 'حذف العنصر من قبل مسؤول.'],
+      quickFixes: [{ icon: 'fa-home', text: 'العودة للرئيسية', action: 'home' }],
     },
     unknown: {
       title: 'حدث خطأ غير متوقع',
@@ -227,10 +202,7 @@
       color: '#EF4444',
       reason: 'حدث خطأ غير معروف، لكن يمكنك تجربة الحلول أدناه.',
       solution: 'جرب تحديث الصفحة أو إعادة المحاولة.',
-      commonCauses: [
-        'تضارب في ذاكرة المتصفح.',
-        'إضافة تمنع السكربتات.',
-      ],
+      commonCauses: ['تضارب في ذاكرة المتصفح.', 'إضافة تمنع السكربتات.'],
       quickFixes: [
         { icon: 'fa-sync', text: 'تحديث الصفحة', action: 'reload' },
         { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' },
@@ -239,7 +211,7 @@
   };
 
   // ═══════════════════════════════════════════════════════════
-  // State (module-scoped)
+  // State
   // ═══════════════════════════════════════════════════════════
   const tsState = {
     current: null,
@@ -293,7 +265,7 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // Main Function — openTroubleshootModal
+  // Main Function
   // ═══════════════════════════════════════════════════════════
   window.openTroubleshootModal = function (toolName = 'غير محددة', issueType = 'unknown', details = {}) {
     if (!TS_ISSUES[issueType]) issueType = 'unknown';
@@ -331,7 +303,7 @@
       </div>
     `;
 
-    // ─── Countdown (rate_limit) ───
+    // ─── Countdown ───
     let countdownHTML = '';
     if (issueType === 'rate_limit' && details.retryAfter) {
       countdownHTML = `
@@ -346,7 +318,7 @@
       `;
     }
 
-    // ─── Failed Fields (validation) ───
+    // ─── Failed Fields ───
     let failedFieldsHTML = '';
     if (issueType === 'validation' && Array.isArray(details.fields) && details.fields.length) {
       failedFieldsHTML = `
@@ -465,10 +437,8 @@
       </details>
     `;
 
-    // ─── Connection Result placeholder ───
     const connectionResultHTML = `<div class="ts-connection-result hidden"></div>`;
 
-    // ─── Actions ───
     const actionsHTML = `
       <div class="ts-actions">
         <button type="button" class="ts-btn ts-btn--primary" data-ts-action="copy">
@@ -480,7 +450,6 @@
       </div>
     `;
 
-    // ─── Support Link ───
     const supportLinkHTML = `
       <button type="button" class="ts-support-link" data-ts-action="support">
         <i class="fas fa-headset"></i>
@@ -505,37 +474,30 @@
       </div>
     `;
 
-    // ═══════════════════════════════════════════════════════════
-    // Open via openCtrlPanel (الموجودة في app.js)
-    // ═══════════════════════════════════════════════════════════
+    // ─── Open via openCtrlPanel ───
     if (typeof window.openCtrlPanel === 'function') {
-      // استخدام اللون كـ headerColor
       window.openCtrlPanel('مركز حل المشكلات', html, issue.color);
     } else {
-      // Fallback احترافي
       if (typeof window.showToast === 'function') {
         window.showToast('عذراً، حدث خطأ في عرض المساعدة.', 'error');
       }
       return;
     }
 
-    // ─── Countdown ───
     if (issueType === 'rate_limit' && details.retryAfter) {
       tsStartCountdown(details.retryAfter);
     }
 
-    // ─── Save current state ───
     tsState.current = { errorId, toolName, issueType, issue, details };
   };
 
   // ═══════════════════════════════════════════════════════════
-  // Delegated Actions — يعمل مع openCtrlPanel
+  // Delegated Actions
   // ═══════════════════════════════════════════════════════════
   if (!tsState.bound) {
     tsState.bound = true;
 
     document.addEventListener('click', async (e) => {
-      // فحص: هل نقر المستخدم على زر من لوحة مركز حل المشكلات؟
       const btn = e.target.closest('[data-ts-action]');
       if (!btn) return;
 
@@ -544,24 +506,17 @@
       // ─── Close ───
       if (action === 'close') {
         e.preventDefault();
-        if (typeof window.closeCtrlPanel === 'function') {
-          window.closeCtrlPanel();
-        }
+        if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
         return;
       }
 
       // ─── Retry ───
       if (action === 'retry') {
         e.preventDefault();
-        if (typeof window.closeCtrlPanel === 'function') {
-          window.closeCtrlPanel();
-        }
+        if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
         setTimeout(() => {
-          if (typeof tsState.retry === 'function') {
-            tsState.retry();
-          } else if (typeof window.showToast === 'function') {
-            window.showToast('لا توجد عملية لإعادة المحاولة', 'info');
-          }
+          if (typeof tsState.retry === 'function') tsState.retry();
+          else if (typeof window.showToast === 'function') window.showToast('لا توجد عملية لإعادة المحاولة', 'info');
         }, 300);
         return;
       }
@@ -569,9 +524,7 @@
       // ─── Reload ───
       if (action === 'reload') {
         e.preventDefault();
-        if (typeof window.closeCtrlPanel === 'function') {
-          window.closeCtrlPanel();
-        }
+        if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
         setTimeout(() => location.reload(), 200);
         return;
       }
@@ -579,9 +532,7 @@
       // ─── Home ───
       if (action === 'home') {
         e.preventDefault();
-        if (typeof window.closeCtrlPanel === 'function') {
-          window.closeCtrlPanel();
-        }
+        if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
         setTimeout(() => { location.href = '/'; }, 200);
         return;
       }
@@ -611,10 +562,7 @@
         `;
 
         if (typeof window.showToast === 'function') {
-          window.showToast(
-            ok ? '✅ الاتصال بالخادم سليم' : '⚠️ مشاكل في الاتصال',
-            ok ? 'success' : 'error'
-          );
+          window.showToast(ok ? '✅ الاتصال بالخادم سليم' : '⚠️ مشاكل في الاتصال', ok ? 'success' : 'error');
         }
         return;
       }
@@ -625,10 +573,7 @@
         const id = btn.dataset.errorId;
         const ok = await tsCopyToClipboard(id);
         if (typeof window.showToast === 'function') {
-          window.showToast(
-            ok ? '✅ تم نسخ المعرّف' : '❌ تعذّر النسخ',
-            ok ? 'success' : 'error'
-          );
+          window.showToast(ok ? '✅ تم نسخ المعرّف' : '❌ تعذّر النسخ', ok ? 'success' : 'error');
         }
         return;
       }
@@ -638,9 +583,7 @@
         e.preventDefault();
         const id = tsState.current?.errorId;
         if (!id) {
-          if (typeof window.showToast === 'function') {
-            window.showToast('لا يوجد معرّف للنسخ', 'error');
-          }
+          if (typeof window.showToast === 'function') window.showToast('لا يوجد معرّف للنسخ', 'error');
           return;
         }
 
@@ -652,9 +595,7 @@
 
         if (ok) {
           btn.innerHTML = '<i class="fas fa-check"></i> <span>تم النسخ ✓</span>';
-          if (typeof window.showToast === 'function') {
-            window.showToast(`تم نسخ المعرّف: ${id}`, 'success');
-          }
+          if (typeof window.showToast === 'function') window.showToast(`تم نسخ المعرّف: ${id}`, 'success');
           setTimeout(() => {
             btn.disabled = false;
             btn.innerHTML = originalHTML;
@@ -662,9 +603,7 @@
         } else {
           btn.disabled = false;
           btn.innerHTML = originalHTML;
-          if (typeof window.showToast === 'function') {
-            window.showToast('تعذّر النسخ — انسخ يدوياً: ' + id, 'error');
-          }
+          if (typeof window.showToast === 'function') window.showToast('تعذّر النسخ — انسخ يدوياً: ' + id, 'error');
         }
         return;
       }
@@ -672,20 +611,10 @@
       // ─── Support ───
       if (action === 'support') {
         e.preventDefault();
-        if (typeof window.closeCtrlPanel === 'function') {
-          window.closeCtrlPanel();
-        }
+        if (typeof window.closeCtrlPanel === 'function') window.closeCtrlPanel();
         setTimeout(() => {
-          // محاولة فتح نافذة الاتصال الموجودة في app.js
           if (typeof window.openContactModal === 'function') {
             window.openContactModal();
-          } else if (window.history && window.history.pushState) {
-            window.history.pushState({}, '', '/contact');
-            if (typeof window.handleRouteChange === 'function') {
-              window.handleRouteChange();
-            } else {
-              location.href = '/contact';
-            }
           } else {
             location.href = '/contact';
           }
@@ -696,34 +625,23 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // Public API — Helpers متوافقة مع app.js
+  // Public API — Helpers
   // ═══════════════════════════════════════════════════════════
-
-  // registerRetry — لتسجيل دالة إعادة المحاولة
-  window.registerRetry = (fn) => {
-    tsState.retry = fn;
-  };
+  window.registerRetry = (fn) => { tsState.retry = fn; };
 
   window.retryLastAction = async () => {
     if (typeof tsState.retry === 'function') {
-      try {
-        await tsState.retry();
-      } catch {
-        if (typeof window.showToast === 'function') {
-          window.showToast('فشلت المحاولة مرة أخرى', 'error');
-        }
-      }
+      try { await tsState.retry(); }
+      catch { if (typeof window.showToast === 'function') window.showToast('فشلت المحاولة مرة أخرى', 'error'); }
     } else if (typeof window.showToast === 'function') {
       window.showToast('لا توجد عملية لإعادة المحاولة', 'info');
     }
   };
 
-  // reportIssue — يستخدمها app.js
-  window.reportIssue = (toolName, issueType, error) => {
+  window.reportIssue = (toolName, issueType) => {
     window.openTroubleshootModal(toolName, issueType);
   };
 
-  // handleHttpError — يستخدمها app.js
   window.handleHttpError = (toolName, response, extraDetails = {}) => {
     const status = response?.status;
     if (!navigator.onLine) return window.openTroubleshootModal(toolName, 'network');
@@ -734,23 +652,16 @@
       const retryAfter = parseInt(response.headers?.get?.('Retry-After')) || 60;
       return window.openTroubleshootModal(toolName, 'rate_limit', { retryAfter, ...extraDetails });
     }
-    if (status === 422 || status === 400) {
-      return window.openTroubleshootModal(toolName, 'validation', extraDetails);
-    }
+    if (status === 422 || status === 400) return window.openTroubleshootModal(toolName, 'validation', extraDetails);
     if (status === 408 || status === 504) return window.openTroubleshootModal(toolName, 'timeout');
     if (status >= 500) return window.openTroubleshootModal(toolName, 'server');
     return window.openTroubleshootModal(toolName, 'unknown', extraDetails);
   };
 
-  // handleFetchError — يستخدمها app.js (كما في submitBloodRequest)
   window.handleFetchError = (toolName, error) => {
     if (!navigator.onLine) return window.openTroubleshootModal(toolName, 'network');
-    if (error?.name === 'AbortError' || error?.name === 'TimeoutError') {
-      return window.openTroubleshootModal(toolName, 'timeout');
-    }
-    if (error?.message?.includes('Failed to fetch') || error?.message?.includes('NetworkError')) {
-      return window.openTroubleshootModal(toolName, 'network');
-    }
+    if (error?.name === 'AbortError' || error?.name === 'TimeoutError') return window.openTroubleshootModal(toolName, 'timeout');
+    if (error?.message?.includes('Failed to fetch') || error?.message?.includes('NetworkError')) return window.openTroubleshootModal(toolName, 'network');
     return window.openTroubleshootModal(toolName, 'unknown');
   };
 
