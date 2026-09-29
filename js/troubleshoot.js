@@ -438,95 +438,34 @@
   // ═══════════════════════════════════════════════════════════
   // Main Function
   // ═══════════════════════════════════════════════════════════
-  function openTroubleshootModal(toolName = 'غير محددة', issueType = 'unknown', details = {}) {
-    if (!ISSUES[issueType]) issueType = 'unknown';
-    const issue = ISSUES[issueType];
-    const errorId = generateErrorId();
-    const safeToolName = escapeHTML(toolName);
-    const isOnline = navigator.onLine;
-    const localTime = new Date().toLocaleString('ar-SY', {
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit',
-    });
-    currentErrorId = errorId;
-
-    // Header
-    const headerHTML = `
-      <div class="ts-header">
-        <div class="ts-icon-wrap" style="color: ${issue.color}">
-          <div class="ts-icon-bg" style="background: ${issue.color}"></div>
-          <div class="ts-icon-ring"></div>
-          <div class="ts-icon-main" style="background: linear-gradient(135deg, ${issue.color} 0%, ${issue.color}cc 100%)">
-            <i class="fas ${issue.icon}"></i>
-          </div>
-        </div>
-        <h3 class="ts-title">${escapeHTML(issue.title)}</h3>
-        <div class="ts-badges">
-          <span class="ts-badge ts-badge--tool">
-            <i class="fas fa-toolbox"></i> ${safeToolName}
-          </span>
-          <button type="button" class="ts-badge ts-badge--id"
-                  data-ts-action="copy-id" data-error-id="${errorId}"
-                  title="اضغط للنسخ">
-            <i class="fas fa-fingerprint"></i> ${errorId}
-          </button>
-        </div>
-      </div>
-    `;
-
-    // Countdown
-    let countdownHTML = '';
-    if (issueType === 'rate_limit' && details.retryAfter) {
-      countdownHTML = `
-        <div class="ts-countdown">
-          <div class="ts-countdown-label">
-            <i class="fas fa-hourglass-half"></i> يمكنك المحاولة بعد
-          </div>
-          <div class="ts-countdown-value" data-countdown="${details.retryAfter}">
-            ${formatTime(details.retryAfter)}
-          </div>
-        </div>
-      `;
-    }
-
-    // Failed Fields
-    let failedFieldsHTML = '';
-    if (issueType === 'validation' && Array.isArray(details.fields) && details.fields.length) {
-      failedFieldsHTML = `
-        <div class="ts-section ts-section--validation">
-          <div class="ts-section-title">
-            <i class="fas fa-list-check"></i>
-            <span>حقول تحتاج مراجعة (${details.fields.length})</span>
-          </div>
-          <ul class="ts-list">
-            ${details.fields.map(f => `
-              <li class="ts-list-item">
-                <i class="fas fa-circle-xmark"></i>
-                <span><strong>${escapeHTML(f.name)}:</strong> ${escapeHTML(f.error)}</span>
-              </li>
-            `).join('')}
-          </ul>
-        </div>
-      `;
-    }
-
-    // Reason
-    const reasonHTML = `
-      <div class="ts-section ts-section--reason">
-        <div class="ts-section-title">
-          <i class="fas fa-bug"></i> <span>السبب المحتمل</span>
-        </div>
-        <p class="ts-section-body">${escapeHTML(issue.reason)}</p>
-      </div>
-    `;
-
-    // Common Causes
+  // ═══════════════════════════════════════════════════════════
+// Main Function — عرض جميع الأنواع الـ 12 معاً
+// ═══════════════════════════════════════════════════════════
+function openTroubleshootModal(toolName = 'مركز المساعدة', issueType = 'all', details = {}) {
+  
+  const isOnline = navigator.onLine;
+  const localTime = new Date().toLocaleString('ar-SY', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  });
+  
+  // ترتيب عرض الأنواع
+  const ORDER = ['network', 'rate_limit', 'validation', 'cloudflare', 'timeout', 
+                 'server', 'auth', 'permission', 'not_found', 'maintenance', 
+                 'unknown', 'support'];
+  
+  // ═══════════════════════════════════════════════════════════
+  // بطاقة واحدة لكل نوع
+  // ═══════════════════════════════════════════════════════════
+  function renderIssueCard(key, issue) {
+    // الأسباب الشائعة
     let causesHTML = '';
     if (issue.commonCauses?.length) {
       causesHTML = `
         <div class="ts-section ts-section--causes">
           <div class="ts-section-title">
-            <i class="fas fa-magnifying-glass"></i> <span>أسباب شائعة</span>
+            <i class="fas fa-magnifying-glass"></i> 
+            <span>أسباب شائعة (${issue.commonCauses.length})</span>
           </div>
           <ul class="ts-list ts-list--causes">
             ${issue.commonCauses.map(c => `
@@ -539,115 +478,179 @@
         </div>
       `;
     }
-
-    // Solution
-    const solutionHTML = `
-      <div class="ts-section ts-section--solution">
-        <div class="ts-section-title">
-          <i class="fas fa-lightbulb"></i> <span>كيف تحل المشكلة؟</span>
-        </div>
-        <p class="ts-section-body">${escapeHTML(issue.solution)}</p>
-      </div>
-    `;
-
-    // Quick Fixes
+    
+    // الحلول السريعة
     let quickFixesHTML = '';
     if (issue.quickFixes?.length) {
       quickFixesHTML = `
         <div class="ts-quickfixes">
           <div class="ts-quickfixes-title">
-            <i class="fas fa-bolt"></i> <span>حلول سريعة</span>
+            <i class="fas fa-bolt"></i> 
+            <span>حلول سريعة (${issue.quickFixes.length})</span>
           </div>
           <div class="ts-quickfixes-grid">
-            ${issue.quickFixes.map((fix, i) => {
-              const actionAttr = fix.action ? `data-ts-action="${fix.action}"` : '';
-              const isPrimary = i === 0 && fix.action;
-              return `
-                <button type="button" ${actionAttr}
-                        class="ts-quickfix ${isPrimary ? 'ts-quickfix--primary' : ''}">
-                  <span class="ts-quickfix-icon"><i class="fas ${fix.icon}"></i></span>
-                  <span class="ts-quickfix-text">${escapeHTML(fix.text)}</span>
-                  ${fix.action ? '<i class="fas fa-arrow-left ts-quickfix-arrow"></i>' : ''}
-                </button>
-              `;
-            }).join('')}
+            ${issue.quickFixes.map(fix => `
+              <div class="ts-quickfix">
+                <span class="ts-quickfix-icon">
+                  <i class="fas ${fix.icon}"></i>
+                </span>
+                <span class="ts-quickfix-text">${escapeHTML(fix.text)}</span>
+              </div>
+            `).join('')}
           </div>
         </div>
       `;
     }
-
-    // Support Details
-    const supportDetails = [
-      { key: 'معرّف الخطأ', value: errorId, icon: 'fa-fingerprint' },
-      { key: 'الأداة', value: toolName, icon: 'fa-toolbox' },
-      { key: 'نوع المشكلة', value: issue.title, icon: 'fa-tag' },
-      { key: 'التوقيت', value: localTime, icon: 'fa-clock' },
-      { key: 'حالة الإنترنت', value: isOnline ? 'متصل' : 'غير متصل', icon: isOnline ? 'fa-circle-check' : 'fa-circle-xmark' },
-    ];
-
-    const detailsHTML = `
-      <details class="ts-details">
-        <summary class="ts-details-summary">
-          <span><i class="fas fa-headset"></i> معلومات للدعم الفني</span>
-          <i class="fas fa-chevron-down ts-details-arrow"></i>
-        </summary>
-        <div class="ts-details-content">
-          ${supportDetails.map(d => `
-            <div class="ts-details-row">
-              <span class="ts-details-key">
-                <i class="fas ${d.icon}"></i> ${escapeHTML(d.key)}
-              </span>
-              <span class="ts-details-value">${escapeHTML(d.value)}</span>
+    
+    return `
+      <div class="ts-issue-card" data-issue="${key}">
+        
+        <!-- Header -->
+        <div class="ts-header">
+          <div class="ts-icon-wrap" style="color: ${issue.color}">
+            <div class="ts-icon-bg" style="background: ${issue.color}"></div>
+            <div class="ts-icon-ring"></div>
+            <div class="ts-icon-main" style="background: linear-gradient(135deg, ${issue.color} 0%, ${issue.color}cc 100%)">
+              <i class="fas ${issue.icon}"></i>
             </div>
-          `).join('')}
-          <div class="ts-details-note">
-            <i class="fas fa-info-circle"></i>
-            <span>أرسل رقم المرجع فقط عند التواصل مع الدعم</span>
+          </div>
+          <h3 class="ts-title">${escapeHTML(issue.title)}</h3>
+          <div class="ts-badges">
+            <span class="ts-badge ts-badge--tool">
+              <i class="fas fa-tag"></i> ${key}
+            </span>
           </div>
         </div>
-      </details>
-    `;
-
-    // Actions
-    const actionsHTML = `
-      <div class="ts-actions">
-        <button type="button" class="ts-btn ts-btn--primary" data-ts-action="copy">
-          <i class="fas fa-copy"></i> <span>نسخ رقم المرجع</span>
-        </button>
-        <button type="button" class="ts-btn ts-btn--secondary" data-ts-action="close">
-          <i class="fas fa-arrow-rotate-left"></i> <span>العودة</span>
-        </button>
-      </div>
-    `;
-
-    // Support Link
-    const supportLinkHTML = `
-      <button type="button" class="ts-support-link" data-ts-action="support">
-        <i class="fas fa-headset"></i>
-        <span>لم تحل المشكلة؟ تواصل مع الدعم</span>
-      </button>
-    `;
-
-    const connectionResultHTML = `<div class="ts-connection-result hidden"></div>`;
-
-    // Final
-    const html = `
-      <div class="ts-panel">
-        ${headerHTML}
-        ${countdownHTML}
-        ${failedFieldsHTML}
-        ${reasonHTML}
+        
+        <!-- السبب -->
+        <div class="ts-section ts-section--reason">
+          <div class="ts-section-title">
+            <i class="fas fa-bug"></i> <span>السبب المحتمل</span>
+          </div>
+          <p class="ts-section-body">${escapeHTML(issue.reason)}</p>
+        </div>
+        
+        <!-- الأسباب الشائعة -->
         ${causesHTML}
-        ${solutionHTML}
+        
+        <!-- الحل -->
+        <div class="ts-section ts-section--solution">
+          <div class="ts-section-title">
+            <i class="fas fa-lightbulb"></i> <span>كيف تحل المشكلة؟</span>
+          </div>
+          <p class="ts-section-body">${escapeHTML(issue.solution)}</p>
+        </div>
+        
+        <!-- الحلول السريعة -->
         ${quickFixesHTML}
-        ${connectionResultHTML}
-        ${detailsHTML}
-        ${actionsHTML}
-        ${supportLinkHTML}
+        
       </div>
     `;
-
-    openModal(html);
+  }
+  
+  // ═══════════════════════════════════════════════════════════
+  // فهرس سريع (12 زر للتنقل)
+  // ═══════════════════════════════════════════════════════════
+  const indexHTML = `
+    <div class="ts-index">
+      <div class="ts-index-title">
+        <i class="fas fa-list"></i>
+        <span>فهرس سريع (${ORDER.length} نوع)</span>
+      </div>
+      <div class="ts-index-grid">
+        ${ORDER.map(key => {
+          const issue = ISSUES[key];
+          return `
+            <button type="button" 
+                    class="ts-index-btn"
+                    data-ts-jump="${key}"
+                    style="--jump-color: ${issue.color}">
+              <span class="ts-index-icon" style="background: ${issue.color}">
+                <i class="fas ${issue.icon}"></i>
+              </span>
+              <span class="ts-index-text">${escapeHTML(issue.title)}</span>
+              <i class="fas fa-arrow-left ts-index-arrow"></i>
+            </button>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+  
+  // ═══════════════════════════════════════════════════════════
+  // معلومات الدعم
+  // ═══════════════════════════════════════════════════════════
+  const detailsHTML = `
+    <details class="ts-details">
+      <summary class="ts-details-summary">
+        <span><i class="fas fa-headset"></i> معلومات عامة للدعم الفني</span>
+        <i class="fas fa-chevron-down ts-details-arrow"></i>
+      </summary>
+      <div class="ts-details-content">
+        <div class="ts-details-row">
+          <span class="ts-details-key"><i class="fas fa-clock"></i> التوقيت</span>
+          <span class="ts-details-value">${escapeHTML(localTime)}</span>
+        </div>
+        <div class="ts-details-row">
+          <span class="ts-details-key"><i class="fas fa-circle-check"></i> حالة الإنترنت</span>
+          <span class="ts-details-value">${isOnline ? 'متصل' : 'غير متصل'}</span>
+        </div>
+        <div class="ts-details-note">
+          <i class="fas fa-info-circle"></i>
+          <span>عند التواصل مع الدعم، أرسل اسم الأداة + نوع المشكلة</span>
+        </div>
+      </div>
+    </details>
+  `;
+  
+  // ═══════════════════════════════════════════════════════════
+  // الأزرار السفلية
+  // ═══════════════════════════════════════════════════════════
+  const actionsHTML = `
+    <div class="ts-actions">
+      <button type="button" class="ts-btn ts-btn--primary" data-ts-action="close">
+        <i class="fas fa-arrow-rotate-left"></i> <span>العودة</span>
+      </button>
+      <button type="button" class="ts-btn ts-btn--secondary" data-ts-action="support">
+        <i class="fas fa-headset"></i> <span>تواصل مع الدعم</span>
+      </button>
+    </div>
+  `;
+  
+  // ═══════════════════════════════════════════════════════════
+  // HTML النهائي
+  // ═══════════════════════════════════════════════════════════
+  const html = `
+    <div class="ts-panel ts-panel--all">
+      
+      <!-- Hero Header -->
+      <div class="ts-hero-header">
+        <div class="ts-hero-icon">
+          <i class="fas fa-life-ring"></i>
+        </div>
+        <h2 class="ts-hero-title">مركز حل المشكلات</h2>
+        <p class="ts-hero-subtitle">دليل شامل لكل أنواع الأخطاء المحتملة (${ORDER.length} نوع)</p>
+      </div>
+      
+      <!-- فهرس سريع -->
+      ${indexHTML}
+      
+      <!-- كل البطاقات الـ 12 -->
+      <div class="ts-issues-list">
+        ${ORDER.map(key => renderIssueCard(key, ISSUES[key])).join('')}
+      </div>
+      
+      <!-- معلومات + أزرار -->
+      ${detailsHTML}
+      ${actionsHTML}
+      
+    </div>
+  `;
+  
+  // ═══════════════════════════════════════════════════════════
+  // Open Modal (نفس النظام الأصلي)
+  // ═══════════════════════════════════════════════════════════
+  openModal(html);
 
     if (issueType === 'rate_limit' && details.retryAfter) {
       startCountdown(details.retryAfter);
