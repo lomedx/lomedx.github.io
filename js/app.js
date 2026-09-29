@@ -156,6 +156,108 @@ function lockScroll() {
     // إيقاف جميع حركات الـ CSS لتبريد المعالج أثناء فتح النوافذ
     document.body.classList.add('stop-animations'); 
 }
+// === النظام الموحد لتنفيذ العمليات وتصيد الأخطاء ===
+window.executeAction = async function(toolName, actionCallback, options = {}) {
+    
+    // حماية: التحقق من وجود الدوال المطلوبة
+    const hasErrorModal = typeof window.openTroubleshootModal === 'function';
+    const hasErrorHandler = typeof window.handleFetchError === 'function';
+    
+    // 1. فحص الإنترنت أولاً
+    if (!navigator.onLine) {
+        if (hasErrorModal) {
+            window.openTroubleshootModal(toolName, 'network');
+        }
+        return { success: false, error: 'network' };
+    }
+    
+    // 2. فحص Debounce على مستوى النموذج (أدق من الزر)
+    const formKey = options.formId || toolName;
+    const now = Date.now();
+    const cooldown = options.cooldown || 1500; // 1.5 ثانية افتراضياً
+    
+    window._lastSubmits = window._lastSubmits || {};
+    if (now - (window._lastSubmits[formKey] || 0) < cooldown) {
+        return { success: false, error: 'too_fast' };
+    }
+    window._lastSubmits[formKey] = now;
+    
+    // 3. فحص الإدخالات (Validation)
+    if (options.validate && typeof options.validate === 'function') {
+        try {
+            const validationError = options.validate();
+            if (validationError && validationError.length > 0) {
+                if (hasErrorModal) {
+                    window.openTroubleshootModal(toolName, 'validation', {
+                        fields: validationError
+                    });
+                }
+                return { success: false, error: 'validation' };
+            }
+        } catch (validationErr) {
+            console.error('[Wrapper] Validation error:', validationErr);
+        }
+    }
+    
+    // 4. تجهيز الزر
+    let restoreButton = null;
+    if (options.button) {
+        if (options.button.dataset.isProcessing === 'true') {
+            return { success: false, error: 'double_click' };
+        }
+        options.button.dataset.isProcessing = 'true';
+        const originalHtml = options.button.innerHTML;
+        options.button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...';
+        options.button.disabled = true;
+        
+        restoreButton = () => {
+            options.button.dataset.isProcessing = 'false';
+            options.button.innerHTML = originalHtml;
+            options.button.disabled = false;
+        };
+    }
+    
+    // 5. قياس الوقت
+    const startTime = Date.now();
+    
+    try {
+        // تنفيذ العملية
+        const result = await actionCallback();
+        
+        // استعادة الزر
+        if (restoreButton) restoreButton();
+        
+        // تسجيل الوقت
+        const duration = Date.now() - startTime;
+        if (duration > 5000) {
+            console.warn(`[Wrapper] ${toolName} بطيء: ${duration}ms`);
+        }
+        
+        // نجاح
+        return { success: true, data: result, duration };
+        
+    } catch (err) {
+        // استعادة الزر
+        if (restoreButton) restoreButton();
+        
+        // تسجيل الخطأ تلقائياً
+        if (hasErrorHandler) {
+            try {
+                window.handleFetchError(toolName, err, {
+                    action_name: options.actionName || 'unknown',
+                    form_id: formKey,
+                    duration: Date.now() - startTime,
+                });
+            } catch (handlerErr) {
+                console.error('[Wrapper] Error handler failed:', handlerErr);
+            }
+        } else {
+            console.error('[Wrapper] لا يوجد معالج أخطاء:', err);
+        }
+        
+        return { success: false, error: err };
+    }
+};
 
 // دالة فتح التمرير مع إعادة الحركات
 function unlockScroll() { 
@@ -7654,30 +7756,42 @@ window.showToast = (message, type = 'info', duration = 4000) => {
   window.retryLastAction = retryLastAction;
   window.reportIssue = (toolName, issueType) => openTroubleshootModal(toolName, issueType);
 
-  window.handleHttpError = (toolName, response, extraDetails = {}) => {
-    const status = response?.status;
+  window.handleFetchError = (toolName, error, contextData = {}) => {
     if (!navigator.onLine) return openTroubleshootModal(toolName, 'network');
-    if (status === 401) return openTroubleshootModal(toolName, 'auth');
-    if (status === 403) return openTroubleshootModal(toolName, 'permission');
-    if (status === 404) return openTroubleshootModal(toolName, 'not_found');
+    
+    if (error?.name === 'AbortError' || error?.name === 'TimeoutError') {
+        return openTroubleshootModal(toolName, 'timeout');
+    }
+    
+    if (error?.message?.includes('Failed to fetch') || error?.message?.includes('NetworkError')) {
+        return openTroubleshootModal(toolName, 'network');
+    }
+    
+    // إذا كان الخطأ يحمل حالة HTTP (مثل أخطاء Supabase Functions)
+    if (error?.context?.status) {
+        return window.handleHttpError(toolName, error.context, contextData);
+    }
+
+    // لل الأخطاء الغامضة، نمرر البيانات الإضافية لتسجل في القاعدة
+    return openTroubleshootModal(toolName, 'unknown', contextData);
+};
+
+window.handleHttpError = (toolName, response, extraDetails = {}) => {
+    const status = response?.status;
+    if (!navigator.onLine) return openTroubleshootModal(toolName, 'network', extraDetails);
+    if (status === 401) return openTroubleshootModal(toolName, 'auth', extraDetails);
+    if (status === 403) return openTroubleshootModal(toolName, 'permission', extraDetails);
+    if (status === 404) return openTroubleshootModal(toolName, 'not_found', extraDetails);
     if (status === 429) {
-      const retryAfter = parseInt(response.headers?.get?.('Retry-After')) || 60;
-      return openTroubleshootModal(toolName, 'rate_limit', { retryAfter, ...extraDetails });
+        const retryAfter = parseInt(response.headers?.get?.('Retry-After')) || 60;
+        return openTroubleshootModal(toolName, 'rate_limit', { retryAfter, ...extraDetails });
     }
     if (status === 422 || status === 400) return openTroubleshootModal(toolName, 'validation', extraDetails);
-    if (status === 408 || status === 504) return openTroubleshootModal(toolName, 'timeout');
-    if (status === 503) return openTroubleshootModal(toolName, 'maintenance');
-    if (status >= 500) return openTroubleshootModal(toolName, 'server');
+    if (status === 408 || status === 504) return openTroubleshootModal(toolName, 'timeout', extraDetails);
+    if (status === 503) return openTroubleshootModal(toolName, 'maintenance', extraDetails);
+    if (status >= 500) return openTroubleshootModal(toolName, 'server', extraDetails);
     return openTroubleshootModal(toolName, 'unknown', extraDetails);
-  };
-
-  window.handleFetchError = (toolName, error) => {
-    if (!navigator.onLine) return openTroubleshootModal(toolName, 'network');
-    if (error?.name === 'AbortError' || error?.name === 'TimeoutError') return openTroubleshootModal(toolName, 'timeout');
-    if (error?.message?.includes('Failed to fetch') || error?.message?.includes('NetworkError')) return openTroubleshootModal(toolName, 'network');
-    return openTroubleshootModal(toolName, 'unknown');
-  };
-})();
+};
 // === دالة تسجيل الأخطاء المحصنة ===
 const errorThrottleCache = {}; // ذاكرة مؤقتة لمنع الإغراق
 
@@ -7722,6 +7836,8 @@ async function logErrorToSupabase(errorData) {
             user_id: userId,
             user_role: userRole,
             user_agent: cleanUserAgent
+            // يمكننا إضافة حقل duration في القاعدة لاحقاً إذا أردت
+        // duration_ms: errorData.contextData?.duration || null 
         }]);
     } catch (e) {
         // تجاهل أي خطأ يحدث هنا لكي لا يتسبب في حلقة مفرغة من الأخطاء
