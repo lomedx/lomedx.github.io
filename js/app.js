@@ -7922,31 +7922,131 @@ window.showToast = (message, type = 'info', duration = 4000) => {
   window.retryLastAction = retryLastAction;
   window.reportIssue = (toolName, issueType) => openTroubleshootModal(toolName, issueType);
 
-    window.handleFetchError = (toolName, error, contextData = {}) => {
-    if (!navigator.onLine) return openTroubleshootModal(toolName, 'network');
-    if (error?.name === 'AbortError' || error?.name === 'TimeoutError') return openTroubleshootModal(toolName, 'timeout');
-    if (error?.message?.includes('Failed to fetch') || error?.message?.includes('NetworkError')) return openTroubleshootModal(toolName, 'network');
-    if (error?.context?.status) return window.handleHttpError(toolName, error.context, contextData);
-    return openTroubleshootModal(toolName, 'unknown', contextData);
-  };
-
-  window.handleHttpError = (toolName, response, extraDetails = {}) => {
-    const status = response?.status;
-    if (!navigator.onLine) return openTroubleshootModal(toolName, 'network', extraDetails);
-    if (status === 401) return openTroubleshootModal(toolName, 'auth', extraDetails);
-    if (status === 403) return openTroubleshootModal(toolName, 'permission', extraDetails);
-    if (status === 404) return openTroubleshootModal(toolName, 'not_found', extraDetails);
-    if (status === 429) {
-      const retryAfter = parseInt(response.headers?.get?.('Retry-After')) || 60;
-      return openTroubleshootModal(toolName, 'rate_limit', { retryAfter, ...extraDetails });
+    // ═══════════════════════════════════════════════════════════
+// handleFetchError — يفهم كل أنواع الأخطاء
+// ═══════════════════════════════════════════════════════════
+window.handleFetchError = (toolName, error) => {
+    
+    // ── 1. الإنترنت ──
+    if (!navigator.onLine) {
+        return window.openTroubleshootModal(toolName, 'network');
     }
-    if (status === 422 || status === 400) return openTroubleshootModal(toolName, 'validation', extraDetails);
-    if (status === 408 || status === 504) return openTroubleshootModal(toolName, 'timeout', extraDetails);
-    if (status === 503) return openTroubleshootModal(toolName, 'maintenance', extraDetails);
-    if (status >= 500) return openTroubleshootModal(toolName, 'server', extraDetails);
-    return openTroubleshootModal(toolName, 'unknown', extraDetails);
-  };
-})(); // <-- هذا القوس يغلق محرك الأخطاء بالكامل
+    if (error?.context?.status) {
+        // اقرأ status ومرّره لـ handleHttpError
+        return window.handleHttpError(toolName, {
+            status: error.context.status,
+            headers: error.context.headers || {
+                get: () => null
+            }
+        }, {
+            message: error.message || error.context.error
+        });
+    }
+    
+    // ── 3. إذا كان الخطأ فيه status مباشرة ──
+    if (error?.status) {
+        return window.handleHttpError(toolName, {
+            status: error.status,
+            headers: error.headers || { get: () => null }
+        }, { message: error.message });
+    }
+    
+    // ── 4. إذا كان الخطأ فيه رسالة 429 من Edge Function ──
+    const errorMsg = error?.message || '';
+    if (errorMsg.includes('الانتظار') || errorMsg.includes('ساعة') || 
+        errorMsg.includes('تجاوزت') || errorMsg.includes('يرجى الانتظار')) {
+        // استخرج عدد الساعات/الدقائق إن وُجد
+        const hoursMatch = errorMsg.match(/(\d+)\s*ساعة/);
+        const minsMatch = errorMsg.match(/(\d+)\s*دقيقة/);
+        const retryAfter = hoursMatch ? parseInt(hoursMatch[1]) * 3600 
+                         : minsMatch ? parseInt(minsMatch[1]) * 60 
+                         : 3600;
+        return window.openTroubleshootModal(toolName, 'rate_limit', { retryAfter });
+    }
+    // ── 5. Abort / Timeout ──
+    if (error?.name === 'AbortError' || error?.name === 'TimeoutError') {
+        return window.openTroubleshootModal(toolName, 'timeout');
+    }
+    // ── 6. Network Error ──
+    if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+        return window.openTroubleshootModal(toolName, 'network');
+    }
+    // ── 7. Cloudflare / Turnstile ──
+    if (errorMsg.includes('Turnstile') || errorMsg.includes('التحقق الأمني')) {
+        return window.openTroubleshootModal(toolName, 'cloudflare');
+    }
+    // ── 8. افتراضي ──
+    return window.openTroubleshootModal(toolName, 'unknown');
+};
+
+  // ═══════════════════════════════════════════════════════════
+// handleHttpError — يستقبل context
+// ═══════════════════════════════════════════════════════════
+window.handleHttpError = (toolName, response, extraDetails = {}) => {
+    const status = response?.status;
+    
+    // ── 1. الإنترنت ──
+    if (!navigator.onLine) {
+        return window.openTroubleshootModal(toolName, 'network', extraDetails);
+    }
+    
+    // ── 2. الأخطاء المعروفة ──
+    if (status === 401) {
+        return window.openTroubleshootModal(toolName, 'auth', extraDetails);
+    }
+    
+    if (status === 403) {
+        // Turnstile / AdBlocker → cloudflare
+        if (extraDetails.message?.includes('Turnstile') || 
+            extraDetails.message?.includes('الأمني') ||
+            extraDetails.message?.includes('الروبوت')) {
+            return window.openTroubleshootModal(toolName, 'cloudflare', extraDetails);
+        }
+        return window.openTroubleshootModal(toolName, 'permission', extraDetails);
+    }
+    
+    if (status === 404) {
+        return window.openTroubleshootModal(toolName, 'not_found', extraDetails);
+    }
+    
+    if (status === 409) {
+        // تعارض (مثل: الموعد محجوز)
+        return window.openTroubleshootModal(toolName, 'validation', {
+            ...extraDetails,
+            fields: [{
+                name: 'الموعد',
+                error: extraDetails.message || 'هذا الموعد محجوز مسبقاً'
+            }]
+        });
+    }
+    
+    if (status === 429) {
+        // استخرج retryAfter من الرسالة أو headers
+        const retryAfter = parseInt(response.headers?.get?.('Retry-After')) || 3600;
+        return window.openTroubleshootModal(toolName, 'rate_limit', { 
+            retryAfter, 
+            ...extraDetails 
+        });
+    }
+    
+    if (status === 422 || status === 400) {
+        return window.openTroubleshootModal(toolName, 'validation', extraDetails);
+    }
+    
+    if (status === 408 || status === 504) {
+        return window.openTroubleshootModal(toolName, 'timeout', extraDetails);
+    }
+    
+    if (status === 503) {
+        return window.openTroubleshootModal(toolName, 'maintenance', extraDetails);
+    }
+    
+    if (status >= 500) {
+        return window.openTroubleshootModal(toolName, 'server', extraDetails);
+    }
+    
+    return window.openTroubleshootModal(toolName, 'unknown', extraDetails);
+};
 
 // ═══════════════════════════════════════════════════════════
 // logErrorToSupabase — مع فلترة
