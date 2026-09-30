@@ -6943,15 +6943,17 @@ window.addEventListener('offline', () => {
 });
 // === إضافة سحرية: إخبار المستخدم بعودة الإنترنت ===
 window.addEventListener('online', () => {
-  showToast('✅ عاد الاتصال بالإنترنت! يمكنك الآن استخدام جميع الميزات بسلام.', 'success');
+  showToast(' عاد الاتصال بالإنترنت! يمكنك الآن استخدام جميع الميزات بسلام.', 'success');
 });
 // دالة مساعدة لفحص الإنترنت قبل أي عملية حساسة
 window.checkOnlineStatus = () => {
-  if (!navigator.onLine) {
-    showToast('لا يمكن إتمام هذه العملية. أنت غير متصل بالإنترنت حالياً.', 'error');
-    return false;
-  }
-  return true;
+    if (!navigator.onLine) {
+        if (typeof window.openTroubleshootModal === 'function') {
+            window.openTroubleshootModal('العملية المطلوبة', 'network');
+        }
+        return false;
+    }
+    return true;
 };
 
 
