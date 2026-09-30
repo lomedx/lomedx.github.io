@@ -6732,112 +6732,36 @@ window.changeFontSize = (delta) => {
 window.toggleSpeech = () => {
     const btn = document.getElementById('ttsBtn');
     const contentDiv = document.getElementById('articleContentText');
-    
-    if (!contentDiv || !btn) {
-        showToast('لا يمكن الوصول لنص المقال', 'error');
-        return;
-    }
+    if (!contentDiv || !btn) return;
 
-    // ✅ 1. فحص دعم المتصفح
-    if (!('speechSynthesis' in window)) {
-        showToast('متصفحك لا يدعم القراءة الصوتية. جرّب Chrome أو Safari.', 'error');
-        return;
-    }
-
-    // ✅ 2. إيقاف القراءة إذا كانت تعمل
-    if (isSpeaking) {
-        window.speechSynthesis.cancel();
-        isSpeaking = false;
-        btn.innerHTML = '<i class="fas fa-headphones text-sm"></i>';
-        btn.classList.remove('text-red-600');
-        return;
-    }
-
-    // ✅ 3. استخراج النص بشكل نظيف (بدون النصوص المخفية)
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = contentDiv.innerHTML;
-    
-    // إزالة العناصر غير المرغوبة
-    tempDiv.querySelectorAll('script, style, .rate-btn, button, [aria-hidden="true"]').forEach(el => el.remove());
-    
-    const textToRead = (tempDiv.textContent || tempDiv.innerText || '').replace(/\s+/g, ' ').trim();
-
-    if (!textToRead || textToRead.length < 10) {
-        showToast('لا يوجد نص كافٍ للقراءة', 'info');
-        return;
-    }
-
-    // ✅ 4. التحقق من توفر صوت عربي
-    const voices = window.speechSynthesis.getVoices();
-    const arabicVoice = voices.find(v => v.lang.startsWith('ar'));
-    
-    if (voices.length > 0 && !arabicVoice) {
-        showToast('صوت عربي غير مثبت على جهازك. سيتم استخدام الصوت الافتراضي.', 'info');
-    }
-
-    // ✅ 5. تقسيم النص إلى جمل (أفضل من 200 حرف عشوائي)
-    const sentences = textToRead.match(/[^.!?،؛\n]+[.!?،؛\n]?/g) || [textToRead];
-    
-    // ✅ 6. تجميع الجمل في أجزاء بحجم مناسب
-    const chunks = [];
-    let currentChunk = '';
-    const MAX_CHUNK_SIZE = 180; // أصغر لتجنب مشاكل Chrome
-
-    sentences.forEach(sentence => {
-        if ((currentChunk + sentence).length > MAX_CHUNK_SIZE && currentChunk) {
-            chunks.push(currentChunk.trim());
-            currentChunk = sentence;
-        } else {
-            currentChunk += ' ' + sentence;
-        }
-    });
-    if (currentChunk.trim()) chunks.push(currentChunk.trim());
-
-    // ✅ 7. بدء القراءة
-    isSpeaking = true;
-    btn.innerHTML = '<i class="fas fa-stop text-sm"></i>';
-    btn.classList.add('text-red-600');
-    
-    window.speechSynthesis.cancel(); // مسح أي طابور قديم
-    
-    let currentChunkIndex = 0;
-    
-    const speakChunk = () => {
-        if (!isSpeaking || currentChunkIndex >= chunks.length) {
+    if ('speechSynthesis' in window) {
+        if (isSpeaking) {
+            window.speechSynthesis.cancel();
             isSpeaking = false;
             btn.innerHTML = '<i class="fas fa-headphones text-sm"></i>';
             btn.classList.remove('text-red-600');
-            return;
+        } else {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = contentDiv.innerHTML;
+            const textToRead = tempDiv.textContent || tempDiv.innerText;
+            
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'ar-SA';
+            utterance.onend = () => {
+                isSpeaking = false;
+                btn.innerHTML = '<i class="fas fa-headphones text-sm"></i>';
+                btn.classList.remove('text-red-600');
+            };
+            window.speechSynthesis.speak(utterance);
+            isSpeaking = true;
+            btn.innerHTML = '<i class="fas fa-stop text-sm"></i>';
+            btn.classList.add('text-red-600');
         }
+    } else {
+        showToast("متصفحك لا يدعم ميزة الاستماع الصوتي.", 'error');
+    }
+}
         
-        const utterance = new SpeechSynthesisUtterance(chunks[currentChunkIndex]);
-        utterance.lang = arabicVoice ? arabicVoice.lang : 'ar-SA';
-        utterance.rate = 0.95;   // سرعة مريحة للعربية
-        utterance.pitch = 1;
-        utterance.volume = 1;
-        
-        // ✅ استخدام صوت عربي إن وُجد
-        if (arabicVoice) {
-            utterance.voice = arabicVoice;
-        }
-        
-        utterance.onend = () => {
-            currentChunkIndex++;
-            // ✅ استدعاء مباشر بدون setTimeout لتجنب حظر المستخدم
-            speakChunk();
-        };
-        
-        utterance.onerror = (e) => {
-            console.warn('[TTS] Error:', e.error);
-            currentChunkIndex++;
-            speakChunk();
-        };
-        
-        window.speechSynthesis.speak(utterance);
-    };
-    
-    speakChunk();
-};
 
 window.shareArticle = (title) => {
     const url = window.location.href;
