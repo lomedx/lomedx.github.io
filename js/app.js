@@ -1,33 +1,41 @@
 import { supabase } from './supabase.js';
 
-// === النظام الموحد لتنفيذ العمليات وتصيد الأخطاء ===
+// ═══════════════════════════════════════════════════════════
+// executeAction — 3 مستويات
+// ═══════════════════════════════════════════════════════════
 window.executeAction = async function(toolName, actionCallback, options = {}) {
     
-    // حماية: التحقق من وجود الدوال المطلوبة
-    const hasErrorModal = typeof window.openTroubleshootModal === 'function';
-    const hasErrorHandler = typeof window.handleFetchError === 'function';
-    
-    // 1. فحص الإنترنت أولاً
+    // ═══ 1. الإنترنت ═══
     if (!navigator.onLine) {
-        if (hasErrorModal) window.openTroubleshootModal(toolName, 'network');
-        return { success: false, error: 'network' };
+        if (typeof window.openTroubleshootModal === 'function') {
+            window.openTroubleshootModal(toolName, 'network');
+        }
+        return { success: false, error: 'network', level: 3 };
     }
     
-    // 2. فحص Debounce
+    // ═══ 2. Cooldown ═══
     const formKey = options.formId || toolName;
     const now = Date.now();
     const cooldown = options.cooldown || 1500;
+    
     window._lastSubmits = window._lastSubmits || {};
     if (now - (window._lastSubmits[formKey] || 0) < cooldown) {
-        return { success: false, error: 'too_fast' };
+        const remaining = Math.ceil((cooldown - (now - window._lastSubmits[formKey])) / 1000);
+        if (window.showToast) {
+            window.showToast(
+                options.cooldownMessage || `انتظر ${remaining} ثانية`,
+                'info'
+            );
+        }
+        return { success: false, error: 'cooldown', level: 2, remaining };
     }
     window._lastSubmits[formKey] = now;
     
-    // 3. تجهيز الزر
+    // ═══ 3. تجهيز الزر ═══
     let restoreButton = null;
     if (options.button) {
         if (options.button.dataset.isProcessing === 'true') {
-            return { success: false, error: 'double_click' };
+            return { success: false, error: 'double_click', level: 1 };
         }
         options.button.dataset.isProcessing = 'true';
         const originalHtml = options.button.innerHTML;
@@ -40,49 +48,127 @@ window.executeAction = async function(toolName, actionCallback, options = {}) {
         };
     }
     
-        // 4. فحص الإدخالات (Validation)
+    // ═══ 4. Validation ═══
     if (options.validate && typeof options.validate === 'function') {
         try {
             const validationError = options.validate();
+            
             if (validationError && validationError.length > 0) {
                 if (restoreButton) restoreButton();
-                // تعديل احترافي: لا تفتح النافذة الكبيرة، بل أعد الأخطاء للنموذج ليعالجها برفق
-                return { success: false, error: 'validation', fields: validationError };
+                
+                // تلوين الحقول + رسائل
+                validationError.forEach((err, index) => {
+                    const field = err.fieldId 
+                        ? document.getElementById(err.fieldId) 
+                        : (err.fieldName ? document.querySelector(`[name="${err.fieldName}"]`) : null);
+                    
+                    if (!field) return;
+                    
+                    field.classList.add('input-invalid');
+                    
+                    const wrapper = field.closest('.form-group') 
+                                 || field.closest('.contact-field')
+                                 || field.parentElement;
+                    
+                    let errorEl = wrapper.querySelector('.field-error-msg');
+                    if (!errorEl) {
+                        errorEl = document.createElement('span');
+                        errorEl.className = 'field-error-msg';
+                        wrapper.appendChild(errorEl);
+                    }
+                    errorEl.textContent = err.error;
+                    
+                    const removeError = () => {
+                        field.classList.remove('input-invalid');
+                        const msgEl = wrapper.querySelector('.field-error-msg');
+                        if (msgEl) msgEl.remove();
+                        field.removeEventListener('input', removeError);
+                        field.removeEventListener('change', removeError);
+                    };
+                    field.addEventListener('input', removeError);
+                    field.addEventListener('change', removeError);
+                    
+                    if (index === 0) {
+                        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        setTimeout(() => field.focus({ preventScroll: true }), 350);
+                    }
+                });
+                
+                if (window.showToast) {
+                    const msg = validationError.length === 1
+                        ? `${validationError[0].name}: ${validationError[0].error}`
+                        : `يوجد ${validationError.length} حقول تحتاج مراجعة`;
+                    window.showToast(msg, 'error');
+                }
+                
+                return {
+                    success: false,
+                    error: 'validation',
+                    fields: validationError,
+                    level: 1
+                };
             }
         } catch (validationErr) {
-            console.error('[Wrapper] Validation crashed:', validationErr);
             if (restoreButton) restoreButton();
-            if (hasErrorHandler) window.handleFetchError(toolName, validationErr);
-            return { success: false, error: validationErr };
+            console.error('[Wrapper] Validation crashed:', validationErr);
         }
     }
     
-    // 5. تنفيذ العملية الفعلي
+    // ═══ 5. التنفيذ ═══
     const startTime = Date.now();
     try {
         const result = await actionCallback();
         if (restoreButton) restoreButton();
+        
         const duration = Date.now() - startTime;
-        if (duration > 5000) console.warn(`[Wrapper] ${toolName} بطيء: ${duration}ms`);
-        return { success: true, data: result, duration };
+        if (duration > 5000) {
+            console.warn(`[Wrapper] ${toolName} بطيء: ${duration}ms`);
+        }
+        
+        return { success: true, data: result, duration, level: 0 };
+        
     } catch (err) {
         if (restoreButton) restoreButton();
-        if (hasErrorHandler) {
-            try {
-                window.handleFetchError(toolName, err, {
-                    action_name: options.actionName || 'unknown',
-                    form_id: formKey,
-                    duration: Date.now() - startTime,
-                });
-            } catch (handlerErr) {
-                console.error('[Wrapper] Error handler failed:', handlerErr);
+        
+        // تصنيف
+        const level = detectErrorLevel(err);
+        
+        // المستوى 1: Toast فقط
+        if (level === 1 || err.isUserError) {
+            if (window.showToast) {
+                window.showToast(err.message || 'يرجى مراجعة البيانات', 'error');
             }
-        } else {
-            console.error('[Wrapper] لا يوجد معالج أخطاء:', err);
+            return { success: false, error: err, level: 1, message: err.message };
         }
-        return { success: false, error: err };
+        
+        // المستوى 2-3: نافذة كاملة
+        if (window.handleFetchError) {
+            window.handleFetchError(toolName, err, {
+                action_name: options.actionName || 'unknown',
+                form_id: formKey,
+                duration: Date.now() - startTime,
+            });
+        }
+        
+        return { success: false, error: err, level, message: err.message };
     }
 };
+
+// ═══════════════════════════════════════════════════════════
+// تصنيف الخطأ
+// ═══════════════════════════════════════════════════════════
+function detectErrorLevel(error) {
+    if (error?.isUserError) return 1;
+    if (error?.status === 400 || error?.status === 422) return 1;
+    if (error?.status === 429) return 2;
+    if (!navigator.onLine) return 3;
+    if (error?.name === 'AbortError' || error?.name === 'TimeoutError') return 3;
+    if (error?.message?.includes('Failed to fetch')) return 3;
+    if (error?.message?.includes('NetworkError')) return 3;
+    if (error?.status >= 500) return 3;
+    if (error?.status === 401 || error?.status === 403) return 3;
+    return 3;
+}
 
 const daysOfWeek = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
 
@@ -7786,43 +7872,79 @@ window.showToast = (message, type = 'info', duration = 4000) => {
   };
 })(); // <-- هذا القوس يغلق محرك الأخطاء بالكامل
 
-// === دالة تسجيل الأخطاء المحصنة (خارج المحرك) ===
-const errorThrottleCache = {}; 
+// ═══════════════════════════════════════════════════════════
+// logErrorToSupabase — مع فلترة
+// ═══════════════════════════════════════════════════════════
+const errorThrottleCache = {};
 
 async function logErrorToSupabase(errorData) {
     try {
+        // فلترة: لا تسجّل أخطاء المستخدم
+        const CRITICAL_TYPES = [
+            'network', 'server', 'timeout',
+            'cloudflare', 'maintenance', 'unknown',
+            'auth', 'permission'
+        ];
+        
+        if (!CRITICAL_TYPES.includes(errorData.issueType)) {
+            return;
+        }
+        
+        // Throttling
         const cacheKey = `${errorData.issueType}_${errorData.toolName}`;
         const now = Date.now();
-        if (errorThrottleCache[cacheKey] && (now - errorThrottleCache[cacheKey] < 60000)) return;
+        
+        if (errorThrottleCache[cacheKey] && 
+            (now - errorThrottleCache[cacheKey] < 60000)) {
+            return;
+        }
         errorThrottleCache[cacheKey] = now;
-
-        const cleanUserAgent = (navigator.userAgent || 'unknown').substring(0, 255);
+        
+        // تحديد المستخدم
         let userId = null;
         let userRole = 'guest';
-
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-            userId = session.user.id;
-            const email = session.user.email || '';
-            const { data: isAdmin } = await supabase.rpc('is_admin');
-            if (isAdmin) {
-                userRole = 'admin';
-            } else if (email.endsWith('@lomedx.app')) {
-                userRole = email.startsWith('doc_') ? 'doctor' : 'pharmacy';
-            } else {
-                userRole = 'patient';
+        
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                userId = session.user.id;
+                const email = session.user.email || '';
+                
+                const { data: isAdmin } = await supabase.rpc('is_admin');
+                if (isAdmin) {
+                    userRole = 'admin';
+                } else if (email.endsWith('@lomedx.app')) {
+                    userRole = email.startsWith('doc_') ? 'doctor' : 'pharmacy';
+                } else {
+                    userRole = 'patient';
+                }
             }
-        }
-
+        } catch (e) {}
+        
+        // الإدراج
         await supabase.from('error_logs').insert([{
             error_code: errorData.errorId,
             issue_type: errorData.issueType,
             tool_name: errorData.toolName,
             user_id: userId,
             user_role: userRole,
-            user_agent: cleanUserAgent
+            user_agent: (navigator.userAgent || '').substring(0, 255),
+            page_url: (location.href || '').substring(0, 500),
+            is_online: navigator.onLine,
         }]);
+        
     } catch (e) {
-        console.error('Silent log error:', e);
+        // فشل صامت
     }
 }
+
+// تنظيف الذاكرة كل 5 دقائق
+setInterval(() => {
+    const now = Date.now();
+    Object.keys(errorThrottleCache).forEach(key => {
+        if (now - errorThrottleCache[key] > 60000) {
+            delete errorThrottleCache[key];
+        }
+    });
+}, 300000);
+
