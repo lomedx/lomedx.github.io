@@ -4048,6 +4048,7 @@ window.renderAdminDashboard = async () => {
         ${announcementsHtml} 
         ${homeAdsHtml} 
         ${radarAdminHtml} ${blogAdminHtml} ${patientsAdminHtml} ${emergencyAdminHtml} <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-tint text-red-600"></i> إدارة استغاثات الدم (${bloodRequests.length})</h4><div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">${bloodHtml}</div></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-hand-holding-medical text-green-600"></i>إدارة المستلزمات الطبية (${medicineDonations.length})</h4><div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">${medDonHtml}</div></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm"><i class="fas fa-plus-circle ml-2" style="color: var(--accent)"></i> <span id="formTitle">إضافة منشأة</span></h4><form onsubmit="saveFacility(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3"><input type="hidden" id="edit_id"><select id="new_type" class="ctrl-input text-sm" required onchange="updateAdminFormFields(this.value)"><option value="hospital">مشفى</option><option value="center">مركز</option><option value="lab">مخبر</option><option value="doctor">طبيب</option><option value="pharmacy">صيدلية</option></select><input type="text" id="new_name" class="ctrl-input text-sm" placeholder="الاسم" required><input type="text" id="new_specialty" class="ctrl-input text-sm" placeholder="التخصص الأساسي" required><input type="text" id="new_address" class="ctrl-input text-sm" placeholder="العنوان / الموقع" required><input type="text" id="new_phone" class="ctrl-input text-sm" placeholder="رقم الهاتف (اختياري)"><input type="text" id="new_hours" class="ctrl-input text-sm" placeholder="أوقات العمل"><input type="text" id="new_image_url" class="ctrl-input text-sm" placeholder="رابط الصورة (URL)"><input type="text" id="new_custom_password" class="ctrl-input text-sm col-span-1 sm:col-span-2" placeholder="كلمة مرور الطبيب/الصيدلية (6 أحرف فأكثر)"><textarea id="new_desc" class="ctrl-input text-sm col-span-2" placeholder="وصف عام (اختياري)" rows="2"></textarea><div id="adminExtraFields" class="contents"></div><button type="submit" class="col-span-1 sm:col-span-2 py-2.5 rounded-xl text-white font-semibold text-sm" style="background: var(--accent)"><i class="fas fa-save ml-1"></i> حفظ</button></form></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm"><i class="fas fa-list ml-2"></i> المنشآت (${allData.length})</h4><div class="flex flex-col gap-2 max-h-96 overflow-y-auto">${listHtml}</div></div> <button onclick="logoutAdmin()" class="w-full py-2.5 rounded-xl border font-semibold text-sm mt-2" style="border-color: #EF4444; color: #EF4444;"><i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج</button> </div>`, '#073D2E'); 
+    setTimeout(() => fetchAdminErrorLogs(), 100);
     renderAdminEmergencyList();
     fetchAnnouncements();
     fetchHomeAdsForAdmin();
@@ -4191,53 +4192,128 @@ async function fetchAnnouncements() {
     }
     renderTopAnnouncement();
 }
+// ═══════════════════════════════════════════════════════════
+// fetchAdminErrorLogs — عرض السجل
+// ═══════════════════════════════════════════════════════════
 async function fetchAdminErrorLogs() {
-    const { data, error } = await supabase.from('error_logs')
+    const list = document.getElementById('adminErrorLogsList');
+    if (!list) return;
+    
+    list.innerHTML = '<p class="text-center text-gray-400 text-sm py-4"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</p>';
+    
+    const { data, error } = await supabase
+        .from('error_logs')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(100);
-
-    const list = document.getElementById('adminErrorLogsList');
-    if (!list) return;
-
-    if (error || !data) { list.innerHTML = '<p class="text-center text-red-500 text-sm py-2">خطأ في تحميل السجل.</p>'; return; }
-    if (data.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 text-sm py-2">لا توجد أخطاء مسجلة. ممتاز!</p>'; return; }
-
-    // تحديث العدادات
-    const counts = { network: 0, validation: 0, auth: 0, server: 0 };
-    data.forEach(e => { if(counts[e.issue_type] !== undefined) counts[e.issue_type]++; });
-    const elNet = document.getElementById('errStatNetwork'); if(elNet) elNet.innerText = counts.network;
-    const elVal = document.getElementById('errStatValidation'); if(elVal) elNet.innerText = counts.validation;
-    const elAuth = document.getElementById('errStatAuth'); if(elAuth) elAuth.innerText = counts.auth;
-    const elServ = document.getElementById('errStatServer'); if(elServ) elServ.innerText = counts.server;
-
-    // عرض السجل (مع استخدام escapeHtml للحماية من XSS)
+    
+    if (error) {
+        list.innerHTML = '<p class="text-center text-red-500 text-sm py-4">خطأ في التحميل</p>';
+        return;
+    }
+    
+    if (!data || data.length === 0) {
+        list.innerHTML = `
+            <div class="text-center py-6">
+                <div class="text-4xl mb-2">🎉</div>
+                <p class="text-gray-500 text-sm">لا توجد أخطاء مسجلة</p>
+            </div>
+        `;
+        updateErrorStats({});
+        return;
+    }
+    
+    // إحصائيات
+    const stats = {};
+    data.forEach(e => {
+        stats[e.issue_type] = (stats[e.issue_type] || 0) + 1;
+    });
+    updateErrorStats(stats);
+    
+    // الأيقونات
+    const ICONS = {
+        network: { i: 'fa-wifi', c: '#EF4444', l: 'شبكة' },
+        rate_limit: { i: 'fa-hourglass-half', c: '#F59E0B', l: 'تكرار' },
+        validation: { i: 'fa-triangle-exclamation', c: '#F59E0B', l: 'بيانات' },
+        cloudflare: { i: 'fa-shield-virus', c: '#EF4444', l: 'أمني' },
+        timeout: { i: 'fa-clock', c: '#F59E0B', l: 'مهلة' },
+        server: { i: 'fa-server', c: '#EF4444', l: 'خادم' },
+        auth: { i: 'fa-user-lock', c: '#3B82F6', l: 'دخول' },
+        permission: { i: 'fa-lock', c: '#EF4444', l: 'صلاحيات' },
+        not_found: { i: 'fa-magnifying-glass', c: '#F59E0B', l: 'غير موجود' },
+        maintenance: { i: 'fa-screwdriver-wrench', c: '#8B5CF6', l: 'صيانة' },
+        unknown: { i: 'fa-circle-question', c: '#EF4444', l: 'مجهول' },
+        support: { i: 'fa-headset', c: '#2563EB', l: 'دعم' },
+    };
+    
+    const ROLES = {
+        guest: '<span style="background:#F3F4F6;color:#4B5563;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;">زائر</span>',
+        patient: '<span style="background:#FCE7F3;color:#BE185D;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;">مريض</span>',
+        doctor: '<span style="background:#DBEAFE;color:#1E40AF;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;">طبيب</span>',
+        pharmacy: '<span style="background:#D1FAE5;color:#065F46;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;">صيدلي</span>',
+        admin: '<span style="background:#EDE9FE;color:#5B21B6;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;">أدمن</span>',
+    };
+    
     list.innerHTML = data.map(e => {
-        const time = new Date(e.created_at).toLocaleString('ar-EG', { date: 'short', time: 'short' });
-        const roleBadge = {
-            guest: '<span class="text-[9px] bg-gray-100 text-gray-600 px-1 rounded">زائر</span>',
-            patient: '<span class="text-[9px] bg-pink-100 text-pink-600 px-1 rounded">مريض</span>',
-            doctor: '<span class="text-[9px] bg-blue-100 text-blue-600 px-1 rounded">طبيب</span>',
-            pharmacy: '<span class="text-[9px] bg-green-100 text-green-600 px-1 rounded">صيدلي</span>',
-            admin: '<span class="text-[9px] bg-purple-100 text-purple-600 px-1 rounded">أدمن</span>'
-        }[e.user_role] || '';
-
+        const time = new Date(e.created_at).toLocaleString('ar-EG', {
+            date: 'short', time: 'short'
+        });
+        const icon = ICONS[e.issue_type] || ICONS.unknown;
+        const role = ROLES[e.user_role] || '';
+        
         return `
-        <div class="flex items-center justify-between p-2 rounded-lg border" style="border-color: var(--border)">
-            <div class="flex items-center gap-2">
-                <i class="fas fa-circle-exclamation text-red-500 text-xs"></i>
-                <div>
-                    <span class="font-mono text-xs font-bold text-gray-700">${escapeHtml(e.error_code)}</span>
-                    <span class="text-xs text-gray-500 mr-1">- ${escapeHtml(e.tool_name)}</span>
+            <div class="flex items-center justify-between p-2.5 rounded-lg border hover:bg-gray-50 transition-colors cursor-pointer"
+                 style="border-color: var(--border)"
+                 onclick="copyErrorCode('${escapeHtml(e.error_code)}')">
+                <div class="flex items-center gap-2 flex-1 min-w-0">
+                    <div style="width:28px;height:28px;border-radius:8px;background:${icon.c}15;color:${icon.c};display:grid;place-items:center;flex-shrink:0;">
+                        <i class="fas ${icon.i}" style="font-size:11px;"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span style="font-family:monospace;font-size:11px;font-weight:700;color:#374151;">
+                                ${escapeHtml(e.error_code)}
+                            </span>
+                            ${role}
+                        </div>
+                        <div style="font-size:10px;color:#6B7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                            ${escapeHtml(e.tool_name)}
+                        </div>
+                    </div>
                 </div>
+                <span style="font-size:10px;color:#9CA3AF;flex-shrink:0;">${escapeHtml(time)}</span>
             </div>
-            <div class="flex items-center gap-2">
-                ${roleBadge}
-                <span class="text-[10px] text-gray-400">${escapeHtml(time)}</span>
-            </div>
-        </div>`;
+        `;
     }).join('');
 }
+
+// ═══════════════════════════════════════════════════════════
+// تحديث البطاقات الإحصائية
+// ═══════════════════════════════════════════════════════════
+function updateErrorStats(stats) {
+    const elNet = document.getElementById('errStatNetwork');
+    const elVal = document.getElementById('errStatValidation');
+    const elAuth = document.getElementById('errStatAuth');
+    const elServ = document.getElementById('errStatServer');
+    
+    if (elNet) elNet.innerText = stats.network || 0;
+    if (elVal) elVal.innerText = (stats.validation || 0) + (stats.rate_limit || 0);
+    if (elAuth) elAuth.innerText = (stats.auth || 0) + (stats.permission || 0);
+    if (elServ) elServ.innerText = (stats.server || 0) + (stats.timeout || 0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// نسخ رقم المرجع
+// ═══════════════════════════════════════════════════════════
+window.copyErrorCode = async (code) => {
+    try {
+        await navigator.clipboard.writeText(code);
+        if (window.showToast) window.showToast(`تم نسخ: ${code}`, 'success');
+    } catch {
+        if (window.showToast) window.showToast('تعذر النسخ', 'error');
+    }
+};
+    
 function renderTopAnnouncement() {
     const navbar = document.getElementById('navbar'); const annBar = document.getElementById('topAnnouncementBar'); const homeSection = document.getElementById('home');
     if (annBar && navbar && homeSection) {
