@@ -2478,3 +2478,40 @@ html.dark .contact-input:focus { background-color: var(--card) !important; borde
   .ts-title { font-size: 15.5px; } .ts-section { padding: 10px 11px; } .ts-section-body { font-size: 12px; }
   .ts-countdown-value { font-size: 30px; } .ts-btn { font-size: 11.5px; padding: 10px 11px; } .ts-actions { grid-template-columns: 1fr; }
 }
+
+
+
+
+
+
+/* ═══════════════════════════════════════════════════════════ */
+/* الحقول الفاشلة                                                */
+/* ═══════════════════════════════════════════════════════════ */
+.input-invalid {
+    border-color: #EF4444 !important;
+    background-color: rgba(239, 68, 68, 0.03) !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+    animation: inputShake 0.35s ease;
+}
+
+@keyframes inputShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+.field-error-msg {
+    display: block;
+    color: #EF4444;
+    font-size: 11.5px;
+    font-weight: 600;
+    margin-top: 6px;
+    padding-right: 4px;
+    line-height: 1.4;
+    animation: errorFadeIn 0.3s ease;
+}
+
+@keyframes errorFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
