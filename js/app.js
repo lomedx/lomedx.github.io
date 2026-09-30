@@ -7796,15 +7796,6 @@ window.showToast = (message, type = 'info', duration = 4000) => {
   function openModal(html) {
     ensureModal();
     const overlay = document.getElementById('tsModalOverlay');
-    overlay.querySelector('.ts-panel-body').innerHTML = html;
-    overlay.classList.add('active');
-    overlay.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function openModal(html) {
-    ensureModal();
-    const overlay = document.getElementById('tsModalOverlay');
     
     // إيقاف أي مؤقت قديم قبل تغيير الواجهة لمنع تخريب الـ DOM
     if (countdownInterval) { 
