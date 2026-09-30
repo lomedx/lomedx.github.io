@@ -6736,26 +6736,66 @@ window.toggleSpeech = () => {
 
     if ('speechSynthesis' in window) {
         if (isSpeaking) {
+            // إيقاف الصوت إذا كان يعمل
             window.speechSynthesis.cancel();
             isSpeaking = false;
             btn.innerHTML = '<i class="fas fa-headphones text-sm"></i>';
             btn.classList.remove('text-red-600');
         } else {
+            // استخراج النص من المقال
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = contentDiv.innerHTML;
-            const textToRead = tempDiv.textContent || tempDiv.innerText;
+            const textToRead = (tempDiv.textContent || tempDiv.innerText).trim();
             
-            const utterance = new SpeechSynthesisUtterance(textToRead);
-            utterance.lang = 'ar-SA';
-            utterance.onend = () => {
-                isSpeaking = false;
-                btn.innerHTML = '<i class="fas fa-headphones text-sm"></i>';
-                btn.classList.remove('text-red-600');
-            };
-            window.speechSynthesis.speak(utterance);
+            if (!textToRead) {
+                showToast('لا يوجد نص لقراءته', 'info');
+                return;
+            }
+
+            // إصلاح مشكرة الكروم: تقسيم النص إلى أجزاء صغيرة (200 حرف لكل جزء)
+            const chunkSize = 200;
+            const chunks = [];
+            for (let i = 0; i < textToRead.length; i += chunkSize) {
+                chunks.push(textToRead.substring(i, i + chunkSize));
+            }
+
+            let currentChunk = 0;
+
+            function speakNext() {
+                // إذا انتهت كل الأجزاء
+                if (currentChunk >= chunks.length) {
+                    isSpeaking = false;
+                    btn.innerHTML = '<i class="fas fa-headphones text-sm"></i>';
+                    btn.classList.remove('text-red-600');
+                    return;
+                }
+
+                const utterance = new SpeechSynthesisUtterance(chunks[currentChunk]);
+                utterance.lang = 'ar-SA'; // اللغة العربية
+                utterance.rate = 1; // سرعة طبيعية
+                
+                // عند الانتهاء من الجزء الحالي، انتقل للتالي
+                utterance.onend = () => {
+                    currentChunk++;
+                    setTimeout(speakNext, 50); // تأخير بسيط جداً لمنع توقف المتصفح
+                };
+                
+                // في حال الخطأ
+                utterance.onerror = () => {
+                    currentChunk++;
+                    setTimeout(speakNext, 50);
+                };
+                
+                window.speechSynthesis.speak(utterance);
+            }
+
+            // بدء التشغيل
             isSpeaking = true;
             btn.innerHTML = '<i class="fas fa-stop text-sm"></i>';
             btn.classList.add('text-red-600');
+            
+            window.speechSynthesis.cancel(); // مسح أي طابور قديم
+            speakNext(); // ابدأ قراءة الجزء الأول
         }
     } else {
         showToast("متصفحك لا يدعم ميزة الاستماع الصوتي.", 'error');
@@ -7970,7 +8010,7 @@ window.showToast = (message, type = 'info', duration = 4000) => {
   window.registerRetry = registerRetry;
   window.retryLastAction = retryLastAction;
   window.reportIssue = (toolName, issueType) => openTroubleshootModal(toolName, issueType);
-
+})();
     // ═══════════════════════════════════════════════════════════
 // handleFetchError — يفهم كل أنواع الأخطاء
 // ═══════════════════════════════════════════════════════════
