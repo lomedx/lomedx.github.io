@@ -6732,75 +6732,112 @@ window.changeFontSize = (delta) => {
 window.toggleSpeech = () => {
     const btn = document.getElementById('ttsBtn');
     const contentDiv = document.getElementById('articleContentText');
-    if (!contentDiv || !btn) return;
+    
+    if (!contentDiv || !btn) {
+        showToast('لا يمكن الوصول لنص المقال', 'error');
+        return;
+    }
 
-    if ('speechSynthesis' in window) {
-        if (isSpeaking) {
-            // إيقاف الصوت إذا كان يعمل
-            window.speechSynthesis.cancel();
+    // ✅ 1. فحص دعم المتصفح
+    if (!('speechSynthesis' in window)) {
+        showToast('متصفحك لا يدعم القراءة الصوتية. جرّب Chrome أو Safari.', 'error');
+        return;
+    }
+
+    // ✅ 2. إيقاف القراءة إذا كانت تعمل
+    if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        isSpeaking = false;
+        btn.innerHTML = '<i class="fas fa-headphones text-sm"></i>';
+        btn.classList.remove('text-red-600');
+        return;
+    }
+
+    // ✅ 3. استخراج النص بشكل نظيف (بدون النصوص المخفية)
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = contentDiv.innerHTML;
+    
+    // إزالة العناصر غير المرغوبة
+    tempDiv.querySelectorAll('script, style, .rate-btn, button, [aria-hidden="true"]').forEach(el => el.remove());
+    
+    const textToRead = (tempDiv.textContent || tempDiv.innerText || '').replace(/\s+/g, ' ').trim();
+
+    if (!textToRead || textToRead.length < 10) {
+        showToast('لا يوجد نص كافٍ للقراءة', 'info');
+        return;
+    }
+
+    // ✅ 4. التحقق من توفر صوت عربي
+    const voices = window.speechSynthesis.getVoices();
+    const arabicVoice = voices.find(v => v.lang.startsWith('ar'));
+    
+    if (voices.length > 0 && !arabicVoice) {
+        showToast('صوت عربي غير مثبت على جهازك. سيتم استخدام الصوت الافتراضي.', 'info');
+    }
+
+    // ✅ 5. تقسيم النص إلى جمل (أفضل من 200 حرف عشوائي)
+    const sentences = textToRead.match(/[^.!?،؛\n]+[.!?،؛\n]?/g) || [textToRead];
+    
+    // ✅ 6. تجميع الجمل في أجزاء بحجم مناسب
+    const chunks = [];
+    let currentChunk = '';
+    const MAX_CHUNK_SIZE = 180; // أصغر لتجنب مشاكل Chrome
+
+    sentences.forEach(sentence => {
+        if ((currentChunk + sentence).length > MAX_CHUNK_SIZE && currentChunk) {
+            chunks.push(currentChunk.trim());
+            currentChunk = sentence;
+        } else {
+            currentChunk += ' ' + sentence;
+        }
+    });
+    if (currentChunk.trim()) chunks.push(currentChunk.trim());
+
+    // ✅ 7. بدء القراءة
+    isSpeaking = true;
+    btn.innerHTML = '<i class="fas fa-stop text-sm"></i>';
+    btn.classList.add('text-red-600');
+    
+    window.speechSynthesis.cancel(); // مسح أي طابور قديم
+    
+    let currentChunkIndex = 0;
+    
+    const speakChunk = () => {
+        if (!isSpeaking || currentChunkIndex >= chunks.length) {
             isSpeaking = false;
             btn.innerHTML = '<i class="fas fa-headphones text-sm"></i>';
             btn.classList.remove('text-red-600');
-        } else {
-            // استخراج النص من المقال
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = contentDiv.innerHTML;
-            const textToRead = (tempDiv.textContent || tempDiv.innerText).trim();
-            
-            if (!textToRead) {
-                showToast('لا يوجد نص لقراءته', 'info');
-                return;
-            }
-
-            // إصلاح مشكرة الكروم: تقسيم النص إلى أجزاء صغيرة (200 حرف لكل جزء)
-            const chunkSize = 200;
-            const chunks = [];
-            for (let i = 0; i < textToRead.length; i += chunkSize) {
-                chunks.push(textToRead.substring(i, i + chunkSize));
-            }
-
-            let currentChunk = 0;
-
-            function speakNext() {
-                // إذا انتهت كل الأجزاء
-                if (currentChunk >= chunks.length) {
-                    isSpeaking = false;
-                    btn.innerHTML = '<i class="fas fa-headphones text-sm"></i>';
-                    btn.classList.remove('text-red-600');
-                    return;
-                }
-
-                const utterance = new SpeechSynthesisUtterance(chunks[currentChunk]);
-                utterance.lang = 'ar-SA'; // اللغة العربية
-                utterance.rate = 1; // سرعة طبيعية
-                
-                // عند الانتهاء من الجزء الحالي، انتقل للتالي
-                utterance.onend = () => {
-                    currentChunk++;
-                    setTimeout(speakNext, 50); // تأخير بسيط جداً لمنع توقف المتصفح
-                };
-                
-                // في حال الخطأ
-                utterance.onerror = () => {
-                    currentChunk++;
-                    setTimeout(speakNext, 50);
-                };
-                
-                window.speechSynthesis.speak(utterance);
-            }
-
-            // بدء التشغيل
-            isSpeaking = true;
-            btn.innerHTML = '<i class="fas fa-stop text-sm"></i>';
-            btn.classList.add('text-red-600');
-            
-            window.speechSynthesis.cancel(); // مسح أي طابور قديم
-            speakNext(); // ابدأ قراءة الجزء الأول
+            return;
         }
-    } else {
-        showToast("متصفحك لا يدعم ميزة الاستماع الصوتي.", 'error');
-    }
-}
+        
+        const utterance = new SpeechSynthesisUtterance(chunks[currentChunkIndex]);
+        utterance.lang = arabicVoice ? arabicVoice.lang : 'ar-SA';
+        utterance.rate = 0.95;   // سرعة مريحة للعربية
+        utterance.pitch = 1;
+        utterance.volume = 1;
+        
+        // ✅ استخدام صوت عربي إن وُجد
+        if (arabicVoice) {
+            utterance.voice = arabicVoice;
+        }
+        
+        utterance.onend = () => {
+            currentChunkIndex++;
+            // ✅ استدعاء مباشر بدون setTimeout لتجنب حظر المستخدم
+            speakChunk();
+        };
+        
+        utterance.onerror = (e) => {
+            console.warn('[TTS] Error:', e.error);
+            currentChunkIndex++;
+            speakChunk();
+        };
+        
+        window.speechSynthesis.speak(utterance);
+    };
+    
+    speakChunk();
+};
 
 window.shareArticle = (title) => {
     const url = window.location.href;
