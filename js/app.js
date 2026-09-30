@@ -54,7 +54,8 @@ window.executeAction = async function(toolName, actionCallback, options = {}) {
             const validationError = options.validate();
             
             if (validationError && validationError.length > 0) {
-                if (restoreButton) restoreButton();
+    if (restoreButton) restoreButton();
+    delete window._lastSubmits[formKey]; // إزالة الحجز عند فشل التحقق
                 
                 // تلوين الحقول + رسائل
                 validationError.forEach((err, index) => {
@@ -127,8 +128,9 @@ window.executeAction = async function(toolName, actionCallback, options = {}) {
         
         return { success: true, data: result, duration, level: 0 };
         
-    } catch (err) {
+        } catch (err) {
         if (restoreButton) restoreButton();
+        delete window._lastSubmits[formKey]; // إزالة الحجز عند فشل التنفيذ
         
         // تصنيف
         const level = detectErrorLevel(err);
@@ -193,6 +195,7 @@ let tipInterval = null;
 let favoriteDoctors = JSON.parse(localStorage.getItem('lomedx_favorites') || '[]');
 let currentHealthFileId = localStorage.getItem('healthFileId') || null;
 let allQuestions = [];
+const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 let unsubscribeQuestions = null;
 let currentRadarTab = 'summer';
 let doctorDashboardInterval = null;
@@ -919,7 +922,6 @@ filtered.sort((a, b) => {
         const itemsToRender = filtered.slice(0, renderLimits[type]);
         
         g.el.innerHTML = itemsToRender.map(createCard).join(''); 
-        generateItemListSchema(itemsToRender);
         g.section.style.display = show ? '' : 'none'; 
         
         // إظهار أو إخفاء زر "عرض المزيد" الخاص بهذا القسم
@@ -938,6 +940,7 @@ filtered.sort((a, b) => {
         noResultsDiv.classList.toggle('hidden', totalFiltered !== 0);
         noResultsDiv.style.display = totalFiltered === 0 ? 'block' : 'none';
     }
+     generateItemListSchema(allData.filter(matchItem).slice(0, 20)); // توليد الـ Schema مرة واحدة
     
     return totalFiltered; 
 }
@@ -1582,8 +1585,9 @@ window.openModal = (id) => {
 }
 window.closeModal = (event) => { 
     if (event && event.target !== document.getElementById('modalOverlay')) return; 
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel(); // إيقاف الصوت
     document.getElementById('modalOverlay').classList.remove('active'); 
-    unlockScroll(); 
+    unlockScroll();
     
     // === تنظيف الـ SEO وحذف Schema القديم ===
     resetMetaTags();
@@ -1640,6 +1644,7 @@ window.copyText = (text) => { navigator.clipboard.writeText(text).then(() => sho
 
 function showToast(message, type = 'info') { 
     const toast = document.getElementById('toast');
+    if (!toast) return; // حماية من الانهيار إذا لم يكن العنصر موجوداً
     
     // تحديد الأيقونة واللون حسب نوع الإشعار
     let icon = 'ℹ️'; // معلومات
@@ -1846,13 +1851,14 @@ window.closeCtrlPanel = (event) => {
         }).catch(() => { activeQrScanner = null; });
     }
     
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel(); // إيقاف الصوت
     overlay.classList.remove('active'); 
     unlockScroll(); 
     document.getElementById('ctrlContent').innerHTML = ''; 
     
     // === تنظيف الرابط وإعادة الـ SEO ===
     resetMetaTags();
-    if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+        if (window.location.pathname !== '/' && window.location.pathname !== '/index.html' || window.location.hash) {
         history.pushState({}, '', '/');
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
@@ -2061,7 +2067,8 @@ if (doctorData && doctorData.user_id) {
             <button onclick="copyText('${ref}')" class="w-full py-3 rounded-xl text-white font-bold text-sm mb-2" style="background: var(--accent)"><i class="fas fa-copy ml-2"></i> نسخ الكود</button>
             <button onclick="closeModal(); openBookingFollowup('${newId}')" class="w-full py-3 rounded-xl text-white font-bold text-sm mb-2" style="background: var(--doctor)">متابعة الحجز والدردشة</button>
             <button onclick="closeModal()" class="w-full py-2 rounded-xl border font-bold text-sm" style="border-color: var(--border)">إغلاق</button>
-        </div>`; 
+              </div>`; 
+        tempBooking = {}; // تصفير البيانات المؤقتة بعد الحجز الناجح
          } catch (err) { 
         showToast('خطأ: ' + err.message, 'error'); 
         if(submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = 'تأكيد'; }
@@ -2089,14 +2096,13 @@ window.openBookingFollowup = async (bookingId) => {
     await fetchFollowupData(); // جلب فوري لأول مرة
     
     // تحديث كل 4 ثوانٍ طالما النافذة مفتوحة
-    window.activeFollowupInterval = setInterval(async () => {
+        window.activeFollowupInterval = setInterval(async () => {
         if (!document.getElementById('followupContent')) {
-            clearInterval(window.activeFollowupInterval); // إيقاف التحديث إذا أغلق المستخدم النافذة
+            clearInterval(window.activeFollowupInterval); 
             return;
         }
         await fetchFollowupData();
-    }, 2000);
-};
+    }, 5000); // تم تغييره إلى 5 ثوانٍ لتقليل الضغط
 window.renderFollowupChat = (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId); 
     const contentEl = document.getElementById('followupContent'); if (!contentEl) return;
@@ -2657,7 +2663,8 @@ async function fetchDocBookings(docId) {
     
     if (error || !docBookings) { container.innerHTML = '<p class="text-sm text-center py-4 text-red-500">خطأ في تحميل الحجوزات.</p>'; return; }
     if (docBookings.length === 0) { container.innerHTML = '<p class="text-sm text-center py-4" style="color: var(--muted)">لا توجد طلبات حجز حالياً.</p>'; return; }
-        bookings = docBookings; // تحديث المصفوفة المحلية لكي يجدها كود القبول
+            // دمج الحجوزات الجديدة بدون مسح الحجوزات العامة للمنصة
+    bookings = bookings.filter(b => b.itemid !== docId).concat(docBookings);
     const bookingsListHtml = docBookings.map(b => { 
         let statusBadge = ''; let actionButtons = ''; 
         if (b.status === 'accepted') { 
@@ -3260,7 +3267,7 @@ window.resolveMedicineDonation = async (id) => {
     } catch (err) { showToast('حدث خطأ', 'error'); } 
 }
 window.openBloodBank = () => {
-    const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+    
     openCtrlPanel('بنك التبرع بالدم الرقمي (سوريا)', `
         <div class="flex flex-col gap-5">
             <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-red-800 text-sm flex items-center gap-3">
@@ -4702,7 +4709,7 @@ window.handleHealthLogin = async (e) => {
     const password = document.getElementById('loginPassword').value.trim();
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { 
+        if (error || !data.user) { 
         showToast('بيانات الدخول غير صحيحة. يرجى التحقق من البريد وكلمة المرور.', 'error'); 
         return; 
     }
@@ -5489,7 +5496,7 @@ const foodInteractionsData = [
 ];
 window.openFoodInteractions = () => {
     const tableRows = foodInteractionsData.map(item => `<tr class="border-b" style="border-color: var(--border)"><td class="p-3 text-sm font-bold text-gray-800">${escapeHtml(item.med)}</td><td class="p-3 text-sm text-red-600">${escapeHtml(item.food)}</td><td class="p-3 text-sm text-gray-600">${escapeHtml(item.effect)}</td></tr>`).join('');
-    openCtrlPanel('جدول تعارضات الأدوية مع الطعام', `<div class="flex flex-col gap-4"><div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800 text-sm flex items-center gap-3"><i class="fas fa-utensils text-xl"></i><span>جدول إرشادي لأهم التداخلات بين الأدوية الشائعة والأطعمة. استشر الصيدلاني دائماً.</span></div><div class="bg-white rounded-xl border overflow-hidden" style="border-color: var(--border)"><table class="w-full text-right"><thead class="bg-gray-50"><tr class="border-b" style="border-color: var(--border)"><th class="p-3 text-xs font-bold text-gray-500">الدواء</th><th class="p-3 text-xs font-bold text-gray-500">الطعام الممنوع/المحظور</th><th class="p-3 text-xs font-bold text-gray-500">التأثير الجانبي</th></tr></thead><tbody>${tableRows}</tbody></table></div>${generateToolSEOHtml('food-interactions')}</div>`, '#D97706');
+    openCtrlPanel('جدول تعارضات الأدوية مع الطعام', `<div class="flex flex-col gap-4"><div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800 text-sm flex items-center gap-3"><i class="fas fa-utensils text-xl"></i><span>جدول إرشادي لأهم التداخلات بين الأدوية الشائعة والأطعمة. استشر الصيدلاني دائماً.</span></div><div class="bg-white rounded-xl border overflow-x-auto" style="border-color: var(--border)"><table class="w-full text-right min-w-[600px]"><thead class="bg-gray-50"><tr class="border-b" style="border-color: var(--border)"><th class="p-3 text-xs font-bold text-gray-500">الدواء</th><th class="p-3 text-xs font-bold text-gray-500">الطعام الممنوع/المحظور</th><th class="p-3 text-xs font-bold text-gray-500">التأثير الجانبي</th></tr></thead><tbody>${tableRows}</tbody></table></div>${generateToolSEOHtml('food-interactions')}</div>`, '#D97706');
 }
 
 // === 4. Patient Self-Reminder Book (Local Storage) ===
@@ -6185,34 +6192,39 @@ function detectUserLocation() {
     }
 
     navigator.geolocation.getCurrentPosition(
-        async (position) => {
-            const { latitude, longitude } = position.coords;
-            try {
-                // استخدام خدمة OpenStreetMap لجلب اسم المدينة بالعربية مجاناً
-                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`);
-                const data = await response.json();
-                
-                const address = data.address || {};
-                const city = address.city || address.town || address.village || address.county || '';
-                const state = address.state || '';
-                
-                if (city && state) {
-                    locationText.innerText = `${city} - ${state}`;
-                    locationBadge.style.display = 'inline-flex'; // إظهار الحقل
-                } else if (city) {
-                    locationText.innerText = city;
-                    locationBadge.style.display = 'inline-flex'; // إظهار الحقل
-                } else {
-                    // إذا لم يتم العثور على مدينة واضحة، يبقى مخفياً
-                }
-            } catch (error) {
-                // في حال حدوث خطأ في جلب البيانات، يبقى مخفياً
+    async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+            // استخدام خدمة OpenStreetMap لجلب اسم المدينة بالعربية مجاناً
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`);
+            const data = await response.json();
+            
+            const address = data.address || {};
+            const city = address.city || address.town || address.village || address.county || '';
+            const state = address.state || '';
+            
+            if (city && state) {
+                locationText.innerText = `${city} - ${state}`;
+                locationBadge.style.display = 'inline-flex'; // إظهار الحقل
+            } else if (city) {
+                locationText.innerText = city;
+                locationBadge.style.display = 'inline-flex'; // إظهار الحقل
+            } else {
+                // إذا لم يتم العثور على مدينة واضحة، يبقى مخفياً
             }
-        },
-        (error) => {
-            // في حال رفض المستخدم إعطاء إذن الموقع، يبقى مخفياً
+        } catch (error) {
+            // في حال حدوث خطأ في جلب البيانات، يبقى مخفياً
         }
-    );
+    },
+    (error) => {
+    },
+    
+    { 
+        enableHighAccuracy: true,
+        timeout: 10000,          
+        maximumAge: 0            
+    }
+);
 }
 window.saveEmergencyContact = async (e) => {
     e.preventDefault();
