@@ -2103,6 +2103,7 @@ window.openBookingFollowup = async (bookingId) => {
         }
         await fetchFollowupData();
     }, 5000); // تم تغييره إلى 5 ثوانٍ لتقليل الضغط
+    };
 window.renderFollowupChat = (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId); 
     const contentEl = document.getElementById('followupContent'); if (!contentEl) return;
