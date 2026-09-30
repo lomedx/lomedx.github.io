@@ -5183,8 +5183,8 @@ window.calcPregnancy = () => {
             <div class="text-sm font-bold text-pink-500 mb-2">الموعد المتوقع للولادة</div>
             <div class="text-lg font-black text-gray-800 mb-4" style="font-family: 'Noto Kufi Arabic'">${escapeHtml(dueStr)}</div>
             <div class="grid grid-cols-2 gap-3 text-right">
-                <div class="bg-pink-50 p-3 rounded-xl"><div class="text-xs text-pink-400">العمر الحملي الحالي</div><div class="text-xl font-bold text-pink-700">${escapeHtml(currentWeek)} أسبوع</div></div>
-                <div class="bg-pink-50 p-3 rounded-xl"><div class="text-xs text-pink-400">الأيام المتبقية</div><div class="text-xl font-bold text-pink-700">${escapeHtml(daysLeft)} يوم</div></div>
+                <div class="bg-pink-50 p-3 rounded-xl"><div class="text-xs text-pink-400">العمر الحملي الحالي</div><div class="text-xl font-bold text-pink-700">${currentWeek} أسبوع</div></div>
+                <div class="bg-pink-50 p-3 rounded-xl"><div class="text-xs text-pink-400">الأيام المتبقية</div><div class="text-xl font-bold text-pink-700">${daysLeft} يوم</div></div>
             </div>
         </div>
         <div class="bg-gradient-to-br from-pink-50 to-purple-50 p-6 rounded-2xl border flex flex-col items-center text-center" style="border-color: var(--border)">
@@ -5228,10 +5228,11 @@ window.toggleConcentration = () => {
     else { concSelect.innerHTML = `<option value="100">بروفين شراب (100 مغ/5 مل)</option><option value="40">بروفين للأطفال (40 مغ/5 مل)</option>`; }
 }
 window.calcDose = () => {
-    const weight = parseFloat(document.getElementById('childWeight').value);
-    const type = document.getElementById('medType').value;
-    const conc = parseInt(document.getElementById('medConc').value);
-    if (!weight || weight <= 0) { showToast('الرجاء إدخال وزن صحيح', 'error'); return; }
+const weight = parseFloat(document.getElementById('childWeight').value);
+const type = document.getElementById('medType').value;
+const conc = parseInt(document.getElementById('medConc').value);
+if (!weight || weight <= 0) { showToast('الرجاء إدخال وزن صحيح', 'error'); return; }
+if (!conc || conc <= 0) { showToast('يرجى اختيار تركيز الدواء بشكل صحيح', 'error'); return; } // تمت إضافة هذا السطر
     if (weight < 3) { showToast('الوزن أقل من 3 كغ! يجب استشارة الطبيب.'); return; }
     if (weight > 45) { showToast('الوزن أكبر من 45 كغ! يرجى مراجعة الطبيب.'); return; }
     let doseMg = 0, maxDoseMg = 0, frequency = "", medName = "";
@@ -5289,7 +5290,16 @@ window.openFirstAid = () => {
     openCtrlPanel('دليل الإسعافات الأولية الشامل', `<div class="flex flex-col gap-4"><div class="bg-red-50 border border-red-200 rounded-xl p-4 text-red-800 text-sm flex items-center gap-3"><i class="fas fa-ambulance text-xl"></i><span>هذه الإرشادات أولية ولا تغني عن الاتصال بالإسعاف (110) فوراً في الحالات الخطيرة.</span></div><div>${accordionHtml}</div>${generateToolSEOHtml('first-aid')}</div>`, '#DC2626');
 }
 
-window.toggleFirstAidAccordion = (el) => { const item = el.parentElement; const isActive = item.classList.contains('active'); document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); if (!isActive) item.classList.add('active'); }
+window.toggleFirstAidAccordion = (el) => { 
+    const item = el.parentElement; 
+    const isActive = item.classList.contains('active'); 
+    // البحث فقط داخل نفس الحاوي لعدم تخريب باقي الصفحة
+    const parentContainer = item.parentElement;
+    if (parentContainer) {
+        parentContainer.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); 
+    }
+    if (!isActive) item.classList.add('active'); 
+}
 // 7. Medical Symbols Guide
 const medSymbolsData = [
     { symbol: "CBC", name: "صورة دم كاملة", desc: "تحليل يقيس مكونات الدم (كريات حمر، بيض، صفائح) للكشف عن فقر الدم أو الالتهابات." },
@@ -5512,11 +5522,12 @@ window.saveReminder = (e) => {
     if(!title || !date) { showToast('يرجى إدخال العنوان والتاريخ'); return; }
     patientReminders.push({ id: Date.now(), title, date, notes }); localStorage.setItem('patientReminders', JSON.stringify(patientReminders)); document.querySelector('#ctrlContent form').reset(); renderRemindersList(); showToast('تم حفظ التذكير بنجاح!');
 }
-window.deleteReminder = (id) => { patientReminders = patientReminders.filter(r => r.id !== id); localStorage.setItem('patientReminders', JSON.stringify(patientReminders)); renderRemindersList(); showToast('تم حذف التذكير'); }
-function renderRemindersList() {
-    const list = document.getElementById('remindersList'); if (!list) return;
-    if (patientReminders.length === 0) { list.innerHTML = '<p class="text-center py-8 text-gray-400 text-sm">لا توجد تذكيرات بعد.</p>'; return; }
-    list.innerHTML = patientReminders.map(r => { const dateObj = new Date(r.date); const formattedDate = dateObj.toLocaleString('ar-EG', { date: 'short', time: 'short', weekday: 'long' }); return `<div class="border rounded-xl p-4 flex items-center justify-between gap-3" style="border-color: var(--border)"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0"><i class="fas fa-clock text-indigo-600"></i></div><div><div class="font-bold text-sm text-gray-800">${escapeHtml(r.title)}</div><div class="text-xs text-gray-500 mt-1">${escapeHtml(formattedDate)}</div>${r.notes ? `<div class="text-xs text-gray-400 mt-1">${escapeHtml(r.notes)}</div>` : ''}</div></div><button onclick="deleteReminder(${r.id})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></div>`; }).join('');
+window.deleteReminder = (id) => { 
+    // تحويل الطرفين إلى String لضمان نجاح المقارنة دائماً
+    patientReminders = patientReminders.filter(r => String(r.id) !== String(id)); 
+    localStorage.setItem('patientReminders', JSON.stringify(patientReminders)); 
+    renderRemindersList(); 
+    showToast('تم حذف التذكير'); 
 }
 
 // === 5. Medicine Renewal Calculator ===
@@ -5853,10 +5864,14 @@ window.calcVaccines = () => {
     const dateVal = document.getElementById('vaccBirthDate').value;
     if (!dateVal) { showToast('الرجاء إدخال تاريخ الميلاد'); return; }
     const birthDate = new Date(dateVal);
-    const today = new Date();
-    const diffTime = today - birthDate;
-    const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30.44));
-    if (diffMonths < 0 || diffMonths > 72) { showToast('تاريخ الميلاد غير منطقي', 'error'); return; }
+const today = new Date();
+
+// حساب الأشهر التقويمية الفعلية بدقة
+let diffMonths = (today.getFullYear() - birthDate.getFullYear()) * 12;
+diffMonths += today.getMonth() - birthDate.getMonth();
+if (today.getDate() < birthDate.getDate()) diffMonths--;
+
+if (diffMonths < 0 || diffMonths > 72) { showToast('تاريخ الميلاد غير منطقي', 'error'); return; }
     const resultContainer = document.getElementById('vaccResult');
     resultContainer.classList.remove('hidden');
     let html = `<div class="bg-white p-4 rounded-xl border text-center mb-2" style="border-color: var(--border)"><div class="text-sm text-gray-500">عمر الطفل الحالي</div><div class="text-2xl font-black text-orange-600">${escapeHtml(diffMonths)} شهر</div></div>`;
@@ -7605,12 +7620,12 @@ window.showToast = (message, type = 'info', duration = 4000) => {
 
   function generateErrorId() {
     if (window.crypto?.getRandomValues) {
-      const arr = new Uint8Array(4);
+      const arr = new Uint8Array(16); // تم زيادة الحجم إلى 16 بايت
       crypto.getRandomValues(arr);
       return 'ERR-' + Array.from(arr, b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
     }
     return 'ERR-' + Date.now().toString(36).toUpperCase().slice(-8);
-  }
+}
 
   function formatTime(seconds) {
     const m = Math.floor(seconds / 60);
@@ -7729,16 +7744,17 @@ window.showToast = (message, type = 'info', duration = 4000) => {
   async function testServerConnection() {
     const url = location.pathname === '/' ? '/favicon.ico' : location.pathname.split('?')[0];
     const start = performance.now();
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5000);
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 5000);
-      await fetch(url, { method: 'HEAD', cache: 'no-store', signal: controller.signal });
-      clearTimeout(timer);
-      return { ok: true, time: Math.round(performance.now() - start) };
+        await fetch(url, { method: 'HEAD', cache: 'no-store', signal: controller.signal });
+        return { ok: true, time: Math.round(performance.now() - start) };
     } catch {
-      return { ok: false, time: Math.round(performance.now() - start) };
+        return { ok: false, time: Math.round(performance.now() - start) };
+    } finally {
+        clearTimeout(timer); // ضمان مسح المؤقت دائماً
     }
-  }
+}
 
   let currentErrorId = null;
   let countdownInterval = null;
@@ -7772,14 +7788,21 @@ window.showToast = (message, type = 'info', duration = 4000) => {
     document.body.style.overflow = 'hidden';
   }
 
-  function closeModal() {
+  function openModal(html) {
+    ensureModal();
     const overlay = document.getElementById('tsModalOverlay');
-    if (!overlay) return;
-    overlay.classList.remove('active');
-    overlay.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-  }
+    
+    // إيقاف أي مؤقت قديم قبل تغيير الواجهة لمنع تخريب الـ DOM
+    if (countdownInterval) { 
+        clearInterval(countdownInterval); 
+        countdownInterval = null; 
+    }
+    
+    overlay.querySelector('.ts-panel-body').innerHTML = html;
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+}
 
   function startCountdown(seconds) {
     if (countdownInterval) clearInterval(countdownInterval);
@@ -7803,9 +7826,9 @@ window.showToast = (message, type = 'info', duration = 4000) => {
     if (!ISSUES[issueType]) issueType = 'unknown';
     const issue = ISSUES[issueType];
         const errorId = generateErrorId();
-    if (typeof logErrorToSupabase === 'function') {
-        logErrorToSupabase({ errorId, issueType, toolName });
-    }
+    if (typeof window.logErrorToSupabase === 'function') {
+    window.logErrorToSupabase({ errorId, issueType, toolName });
+}
     const safeToolName = escapeHTML(toolName);
     const isOnline = navigator.onLine;
     const localTime = new Date().toLocaleString('ar-SY', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
@@ -7836,12 +7859,14 @@ window.showToast = (message, type = 'info', duration = 4000) => {
     }
 
     const supportDetails = [
-      { key: 'معرّف الخطأ', value: errorId, icon: 'fa-fingerprint' },
-      { key: 'الأداة', value: toolName, icon: 'fa-toolbox' },
-      { key: 'نوع المشكلة', value: issue.title, icon: 'fa-tag' },
-      { key: 'التوقيت', value: localTime, icon: 'fa-clock' },
-      { key: 'حالة الإنترنت', value: isOnline ? 'متصل' : 'غير متصل', icon: isOnline ? 'fa-circle-check' : 'fa-circle-xmark' },
-    ];
+    { key: 'معرّف الخطأ', value: errorId, icon: 'fa-fingerprint' },
+    { key: 'الأداة', value: toolName, icon: 'fa-toolbox' },
+    { key: 'اسم العملية', value: details.action_name || 'غير معروف', icon: 'fa-tag' },
+    { key: 'مدة التنفيذ', value: `${details.duration || 0}ms`, icon: 'fa-stopwatch' },
+    { key: 'نوع المشكلة', value: issue.title, icon: 'fa-tag' },
+    { key: 'التوقيت', value: localTime, icon: 'fa-clock' },
+    { key: 'حالة الإنترنت', value: isOnline ? 'متصل' : 'غير متصل', icon: isOnline ? 'fa-circle-check' : 'fa-circle-xmark' },
+];
     const detailsHTML = `<details class="ts-details"><summary class="ts-details-summary"><span><i class="fas fa-headset"></i> معلومات للدعم الفني</span><i class="fas fa-chevron-down ts-details-arrow"></i></summary><div class="ts-details-content">${supportDetails.map(d => `<div class="ts-details-row"><span class="ts-details-key"><i class="fas ${d.icon}"></i> ${escapeHTML(d.key)}</span><span class="ts-details-value">${escapeHTML(d.value)}</span></div>`).join('')}<div class="ts-details-note"><i class="fas fa-info-circle"></i><span>أرسل رقم المرجع فقط عند التواصل مع الدعم</span></div></div></details>`;
     
     const actionsHTML = `<div class="ts-actions"><button type="button" class="ts-btn ts-btn--primary" data-ts-action="copy"><i class="fas fa-copy"></i> <span>نسخ رقم المرجع</span></button><button type="button" class="ts-btn ts-btn--secondary" data-ts-action="close"><i class="fas fa-arrow-rotate-left"></i> <span>العودة</span></button></div>`;
