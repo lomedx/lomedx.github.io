@@ -7933,18 +7933,11 @@ window.showToast = (message, type = 'info', duration = 4000) => {
   function registerRetry(fn) { retryFunction = fn; }
   
   async function retryLastAction() {
+    function registerRetry(fn) { retryFunction = fn; }
+  async function retryLastAction() {
     if (typeof retryFunction === 'function') {
-      try {
-        closeModal();
-        await retryFunction();
-      } catch (e) {
-        console.error('Retry failed:', e);
-        if (window.showToast) window.showToast('فشلت المحاولة مرة أخرى', 'error');
-      }
-    } else {
-      if (window.showToast) window.showToast('لا توجد عملية لإعادة المحاولة', 'info');
-    }
-  }
+      try { await retryFunction(); } catch { if (window.showToast) showToast('فشلت المحاولة مرة أخرى', 'error'); }
+    
 
   document.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-ts-action]');
@@ -8010,7 +8003,7 @@ window.showToast = (message, type = 'info', duration = 4000) => {
   window.registerRetry = registerRetry;
   window.retryLastAction = retryLastAction;
   window.reportIssue = (toolName, issueType) => openTroubleshootModal(toolName, issueType);
-})();
+
     // ═══════════════════════════════════════════════════════════
 // handleFetchError — يفهم كل أنواع الأخطاء
 // ═══════════════════════════════════════════════════════════
