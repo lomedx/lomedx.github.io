@@ -8047,7 +8047,7 @@ window.handleHttpError = (toolName, response, extraDetails = {}) => {
     
     return window.openTroubleshootModal(toolName, 'unknown', extraDetails);
 };
-
+})();
 // ═══════════════════════════════════════════════════════════
 // logErrorToSupabase — مع فلترة
 // ═══════════════════════════════════════════════════════════
