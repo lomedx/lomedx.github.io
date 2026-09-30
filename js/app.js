@@ -7931,13 +7931,18 @@ window.showToast = (message, type = 'info', duration = 4000) => {
   }
 
   function registerRetry(fn) { retryFunction = fn; }
-  
-  async function retryLastAction() {
-    function registerRetry(fn) { retryFunction = fn; }
-  async function retryLastAction() {
+
+async function retryLastAction() {
     if (typeof retryFunction === 'function') {
-      try { await retryFunction(); } catch { if (window.showToast) showToast('فشلت المحاولة مرة أخرى', 'error'); }
-    
+        try {
+            await retryFunction();
+        } catch {
+            if (window.showToast) showToast('فشلت المحاولة مرة أخرى', 'error');
+        }
+    } else {
+        if (window.showToast) showToast('لا توجد عملية لإعادة المحاولة', 'info');
+    }
+}
 
   document.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-ts-action]');
