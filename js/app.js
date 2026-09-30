@@ -7891,10 +7891,19 @@ window.showToast = (message, type = 'info', duration = 4000) => {
   }
 
   function registerRetry(fn) { retryFunction = fn; }
+  
   async function retryLastAction() {
     if (typeof retryFunction === 'function') {
-      try { await retryFunction(); } catch { if (window.showToast) showToast('فشلت المحاولة مرة أخرى', 'error'); }
-    } else { if (window.showToast) showToast('لا توجد عملية لإعادة المحاولة', 'info'); }
+      try {
+        closeModal();
+        await retryFunction();
+      } catch (e) {
+        console.error('Retry failed:', e);
+        if (window.showToast) window.showToast('فشلت المحاولة مرة أخرى', 'error');
+      }
+    } else {
+      if (window.showToast) window.showToast('لا توجد عملية لإعادة المحاولة', 'info');
+    }
   }
 
   document.addEventListener('click', async (e) => {
