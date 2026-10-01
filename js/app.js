@@ -7803,13 +7803,28 @@ window.showToast = (message, type = 'info', duration = 4000) => {
     document.body.style.overflow = 'hidden';
   }
 
+    // دالة إغلاق نافذة حل المشكلات (الحل النهائي)
   function closeModal() {
     const overlay = document.getElementById('tsModalOverlay');
     if (!overlay) return;
+    
+    // 1. إزالة الكلاس وإجبار الإخفاء فوراً لمنع بقاءها عالقة
     overlay.classList.remove('active');
-    overlay.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    if 
+    overlay.style.display = 'none';
+    
+    // 2. إعادة تمرير الصفحة
+    if (typeof window.unlockScroll === 'function') {
+        window.unlockScroll();
+    } else {
+        document.body.style.overflow = '';
+    }
+    
+    // 3. إيقاف العد التنازلي إن وُجد
+    if (countdownInterval) { 
+        clearInterval(countdownInterval); 
+        countdownInterval = null; 
+    }
+  }
 
   function startCountdown(seconds) {
     if (countdownInterval) clearInterval(countdownInterval);
