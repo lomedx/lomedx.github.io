@@ -100,7 +100,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="LomedX">
     <link rel="apple-touch-icon" href="https://i.ibb.co/d09VBmky/37414.png">
-
+    <!-- أيقونة المتصفح العادية -->
+    <link rel="icon" type="image/png" href="https://i.ibb.co/d09VBmky/37414.png" />
+    <link rel="shortcut icon" type="image/x-icon" href="https://i.ibb.co/d09VBmky/37414.png" />
+  
     <!-- OneSignal SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
@@ -340,9 +343,10 @@
 
  <!-- بطاقة الخدمات الأساسية -->
 <div class="premium-card rounded-3xl p-4 mb-6">
-    <h2 class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
-        <i class="fas fa-house text-xs"></i> الخدمات الأساسية
-    </h2>
+  <div class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
+    <i class="fas fa-house text-xs"></i> الخدمات الأساسية
+ </div>
+    
     <div class="flex flex-col">
         <a href="#home" onclick="toggleMobileMenu()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg" style="text-decoration:none;"><i class="fas fa-house w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">الرئيسية</span></a>
         <a href="#hospitals" onclick="toggleMobileMenu()" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg" style="text-decoration:none;"><i class="fas fa-hospital w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">المشافي والمراكز</span></a>
@@ -361,9 +365,9 @@
 
             <!-- 1. الخدمات العاجلة والطوارئ -->
             <div class="premium-card rounded-3xl p-4 mb-6">
-                <h2 class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
+                <div class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
                     <i class="fas fa-triangle-exclamation text-xs"></i> 🚨 الخدمات العاجلة والطوارئ
-                </h2>
+            </div>
                 <button onclick="toggleMobileMenu(); toggleEmergencyPopup()" class="w-full mb-3 text-white bg-gradient-to-l from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-xl py-3 text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-500/20">
                     <i class="fas fa-ambulance"></i> طوارئ
                 </button>
@@ -376,9 +380,9 @@
 
             <!-- 2. الحاسبات والأدوات الطبية -->
             <div class="premium-card rounded-3xl p-4 mb-6">
-                <h2 class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
+                <div class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
                     <i class="fas fa-calculator text-xs"></i> الحاسبات والأدوات الطبية
-                </h2>
+                </div>
                 <div class="flex flex-col">
                     <a href="/pregnancy-calc" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg text-right" style="text-decoration:none;"><i class="fas fa-baby w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">حاسبة الحمل والولادة</span></a>
                     <a href="/dose-calc" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg text-right" style="text-decoration:none;"><i class="fas fa-syringe w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">حاسبة جرعات الأطفال</span></a>
@@ -391,9 +395,9 @@
 
             <!-- 3. الاستكشاف والخدمات التفاعلية -->
             <div class="premium-card rounded-3xl p-4 mb-6">
-                <h2 class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
+                <div class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
                     <i class="fas fa-magnifying-glass text-xs"></i> الاستكشاف والخدمات التفاعلية
-                </h2>
+                </div>
                 <div class="flex flex-col">
                     <a href="/medicine-finder" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg text-right" style="text-decoration:none;"><i class="fas fa-pills w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">ابحث عن دوائك</span></a>
                     <a href="/ask-doctor" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg text-right" style="text-decoration:none;"><i class="fas fa-comments w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">اسأل طبيب</span></a>
@@ -405,9 +409,9 @@
 
             <!-- 4. الدليل والإرشادات الصحية -->
             <div class="premium-card rounded-3xl p-4 mb-6">
-                <h2 class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
+            <div class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
                     <i class="fas fa-book-medical text-xs"></i> الدليل والإرشادات الصحية
-                </h2>
+            </div>
                 <div class="flex flex-col">
                     <a href="/seasonal-diseases" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg text-right" style="text-decoration:none;"><i class="fas fa-virus-covid w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">الأمراض الموسمية الشائعة في منطقة القلمون</span></a>
                     <a href="/raheba-radar" class="menu-item-premium flex items-center gap-4 px-2 py-2.5 rounded-lg text-right" style="text-decoration:none;"><i class="fas fa-satellite-dish w-6 text-center text-base icon-gold-gradient"></i><span class="text-white/90 text-sm font-semibold">رادار الصحي التفاعلي</span></a>
@@ -438,9 +442,9 @@
 
             <!-- 6. بوابات النظام -->
             <div class="premium-card rounded-3xl p-4 mb-8">
-                <h2 class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
+                <div class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
                     <i class="fas fa-shield-halved text-xs"></i> بوابات النظام
-                </h2>
+                </div>
                 <div class="grid grid-cols-3 gap-3">
                     <button onclick="toggleMobileMenu(); openDoctorLogin()" class="portal-grid-btn flex flex-col items-center justify-center gap-2 p-3 rounded-2xl">
                         <i class="fas fa-user-doctor text-lg icon-gold-gradient"></i>
@@ -484,9 +488,8 @@
     <i class="fas fa-map-marker-alt" style="color: var(--gold)"></i>
     <span id="userLocationText">جاري تحديد موقعك...</span>
 </div>
-<h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6" style="font-family: 'Noto Kufi Arabic'"><span>منصتك الطبية الشاملة</span></h1>
-<p class="text-white/65 text-base sm:text-lg mb-10 max-w-xl mx-auto leading-relaxed">ابحث عن الأطباء، الصيدليات، المشافي، المخابر، والمراكز الطبية بكل سهولة. الرعاية الصحية الموثوقة بنقرة واحدة.</p>
-          <!-- Homepage Media Ads Slider Section -->
+<h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6" style="font-family: 'Noto Kufi Arabic'"><span>المنصة الطبية الشاملة LomedX</span></h1>
+<p class="text-white/65 text-base sm:text-lg mb-10 max-w-xl mx-auto leading-relaxed">أهلاً بك في <strong>المنصة الطبية الشاملة</strong> في سوريا. ابحث عن الأطباء، الصيدليات، والمشافي، احجز موعدك إلكترونياً، أنشئ ملفك الصحي الذكي، واستفد من بنك الدم والأدوات الطبية التفاعلية. الرعاية الصحية الموثوقة بنقرة واحدة.</p>          <!-- Homepage Media Ads Slider Section -->
                                 <div id="homeMediaAdsSection" class="hidden mb-6 w-full max-w-2xl mx-auto">
                     <div class="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20">
                         <div id="homeAdContainer" class="w-full h-[200px] sm:h-[350px]">
