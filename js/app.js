@@ -7794,27 +7794,22 @@ window.showToast = (message, type = 'info', duration = 4000) => {
   }
 
     // دالة إغلاق نافذة حل المشكلات (الحل النهائي)
+  function openModal(html) {
+    ensureModal();
+    const overlay = document.getElementById('tsModalOverlay');
+    overlay.querySelector('.ts-panel-body').innerHTML = html;
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
   function closeModal() {
     const overlay = document.getElementById('tsModalOverlay');
     if (!overlay) return;
-    
-    // 1. إزالة الكلاس وإجبار الإخفاء فوراً لمنع بقاءها عالقة
     overlay.classList.remove('active');
-    overlay.style.display = 'none';
-    
-    // 2. إعادة تمرير الصفحة
-    if (typeof window.unlockScroll === 'function') {
-        window.unlockScroll();
-    } else {
-        document.body.style.overflow = '';
-    }
-    
-    // 3. إيقاف العد التنازلي إن وُجد
-    if (countdownInterval) { 
-        clearInterval(countdownInterval); 
-        countdownInterval = null; 
-    }
-  }
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if 
 
   function startCountdown(seconds) {
     if (countdownInterval) clearInterval(countdownInterval);
