@@ -172,6 +172,286 @@ function detectErrorLevel(error) {
     return 3;
 }
 
+// ==========================================
+// 🎯 محرك النوافذ الموحد (Unified UI Engine)
+// ==========================================
+let _scrollLockCount = 0;
+
+// ── قفل / فك قفل التمرير ──
+function lockScroll() {
+    if (_scrollLockCount === 0) {
+        document.body.style.overflow = 'hidden';
+        document.body.classList.add('stop-animations');
+    }
+    _scrollLockCount++;
+}
+
+function unlockScroll() {
+    _scrollLockCount = Math.max(0, _scrollLockCount - 1);
+    if (_scrollLockCount === 0) {
+        document.body.style.overflow = '';
+        document.body.classList.remove('stop-animations');
+    }
+}
+
+// 🔓 مخرج طوارئ
+window.forceUnlockScroll = function() {
+    _scrollLockCount = 0;
+    document.body.style.overflow = '';
+    document.body.classList.remove('stop-animations');
+    console.log('✅ تم فك قفل التمرير يدوياً');
+};
+
+// ── فتح أي نافذة ──
+window.openOverlay = (overlayId, displayValue = 'flex') => {
+    const el = document.getElementById(overlayId);
+    if (!el) {
+        console.warn(`[openOverlay] العنصر غير موجود: ${overlayId}`);
+        return null; // ✅ إرجاع null صريح بدل undefined
+    }
+    
+    // منع الفتح المزدوج
+    if (el.classList.contains('active')) return el;
+    
+    el.style.display = displayValue;
+    el.classList.add('active');
+    lockScroll();
+    return el;
+};
+
+// ── إغلاق أي نافذة ──
+window.closeOverlay = (overlayId) => {
+    const el = document.getElementById(overlayId);
+    if (!el || !el.classList.contains('active')) return false;
+    
+    el.classList.remove('active');
+    // تأخير الإخفاء حتى تنتهي الأنيميشن (اختياري)
+    setTimeout(() => {
+        if (!el.classList.contains('active')) {
+            el.style.display = 'none';
+        }
+    }, 300);
+    
+    // إزالة preventClose تلقائياً
+    delete el.dataset.preventClose;
+    
+    unlockScroll();
+    
+    // تنظيف عام
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (typeof clearToolSEO === 'function') clearToolSEO();
+    if (typeof resetMetaTags === 'function') resetMetaTags();
+    const articleSchema = document.getElementById('dynamicArticleSchema');
+    if (articleSchema) articleSchema.remove();
+    
+    return true;
+};
+
+// ═══════════════════════════════════════════════════════════
+// دوال الـ Modal الأساسية
+// ═══════════════════════════════════════════════════════════
+
+window.closeModal = (event) => {
+    // فلترة الحدث
+    if (event && event.target && event.target.id !== 'modalOverlay') return;
+    
+    window.closeOverlay('modalOverlay');
+    
+    // منطق القائمة الذكي
+    const isCtrlActive = document.getElementById('ctrlOverlay')?.classList.contains('active');
+    if (typeof openedFromMenu !== 'undefined' && openedFromMenu && !isCtrlActive) {
+        openedFromMenu = false;
+        setTimeout(() => {
+            document.getElementById('mobileMenu')?.classList.add('open');
+            document.getElementById('menuOverlay')?.classList.remove('hidden');
+            lockScroll();
+        }, 150);
+    }
+};
+
+// ═══════════════════════════════════════════════════════════
+// لوحة التحكم (CtrlPanel)
+// ═══════════════════════════════════════════════════════════
+
+window.openCtrlPanel = (title, contentHtml, headerColor = '#073D2E', preventClose = false) => {
+    document.getElementById('ctrlTitle').textContent = title;
+    document.getElementById('ctrlContent').innerHTML = contentHtml;
+    
+    const overlay = window.openOverlay('ctrlOverlay');
+    if (!overlay) {
+        console.error('[openCtrlPanel] فشل فتح اللوحة');
+        return; // ✅ حماية من الخطأ
+    }
+    
+    const headerEl = document.querySelector('#ctrlOverlay .p-5');
+    if (headerEl) headerEl.style.background = headerColor;
+    
+    overlay.dataset.preventClose = preventClose ? 'true' : 'false';
+};
+
+window.closeCtrlPanel = (event) => {
+    const overlay = document.getElementById('ctrlOverlay');
+    if (!overlay) return;
+    
+    // إذا كان preventClose مفعّلاً والنقرة على الخلفية، تجاهل
+    if (event && event.target.id === 'ctrlOverlay' && overlay.dataset.preventClose === 'true') {
+        return;
+    }
+    
+    // إذا كان preventClose مفعّلاً وبدون event (استدعاء برمجي)، تجاهل أيضاً
+    // إلا إذا أردنا الإغلاق القسري
+    if (!event && overlay.dataset.preventClose === 'true') {
+        // اسمح بالإغلاق من زر × (يستدعي الدالة بدون event)
+        // لكن امسح preventClose
+        delete overlay.dataset.preventClose;
+    }
+    
+    // ═══ تنظيف العمليات الخلفية ═══
+    if (window.activeHealthFileSub) {
+        supabase.removeChannel(window.activeHealthFileSub);
+        window.activeHealthFileSub = null;
+    }
+    if (typeof activeQrScanner !== 'undefined' && activeQrScanner) {
+        activeQrScanner.stop().then(() => {
+            activeQrScanner.clear();
+            activeQrScanner = null;
+        }).catch(() => { activeQrScanner = null; });
+    }
+    if (typeof doctorDashboardInterval !== 'undefined' && doctorDashboardInterval) {
+        clearInterval(doctorDashboardInterval);
+        doctorDashboardInterval = null;
+    }
+    if (typeof unsubscribeMedRequests !== 'undefined' && unsubscribeMedRequests) {
+        supabase.removeChannel(unsubscribeMedRequests);
+        unsubscribeMedRequests = null;
+    }
+    if (typeof unsubscribeMedRequestsInterval !== 'undefined' && unsubscribeMedRequestsInterval) {
+        clearInterval(unsubscribeMedRequestsInterval);
+        unsubscribeMedRequestsInterval = null;
+    }
+    if (typeof unsubscribeDocBookings !== 'undefined' && unsubscribeDocBookings) {
+        supabase.removeChannel(unsubscribeDocBookings);
+        unsubscribeDocBookings = null;
+    }
+    if (typeof activeFollowupUnsub !== 'undefined' && activeFollowupUnsub) {
+        supabase.removeChannel(activeFollowupUnsub);
+        activeFollowupUnsub = null;
+    }
+    if (typeof currentFollowupBookingId !== 'undefined') {
+        currentFollowupBookingId = null;
+    }
+    
+    // مسح المحتوى
+    const contentEl = document.getElementById('ctrlContent');
+    if (contentEl) contentEl.innerHTML = '';
+    
+    // إغلاق النافذة
+    window.closeOverlay('ctrlOverlay');
+    
+    // العودة للصفحة الرئيسية
+    if ((window.location.pathname !== '/' && window.location.pathname !== '/index.html') || window.location.hash) {
+        history.pushState({}, '', '/');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // منطق القائمة الذكي
+    if (typeof openedFromMenu !== 'undefined' && openedFromMenu) {
+        openedFromMenu = false;
+        setTimeout(() => {
+            document.getElementById('mobileMenu')?.classList.add('open');
+            document.getElementById('menuOverlay')?.classList.remove('hidden');
+            lockScroll();
+        }, 150);
+    }
+};
+
+// ═══════════════════════════════════════════════════════════
+// نوافذ أخرى
+// ═══════════════════════════════════════════════════════════
+
+window.closeAddFacilityModal = () => {
+    const form = document.getElementById('addFacilityForm');
+    if (form) form.reset();
+    
+    const submitBtn = document.querySelector('.submit-facility-btn');
+    if (submitBtn && submitBtn.disabled) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>إرسال طلب التسجيل</span>';
+    }
+    
+    if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+    }
+    
+    window.closeOverlay('addFacilityOverlay');
+    
+    // إزالة position: fixed إن وُجدت من addFacility
+    document.body.style.position = '';
+    document.body.style.width = '';
+    
+    if (window.__scrollY !== undefined) {
+        window.scrollTo(0, window.__scrollY);
+        window.__scrollY = undefined;
+    }
+};
+
+// ═══════════════════════════════════════════════════════════
+// ✅ إغلاق كل النوافذ (النسخة المُصلحة)
+// ═══════════════════════════════════════════════════════════
+window.closeAllOverlays = () => {
+    // 1. إيقاف منطق إعادة الفتح التلقائي
+    if (typeof openedFromMenu !== 'undefined') openedFromMenu = false;
+    window._reopenMenuAfterClose = false;
+    
+    // 2. قائمة كاملة بكل النوافذ الممكنة
+    const allOverlays = [
+        'modalOverlay',
+        'ctrlOverlay',
+        'tsModalOverlay',
+        'addFacilityOverlay',
+        'citySelectorOverlay',   // ✅ إضافة مفقودة
+        'blogCategoryOverlay',   // ✅ إضافة مفقودة
+        'lightbox',
+        'emergencyPopup'         // ✅ إضافة مفقودة
+    ];
+    
+    // 3. إغلاق كل نافذة (مع تجاوز preventClose)
+    allOverlays.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.classList.contains('active')) {
+            delete el.dataset.preventClose; // تجاوز منع الإغلاق
+            window.closeOverlay(id);
+        }
+        // معالجة خاصة لـ emergencyPopup (يستخدم display فقط)
+        if (id === 'emergencyPopup' && el && el.style.display === 'block') {
+            el.style.display = 'none';
+        }
+    });
+    
+    // 4. قائمة الجوال (تحتاج معالجة خاصة)
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenu && mobileMenu.classList.contains('open')) {
+        mobileMenu.classList.remove('open');
+        document.getElementById('menuOverlay')?.classList.add('hidden');
+        unlockScroll(); // هذا وحده، لا تكرار
+    }
+    
+    // 5. ✅ ضمان نهائي: فك القفل حتى لو حدث خلل
+    if (_scrollLockCount > 0) {
+        console.warn('[closeAllOverlays] عداد التمرير لم يصل لصفر، إعادة تعيين إجبارية');
+        window.forceUnlockScroll();
+    }
+};
+
+// ═══════════════════════════════════════════════════════════
+// 🧹 تنظيف مركز المشاكل (ts)
+// ═══════════════════════════════════════════════════════════
+window.closeTroubleshootModal = () => {
+    window.closeOverlay('tsModalOverlay');
+    // ⚠️ لا تستدع unlockScroll يدوياً — closeOverlay يفعل ذلك
+    // ⚠️ countdownInterval موجود في IIFE آخر، لا تلمسه هنا
+};
+
 const daysOfWeek = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
 
 let currentAnnouncement = null;
@@ -322,24 +602,7 @@ function escapeHtml(text) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
-// دالة قفل التمرير مع إيقاف الحركات في الخلفية لتقليل حرارة الهاتف
-function lockScroll() { 
-    scrollLockCount++; 
-    document.body.style.overflow = 'hidden'; 
-    // إيقاف جميع حركات الـ CSS لتبريد المعالج أثناء فتح النوافذ
-    document.body.classList.add('stop-animations'); 
-}
 
-
-// دالة فتح التمرير مع إعادة الحركات
-function unlockScroll() { 
-    scrollLockCount = Math.max(0, scrollLockCount - 1); 
-    if (scrollLockCount === 0) { 
-        document.body.style.overflow = ''; 
-        // إعادة تشغيل الحركات عند إغلاق كل النوافذ
-        document.body.classList.remove('stop-animations'); 
-    } 
-}
 // === فلتر الكلمات المسيئة (شامل) ===
 const badWords = [
   "ahole", "anus", "ash0le", "ash0les", "asholes", "asshole", "assholes", "assholz", "asswipe", "azzhole",
@@ -1583,17 +1846,7 @@ window.openModal = (id) => {
     document.getElementById('modalOverlay').classList.add('active'); 
     lockScroll(); 
 }
-window.closeModal = (event) => { 
-    if (event && event.target !== document.getElementById('modalOverlay')) return; 
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel(); // إيقاف الصوت
-    document.getElementById('modalOverlay').classList.remove('active'); 
-    unlockScroll();
-    
-    // === تنظيف الـ SEO وحذف Schema القديم ===
-    resetMetaTags();
-    const articleSchema = document.getElementById('dynamicArticleSchema');
-    if (articleSchema) articleSchema.remove();
-};
+
 window.openLightbox = (src, imgAlt = 'صورة منشأة طبية من منصة LomedX') => { 
     const lightbox = document.getElementById('lightbox'); 
     const imgEl = lightbox.querySelector('img');
@@ -1794,17 +2047,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (docu
 const allBtn = document.querySelector('[data-filter="all"]'); 
 if(allBtn) { allBtn.style.background = 'var(--accent)'; allBtn.style.color = 'white'; allBtn.style.borderColor = 'var(--accent)'; }
 
-window.openCtrlPanel = (title, contentHtml, headerColor = '#073D2E', preventClose = false) => { 
-    document.getElementById('ctrlTitle').textContent = title; 
-    document.getElementById('ctrlContent').innerHTML = contentHtml; 
-    const overlay = document.getElementById('ctrlOverlay');
-    if (!overlay.classList.contains('active')) {
-        overlay.classList.add('active'); 
-        document.querySelector('#ctrlOverlay .p-5').style.background = headerColor; 
-        lockScroll(); 
-    }
-    overlay.dataset.preventClose = preventClose ? 'true' : 'false';
-}
+
 window.switchHealthTab = (tab) => {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
@@ -1838,38 +2081,7 @@ window.searchArticles = () => {
         fetchArticles(input.value);
     }
 };
-window.closeCtrlPanel = (event) => { 
-    const overlay = document.getElementById('ctrlOverlay');
-    if (event && event.target.id === 'ctrlOverlay' && overlay.dataset.preventClose === 'true') return; 
- clearToolSEO(); 
-    if (window.activeHealthFileSub) { supabase.removeChannel(window.activeHealthFileSub); window.activeHealthFileSub = null; }
-    
-    if (activeQrScanner) {
-        activeQrScanner.stop().then(() => {
-            activeQrScanner.clear();
-            activeQrScanner = null;
-        }).catch(() => { activeQrScanner = null; });
-    }
-    
-        if ('speechSynthesis' in window) window.speechSynthesis.cancel(); // إيقاف الصوت
-    overlay.classList.remove('active'); 
-    unlockScroll(); 
-    document.getElementById('ctrlContent').innerHTML = ''; 
-    
-    // === تنظيف الرابط وإعادة الـ SEO ===
-    resetMetaTags();
-        if (window.location.pathname !== '/' && window.location.pathname !== '/index.html' || window.location.hash) {
-        history.pushState({}, '', '/');
-        window.scrollTo({top: 0, behavior: 'smooth'});
-    }
-    
-    if (doctorDashboardInterval) { clearInterval(doctorDashboardInterval); doctorDashboardInterval = null; } 
-    if (unsubscribeMedRequests) { supabase.removeChannel(unsubscribeMedRequests); unsubscribeMedRequests = null; } 
-    if (unsubscribeMedRequestsInterval) { clearInterval(unsubscribeMedRequestsInterval); unsubscribeMedRequestsInterval = null; } 
-    if (unsubscribeDocBookings) { supabase.removeChannel(unsubscribeDocBookings); unsubscribeDocBookings = null; }
-    if (activeFollowupUnsub) { supabase.removeChannel(activeFollowupUnsub); activeFollowupUnsub = null; } 
-    currentFollowupBookingId = null;
-};
+
 
 window.openBookingModal = (id) => { 
     closeModal(); 
@@ -7186,46 +7398,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let openedFromMenu = false;
     // دالة موحدة لإغلاق كل النوافذ والقوائم ومنع القائمة الذكية من العودة
-    window.closeAllOverlays = () => {
-        openedFromMenu = false; // إيقاف السلوك الذكي الذي يعيد فتح القائمة
-        closeModal(); 
-        closeCtrlPanel();
-        
-        // إغلاق قائمة الجوال إذا كانت مفتوحة
-        const mobileMenu = document.getElementById('mobileMenu');
-        const menuOverlay = document.getElementById('menuOverlay');
-        if (mobileMenu && mobileMenu.classList.contains('open')) {
-            mobileMenu.classList.remove('open');
-            menuOverlay.classList.add('hidden');
-            unlockScroll();
-        }
-    };
-    mobileMenu.querySelectorAll('a, button').forEach(btn => {
-        const onclickVal = btn.getAttribute('onclick');
-        const hrefVal = btn.getAttribute('href');
-        
-        // نستهدف أي زر له onclick يفتح نافذة، أو أي رابط يبدأ بـ / (نظام التوجيه الجديد)
-        const isOpeningLink = (hrefVal && hrefVal.startsWith('/') && !hrefVal.startsWith('//')) || (onclickVal && (onclickVal.includes('open') || onclickVal.includes('show') || onclickVal.includes('toggleEmergency')));
-        
-        if (isOpeningLink) {
-            // إزالة دالة الإغلاق القديمة إذا كانت موجودة لمنع التضارب
-            if (onclickVal && onclickVal.includes('toggleMobileMenu()')) {
-                btn.setAttribute('onclick', onclickVal.replace(/toggleMobileMenu\(\);?\s*/g, ''));
-            }
-            
-            // إضافة منطقنا الذكي
-            btn.addEventListener('click', () => {
-                openedFromMenu = true; // تعليم أن الميزة فُتحت من القائمة
-                menuOverlay.classList.add('hidden'); // إخفاء الخلفية السوداء
-                mobileMenu.classList.remove('open'); // سحب القائمة جانبياً
-                unlockScroll();
-            });
-        }
-    });
-
-    // 2. اعتراض دالة إغلاق لوحة التحكم (CtrlPanel) لإعادة فتح القائمة
-    const originalCloseCtrl = window.closeCtrlPanel;
-    window.closeCtrlPanel = (event) => {
+      window.closeCtrlPanel = (event) => {
         originalCloseCtrl(event); // تنفيذ الإغلاق العادي للميزة
         
         // إذا كانت الميزة قد فُتحت من قائمة الجوال، أعد فتح القائمة!
@@ -7418,37 +7591,6 @@ window.openAddFacilityModal = () => {
             firstInput.focus({ preventScroll: true });
         }
     }, 400);
-};
-
-window.closeAddFacilityModal = () => {
-    const overlay = document.getElementById('addFacilityOverlay');
-    overlay.classList.remove('active');
-    
-    // Restore scroll
-    document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.width = '';
-    
-    if (window.__scrollY !== undefined) {
-        window.scrollTo(0, window.__scrollY);
-        window.__scrollY = undefined;
-    }
-    
-    // Reset form
-    const form = document.getElementById('addFacilityForm');
-    if (form) form.reset();
-    
-    // Reset submit button
-    const submitBtn = document.querySelector('.submit-facility-btn');
-    if (submitBtn && submitBtn.disabled) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>إرسال طلب التسجيل</span>';
-    }
-    
-    // Blur focused input (fix iOS keyboard)
-    if (document.activeElement && document.activeElement.blur) {
-        document.activeElement.blur();
-    }
 };
 
 window.handleOverlayClick = (event) => {
@@ -7793,21 +7935,6 @@ window.showToast = (message, type = 'info', duration = 4000) => {
     document.addEventListener('keydown', (e) => { if ((e.key === 'Escape' || e.key === 'Esc') && overlay.classList.contains('active')) closeModal(); });
   }
 
-  function openModal(html) {
-    ensureModal();
-    const overlay = document.getElementById('tsModalOverlay');
-    
-    // إيقاف أي مؤقت قديم قبل تغيير الواجهة لمنع تخريب الـ DOM
-    if (countdownInterval) { 
-        clearInterval(countdownInterval); 
-        countdownInterval = null; 
-    }
-    
-    overlay.querySelector('.ts-panel-body').innerHTML = html;
-    overlay.classList.add('active');
-    overlay.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-}
 
   function startCountdown(seconds) {
     if (countdownInterval) clearInterval(countdownInterval);
