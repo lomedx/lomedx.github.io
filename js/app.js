@@ -1,7 +1,7 @@
 import { supabase } from './supabase.js';
 
 // ═══════════════════════════════════════════════════════════
-// executeAction — 3 مستويات
+// executeAction —3 مستويات
 // ═══════════════════════════════════════════════════════════
 window.executeAction = async function(toolName, actionCallback, options = {}) {
     
