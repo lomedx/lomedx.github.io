@@ -7793,21 +7793,28 @@ window.showToast = (message, type = 'info', duration = 4000) => {
     document.addEventListener('keydown', (e) => { if ((e.key === 'Escape' || e.key === 'Esc') && overlay.classList.contains('active')) closeModal(); });
   }
 
-  function openModal(html) {
-    ensureModal();
+    // دالة إغلاق نافذة حل المشكلات (الحل النهائي)
+  function closeModal() {
     const overlay = document.getElementById('tsModalOverlay');
+    if (!overlay) return;
     
-    // إيقاف أي مؤقت قديم قبل تغيير الواجهة لمنع تخريب الـ DOM
+    // 1. إزالة الكلاس وإجبار الإخفاء فوراً لمنع بقاءها عالقة
+    overlay.classList.remove('active');
+    overlay.style.display = 'none';
+    
+    // 2. إعادة تمرير الصفحة
+    if (typeof window.unlockScroll === 'function') {
+        window.unlockScroll();
+    } else {
+        document.body.style.overflow = '';
+    }
+    
+    // 3. إيقاف العد التنازلي إن وُجد
     if (countdownInterval) { 
         clearInterval(countdownInterval); 
         countdownInterval = null; 
     }
-    
-    overlay.querySelector('.ts-panel-body').innerHTML = html;
-    overlay.classList.add('active');
-    overlay.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-}
+  }
 
   function startCountdown(seconds) {
     if (countdownInterval) clearInterval(countdownInterval);
