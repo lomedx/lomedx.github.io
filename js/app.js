@@ -446,12 +446,6 @@ function updateTipDisplay() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-
-
-
-    
-
-    
     const isOAuthRedirect = window.location.href.includes('code=') || window.location.href.includes('access_token=');
     const isGoogleIntent = sessionStorage.getItem('google_login_intent') === 'true';
     
@@ -533,34 +527,89 @@ window.addEventListener('DOMContentLoaded', () => {
     }
             
     
-    const langToggle = document.getElementById('langToggle');
-       let isEnglish = document.cookie.includes('googtrans=/ar/en');
-    function applyLangLayout() {
-        if (!langToggle) return;
-        if (isEnglish) {
-            langToggle.innerText = 'ع';
-            document.documentElement.lang = 'en';
-            document.documentElement.dir = 'LTR';
-        } else {
-            langToggle.innerText = 'EN';
-            document.documentElement.lang = 'ar';
-            document.documentElement.dir = 'rtl';
-        }
+        // === نظام زر المشاركة الاحترافي الشامل ===
+    const shareBtn = document.getElementById('shareBtnToggle');
+    const shareDropdown = document.getElementById('shareDropdown');
+
+    // تجهيز بيانات المشاركة
+    function getShareData() {
+        return {
+            title: 'LomedX | المنصة الطبية الشاملة في سوريا',
+            text: 'منصة طبية متكاملة لحجز المواعيد، بنك الدم، والملف الصحي الذكي. صُممت لخدمة مجتمعنا. زورونا الآن!',
+            url: window.location.href
+        };
     }
-    if (langToggle) {
-        applyLangLayout();
-        langToggle.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (isEnglish) {
-                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                isEnglish = false;
-            } else {
-                document.cookie = 'googtrans=/ar/en; path=/';
-                isEnglish = true;
+
+    // بناء قائمة المشاركة المنسدلة (للكمبيوتر)
+    function buildShareDropdown() {
+        if (!shareDropdown) return;
+        const { url, title, text } = getShareData();
+        const encUrl = encodeURIComponent(url);
+        const encTitle = encodeURIComponent(title);
+        const encText = encodeURIComponent(text);
+
+        shareDropdown.innerHTML = `
+            <a href="https://api.whatsapp.com/send?text=${encTitle}%20${encUrl}" target="_blank" class="share-menu-item">
+                <i class="fab fa-whatsapp" style="color: #25D366;"></i>
+                <span>مشاركة عبر واتساب</span>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=${encUrl}" target="_blank" class="share-menu-item">
+                <i class="fab fa-facebook-f" style="color: #1877F2;"></i>
+                <span>مشاركة عبر فيسبوك</span>
+            </a>
+            <a href="https://t.me/share/url?url=${encUrl}&text=${encTitle}" target="_blank" class="share-menu-item">
+                <i class="fab fa-telegram" style="color: #0088cc;"></i>
+                <span>مشاركة عبر تيليجرام</span>
+            </a>
+            <a href="https://twitter.com/intent/tweet?text=${encTitle}&url=${encUrl}" target="_blank" class="share-menu-item">
+                <i class="fab fa-x-twitter" style="color: #000000;"></i>
+                <span>مشاركة عبر X (تويتر)</span>
+            </a>
+            <button onclick="copyShareLink('${url}')" class="share-menu-item">
+                <i class="fas fa-link" style="color: #6B7280;"></i>
+                <span>نسخ رابط المنصة</span>
+            </button>
+        `;
+    }
+
+    // تفعيل زر المشاركة
+    if (shareBtn) {
+        shareBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            // 1. إذا كان الجهاز يدعم المشاركة الأصلية (الهواتف)
+            if (navigator.share) {
+                try {
+                    await navigator.share(getShareData());
+                } catch (err) {
+                    // المستخدم أغلق نافذة المشاركة
+                }
+            } 
+            // 2. إذا كان كمبيوتر، اعرض القائمة المنسدلة
+            else {
+                shareDropdown.classList.toggle('hidden');
             }
-            location.reload();
         });
     }
+
+    // إغلاق القائمة المنسدلة عند الضغط خارجها
+    document.addEventListener('click', (e) => {
+        if (shareDropdown && !shareDropdown.contains(e.target) && e.target !== shareBtn) {
+            shareDropdown.classList.add('hidden');
+        }
+    });
+
+    // دالة نسخ الرابط
+    window.copyShareLink = (url) => {
+        navigator.clipboard.writeText(url).then(() => {
+            showToast('تم نسخ رابط المنصة بنجاح!', 'success');
+            shareDropdown.classList.add('hidden');
+        }).catch(() => {
+            showToast('تعذر نسخ الرابط', 'error');
+        });
+    };
+
+    // تهيئة القائمة عند تحميل الصفحة
+    buildShareDropdown();
 
     if (tipInterval) clearInterval(tipInterval);
     updateTipDisplay();
