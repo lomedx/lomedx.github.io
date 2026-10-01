@@ -269,7 +269,14 @@
     </button>
     <!-- زر الوضع الليلي -->
     <button class="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white text-sm bg-white/10 hover:bg-white/20 transition-all" id="darkModeToggle" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
-    <button class="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white text-sm font-bold bg-white/10 hover:bg-white/20 transition-all" id="langToggle" title="English">EN</button>
+    <div class="relative">
+    <button id="shareBtnToggle" class="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white text-sm bg-white/10 hover:bg-white/20 transition-all" title="مشاركة المنصة">
+        <i class="fas fa-share-nodes"></i>
+    </button>
+    <!-- القائمة المنسدلة للمشاركة (تظهر على الكمبيوتر) -->
+    <div id="shareDropdown" class="hidden absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50" style="color: #1B2A1B;">
+    </div>
+</div>
     <button class="lg:hidden text-white text-xl p-2" onclick="toggleMobileMenu()" aria-label="فتح القائمة"><i class="fas fa-bars" id="menuIcon"></i></button>
 </div>
             </div>
@@ -1089,15 +1096,8 @@
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)"><div class="modal-content" id="modalContent" onclick="event.stopPropagation()"></div></div>
     <div id="lightbox" class="lightbox-overlay"><img src="" alt="صورة منشأة طبية من منصة LomedX"></div>
 
-<!-- محرك ترجمة جوجل المخفي -->
-<div id="google_translate_element" style="display:none;"></div>
-<script type="text/javascript">
-    function googleTranslateElementInit() {
-        new google.translate.TranslateElement({pageLanguage: 'ar', includedLanguages: 'en', autoDisplay: false}, 'google_translate_element');
-    }
-</script>
-<script async defer type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
+    
 
     <!-- لوحة اختيار المدينة المنزلقة -->
 <div id="citySelectorOverlay" class="city-selector-overlay" onclick="closeCitySelector()">
