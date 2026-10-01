@@ -443,20 +443,47 @@ html.dark .filter-btn { background: var(--card) !important; border-color: var(--
         .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: var(--bg); }
         .accordion-item.active .accordion-body { max-height: 2000px; }
         .accordion-item.active .accordion-header i { transform: rotate(180deg); }
-                      /* === إخفاء شريط ترجمة جوجل العلوي بالكامل === */
-        body { top: 0 !important; position: static !important; }
-        .skiptranslate { display: none !important; }
-        .goog-te-banner-frame { display: none !important; }
-        .goog-te-gadget-icon { display: none !important; }
-        .goog-logo-link { display: none !important; }
-        .goog-te-gadget span { display: none !important; }
-        .goog-tooltip { display: none !important; }
-        .goog-tooltip:hover { display: none !important; }
-        .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
-        #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
-        #google_translate_element { display: none !important; }
-        .accordion-body-inner { padding: 16px; font-size: 0.85rem; color: var(--fg-light); line-height: 1.6; }
-                /* === كود تحريك نص الإعلان === */
+
+/* === تنسيقات قائمة المشاركة الاحترافية === */
+#shareDropdown .share-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--fg);
+    text-decoration: none;
+    transition: background 0.2s ease;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+#shareDropdown .share-menu-item:hover {
+    background: var(--bg-deep);
+}
+#shareDropdown .share-menu-item i {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+/* الوضع المظلم لقائمة المشاركة */
+html.dark #shareDropdown {
+    background: var(--card);
+    border-color: var(--border);
+}
+html.dark #shareDropdown .share-menu-item {
+    color: var(--fg);
+}
+html.dark #shareDropdown .share-menu-item:hover {
+    background: var(--bg-deep);
+}
+        
+/* === كود تحريك نص الإعلان === */
         @keyframes marquee {
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
