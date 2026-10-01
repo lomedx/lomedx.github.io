@@ -1,4 +1,4 @@
-// === ملف: seo-data.js ===
+// === ملف:seo-data.js ===
 const AdvancedMedicalSEO = {
     'burn-calculator': { //......1
         related: [
