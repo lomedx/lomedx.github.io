@@ -7804,6 +7804,229 @@ window.showToast = (message, type = 'info', duration = 4000) => {
     },
   };
 
+// ═══════════════════════════════════════════════════════════
+// 🎯 أخطاء نظام الحجز الخاصة (Booking-specific errors)
+// ═══════════════════════════════════════════════════════════
+const BOOKING_ERRORS = {
+    
+    doctor_not_available: {
+        title: 'الطبيب غير متاح حالياً',
+        icon: 'fa-user-clock',
+        color: '#F59E0B',
+        reason: 'الطبيب الذي تحاول الحجز معه أوقف استقبال الحجوزات مؤقتاً أو انتهى دوامه اليوم.',
+        solution: 'جرب البحث عن طبيب آخر متاح، أو حاول الحجز غداً خلال ساعات الدوام.',
+        commonCauses: [
+            'الطبيب أنهى دوامه اليومي.',
+            'الطبيب في إجازة.',
+            'الطبيب أوقف الحجز مؤقتاً من لوحته.',
+        ],
+        quickFixes: [
+            { icon: 'fa-search', text: 'ابحث عن طبيب آخر', action: 'close' },
+            { icon: 'fa-clock', text: 'جرب غداً خلال الدوام' },
+            { icon: 'fa-phone', text: 'اتصل بالعيادة مباشرة' },
+        ],
+    },
+    
+    slot_already_booked: {
+        title: 'هذا الموعد محجوز مسبقاً',
+        icon: 'fa-calendar-xmark',
+        color: '#EF4444',
+        reason: 'يبدو أن شخصاً آخر حجز نفس الوقت قبل لحظات. هذا يحدث كثيراً مع الأطباء المشهورين.',
+        solution: 'اختر وقتاً آخر من القائمة، أو جرّب يوماً مختلفاً.',
+        commonCauses: [
+            'مريض آخر حجز نفس الوقت.',
+            'لم يتم تحديث الصفحة بعد حجز سابق.',
+            'خطأ في التزامن بين جهازك والخادم.',
+        ],
+        quickFixes: [
+            { icon: 'fa-clock', text: 'اختر وقتاً آخر', action: 'close' },
+            { icon: 'fa-calendar', text: 'اختر يوماً آخر', action: 'close' },
+        ],
+    },
+    
+    patient_has_pending_booking: {
+        title: 'لديك حجز قيد المراجعة',
+        icon: 'fa-hourglass-half',
+        color: '#F59E0B',
+        reason: 'لا يمكنك حجز موعد جديد قبل أن يرد الطبيب على حجزك السابق.',
+        solution: 'انتظر رد الطبيب على حجزك الحالي، أو ألغِ الحجز السابق أولاً.',
+        commonCauses: [
+            'حجزت موعداً ولم يُرد الطبيب بعد.',
+            'نسيت حجزاً قديماً.',
+        ],
+        quickFixes: [
+            { icon: 'fa-list', text: 'عرض حجوزاتي الحالية', action: 'close' },
+            { icon: 'fa-headset', text: 'تواصل مع الطبيب', action: 'support' },
+        ],
+    },
+    
+    doctor_working_hours_ended: {
+        title: 'انتهى دوام الطبيب',
+        icon: 'fa-clock',
+        color: '#F59E0B',
+        reason: 'الوقت الذي اخترته خارج ساعات دوام الطبيب.',
+        solution: 'اطلع على ساعات الدوام ثم اختر موعداً ضمنها.',
+        commonCauses: [
+            'ساعات الدوام تغيرت.',
+            'اختلاف في التوقيت.',
+            'الطبيب أوقف الحجز اليوم.',
+        ],
+        quickFixes: [
+            { icon: 'fa-clock', text: 'عرض ساعات الدوام', action: 'close' },
+            { icon: 'fa-calendar', text: 'اختر يوماً آخر', action: 'close' },
+        ],
+    },
+    
+    booking_window_closed: {
+        title: 'نافذة الحجز مغلقة',
+        icon: 'fa-calendar-times',
+        color: '#EF4444',
+        reason: 'لا يمكن الحجز في هذا اليوم — إما أنه بعيد جداً أو قريب جداً.',
+        solution: 'يمكنك الحجز لأيام محددة فقط (عادة من يوم إلى 14 يوم).',
+        commonCauses: [
+            'التاريخ المختار بعيد أكثر من 14 يوم.',
+            'التاريخ في الماضي.',
+        ],
+        quickFixes: [
+            { icon: 'fa-calendar-day', text: 'اختر يوماً قريباً', action: 'close' },
+        ],
+    },
+    
+    doctor_not_working_that_day: {
+        title: 'الطبيب لا يعمل في هذا اليوم',
+        icon: 'fa-calendar-day',
+        color: '#F59E0B',
+        reason: 'اليوم الذي اخترته ليس من أيام عمل الطبيب.',
+        solution: 'اختر يوماً آخر من الأيام المتاحة في القائمة.',
+        commonCauses: [
+            'الطبيب لا يعمل في هذا اليوم من الأسبوع.',
+            'الطبيب عدّل أيام عمله مؤخراً.',
+        ],
+        quickFixes: [
+            { icon: 'fa-calendar-week', text: 'عرض أيام العمل', action: 'close' },
+            { icon: 'fa-arrow-right', text: 'اختر يوماً آخر', action: 'close' },
+        ],
+    },
+    
+    too_many_pending_bookings: {
+        title: 'عدد الحجوزات كبير',
+        icon: 'fa-list-check',
+        color: '#F59E0B',
+        reason: 'لا يمكنك حجز أكثر من 3 مواعيد في نفس الوقت.',
+        solution: 'انتظر رد الأطباء على حجوزاتك الحالية، ثم احجز مرة أخرى.',
+        commonCauses: [
+            'حجزت مع عدة أطباء في وقت قصير.',
+            'لم تُلغِ حجوزاتك القديمة.',
+        ],
+        quickFixes: [
+            { icon: 'fa-list', text: 'عرض حجوزاتي', action: 'close' },
+            { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' },
+        ],
+    },
+    
+    doctor_not_subscribed: {
+        title: 'الحجز الإلكتروني غير متاح',
+        icon: 'fa-crown',
+        color: '#F59E0B',
+        reason: 'هذا الطبيب لا يدعم الحجز الإلكتروني حالياً. يمكنك الاتصال به هاتفياً.',
+        solution: 'اتصل بالعيادة مباشرة لحجز موعدك.',
+        commonCauses: [
+            'الطبيب لم يُفعّل الاشتراك الاحترافي.',
+            'انتهى اشتراك الطبيب.',
+        ],
+        quickFixes: [
+            { icon: 'fa-phone', text: 'اتصل بالعيادة' },
+            { icon: 'fa-search', text: 'ابحث عن طبيب مشترك آخر', action: 'close' },
+        ],
+    },
+    
+    booking_turnstile_failed: {
+        title: 'فشل التحقق الأمني',
+        icon: 'fa-shield-virus',
+        color: '#EF4444',
+        reason: 'لم يتمكن النظام من التأكد أنك لست روبوتاً. غالباً بسبب إضافة مانع إعلانات.',
+        solution: 'أعد تحميل الصفحة، أو أوقف مانع الإعلانات على هذا الموقع.',
+        commonCauses: [
+            'استخدام AdBlocker.',
+            'وضع التصفح الخفي.',
+            'انتهت صلاحية رمز التحقق.',
+        ],
+        quickFixes: [
+            { icon: 'fa-sync', text: 'أعد تحميل الصفحة', action: 'reload' },
+            { icon: 'fa-shield-halved', text: 'أوقف AdBlocker لهذا الموقع' },
+        ],
+    },
+    
+    booking_limit_reached: {
+        title: 'الموعد ممتلئ',
+        icon: 'fa-users-slash',
+        color: '#EF4444',
+        reason: 'هذا الموعد وصل للحد الأقصى من المرضى.',
+        solution: 'اختر وقتاً آخر من القائمة، أو جرّب يوماً مختلفاً.',
+        commonCauses: [
+            'الطبيب يحدد عدداً أقصى للمرضى في كل فترة.',
+            'الموعد مزدحم.',
+        ],
+        quickFixes: [
+            { icon: 'fa-clock', text: 'اختر وقتاً آخر', action: 'close' },
+            { icon: 'fa-calendar', text: 'اختر يوماً آخر', action: 'close' },
+        ],
+    },
+    
+    patient_phone_already_used: {
+        title: 'هذا الرقم مستخدم بالفعل',
+        icon: 'fa-user-check',
+        color: '#F59E0B',
+        reason: 'يوجد حجز مسبق بنفس رقم الهاتف مع هذا الطبيب.',
+        solution: 'تحقق من حجوزاتك الحالية، أو استخدم رقماً مختلفاً.',
+        commonCauses: [
+            'حجزت سابقاً بنفس الرقم.',
+            'أحد أفراد العائلة حجز بنفس الرقم.',
+        ],
+        quickFixes: [
+            { icon: 'fa-list', text: 'عرض حجوزاتي', action: 'close' },
+            { icon: 'fa-user-plus', text: 'استخدام رقم آخر', action: 'close' },
+        ],
+    },
+    
+    booking_unauthorized: {
+        title: 'تحتاج لتسجيل الدخول',
+        icon: 'fa-user-lock',
+        color: '#3B82F6',
+        reason: 'لحفظ حجزك ومتابعته، تحتاج لتسجيل الدخول أولاً.',
+        solution: 'سجّل الدخول من خلال الملف الصحي، ثم أعد الحجز.',
+        commonCauses: [
+            'انتهت صلاحية الجلسة.',
+            'لم تسجل الدخول.',
+        ],
+        quickFixes: [
+            { icon: 'fa-right-to-bracket', text: 'تسجيل الدخول', action: 'login' },
+        ],
+    },
+};
+    // ═══════════════════════════════════════════════════════════
+// 🎯 محرك تصنيف أخطاء الحجز
+// يبحث أولاً في BOOKING_ERRORS، ثم في ISSUES العامة
+// ═══════════════════════════════════════════════════════════
+function classifyError(toolName, issueType) {
+    // هل الأداة هي الحجز؟
+    const isBooking = ['حجز موعد', 'الحجز', 'طلب موعد', 'book', 'booking'].includes(toolName);
+    
+    // هل الخطأ خاص بالحجز؟
+    if (isBooking && BOOKING_ERRORS[issueType]) {
+        return { issue: BOOKING_ERRORS[issueType], scope: 'booking' };
+    }
+    
+    // fallback: الخطأ العام
+    if (ISSUES[issueType]) {
+        return { issue: ISSUES[issueType], scope: 'common' };
+    }
+    
+    // fallback: unknown
+    return { issue: ISSUES.unknown, scope: 'common' };
+}
+
+    
   async function testServerConnection() {
     const url = location.pathname === '/' ? '/favicon.ico' : location.pathname.split('?')[0];
     const start = performance.now();
@@ -8019,10 +8242,28 @@ async function retryLastAction() {
 // ═══════════════════════════════════════════════════════════
 window.handleFetchError = (toolName, error) => {
     
-    // ── 1. الإنترنت ──
+    // ═══════════════════════════════════════════════════════
+    // ✅ جديد: أولاً جرب البحث في أخطاء الحجز الخاصة
+    // ═══════════════════════════════════════════════════════
+    const errorCode = 
+        error?.code || 
+        error?.context?.code || 
+        error?.context?.error_code ||
+        null;
+    
+    if (errorCode && BOOKING_ERRORS[errorCode]) {
+        return window.openTroubleshootModal(toolName, errorCode, {
+            ...error,
+            serverMessage: error?.message || error?.context?.error
+        });
+    }
+    
+    // ── 1. الإنترنت (كما هو) ──
     if (!navigator.onLine) {
         return window.openTroubleshootModal(toolName, 'network');
     }
+    
+    // ... باقي الدالة كما هو ...
     if (error?.context?.status) {
         // اقرأ status ومرّره لـ handleHttpError
         return window.handleHttpError(toolName, {
@@ -8077,10 +8318,17 @@ window.handleFetchError = (toolName, error) => {
 window.handleHttpError = (toolName, response, extraDetails = {}) => {
     const status = response?.status;
     
-    // ── 1. الإنترنت ──
+    // ✅ جديد: التحقق من code الخطأ الخاص بالحجز أولاً
+    if (extraDetails.code && BOOKING_ERRORS[extraDetails.code]) {
+        return window.openTroubleshootModal(toolName, extraDetails.code, extraDetails);
+    }
+    
+    // ── 1. الإنترنت (كما هو) ──
     if (!navigator.onLine) {
         return window.openTroubleshootModal(toolName, 'network', extraDetails);
     }
+    
+    // ... باقي الدالة كما هو ...
     
     // ── 2. الأخطاء المعروفة ──
     if (status === 401) {
