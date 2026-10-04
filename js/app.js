@@ -8104,8 +8104,10 @@ function classifyError(toolName, issueType) {
   }
 
   function openTroubleshootModal(toolName = 'غير محددة', issueType = 'unknown', details = {}) {
-    if (!ISSUES[issueType]) issueType = 'unknown';
-    const issue = ISSUES[issueType];
+    // ✅ جديد: محرك التصنيف الذكي (يبحث في BOOKING_ERRORS أولاً)
+    const classified = classifyError(toolName, issueType);
+    const issue = classified.issue;
+    // لا حاجة للتحقق من ISSUES — classifyError يعيد unknown تلقائياً
         const errorId = generateErrorId();
     if (typeof window.logErrorToSupabase === 'function') {
     window.logErrorToSupabase({ errorId, issueType, toolName });
