@@ -6863,9 +6863,7 @@ window.addEventListener('online', () => {
 // دالة مساعدة لفحص الإنترنت قبل أي عملية حساسة
 window.checkOnlineStatus = () => {
     if (!navigator.onLine) {
-        if (typeof window.openTroubleshootModal === 'function') {
-            window.openTroubleshootModal('العملية المطلوبة', 'network');
-        }
+        if (window.showToast) showToast('لا يوجد اتصال بالإنترنت', 'error');
         return false;
     }
     return true;
