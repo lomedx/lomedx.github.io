@@ -3479,100 +3479,77 @@ window.previewMedicineImage = (event) => {
 }
 
 window.submitMedicineRequest = async (e) => {
-    e.preventDefault();
-    const submitBtn = document.getElementById('medSubmitBtn'); 
-    
-    // 1. دالة فحص الحقول (Validation) - محدثة لفحص الكلمات المسيئة
-    const validateInputs = () => {
-        const medListEl = document.getElementById('medList');
-        const phoneInput = document.getElementById('medPhone');
-        const medList = medListEl.value.trim();
-        const phone = phoneInput.value.trim();
-        const cfTokenEl = document.querySelector('[name="cf-turnstile-response"]');
-        
-        let errors = [];
-        
-        // فحص الكلمات المسيئة أولاً
-        if (containsBadWords(medList)) {
-            errors.push({ name: 'الأدوية المطلوبة', error: 'تم رفض الطلب لاحتوائه على كلمات غير لائقة.' });
-            medListEl.classList.add('input-invalid');
-        } else if (medList.length < 3) {
-            errors.push({ name: 'الأدوية المطلوبة', error: 'يرجى كتابة اسم الدواء بوضوح.' });
-            medListEl.classList.add('input-invalid');
-        } else {
-            medListEl.classList.remove('input-invalid');
-        }
-        
-        // فحص رقم الهاتف
-        if (!/^09\d{8}$/.test(phone)) {
-            errors.push({ name: 'رقم الهاتف', error: 'يجب أن يبدأ بـ 09 ويتكون من 10 أرقام.' });
-            phoneInput.classList.add('input-invalid');
-        } else {
-            phoneInput.classList.remove('input-invalid');
-        }
-        
-        // فحص التحقق الأمني
-        if (!cfTokenEl || !cfTokenEl.value) {
-            errors.push({ name: 'التحقق الأمني', error: 'يرجى إكمال التحقق الأمني.' });
-        }
-        
-        return errors.length > 0 ? errors : null;
-    };
+    e.preventDefault(); 
+    if (!window.checkOnlineStatus()) return; 
 
-    // 2. تنفيذ العملية عبر الـ Wrapper
-    const result = await window.executeAction(
-        'البحث عن دواء', 
-        async () => {
-            // === كود الإرسال الفعلي ===
-            const medList = document.getElementById('medList').value.trim();
-            const name = document.getElementById('medName').value.trim() || 'مريض'; 
-            const phone = document.getElementById('medPhone').value.trim(); 
-            const urgency = document.getElementById('medUrgency').value;
-            const fileInput = document.getElementById('medImage'); 
-            const file = fileInput.files[0]; 
-            const citySelect = document.getElementById('medCity');
-            const targetCity = citySelect ? citySelect.value : 'الرحيبة';
-            const cfToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
-
-            let imageUrl = '';
-            if (file) {
-                const formData = new FormData(); 
-                formData.append('image', file); 
-                const { data: imgData, error: imgError } = await supabase.functions.invoke('upload-image', { body: formData });
-                if (imgError) throw imgError;
-                if (imgData && imgData.success) imageUrl = imgData.data.url;
-            }
-
-            const medRef = `MED-${Math.floor(Math.random() * 900000) + 100000}`;
-            
-            const { data: reqData, error: reqError } = await supabase.functions.invoke('manage-public-requests', {
-                body: { 
-                    action: 'submit_request', type: 'medicine', patient_phone: phone, cf_token: cfToken, 
-                    payload: { med_ref: medRef, med_list: medList, urgency, patient_name: name, image_url: imageUrl, patient_push_id: localStorage.getItem('patient_push_id'), city: targetCity }
-                }
-            });
-
-            if (reqError) throw reqError; 
-            if (reqData && reqData.error) throw new Error(reqData.error);
-
-            sendPushNotification(null, "طلب دواء عاجل 💊", `المريض ${name} من ${targetCity} يبحث عن: ${medList}`, 'pharmacies', null, targetCity);
-            return { medRef, targetCity };
-        },
-        { button: submitBtn, validate: validateInputs, actionName: 'submit_medicine_request' }
-    );
-
-    // 3. معالجة النتيجة (نجاح أو فشل Validation)
-    
-    // إذا كان الخطأ بسيطاً (Validation) -> نعالجه برفق بدون نافذة كبيرة
-    if (!result.success && result.error === 'validation') {
-        const firstError = result.fields[0];
-        showToast(`${firstError.name}: ${firstError.error}`, 'error');
-        return; // توقف هنا، لا تفتح نافذة الأخطاء
+          // === التقاط توكن الحماية ===
+    const cfToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+    if (!cfToken) { 
+        showToast('يرجى الانتظار ثانية حتى يكتمل التحقق الأمني.'); 
+        return; 
     }
+    
+    const submitBtn = document.getElementById('medSubmitBtn'); 
+    const medList = document.getElementById('medList').value.trim();
+    const name = document.getElementById('medName').value.trim() || 'مريض'; 
+    const phoneInput = document.getElementById('medPhone'); 
+    const phone = phoneInput.value.trim(); 
+    const urgency = document.getElementById('medUrgency').value;
+    const fileInput = document.getElementById('medImage'); 
+    const file = fileInput.files[0]; 
+    
+    // جلب المدينة المختارة من الحقل الجديد
+    const citySelect = document.getElementById('medCity');
+    const targetCity = citySelect ? citySelect.value : 'الرحيبة'; // قيمة افتراضية احتياطية
+    
+    if (!medList) { showToast('الرجاء كتابة الأدوية المطلوبة'); return; }
+    if (!/^09\d{8}$/.test(phone)) { 
+        phoneInput.classList.add('input-invalid'); 
+        showToast('الرجاء إدخال رقم هاتف صحيح'); 
+        submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال لصيدليات مدينتي'; 
+        return; 
+    } 
+    phoneInput.classList.remove('input-invalid'); 
 
-    // إذا نجحت العملية -> اعرض شاشة النجاح
-    if (result.success) {
-        const { medRef, targetCity } = result.data;
+    submitBtn.disabled = true; 
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري إرسال الطلب...'; 
+
+    try { 
+        let imageUrl = '';
+        if (file) {
+            const formData = new FormData(); 
+            formData.append('image', file); 
+            const { data: funcData, error: funcError } = await supabase.functions.invoke('upload-image', { body: formData });
+            if (funcError) throw funcError;
+            if (funcData && funcData.success) imageUrl = funcData.data.url;
+        }
+
+        const medRef = `MED-${Math.floor(Math.random() * 900000) + 100000}`;
+        
+        // لاحظ هنا: لم نقم بإدراج الـ city كـ Column في قاعدة البيانات (لأنك تعتمد على الجداول الموجودة)
+        // لكننا أرسلناها مع بيانات الإشعار فقط
+        
+                const { data: reqData, error: reqError } = await supabase.functions.invoke('manage-public-requests', {
+            body: { 
+                action: 'submit_request',
+                type: 'medicine', patient_phone: phone, 
+                cf_token: cfToken, 
+                payload: { med_ref: medRef, med_list: medList, urgency: urgency, patient_name: name, image_url: imageUrl, patient_push_id: localStorage.getItem('patient_push_id'), city: targetCity }
+            }
+        });
+
+        if (reqError) {
+            let errorMsg = reqError.message;
+            if (reqError.context && typeof reqError.context.json === 'function') {
+                try { const errBody = await reqError.context.json(); if (errBody.error) errorMsg = errBody.error; } catch (e) {}
+            } else if (reqError.context && reqError.context.error) { errorMsg = reqError.context.error; }
+            throw new Error(errorMsg);
+        }
+        if (reqData && reqData.error) throw new Error(reqData.error);
+
+        // === إرسال الإشعار مستهدفين صيدليات المدينة المحددة فقط ===
+        sendPushNotification(null, "طلب دواء عاجل 💊", `المريض ${name} من ${targetCity} يبحث عن: ${medList}`, 'pharmacies', null, targetCity);
+        
         document.getElementById('modalContent').innerHTML = `
         <div class="p-8 text-center">
             <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style="background: var(--accent-light)">
@@ -3586,10 +3563,12 @@ window.submitMedicineRequest = async (e) => {
             </button>
             <p class="text-xs text-gray-400 mt-4">سيقوم النظام بإشعارك فور توفّر الدواء في أقرب صيدلية بمدينتك.</p>
             <button onclick="closeModal()" class="w-full py-2 mt-2 rounded-xl border font-bold text-sm" style="border-color: var(--border)">إغلاق</button>
-        </div>`;
-    }
-    
-    // ملاحظة: إذا كان الخطأ من نوع (Network أو Server)، الـ Wrapper سيكون قد فتح نافذة "مركز حل المشكلات" تلقائياً قبل الوصول لهنا.
+        </div>`; 
+    } catch (err) { 
+        showToast('حدث خطأ: ' + err.message, 'error'); 
+        submitBtn.disabled = false; 
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال لصيدليات مدينتي'; 
+    } 
 };
 window.quickLookup = async () => {
     let val = document.getElementById('quickLookupInput').value.trim().toUpperCase().replace(/#/g, '').replace(/\s/g, '');
