@@ -1,0 +1,3220 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#06070A">
+
+<title>مركز المساعدة وحل المشكلات | LomedX</title>
+<meta name="description" content="مركز دعم فني موحّد في LomedX — حلول فورية لكل المشاكل الشائعة + دليل شامل لكل أنظمة المنصة الطبية.">
+<meta name="keywords" content="مركز مساعدة, حل مشكلات, دعم فني, LomedX, حجز موعد, ملف صحي, بنك دم, سوريا">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://lomedx.pages.dev/help">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="مركز المساعدة وحل المشكلات | LomedX">
+<meta property="og:description" content="دعم فني موحّد — حلول فورية + دليل شامل لكل أنظمة LomedX.">
+<meta property="og:image" content="https://i.ibb.co/d09VBmky/37414.png">
+
+<link rel="icon" type="image/png" href="https://i.ibb.co/d09VBmky/37414.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════ */
+/* [1] Design Tokens                                                  */
+/* ═══════════════════════════════════════════════════════════════════ */
+:root {
+  --bg-base: #06070A;
+  --bg-panel: #0E1117;
+  --bg-elevated: #141821;
+  --bg-soft: #1A1F2B;
+  --bg-overlay: rgba(4, 5, 8, 0.88);
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-accent: rgba(212, 160, 64, 0.28);
+
+  --text-primary: #F5F7FA;
+  --text-secondary: #A0A7B5;
+  --text-tertiary: #6B7280;
+  --text-muted: #4A5060;
+
+  --gold: #D4A040;
+  --gold-light: #F0D77B;
+  --gold-bright: #FFD966;
+  --gold-glow: rgba(212, 160, 64, 0.5);
+
+  --danger: #EF4444;
+  --danger-glow: rgba(239, 68, 68, 0.35);
+  --warning: #F59E0B;
+  --success: #10B981;
+  --info: #3B82F6;
+
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --r-2xl: 32px;
+  --r-full: 9999px;
+
+  --shadow-sm: 0 4px 12px -2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 12px 32px -8px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 24px 64px -16px rgba(0, 0, 0, 0.75);
+  --shadow-xl: 0 32px 96px -24px rgba(0, 0, 0, 0.85);
+  --shadow-gold: 0 12px 40px -10px var(--gold-glow);
+  --shadow-gold-lg: 0 24px 72px -16px var(--gold-glow);
+
+  --font-arabic: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-kufi: 'Noto Kufi Arabic', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Menlo', monospace;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: var(--font-arabic);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+.bg-art {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bg-art::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(212, 160, 64, 0.10), transparent 50%),
+    radial-gradient(circle at 80% 30%, rgba(59, 130, 246, 0.06), transparent 45%),
+    radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.07), transparent 45%);
+  animation: bgDrift 20s ease-in-out infinite alternate;
+}
+
+@keyframes bgDrift {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.08) translate(-2%, -2%); }
+}
+
+.bg-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* [2] Main Layout                                                   */
+/* ═══════════════════════════════════════════════════════════════════ */
+.page-wrap {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* [3] Hero — Logo Morphing Animation                                */
+/* ═══════════════════════════════════════════════════════════════════ */
+.hero {
+  text-align: center;
+  margin-bottom: 48px;
+  animation: heroEnter 1s var(--ease-out);
+  max-width: 760px;
+}
+
+@keyframes heroEnter {
+  from { opacity: 0; transform: translateY(30px); filter: blur(8px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* ─── حاوية الشعار ─── */
+.hero-logo-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 36px;
+  min-height: 130px;
+  padding: 0 40px;
+  perspective: 1000px;
+}
+
+/* ─── صندوق Morphing ─── */
+.logo-morph-box {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  border-radius: 26px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-bright) 45%, var(--gold-light) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1A1508;
+  font-family: var(--font-kufi);
+  font-weight: 900;
+  box-shadow:
+    var(--shadow-gold-lg),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: morphExpand 8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+  transform-origin: center;
+  will-change: width, height, border-radius;
+}
+
+/* اللمعان المتحرك */
+.logo-morph-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+  transform: skewX(-25deg);
+  animation: morphShine 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ─── الحرف L ─── */
+.logo-morph-letter {
+  position: absolute;
+  font-size: 3.2rem;
+  line-height: 1;
+  letter-spacing: -2px;
+  will-change: opacity, transform;
+  animation: morphLetterOut 8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+
+/* ─── نص LomedX ─── */
+.logo-morph-text {
+  position: absolute;
+  font-size: 3.1rem;
+  line-height: 1;
+  letter-spacing: -2px;
+  white-space: nowrap;
+  opacity: 0;
+  will-change: opacity, transform, filter;
+  animation: morphTextIn 8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+
+/* ═══ Keyframes ═══ */
+
+/* تمدد الصندوق من مربع إلى مستطيل ثم يعود */
+@keyframes morphExpand {
+  0%, 12% {
+    width: 108px;
+    height: 108px;
+    border-radius: 26px;
+  }
+  22%, 30% {
+    width: 420px;
+    height: 108px;
+    border-radius: 54px;
+  }
+  40%, 68% {
+    width: 420px;
+    height: 108px;
+    border-radius: 54px;
+  }
+  78%, 86% {
+    width: 108px;
+    height: 108px;
+    border-radius: 26px;
+  }
+  92%, 100% {
+    width: 108px;
+    height: 108px;
+    border-radius: 26px;
+  }
+}
+
+/* اختفاء الحرف L */
+@keyframes morphLetterOut {
+  0%, 15% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+  22%, 68% {
+    opacity: 0;
+    transform: scale(0.4) rotate(-90deg);
+  }
+  78%, 100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+/* ظهور نص LomedX */
+@keyframes morphTextIn {
+  0%, 20% {
+    opacity: 0;
+    transform: scale(0.5);
+    filter: blur(12px);
+  }
+  32%, 66% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  78%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+    filter: blur(12px);
+  }
+}
+
+/* اللمعان */
+@keyframes morphShine {
+  0%, 15% { left: -150%; }
+  35% { left: 150%; }
+  65% { left: 150%; }
+  85%, 100% { left: -150%; }
+}
+
+/* ─── العنوان الفرعي ─── */
+.hero-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.8;
+  font-weight: 400;
+  opacity: 0;
+  animation: fadeUp 0.8s var(--ease-out) 1s forwards;
+}
+
+.hero-subtitle strong {
+  color: var(--gold-light);
+  font-weight: 700;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* [4] CTA Cards                                                     */
+/* ═══════════════════════════════════════════════════════════════════ */
+.cta-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  width: 100%;
+  max-width: 720px;
+  opacity: 0;
+  animation: fadeUp 0.8s var(--ease-out) 1.4s forwards;
+}
+
+.main-cta {
+  position: relative;
+  background: linear-gradient(155deg, var(--bg-elevated) 0%, var(--bg-panel) 55%, var(--bg-base) 100%);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-2xl);
+  padding: 36px 32px;
+  cursor: pointer;
+  overflow: hidden;
+  text-align: right;
+  font-family: inherit;
+  color: inherit;
+  transition: all 0.5s var(--ease-out);
+  isolation: isolate;
+  box-shadow:
+    var(--shadow-xl),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 0 0 1px rgba(212, 160, 64, 0.05);
+}
+
+.main-cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--gold-bright), var(--gold), transparent);
+  opacity: 0.9;
+}
+
+.main-cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(212, 160, 64, 0.15), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.main-cta:hover {
+  transform: translateY(-6px);
+  border-color: var(--border-accent);
+  box-shadow:
+    0 40px 100px -20px rgba(212, 160, 64, 0.35),
+    0 24px 64px -16px rgba(0, 0, 0, 0.8);
+}
+
+.main-cta:hover::after { opacity: 1; }
+.main-cta:active { transform: translateY(-3px) scale(0.995); }
+
+.main-cta-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.main-cta-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--r-lg);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-bright) 50%, var(--gold-light) 100%);
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+  color: #1A1508;
+  flex-shrink: 0;
+  box-shadow: 0 12px 32px -8px var(--gold-glow), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 0.5s var(--ease-spring);
+  position: relative;
+  overflow: hidden;
+}
+
+.main-cta-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.main-cta:hover .main-cta-icon { transform: scale(1.08) rotate(-8deg); }
+.main-cta:hover .main-cta-icon::before { transform: translateX(100%); }
+
+.main-cta-text { flex: 1; min-width: 0; }
+
+.main-cta-title {
+  font-family: var(--font-kufi);
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+  line-height: 1.3;
+}
+
+.main-cta-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.main-cta-arrow {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-md);
+  background: rgba(212, 160, 64, 0.08);
+  border: 1px solid var(--border-accent);
+  display: grid;
+  place-items: center;
+  color: var(--gold-light);
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: all 0.35s var(--ease-out);
+}
+
+.main-cta:hover .main-cta-arrow {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: #1A1508;
+  border-color: transparent;
+  transform: translateX(-4px);
+  box-shadow: 0 8px 24px -6px var(--gold-glow);
+}
+
+.quick-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.quick-tab {
+  position: relative;
+  background: linear-gradient(155deg, var(--bg-elevated) 0%, var(--bg-panel) 100%);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-xl);
+  padding: 24px 22px;
+  cursor: pointer;
+  overflow: hidden;
+  text-align: right;
+  font-family: inherit;
+  color: inherit;
+  transition: all 0.4s var(--ease-out);
+  isolation: isolate;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+.quick-tab::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 3px; height: 100%;
+  background: var(--tab-color, var(--gold));
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.4s var(--ease-out);
+}
+
+.quick-tab::after {
+  content: '';
+  position: absolute;
+  top: -50%; right: -50%;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, var(--tab-glow, var(--gold-glow)), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.quick-tab:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(212, 160, 64, 0.15);
+}
+
+.quick-tab:hover::before { transform: scaleY(1); }
+.quick-tab:hover::after { opacity: 0.6; }
+.quick-tab:active { transform: translateY(-2px) scale(0.99); }
+
+.quick-tab[data-tab-color="gold"] { --tab-color: var(--gold); --tab-glow: var(--gold-glow); }
+.quick-tab[data-tab-color="blue"] { --tab-color: #3B82F6; --tab-glow: rgba(59, 130, 246, 0.4); }
+
+.quick-tab-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  color: var(--tab-color, var(--gold));
+  background: linear-gradient(135deg, var(--tab-glow, var(--gold-glow)), transparent);
+  border: 1px solid var(--tab-color, var(--gold));
+  opacity: 0.85;
+  transition: all 0.35s var(--ease-spring);
+  position: relative;
+  z-index: 2;
+}
+
+.quick-tab:hover .quick-tab-icon {
+  transform: scale(1.1) rotate(-6deg);
+  background: var(--tab-color, var(--gold));
+  color: #1A1508;
+  opacity: 1;
+}
+
+.quick-tab-info { flex: 1; min-width: 0; position: relative; z-index: 2; }
+
+.quick-tab-title {
+  font-family: var(--font-kufi);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  letter-spacing: -0.2px;
+}
+
+.quick-tab-desc {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.quick-tab-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  margin-top: 10px;
+  direction: ltr;
+}
+
+.quick-tab-count i { font-size: 8px; color: var(--tab-color, var(--gold)); }
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* [5] Footer                                                        */
+/* ═══════════════════════════════════════════════════════════════════ */
+.page-footer {
+  margin-top: 56px;
+  text-align: center;
+  opacity: 0;
+  animation: fadeUp 0.8s var(--ease-out) 1.8s forwards;
+  max-width: 720px;
+}
+
+.page-footer-divider {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 0 auto 24px;
+  border-radius: var(--r-full);
+  opacity: 0.5;
+}
+
+.page-footer p {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  line-height: 1.9;
+  font-weight: 500;
+}
+
+.page-footer a {
+  color: var(--gold-light);
+  text-decoration: none;
+  font-weight: 700;
+  transition: color 0.2s;
+  direction: ltr;
+  display: inline-block;
+}
+
+.page-footer a:hover { color: var(--gold-bright); text-decoration: underline; }
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* [6] Help Center Overlay                                           */
+/* ═══════════════════════════════════════════════════════════════════ */
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s;
+  padding-top: max(20px, env(safe-area-inset-top));
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+.help-overlay.active { opacity: 1; visibility: visible; }
+
+.help-panel-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100dvh - 40px);
+  background: linear-gradient(160deg, var(--bg-panel) 0%, var(--bg-base) 100%);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(212, 160, 64, 0.08);
+  transform: scale(0.94) translateY(16px);
+  opacity: 0;
+  transition: transform 0.45s var(--ease-out), opacity 0.35s ease;
+}
+
+.help-panel-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--gold-bright), var(--gold), transparent);
+  z-index: 3;
+}
+
+.help-overlay.active .help-panel-wrapper { transform: scale(1) translateY(0); opacity: 1; }
+
+.help-handle {
+  display: none;
+  position: absolute;
+  top: 10px; left: 50%;
+  transform: translateX(-50%);
+  width: 44px; height: 5px;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.18);
+  z-index: 5;
+}
+
+.help-header {
+  position: relative;
+  padding: 26px 24px 0;
+  background: linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-panel) 100%);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.help-header::after {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, var(--gold-glow), transparent 70%);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.help-header-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.help-header-icon {
+  width: 48px; height: 48px;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-bright) 100%);
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  color: #1A1508;
+  box-shadow: 0 8px 20px -6px var(--gold-glow), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.help-header-text { flex: 1; min-width: 0; }
+
+.help-header h2 {
+  font-family: var(--font-kufi);
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.help-subtitle {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  margin: 0;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.help-close {
+  width: 38px; height: 38px;
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  transition: all 0.25s var(--ease-out);
+  flex-shrink: 0;
+}
+
+.help-close:hover {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+.help-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 4px;
+  position: relative;
+  z-index: 2;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.help-tab {
+  position: relative;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  font-family: var(--font-kufi);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.25s var(--ease-out);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+}
+
+.help-tab:hover { color: var(--text-secondary); background: rgba(255, 255, 255, 0.02); }
+.help-tab.active { color: var(--gold-light); background: rgba(212, 160, 64, 0.06); }
+
+.help-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 12px; right: 12px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+  border-radius: var(--r-full) var(--r-full) 0 0;
+}
+
+.help-tab i { font-size: 13px; }
+
+.help-tab-badge {
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  background: rgba(212, 160, 64, 0.15);
+  color: var(--gold-light);
+  font-size: 10px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  direction: ltr;
+}
+
+.help-search-wrap {
+  position: relative;
+  padding: 16px 24px 8px;
+  flex-shrink: 0;
+  background: var(--bg-panel);
+}
+
+.help-search-wrap > i.fa-search {
+  position: absolute;
+  top: 50%; right: 40px;
+  transform: translateY(-35%);
+  color: var(--text-tertiary);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+#helpSearchInput {
+  width: 100%;
+  padding: 13px 44px 13px 44px;
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--r-md);
+  font-family: inherit;
+  font-size: 13.5px;
+  background: var(--bg-elevated);
+  transition: all 0.25s ease;
+  outline: none;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+#helpSearchInput::placeholder { color: var(--text-tertiary); font-weight: 400; }
+
+#helpSearchInput:focus {
+  border-color: var(--gold);
+  background: var(--bg-soft);
+  box-shadow: 0 0 0 4px var(--gold-glow);
+}
+
+.help-search-clear {
+  position: absolute;
+  top: 50%; left: 38px;
+  transform: translateY(-38%);
+  width: 26px; height: 26px;
+  border-radius: var(--r-full);
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+
+#helpSearchInput:not(:placeholder-shown) ~ .help-search-clear { opacity: 1; pointer-events: auto; }
+.help-search-clear:hover { background: rgba(239, 68, 68, 0.15); color: #F87171; }
+
+.help-topics {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 24px 20px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 160, 64, 0.3) transparent;
+}
+
+.help-topics::-webkit-scrollbar { width: 6px; }
+.help-topics::-webkit-scrollbar-thumb { background: rgba(212, 160, 64, 0.25); border-radius: var(--r-full); }
+
+.help-panel { display: none; animation: panelFadeIn 0.35s var(--ease-out); }
+.help-panel.active { display: block; }
+
+@keyframes panelFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ts-groups { display: flex; flex-direction: column; gap: 24px; }
+
+.ts-group-title {
+  font-family: var(--font-kufi);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--gold-light);
+  margin-bottom: 12px;
+  padding-right: 12px;
+  border-right: 3px solid var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ts-group-title i { color: var(--gold); font-size: 12px; }
+
+.ts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.ts-card {
+  position: relative;
+  background: linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-panel) 100%);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: 14px 12px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-out);
+  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: inherit;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 600;
+  min-height: 68px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.ts-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 3px; height: 100%;
+  background: var(--gold);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.ts-card:hover::before { transform: scaleY(1); }
+
+.ts-card:hover {
+  background: linear-gradient(160deg, var(--bg-soft) 0%, var(--bg-elevated) 100%);
+  border-color: var(--border-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-primary);
+}
+
+.ts-card-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--r-sm);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(212, 160, 64, 0.15), rgba(212, 160, 64, 0.05));
+  color: var(--gold-light);
+  transition: all 0.3s var(--ease-out);
+}
+
+.ts-card:hover .ts-card-icon {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--bg-base);
+  transform: scale(1.08) rotate(-5deg);
+}
+
+.ts-card-text { flex: 1; line-height: 1.35; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ts-card-text strong {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-family: var(--font-kufi);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ts-card-text small { font-size: 10.5px; color: var(--text-tertiary); font-weight: 500; }
+
+.ts-grid--faq { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.ts-card--faq { padding: 16px 14px; min-height: 76px; position: relative; }
+
+.ts-card-count {
+  position: absolute;
+  top: 8px; left: 8px;
+  min-width: 24px; height: 24px;
+  padding: 0 6px;
+  border-radius: var(--r-full);
+  background: rgba(212, 160, 64, 0.15);
+  border: 1px solid rgba(212, 160, 64, 0.25);
+  color: var(--gold-light);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  transition: all 0.3s var(--ease-out);
+}
+
+.ts-card--faq:hover .ts-card-count {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--bg-base);
+  border-color: transparent;
+}
+
+.help-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-tertiary);
+}
+
+.help-empty .empty-icon {
+  width: 72px; height: 72px;
+  margin: 0 auto 16px;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  color: var(--text-muted);
+}
+
+.help-empty p {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin: 0 0 6px;
+  font-family: var(--font-kufi);
+}
+
+.help-empty span { font-size: 12px; color: var(--text-muted); }
+
+.help-footer {
+  padding: 16px 24px;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.help-footer p {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  margin: 0;
+  font-weight: 500;
+}
+
+.help-support-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #1A1508;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--r-md);
+  font-family: var(--font-kufi);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s var(--ease-out);
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px -4px var(--gold-glow);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.help-support-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -6px var(--gold-glow); }
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* [7] Nested Modal                                                  */
+/* ═══════════════════════════════════════════════════════════════════ */
+.ts-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  z-index: 100050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s;
+}
+
+.ts-overlay.active { opacity: 1; visibility: visible; }
+
+.ts-panel-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  max-height: calc(100dvh - 40px);
+  background: linear-gradient(160deg, var(--bg-panel) 0%, var(--bg-base) 100%);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-xl);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 26px 24px 22px;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(212, 160, 64, 0.08);
+  transform: scale(0.94) translateY(16px);
+  opacity: 0;
+  transition: transform 0.45s var(--ease-out), opacity 0.35s ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 160, 64, 0.4) transparent;
+}
+
+.ts-panel-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--gold-bright), var(--gold), transparent);
+  z-index: 3;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+}
+
+.ts-overlay.active .ts-panel-wrapper { transform: scale(1) translateY(0); opacity: 1; }
+
+.ts-panel-wrapper::-webkit-scrollbar { width: 5px; }
+.ts-panel-wrapper::-webkit-scrollbar-thumb { background: rgba(212, 160, 64, 0.4); border-radius: var(--r-full); }
+
+.ts-handle {
+  display: none;
+  position: absolute;
+  top: 10px; left: 50%;
+  transform: translateX(-50%);
+  width: 44px; height: 5px;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.18);
+  z-index: 5;
+}
+
+.ts-close {
+  position: absolute;
+  top: 16px; left: 16px;
+  width: 38px; height: 38px;
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.25s var(--ease-out);
+  font-size: 13px;
+  z-index: 10;
+}
+
+.ts-close:hover { background: var(--danger); border-color: var(--danger); color: #fff; transform: rotate(90deg); }
+
+.ts-panel-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 0 44px;
+}
+
+.ts-panel-header h3 {
+  font-family: var(--font-kufi);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.ts-panel { direction: rtl; text-align: right; }
+
+.ts-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.ts-icon-wrap { position: relative; width: 72px; height: 72px; display: grid; place-items: center; }
+
+.ts-icon-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0.12;
+  animation: tsPulse 3.5s ease-in-out infinite;
+  filter: blur(8px);
+}
+
+.ts-icon-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  opacity: 0.2;
+  animation: tsRing 2.8s ease-out infinite;
+}
+
+@keyframes tsPulse {
+  0%, 100% { transform: scale(1); opacity: 0.12; }
+  50% { transform: scale(1.08); opacity: 0.18; }
+}
+
+@keyframes tsRing {
+  0% { transform: scale(0.92); opacity: 0.35; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+.ts-icon-main {
+  position: relative;
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  color: #fff;
+  box-shadow: 0 8px 24px -8px currentColor, inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  z-index: 2;
+}
+
+.ts-title {
+  font-family: var(--font-kufi);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.ts-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ts-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--r-full);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  font-family: inherit;
+}
+
+.ts-badge i { font-size: 10px; }
+.ts-badge--tool { border-left: 1px solid var(--border-subtle); padding-left: 14px; color: var(--text-secondary); }
+
+.ts-badge--id {
+  font-family: var(--font-mono);
+  cursor: pointer;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+  transition: all 0.2s var(--ease-out);
+  direction: ltr;
+  font-size: 10px;
+  border: none;
+}
+
+.ts-badge--id:hover { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--bg-base); }
+
+.ts-section {
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border: 1px solid;
+  position: relative;
+  overflow: hidden;
+}
+
+.ts-section::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 3px; height: 100%;
+}
+
+.ts-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  font-family: var(--font-kufi);
+}
+
+.ts-section-title i { font-size: 12px; width: 16px; text-align: center; }
+
+.ts-section-body {
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin: 0;
+}
+
+.ts-section--reason {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.09), rgba(239, 68, 68, 0.025));
+  border-color: rgba(239, 68, 68, 0.22);
+}
+.ts-section--reason::before { background: linear-gradient(180deg, #ef4444, #dc2626); }
+.ts-section--reason .ts-section-title { color: #FCA5A5; }
+
+.ts-section--causes {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02));
+  border-color: rgba(245, 158, 11, 0.22);
+}
+.ts-section--causes::before { background: linear-gradient(180deg, #f59e0b, #d97706); }
+.ts-section--causes .ts-section-title { color: #FCD34D; }
+
+.ts-section--solution {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.09), rgba(16, 185, 129, 0.025));
+  border-color: rgba(16, 185, 129, 0.22);
+}
+.ts-section--solution::before { background: linear-gradient(180deg, #10b981, #059669); }
+.ts-section--solution .ts-section-title { color: #6EE7B7; }
+
+.ts-section--validation {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.09), rgba(245, 158, 11, 0.025));
+  border-color: rgba(245, 158, 11, 0.24);
+}
+.ts-section--validation::before { background: linear-gradient(180deg, #f59e0b, #d97706); }
+.ts-section--validation .ts-section-title { color: #FCD34D; }
+
+.ts-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ts-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(251, 191, 36, 0.12);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.ts-list-item i {
+  color: #F87171;
+  font-size: 11px;
+  margin-top: 3px;
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+}
+
+.ts-list-item strong { color: var(--text-primary); font-weight: 700; }
+
+.ts-list--causes .ts-list-item--cause {
+  border-color: rgba(245, 158, 11, 0.1);
+  padding: 7px 10px;
+}
+
+.ts-list--causes .ts-list-item--cause i { color: var(--warning); font-size: 5px; margin-top: 8px; }
+
+.ts-countdown {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(245, 158, 11, 0.03));
+  border: 1.5px solid rgba(245, 158, 11, 0.32);
+  border-radius: var(--r-lg);
+  padding: 18px 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.ts-countdown::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.14) 0%, transparent 70%);
+  animation: tsRotate 12s linear infinite;
+}
+
+@keyframes tsRotate { to { transform: rotate(360deg); } }
+
+.ts-countdown-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #FCD34D;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: var(--font-kufi);
+}
+
+.ts-countdown-value {
+  font-size: 42px;
+  font-weight: 900;
+  color: #FBBF24;
+  letter-spacing: 3px;
+  line-height: 1;
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-mono);
+}
+
+.ts-countdown-value.is-ready { color: var(--success); font-size: 18px; letter-spacing: 0; }
+
+.ts-quickfixes { margin-top: 8px; }
+
+.ts-quickfixes-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 10px;
+  font-family: var(--font-kufi);
+}
+
+.ts-quickfixes-title i { color: var(--warning); animation: tsBolt 2.2s ease-in-out infinite; }
+
+@keyframes tsBolt {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18) rotate(-6deg); }
+}
+
+.ts-quickfixes-grid { display: grid; grid-template-columns: 1fr; gap: 7px; }
+
+.ts-quickfix {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 13px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.025);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.25s var(--ease-out);
+  text-align: right;
+  font-family: inherit;
+  width: 100%;
+}
+
+.ts-quickfix:hover { border-color: var(--info); background: rgba(59, 130, 246, 0.08); transform: translateY(-2px); color: var(--text-primary); }
+
+.ts-quickfix--primary { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: #fff; border-color: transparent; }
+
+.ts-quickfix-icon {
+  width: 30px; height: 30px;
+  border-radius: var(--r-sm);
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--info);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.ts-quickfix--primary .ts-quickfix-icon { background: rgba(255, 255, 255, 0.22); color: #fff; }
+
+.ts-quickfix-text { flex: 1; line-height: 1.45; }
+
+.ts-quickfix-arrow { color: var(--text-muted); font-size: 10px; opacity: 0; transition: all 0.25s var(--ease-out); }
+.ts-quickfix:hover .ts-quickfix-arrow { opacity: 1; }
+
+.ts-connection-result {
+  margin-top: 10px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px 14px;
+  font-size: 12px;
+}
+
+.ts-connection-result.hidden { display: none; }
+
+.ts-connection-status { display: flex; align-items: center; gap: 9px; font-weight: 700; }
+.ts-connection-status--ok { color: #6EE7B7; }
+.ts-connection-status--fail { color: #FCA5A5; }
+.ts-connection-status--loading { color: var(--text-tertiary); }
+
+.ts-connection-time { font-family: var(--font-mono); font-size: 10.5px; opacity: 0.75; margin-right: auto; }
+
+.ts-details {
+  margin-top: 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.025);
+  overflow: hidden;
+}
+
+.ts-details[open] { background: rgba(255, 255, 255, 0.045); border-color: var(--border-accent); }
+
+.ts-details-summary {
+  padding: 12px 15px;
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+  font-family: var(--font-kufi);
+  list-style: none;
+}
+
+.ts-details-summary::-webkit-details-marker { display: none; }
+.ts-details-summary span { display: flex; align-items: center; gap: 8px; }
+.ts-details-summary i.fa-headset { color: var(--info); font-size: 12px; }
+
+.ts-details-arrow { font-size: 10px; transition: transform 0.3s var(--ease-out); }
+.ts-details[open] .ts-details-arrow { transform: rotate(180deg); }
+
+.ts-details-content { padding: 4px 15px 14px; }
+
+.ts-details-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+  font-size: 11.5px;
+}
+
+.ts-details-row:last-of-type { border-bottom: none; }
+
+.ts-details-key { color: var(--text-tertiary); font-weight: 600; display: flex; align-items: center; gap: 7px; }
+.ts-details-key i { font-size: 10px; color: var(--info); width: 12px; text-align: center; }
+
+.ts-details-value {
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-align: left;
+  word-break: break-word;
+  direction: ltr;
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+.ts-details-note {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ts-details-note i { color: var(--info); }
+
+.ts-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 16px; }
+
+.ts-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 15px;
+  border-radius: var(--r-md);
+  font-family: var(--font-kufi);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.25s var(--ease-out);
+}
+
+.ts-btn--primary {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #1A1508;
+  box-shadow: 0 6px 20px -6px var(--gold-glow);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.ts-btn--primary:hover { transform: translateY(-2px); }
+
+.ts-btn--secondary {
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.ts-btn--secondary:hover { background: rgba(255, 255, 255, 0.09); color: var(--text-primary); }
+
+.ts-support-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px 15px;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.04));
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #93C5FD;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-kufi);
+  width: 100%;
+  transition: all 0.25s var(--ease-out);
+}
+
+.ts-support-link:hover { background: rgba(59, 130, 246, 0.18); transform: translateY(-2px); }
+
+.faq-section-intro {
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  background: rgba(212, 160, 64, 0.04);
+  border: 1px solid rgba(212, 160, 64, 0.12);
+  border-right: 3px solid var(--gold);
+  border-radius: var(--r-md);
+}
+
+.faq-section-intro p { font-size: 12.5px; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+
+.faq-section-list { display: flex; flex-direction: column; gap: 8px; }
+
+.faq-item {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.02);
+  overflow: hidden;
+  transition: all 0.3s var(--ease-out);
+}
+
+.faq-item:hover { border-color: var(--border-default); background: rgba(255, 255, 255, 0.035); }
+.faq-item.open { border-color: rgba(212, 160, 64, 0.25); background: rgba(212, 160, 64, 0.03); }
+
+.faq-item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  width: 100%;
+  text-align: right;
+  cursor: pointer;
+}
+
+.faq-item-num {
+  width: 28px; height: 28px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, rgba(212, 160, 64, 0.18), rgba(212, 160, 64, 0.06));
+  border: 1px solid rgba(212, 160, 64, 0.2);
+  color: var(--gold-light);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: all 0.25s var(--ease-out);
+}
+
+.faq-item.open .faq-item-num { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--bg-base); border-color: transparent; }
+
+.faq-item-q {
+  flex: 1;
+  font-family: var(--font-kufi);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.faq-item.open .faq-item-q { color: var(--gold-light); }
+
+.faq-item-chevron { color: var(--text-tertiary); font-size: 12px; transition: transform 0.3s var(--ease-out); }
+.faq-item.open .faq-item-chevron { transform: rotate(180deg); color: var(--gold); }
+
+.faq-item-body { display: none; padding: 0 16px 16px; }
+.faq-item.open .faq-item-body { display: block; animation: faqSlideIn 0.3s var(--ease-out); }
+
+@keyframes faqSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.faq-item-answer {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: var(--r-md);
+  border-right: 3px solid var(--gold);
+}
+
+.faq-item-answer ul, .faq-item-answer ol { padding-right: 20px; margin: 8px 0; }
+.faq-item-answer ul { list-style: none; }
+.faq-item-answer ul li { position: relative; padding-right: 16px; margin-bottom: 5px; }
+.faq-item-answer ul li::before {
+  content: '';
+  position: absolute;
+  right: 0; top: 9px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.7;
+}
+.faq-item-answer ol { list-style: decimal; }
+.faq-item-answer ol li { margin-bottom: 5px; }
+.faq-item-answer ol li::marker { color: var(--gold-light); font-weight: 800; }
+.faq-item-answer strong { color: var(--text-primary); font-weight: 700; }
+.faq-item-answer code {
+  background: rgba(212, 160, 64, 0.08);
+  border: 1px solid rgba(212, 160, 64, 0.2);
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--gold-light);
+  direction: ltr;
+  display: inline-block;
+}
+
+.faq-item-body .help-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 11px 14px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.03));
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-right: 3px solid var(--warning);
+  border-radius: var(--r-md);
+  font-size: 12.5px;
+  color: #FCD34D;
+  line-height: 1.6;
+}
+
+.faq-item-body .help-tip i { color: var(--warning); margin-top: 2px; }
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* [8] Toast                                                          */
+/* ═══════════════════════════════════════════════════════════════════ */
+.lomedx-toast-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  max-width: 92%;
+  width: 420px;
+}
+
+.lomedx-toast {
+  padding: 14px 18px;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-panel) 100%);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.4s var(--ease-out);
+  backdrop-filter: blur(10px);
+}
+
+.lomedx-toast.show { opacity: 1; transform: translateY(0); }
+.lomedx-toast--success { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05)); border-color: rgba(16, 185, 129, 0.4); color: #6EE7B7; }
+.lomedx-toast--error { background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05)); border-color: rgba(239, 68, 68, 0.4); color: #FCA5A5; }
+.lomedx-toast--info { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05)); border-color: rgba(59, 130, 246, 0.4); color: #93C5FD; }
+.lomedx-toast--warning { background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05)); border-color: rgba(245, 158, 11, 0.4); color: #FCD34D; }
+.lomedx-toast i { font-size: 1.1rem; flex-shrink: 0; }
+.lomedx-toast span { flex: 1; line-height: 1.45; }
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* [9] Responsive                                                     */
+/* ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 720px) {
+  .page-wrap { padding: 40px 16px; }
+
+  .hero-logo-wrap { min-height: 110px; padding: 0 20px; }
+  .logo-morph-box { width: 84px; height: 84px; border-radius: 22px; }
+  .logo-morph-letter { font-size: 2.4rem; }
+  .logo-morph-text { font-size: 2.35rem; letter-spacing: -1.5px; }
+  @keyframes morphExpand {
+    0%, 12% { width: 84px; height: 84px; border-radius: 22px; }
+    22%, 30% { width: 330px; height: 84px; border-radius: 42px; }
+    40%, 68% { width: 330px; height: 84px; border-radius: 42px; }
+    78%, 86% { width: 84px; height: 84px; border-radius: 22px; }
+    92%, 100% { width: 84px; height: 84px; border-radius: 22px; }
+  }
+
+  .hero-subtitle { font-size: 0.95rem; }
+
+  .main-cta { padding: 28px 22px; border-radius: var(--r-xl); }
+  .main-cta-content { gap: 16px; }
+  .main-cta-icon { width: 58px; height: 58px; font-size: 26px; border-radius: var(--r-md); }
+  .main-cta-title { font-size: 1.15rem; }
+  .main-cta-desc { font-size: 12px; }
+  .main-cta-arrow { width: 40px; height: 40px; font-size: 14px; }
+
+  .quick-tabs { grid-template-columns: 1fr; gap: 12px; }
+  .quick-tab { padding: 20px 18px; }
+  .quick-tab-icon { width: 40px; height: 40px; font-size: 16px; }
+
+  .page-footer { margin-top: 40px; }
+
+  .help-overlay {
+    align-items: flex-end;
+    padding: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .help-panel-wrapper {
+    max-width: 100%;
+    max-height: 92dvh;
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+    border-bottom: none;
+    transform: translateY(100%);
+  }
+
+  .help-overlay.active .help-panel-wrapper { transform: translateY(0); }
+  .help-handle { display: block; }
+  .help-header { padding: 32px 18px 0; }
+  .help-header-icon { width: 42px; height: 42px; font-size: 18px; }
+  .help-header h2 { font-size: 17px; }
+  .help-tab { padding: 11px 12px; font-size: 12.5px; }
+  .help-search-wrap { padding: 14px 18px 8px; }
+  .help-search-wrap > i.fa-search { right: 32px; }
+  .help-search-clear { left: 30px; }
+  .help-topics { padding: 10px 18px 16px; }
+  .help-footer { padding: 14px 18px; flex-direction: column; gap: 10px; }
+  .help-support-btn { width: 100%; justify-content: center; }
+
+  .ts-grid { grid-template-columns: 1fr 1fr; }
+
+  .ts-panel-wrapper {
+    max-width: 100%;
+    width: 100%;
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+    padding: 32px 18px 24px;
+    max-height: 92dvh;
+  }
+
+  .ts-handle { display: block; }
+  .ts-close { top: 16px; right: 18px; left: auto; }
+}
+
+@media (max-width: 400px) {
+  .ts-grid { grid-template-columns: 1fr; }
+  .help-tab { padding: 10px 10px; font-size: 11.5px; }
+  .help-tab-badge { display: none; }
+  .ts-actions { grid-template-columns: 1fr; }
+
+  .hero-logo-wrap { min-height: 100px; padding: 0 16px; }
+  .logo-morph-box { width: 72px; height: 72px; border-radius: 20px; }
+  .logo-morph-letter { font-size: 2rem; }
+  .logo-morph-text { font-size: 1.95rem; letter-spacing: -1px; }
+  @keyframes morphExpand {
+    0%, 12% { width: 72px; height: 72px; border-radius: 20px; }
+    22%, 30% { width: 280px; height: 72px; border-radius: 36px; }
+    40%, 68% { width: 280px; height: 72px; border-radius: 36px; }
+    78%, 86% { width: 72px; height: 72px; border-radius: 20px; }
+    92%, 100% { width: 72px; height: 72px; border-radius: 20px; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .logo-morph-box {
+    width: 420px !important;
+    height: 108px !important;
+    border-radius: 54px !important;
+  }
+  .logo-morph-letter { display: none !important; }
+  .logo-morph-text { opacity: 1 !important; transform: none !important; filter: none !important; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg-art" aria-hidden="true"></div>
+
+<main class="page-wrap" role="main">
+
+  <header class="hero">
+    <div class="hero-logo-wrap">
+      <div class="logo-morph-box">
+        <div class="logo-morph-letter">L</div>
+        <div class="logo-morph-text">LomedX</div>
+      </div>
+    </div>
+
+    <p class="hero-subtitle">
+      نظام دعم فني متكامل يجمع بين <strong>حلول فورية للأخطاء</strong> و<strong>دليل شامل</strong> لكل أنظمة المنصة الطبية — في نافذة واحدة أنيقة.
+    </p>
+  </header>
+
+  <div class="cta-grid">
+    <button type="button" class="main-cta" data-ts-action="open-help">
+      <div class="main-cta-content">
+        <div class="main-cta-icon"><i class="fas fa-circle-question"></i></div>
+        <div class="main-cta-text">
+          <div class="main-cta-title">افتح مركز المساعدة</div>
+          <div class="main-cta-desc">حلول فورية + دليل شامل + بحث ذكي في كل الأنظمة</div>
+        </div>
+        <div class="main-cta-arrow"><i class="fas fa-arrow-left"></i></div>
+      </div>
+    </button>
+
+    <div class="quick-tabs">
+      <button type="button" class="quick-tab" data-tab-color="gold" data-ts-action="open-tab" data-open-tab="troubleshoot">
+        <div class="quick-tab-icon"><i class="fas fa-bolt"></i></div>
+        <div class="quick-tab-info">
+          <div class="quick-tab-title">حلول فورية</div>
+          <div class="quick-tab-desc">مشاكل شائعة وحلولها الجاهزة</div>
+          <div class="quick-tab-count">
+            <i class="fas fa-circle"></i>
+            <span id="countTs">0</span>
+            <span style="opacity: 0.6;">حل</span>
+          </div>
+        </div>
+      </button>
+
+      <button type="button" class="quick-tab" data-tab-color="blue" data-ts-action="open-tab" data-open-tab="faq">
+        <div class="quick-tab-icon"><i class="fas fa-book-open"></i></div>
+        <div class="quick-tab-info">
+          <div class="quick-tab-title">الدليل الشامل</div>
+          <div class="quick-tab-desc">شرح تفصيلي لكل نظام</div>
+          <div class="quick-tab-count">
+            <i class="fas fa-circle"></i>
+            <span id="countFaq">0</span>
+            <span style="opacity: 0.6;">سؤال</span>
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <div class="page-footer-divider"></div>
+    <p>
+      LomedX © 2026 — منصة طبية شاملة في سوريا
+      <br>
+      للتواصل: <a href="https://wa.me/963980390813" target="_blank" rel="noopener">+963 980 390 813</a>
+    </p>
+  </footer>
+
+</main>
+
+<!-- Help Center Overlay -->
+<div id="helpCenterOverlay" class="help-overlay" aria-hidden="true">
+  <div class="help-panel-wrapper" role="dialog" aria-modal="true">
+    <div class="help-handle" aria-hidden="true"></div>
+
+    <div class="help-header">
+      <div class="help-header-top">
+        <div class="help-header-icon"><i class="fas fa-circle-question"></i></div>
+        <div class="help-header-text">
+          <h2>مركز المساعدة</h2>
+          <p class="help-subtitle">حلول فورية + دليل شامل</p>
+        </div>
+        <button type="button" class="help-close" data-ts-action="close-center" aria-label="إغلاق">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="help-tabs">
+        <button type="button" class="help-tab active" data-tab="troubleshoot" data-ts-action="switch-tab">
+          <i class="fas fa-bolt"></i>
+          <span>حلول فورية</span>
+          <span class="help-tab-badge" id="tabCountTs">0</span>
+        </button>
+        <button type="button" class="help-tab" data-tab="faq" data-ts-action="switch-tab">
+          <i class="fas fa-book-open"></i>
+          <span>الدليل الشامل</span>
+          <span class="help-tab-badge" id="tabCountFaq">0</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="help-search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" id="helpSearchInput" placeholder="ابحث عن مشكلة أو سؤال...">
+      <button type="button" class="help-search-clear" data-ts-action="clear-search" aria-label="مسح">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="help-topics" id="helpTopicsContainer">
+      <div id="panelTroubleshoot" class="help-panel active"></div>
+      <div id="panelFaq" class="help-panel"></div>
+    </div>
+
+    <div class="help-footer">
+      <p>لم تجد حلك؟ تواصل مع الدعم الفني</p>
+      <button type="button" data-ts-action="support" class="help-support-btn">
+        <i class="fas fa-headset"></i>
+        <span>اتصل بنا</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Nested Modal -->
+<div id="tsModalOverlay" class="ts-overlay" aria-hidden="true">
+  <div class="ts-panel-wrapper" role="dialog" aria-modal="true">
+    <div class="ts-handle" aria-hidden="true"></div>
+    <button type="button" class="ts-close" aria-label="إغلاق" data-ts-action="close-modal">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="ts-panel-header"><h3>مركز حل المشكلات</h3></div>
+    <div class="ts-panel-body"></div>
+  </div>
+</div>
+
+<div class="lomedx-toast-container" id="lomedxToastContainer" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════ */
+/* Help Center — Unified Engine v3.2                                  */
+/* ═══════════════════════════════════════════════════════════════════ */
+(function (window, document) {
+  'use strict';
+
+  var CONFIG = {
+    version: '3.2.0',
+    brandNameAr: 'لوميدكس',
+    supportPhone: '963980390813',
+    emergencyPhone: '110',
+    testTimeoutMs: 5000,
+    currentTab: 'troubleshoot'
+  };
+
+  function escapeHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function generateSessionId() {
+    var t = Date.now().toString(36).toUpperCase();
+    var r = '';
+    if (window.crypto && window.crypto.getRandomValues) {
+      var arr = new Uint8Array(3);
+      window.crypto.getRandomValues(arr);
+      for (var i = 0; i < arr.length; i++) r += arr[i].toString(16).padStart(2, '0');
+    } else {
+      r = Math.random().toString(16).slice(2, 8);
+    }
+    return 'S-' + t + '-' + r.toUpperCase();
+  }
+
+  var SESSION_REF = generateSessionId();
+
+  function generateErrorId() {
+    var counter = (window.__lomedxErrorCounter = (window.__lomedxErrorCounter || 0) + 1);
+    var seq = String(counter).padStart(3, '0');
+    return SESSION_REF + '-' + seq;
+  }
+
+  function formatTime(s) {
+    var m = Math.floor(s / 60), r = s % 60;
+    return String(m).padStart(2, '0') + ':' + String(r).padStart(2, '0');
+  }
+
+  function copyToClipboard(text) {
+    if (!text) return Promise.resolve(false);
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; })
+        .catch(function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+
+  function legacyCopy(text) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;opacity:0;';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  function showToast(message, type, duration) {
+    type = type || 'info';
+    duration = duration || 4000;
+    var container = document.getElementById('lomedxToastContainer');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'lomedxToastContainer';
+      container.className = 'lomedx-toast-container';
+      document.body.appendChild(container);
+    }
+    var icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle', warning: 'fa-triangle-exclamation' };
+    var toast = document.createElement('div');
+    toast.className = 'lomedx-toast lomedx-toast--' + type;
+    toast.innerHTML = '<i class="fas ' + (icons[type] || icons.info) + '"></i><span>' + escapeHtml(message) + '</span>';
+    container.appendChild(toast);
+    void toast.offsetHeight;
+    toast.classList.add('show');
+    var timer = setTimeout(function () {
+      toast.classList.remove('show');
+      setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 400);
+    }, duration);
+    toast.addEventListener('click', function () {
+      clearTimeout(timer);
+      toast.classList.remove('show');
+      setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 400);
+    });
+  }
+
+  /* ═══ FAQ DATA ═══ */
+  var FAQ_DATA = [
+    { id: 'accounts', icon: 'fa-user-lock', color: '#3B82F6', title: 'الحسابات وتسجيل الدخول', desc: 'مشاكل الدخول، التسجيل، الدخول بحساب Google، الخروج',
+      faqs: [
+        { q: 'لا أستطيع تسجيل الدخول إلى الملف الصحي، ماذا أفعل؟', a: '<ul><li>تأكد من أنك تستخدم الحساب الصحيح.</li><li>إذا كنت تستخدم حساب <code>@lomedx.app</code> فهذا حساب عمل.</li><li>إذا نسيت كلمة المرور، تواصل مع الدعم الفني.</li><li>إذا كان البريد غير مؤكد، افتح رسالة التأكيد.</li></ul>' },
+        { q: 'كيف أنشئ ملفاً صحياً جديداً؟', a: '<ol><li>اضغط على أيقونة <strong>"الملف الصحي"</strong>.</li><li>اختر تبويب <strong>"حساب جديد"</strong>.</li><li>أدخل بياناتك وكلمة مرور قوية.</li><li>اضغط <strong>"إنشاء الملف"</strong>.</li><li>سجّل الدخول وابدأ بتعبئة بياناتك.</li></ol>' },
+        { q: 'سجلت الدخول بحساب Google، لكن لم يفتح الملف الصحي؟', a: '<ul><li>تأكد من السماح للنوافذ المنبثقة.</li><li>انتظر لحظات بعد الدخول.</li><li>أغلق المتصفح وأعد المحاولة.</li></ul>' },
+        { q: 'كيف أسجّل خروجي من الحساب؟', a: '<ul><li><strong>الملف الصحي:</strong> اضغط "تسجيل الخروج" في الأسفل.</li><li><strong>لوحة الطبيب/الصيدلية/الإدارة:</strong> اضغط "تسجيل الخروج".</li></ul>', tip: 'ضروري إذا كنت تستخدم جهازاً عاماً.' }
+      ]
+    },
+    { id: 'booking', icon: 'fa-calendar-check', color: '#10B981', title: 'حجز المواعيد', desc: 'طلب موعد، تأكيد الحجز، إلغاء، الدردشة مع الطبيب',
+      faqs: [
+        { q: 'كيف أحجز موعداً عند طبيب؟', a: '<ol><li>ابحث عن الطبيب.</li><li>تأكد من شارة <strong>"موثق"</strong>.</li><li>اضغط <strong>"طلب موعد"</strong>.</li><li>اختر اليوم والوقت.</li><li>أدخل بياناتك.</li><li>احفظ رقم المرجع.</li></ol>' },
+        { q: 'لماذا لا يظهر زر "طلب موعد" عند بعض الأطباء؟', a: 'الحجز الإلكتروني متاح فقط للأطباء بـ <strong>اشتراك احترافي</strong>.' },
+        { q: 'طلبت موعداً لكن لم يصلني أي رد، ماذا أفعل؟', a: '<ul><li>انتظر حتى 24 ساعة.</li><li>افتح <strong>متابعة الحجز</strong> برقم المرجع.</li><li>إذا مر يوم دون رد، ابحث عن طبيب آخر.</li></ul>', tip: 'الحجز طلب وليس تأكيداً نهائياً.' },
+        { q: 'كيف أدردش مع الطبيب بعد الحجز؟', a: '<ul><li>افتح <strong>متابعة الحجز</strong>.</li><li>الدردشة متاحة فقط بعد قبول الطبيب.</li><li>ستصلك إشعارات فورية عند رد الطبيب.</li></ul>' },
+        { q: 'كيف ألغي حجزاً؟', a: 'إلغاء الحجز يتم من قبل العيادة. تواصل هاتفياً.' },
+        { q: 'ما هو رقم المرجع وكيف أستخدمه؟', a: 'رقم المرجع (R-XXXXXX) كود فريد. استخدمه في <strong>الاستعلام السريع</strong>.' }
+      ]
+    },
+    { id: 'health-file', icon: 'fa-file-medical', color: '#EC4899', title: 'الملف الصحي الذكي', desc: 'ملفك الطبي، رمز QR، الروشتات، التشفير',
+      faqs: [
+        { q: 'ما هو رمز QR في الملف الصحي؟', a: 'رمز الطوارئ الخاص بك. أعرضه للطبيب ليفتح ملفك المشفر <strong>دون كلمة مرور</strong>.' },
+        { q: 'هل بياناتي الطبية آمنة؟', a: 'نعم، جميع بياناتك مشفرة في الخادم.', tip: 'غيّر رمز QR فوراً إذا سرق هاتفك.' },
+        { q: 'كيف أحفظ روشتة طبيب في ملفي؟', a: 'يضيفها <strong>الطبيب</strong> بعد أن يمسح رمز QR الخاص بك.' },
+        { q: 'هل يمكنني حذف روشتة قديمة؟', a: 'نعم، افتح ملفك الصحي، ستجد زر <strong>حذف</strong> على كل روشتة.' },
+        { q: 'كيف أغيّر رمز QR؟', a: 'افتح ملفك الصحي، واضغط زر <strong>"تغيير الرمز"</strong>.', tip: 'تغيير الرمز لا يحذف بياناتك.' }
+      ]
+    },
+    { id: 'blood-bank', icon: 'fa-tint', color: '#DC2626', title: 'بنك الدم', desc: 'نشر استغاثة دم، التبرع، متابعة الطلبات',
+      faqs: [
+        { q: 'كيف أنشر استغاثة دم؟', a: '<ol><li>افتح <strong>بنك الدم</strong>.</li><li>املأ البيانات.</li><li>اضغط <strong>"نشر الاستغاثة"</strong>.</li><li>سيتم إشعار جميع المستخدمين.</li></ol>' },
+        { q: 'كم مرة أستطيع نشر استغاثة دم؟', a: 'مرة واحدة كل ساعة.' },
+        { q: 'كيف أتبرع لشخص؟', a: 'افتح بنك الدم، اضغط زر <strong>"سأتبرع"</strong>. لديك 6 ثوانٍ للتراجع.' },
+        { q: 'متى تُحذف استغاثة الدم تلقائياً؟', a: 'بعد <strong>20 ساعة</strong> من نشرها.' }
+      ]
+    },
+    { id: 'medicine-finder', icon: 'fa-pills', color: '#F59E0B', title: 'طلبات الأدوية', desc: 'البحث عن دواء، التواصل مع الصيدليات',
+      faqs: [
+        { q: 'كيف أطلب دواءً من الصيدليات؟', a: '<ol><li>افتح <strong>ابحث عن دوائك</strong>.</li><li>اكتب أسماء الأدوية.</li><li>أدخل رقمك واختر مدينتك.</li><li>حدد الإلحاح.</li><li>اضغط <strong>"إرسال"</strong>.</li></ol>' },
+        { q: 'كم تستغرق الصيدلية للرد؟', a: 'عادةً خلال <strong>ساعات قليلة</strong>.' },
+        { q: 'كيف أعرف أن الدواء تم توفيره؟', a: 'ستصلك <strong>إشعار</strong> على الهاتف.' },
+        { q: 'هل يمكنني إرسال صورة الوصفة الطبية؟', a: 'نعم، في نموذج الطلب يوجد حقل <strong>"صورة الوصفة"</strong>.' }
+      ]
+    },
+    { id: 'radar', icon: 'fa-satellite-dish', color: '#8B5CF6', title: 'الرادار الصحي التفاعلي', desc: 'رصد الأمراض الموسمية، تسجيل حالتك',
+      faqs: [
+        { q: 'ما هو الرادار الصحي؟', a: 'نظام توعوي يربط سكان المدينة لمتابعة انتشار الأمراض الموسمية.' },
+        { q: 'كيف أسجل حالتي؟', a: '<ol><li>افتح الرادار.</li><li>اختر مدينتك.</li><li>اضغط <strong>"سجّل حالتك"</strong>.</li><li>اختر الفئة والمدة.</li></ol>' },
+        { q: 'هل اسمي يظهر للآخرين؟', a: 'لا، التسجيل مجهول تماماً.' },
+        { q: 'كم مرة أستطيع تسجيل حالتي؟', a: 'مرة واحدة كل <strong>3 أيام</strong>.' }
+      ]
+    },
+    { id: 'doctor-dashboard', icon: 'fa-user-md', color: '#0EA5E9', title: 'لوحة الطبيب', desc: 'إدارة الحجوزات، الازدحام، الروشتات، الاشتراك',
+      faqs: [
+        { q: 'كيف أدخل إلى لوحة الطبيب؟', a: 'اضغط <strong>"لوحة الطبيب"</strong> وأدخل بيانات الدخول.' },
+        { q: 'ما الفرق بين "النظام اليدوي" و"المواعيد الدقيقة"؟', a: '<ul><li><strong>يدوي:</strong> أنت تكتب الوقت عند القبول.</li><li><strong>دقيق:</strong> المريض يختار وقتاً محدداً.</li></ul>' },
+        { q: 'كيف أقبل حجزاً؟', a: 'في قسم <strong>"طلبات الحجز الواردة"</strong>، أدخل الوقت واضغط <strong>"قبول"</strong>.' },
+        { q: 'كيف أُصدر روشتة طبية إلكترونية؟', a: '<ol><li>اقرأ رمز QR للمريض.</li><li>اضغط <strong>"إنشاء روشتة"</strong>.</li><li>أضف الأدوية.</li><li>اضغط <strong>"حفظ"</strong>.</li></ol>' }
+      ]
+    },
+    { id: 'pharmacy-dashboard', icon: 'fa-prescription-bottle-medical', color: '#22C55E', title: 'لوحة الصيدلية', desc: 'طلبات الأدوية، المناوبة الليلية، حالة العمل',
+      faqs: [
+        { q: 'كيف أدخل إلى لوحة الصيدلية؟', a: 'اضغط <strong>"لوحة الصيدلية"</strong> وأدخل بيانات الدخول.' },
+        { q: 'كيف أستقبل طلبات الأدوية؟', a: 'تظهر الطلبات <strong>من مدينتك فقط</strong>.' },
+        { q: 'كيف أوفّر دواءً لطلب؟', a: 'افتح الطلب، اكتب ملاحظة، اضغط <strong>"توفّر الدواء"</strong>.' },
+        { q: 'كيف أفعّل المناوبة الليلية؟', a: 'اضغط زر <strong>"تفعيل المناوبة الليلية"</strong>.' }
+      ]
+    },
+    { id: 'blog', icon: 'fa-newspaper', color: '#A855F7', title: 'المدونة والمقالات', desc: 'قراءة المقالات، الحفظ، البحث، التصنيفات',
+      faqs: [
+        { q: 'كيف أبحث عن مقال معين؟', a: 'استخدم حقل البحث أعلى القائمة.' },
+        { q: 'كيف أحفظ مقالاً لأقرأه لاحقاً؟', a: 'اضغط أيقونة <strong>العلامة (🔖)</strong>.' },
+        { q: 'هل يمكنني الاستماع للمقال؟', a: 'نعم، افتح أي مقال، واضغط أيقونة <strong>سماعة الرأس</strong>.' },
+        { q: 'المقالات موثوقة؟', a: 'كل مقال مكتوب من <strong>طبيب مختص</strong>.' }
+      ]
+    },
+    { id: 'medical-tools', icon: 'fa-toolbox', color: '#06B6D4', title: 'الأدوات الطبية', desc: 'حاسبات، إسعافات أولية، رموز التحاليل، التغذية',
+      faqs: [
+        { q: 'كيف أستخدم حاسبة جرعات الأطفال؟', a: '<ol><li>افتح <strong>حاسبة الجرعات</strong>.</li><li>أدخل وزن الطفل.</li><li>اختر نوع الدواء.</li><li>اضغط <strong>"احسب"</strong>.</li></ol>', tip: 'النتيجة استرشادية.' },
+        { q: 'كيف أعرف موعد ولادتي؟', a: 'استخدم <strong>حاسبة الحمل</strong>.' },
+        { q: 'ما هي حاسبة BMI؟', a: 'تحسب مؤشر كتلة الجسم والوزن المثالي والسعرات.' },
+        { q: 'كيف أستخدم دليل الإسعافات الأولية؟', a: 'افتح <strong>دليل الإسعافات</strong>.' }
+      ]
+    },
+    { id: 'technical', icon: 'fa-mobile-screen-button', color: '#EF4444', title: 'مشاكل تقنية عامة', desc: 'البطء، الكاميرا، الإشعارات، التحديث، التخزين',
+      faqs: [
+        { q: 'الموقع بطيء جداً، ماذا أفعل؟', a: '<ul><li>تأكد من سرعة الإنترنت.</li><li>أغلق التبويبات الأخرى.</li><li>امسح ذاكرة المتصفح.</li></ul>' },
+        { q: 'الكاميرا لا تعمل عند مسح رمز QR', a: '<ul><li>تأكد من السماح للكاميرا.</li><li>جرب Chrome أو Safari.</li><li>أعد تشغيل الهاتف.</li></ul>' },
+        { q: 'لا تصلني الإشعارات على الهاتف', a: '<ul><li>تأكد من تفعيل الإشعارات.</li><li>افتح "تفعيل الإشعارات" واضغط السماح.</li></ul>' },
+        { q: 'كيف أثبّت الموقع على هاتفي (PWA)؟', a: '<ul><li><strong>أندرويد:</strong> قائمة المتصفح ← "إضافة إلى الشاشة الرئيسية".</li><li><strong>iPhone:</strong> زر المشاركة ← "إضافة إلى الشاشة الرئيسية".</li></ul>' },
+        { q: 'كيف أحدّث الموقع لآخر إصدار؟', a: 'الموقع يحدّث نفسه تلقائياً.' }
+      ]
+    },
+    { id: 'privacy', icon: 'fa-shield-halved', color: '#14B8A6', title: 'الخصوصية والأمان', desc: 'حماية بياناتك، التشفير، ما نجمعه وكيف نستخدمه',
+      faqs: [
+        { q: 'ما البيانات التي تجمعها المنصة؟', a: 'الاسم، الهاتف، البريد، البيانات الطبية (مشفّرة). لا نبيع بياناتك.' },
+        { q: 'هل بيانات ملفي الصحي مشفرة؟', a: 'نعم، كل البيانات الطبية مشفرة.' },
+        { q: 'كيف أحمي حسابي؟', a: '<ul><li>كلمة مرور قوية.</li><li>لا تشاركها.</li><li>سجّل خروجك.</li><li>غيّر رمز QR إذا سرق هاتفك.</li></ul>' },
+        { q: 'هل الموقع آمن (HTTPS)؟', a: 'نعم، جميع الاتصالات مشفرة.' }
+      ]
+    }
+  ];
+
+  /* ═══ TROUBLESHOOT DATA ═══ */
+  var ISSUES = {
+    network: { title: 'مشكلة في الاتصال بالإنترنت', icon: 'fa-wifi', color: '#EF4444',
+      reason: 'تعذر الوصول إلى خوادمنا. غالباً السبب هو ضعف شبكة الإنترنت، أو بيانات الهاتف لديك، أو أن المتصفح يمنع الاتصال.',
+      solution: 'تأكد من وجود إشارة إنترنت قوية، أعد تشغيل الاتصال، أو جرب استخدام شبكة أخرى وحاول مرة أخرى.',
+      commonCauses: ['انقطاع الإنترنت من مزود الخدمة.', 'ضعف إشارة Wi-Fi أو بيانات الهاتف.', 'تطبيق VPN يعمل في الخلفية.', 'إعدادات الوقت والتاريخ غير دقيقة.', 'جدار الحماية يحجب الاتصال.'],
+      quickFixes: [
+        { icon: 'fa-sync', text: 'أعد تحميل الصفحة', action: 'reload' },
+        { icon: 'fa-wifi', text: 'اختبار الاتصال', action: 'test-connection' },
+        { icon: 'fa-mobile-screen', text: 'جرب بيانات الهاتف' },
+        { icon: 'fa-shield-halved', text: 'أوقف VPN' },
+        { icon: 'fa-clock', text: 'تحقق من وقت الجهاز' }
+      ]
+    },
+    rate_limit: { title: 'محاولات كثيرة جداً', icon: 'fa-hourglass-half', color: '#F59E0B',
+      reason: 'لقد قمت بإرسال هذا الطلب عدة مرات في وقت قصير جداً. نظام الحماية أوقفك مؤقتاً لمنع السبام.',
+      solution: 'انتظر دقيقة إلى دقيقتين قبل المحاولة مرة أخرى.',
+      commonCauses: ['النقر المتكرر على زر الإرسال.', 'تحديث الصفحة بشكل متكرر.', 'فتح عدة تبويبات.', 'استخدام أداة آلية.'],
+      quickFixes: [
+        { icon: 'fa-clock', text: 'انتظر انتهاء العدّاد' },
+        { icon: 'fa-ban', text: 'لا تعد النقر' },
+        { icon: 'fa-hand', text: 'أرسل الطلب مرة واحدة' }
+      ]
+    },
+    validation: { title: 'بيانات غير مكتملة', icon: 'fa-triangle-exclamation', color: '#F59E0B',
+      reason: 'بعض الحقول الإلزامية فارغة أو تحتوي على بيانات غير صحيحة.',
+      solution: 'راجع الحقول ذات العلامة (*) وتأكد من إدخال البيانات بشكل صحيح.',
+      commonCauses: ['حقول مطلوبة فارغة.', 'رقم هاتف غير صحيح.', 'بريد إلكتروني خاطئ.', 'نص قصير جداً.', 'نص طويل جداً.'],
+      quickFixes: [{ icon: 'fa-arrow-rotate-left', text: 'العودة وإصلاح الحقول', action: 'close-modal' }]
+    },
+    cloudflare: { title: 'فشل التحقق الأمني', icon: 'fa-shield-virus', color: '#EF4444',
+      reason: 'لم يتمكن نظام الحماية من التأكد أنك لست روبوت، ربما لأنك تستخدم AdBlocker.',
+      solution: 'أوقف إضافة مانع الإعلانات، أو حدّث الصفحة.',
+      commonCauses: ['AdBlocker.', 'وضع التصفح الخفي.', 'متصفح قديم.', 'VPN.'],
+      quickFixes: [
+        { icon: 'fa-shield-halved', text: 'أوقف AdBlocker' },
+        { icon: 'fa-sync', text: 'أعد تحميل الصفحة', action: 'reload' }
+      ]
+    },
+    timeout: { title: 'انتهت مهلة الطلب', icon: 'fa-clock', color: '#F59E0B',
+      reason: 'الخادم لم يستجب خلال الوقت المحدد.',
+      solution: 'حاول مرة أخرى بعد لحظات.',
+      commonCauses: ['بطء الإنترنت.', 'ضغط على الخوادم.', 'ملف كبير.', 'شبكة غير مستقرة.'],
+      quickFixes: [
+        { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' },
+        { icon: 'fa-gauge-high', text: 'اختبار الاتصال', action: 'test-connection' }
+      ]
+    },
+    server: { title: 'خطأ مؤقت في الخادم', icon: 'fa-server', color: '#EF4444',
+      reason: 'حدث خطأ داخلي مؤقت في النظام.',
+      solution: 'أعد المحاولة بعد دقيقة.',
+      commonCauses: ['صيانة مجدولة.', 'ضغط على الخوادم.', 'خطأ برمجي.', 'تعطل قاعدة البيانات.'],
+      quickFixes: [
+        { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' },
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
+      ]
+    },
+    auth: { title: 'تحتاج لتسجيل الدخول', icon: 'fa-user-lock', color: '#3B82F6',
+      reason: 'هذه الأداة تتطلب تسجيل الدخول.',
+      solution: 'سجّل الدخول من جديد ثم أعد المحاولة.',
+      commonCauses: ['انتهاء الجلسة.', 'تسجيل خروج من تبويب آخر.', 'تغيير كلمة المرور.'],
+      quickFixes: [
+        { icon: 'fa-right-to-bracket', text: 'تسجيل الدخول', action: 'login' },
+        { icon: 'fa-key', text: 'نسيت كلمة المرور؟', action: 'forgot-password' }
+      ]
+    },
+    permission: { title: 'صلاحيات غير كافية', icon: 'fa-lock', color: '#EF4444',
+      reason: 'حسابك لا يملك الصلاحيات المطلوبة.',
+      solution: 'تواصل مع مدير النظام.',
+      commonCauses: ['دور مستخدم عادي.', 'مورد لا يخصك.', 'حساب موقوف.'],
+      quickFixes: [{ icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }]
+    },
+    not_found: { title: 'العنصر غير موجود', icon: 'fa-magnifying-glass', color: '#F59E0B',
+      reason: 'العنصر حُذف أو تم نقله.',
+      solution: 'تحقق من الرابط أو ارجع للرئيسية.',
+      commonCauses: ['رابط قديم.', 'حذف العنصر.', 'خطأ مطبعي.'],
+      quickFixes: [
+        { icon: 'fa-home', text: 'العودة للرئيسية', action: 'home' },
+        { icon: 'fa-undo', text: 'الصفحة السابقة', action: 'back' }
+      ]
+    },
+    maintenance: { title: 'الموقع تحت الصيانة', icon: 'fa-screwdriver-wrench', color: '#8B5CF6',
+      reason: 'نقوم بتحديثات وتحسينات.',
+      solution: 'عاود بعد 10-15 دقيقة.',
+      commonCauses: ['صيانة مجدولة.', 'تحديث أمني.', 'ترقية الخوادم.'],
+      quickFixes: [
+        { icon: 'fa-clock', text: 'انتظر 10-15 دقيقة' },
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
+      ]
+    },
+    unknown: { title: 'حدث خطأ غير متوقع', icon: 'fa-circle-question', color: '#EF4444',
+      reason: 'المشكلة قد تكون مؤقتة.',
+      solution: 'حدّث الصفحة أو أعد المحاولة.',
+      commonCauses: ['ذاكرة المتصفح.', 'إضافة تمنع السكربتات.', 'متصفح قديم.'],
+      quickFixes: [
+        { icon: 'fa-sync', text: 'تحديث الصفحة', action: 'reload' },
+        { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' },
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
+      ]
+    },
+    support: { title: 'مركز الدعم والمساعدة', icon: 'fa-headset', color: '#3B82F6',
+      reason: 'نحن هنا لمساعدتك.',
+      solution: 'انسخ رقم المرجع وأرسله للدعم.',
+      commonCauses: [],
+      quickFixes: [
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' },
+        { icon: 'fa-house', text: 'العودة للرئيسية', action: 'home' }
+      ]
+    },
+    backend_offline: { title: 'خوادم المنصة غير متاحة', icon: 'fa-server', color: '#DC2626',
+      reason: 'خوادمنا غير متاحة حالياً.',
+      solution: 'انتظر 5-10 دقائق.',
+      commonCauses: ['انقطاع إنترنت.', 'صيانة طارئة.', 'هجوم DDoS.'],
+      quickFixes: [
+        { icon: 'fa-clock', text: 'انتظر 5-10 دقائق' },
+        { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' }
+      ]
+    },
+    booking_slot_taken: { title: 'الموعد محجوز مسبقاً', icon: 'fa-calendar-xmark', color: '#F59E0B',
+      reason: 'الوقت الذي اخترته تم حجزه للتو.',
+      solution: 'اختر وقتاً آخر متاحاً.',
+      commonCauses: ['شخصان لنفس الموعد.', 'الطبيب أغلق الموعد.'],
+      quickFixes: [
+        { icon: 'fa-calendar-day', text: 'اختر وقتاً آخر', action: 'close-modal' },
+        { icon: 'fa-sync', text: 'حدّث المواعيد', action: 'reload' }
+      ]
+    },
+    booking_doctor_closed: { title: 'العيادة مغلقة حالياً', icon: 'fa-door-closed', color: '#EF4444',
+      reason: 'الطبيب أغلق العيادة مؤقتاً.',
+      solution: 'جرب يوماً آخر.',
+      commonCauses: ['إجازة.', 'يوم غير عمل.', 'نهاية دوام.'],
+      quickFixes: [
+        { icon: 'fa-calendar-week', text: 'جرب يوماً آخر', action: 'close-modal' },
+        { icon: 'fa-phone', text: 'اتصل بالعيادة', action: 'close-modal' }
+      ]
+    },
+    booking_already_exists: { title: 'لديك حجز نشط', icon: 'fa-calendar-check', color: '#3B82F6',
+      reason: 'لديك حجز نشط مع نفس الطبيب.',
+      solution: 'تابع حجزك الحالي أو ألغِه أولاً.',
+      commonCauses: ['حجز سابق.', 'نفس الرقم مستخدم.'],
+      quickFixes: [
+        { icon: 'fa-search', text: 'استعلام عن حجزي', action: 'close-modal' },
+        { icon: 'fa-phone', text: 'تواصل مع العيادة', action: 'close-modal' }
+      ]
+    },
+    medicine_not_found: { title: 'لم يتم العثور على الدواء', icon: 'fa-pills', color: '#F59E0B',
+      reason: 'لم تجد صيدلية في مدينتك الدواء.',
+      solution: 'جرب اسماً بديلاً.',
+      commonCauses: ['غير متوفر.', 'اسم خاطئ.', 'مسحوب من السوق.'],
+      quickFixes: [
+        { icon: 'fa-search', text: 'جرب اسماً بديلاً', action: 'close-modal' },
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
+      ]
+    },
+    blood_duplicate: { title: 'استغاثة دم نشطة', icon: 'fa-tint', color: '#DC2626',
+      reason: 'لديك استغاثة نشطة بالفعل.',
+      solution: 'أنهِ الحالية أولاً أو انتظر 20 ساعة.',
+      commonCauses: ['استغاثة سابقة.', 'نفس الرقم.'],
+      quickFixes: [
+        { icon: 'fa-check', text: 'أنهِ الاستغاثة', action: 'close-modal' },
+        { icon: 'fa-clock', text: 'انتظر 20 ساعة' }
+      ]
+    },
+    health_file_qr_invalid: { title: 'رمز QR غير صالح', icon: 'fa-qrcode', color: '#EF4444',
+      reason: 'رمز QR غير صالح أو لا ينتمي لأي مريض.',
+      solution: 'اطلب من المريض تحديث رمز QR.',
+      commonCauses: ['رمز قديم.', 'لم يُقرأ بشكل صحيح.', 'ملف محذوف.'],
+      quickFixes: [
+        { icon: 'fa-redo', text: 'أعد مسح الرمز', action: 'close-modal' },
+        { icon: 'fa-user', text: 'اطلب البيانات يدوياً', action: 'close-modal' }
+      ]
+    },
+    chat_not_confirmed: { title: 'الدردشة غير متاحة', icon: 'fa-comment-slash', color: '#F59E0B',
+      reason: 'الدردشة متاحة فقط بعد تأكيد الطبيب.',
+      solution: 'انتظر قبول الطبيب.',
+      commonCauses: ['الطلب لم يُقبل بعد.', 'الموعد ملغي.'],
+      quickFixes: [
+        { icon: 'fa-clock', text: 'انتظر تأكيد الطبيب' },
+        { icon: 'fa-phone', text: 'اتصل بالعيادة', action: 'close-modal' }
+      ]
+    },
+    doctor_not_subscribed: { title: 'اشتراك الطبيب منتهي', icon: 'fa-crown', color: '#F59E0B',
+      reason: 'انتهت فترة اشتراكك.',
+      solution: 'جدّد اشتراكك للاستمرار.',
+      commonCauses: ['انتهت المدة.', 'لم يتم التجديد.', 'مشكلة في الدفع.'],
+      quickFixes: [
+        { icon: 'fa-crown', text: 'تجديد الاشتراك', action: 'payment' },
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
+      ]
+    },
+    pharmacy_not_subscribed: { title: 'اشتراك الصيدلية منتهي', icon: 'fa-crown', color: '#F59E0B',
+      reason: 'انتهت فترة اشتراك صيدليتك.',
+      solution: 'جدّد اشتراكك.',
+      commonCauses: ['انتهت المدة.', 'مشكلة في الدفع.'],
+      quickFixes: [
+        { icon: 'fa-crown', text: 'تجديد الاشتراك', action: 'payment' },
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
+      ]
+    },
+    image_upload_failed: { title: 'فشل رفع الصورة', icon: 'fa-image', color: '#EF4444',
+      reason: 'تعذر رفع الصورة.',
+      solution: 'جرب صورة أصغر.',
+      commonCauses: ['حجم كبير.', 'صيغة غير مدعومة.', 'انقطاع.'],
+      quickFixes: [
+        { icon: 'fa-image', text: 'جرب صورة أصغر', action: 'close-modal' },
+        { icon: 'fa-redo', text: 'أعد الرفع', action: 'retry' }
+      ]
+    },
+    captcha_failed: { title: 'فشل التحقق الأمني', icon: 'fa-shield-halved', color: '#EF4444',
+      reason: 'لم تُكمل التحقق الأمني.',
+      solution: 'أعد تحميل الصفحة.',
+      commonCauses: ['لم تكمل التحقق.', 'AdBlocker.', 'مشكلة في الشبكة.'],
+      quickFixes: [
+        { icon: 'fa-sync', text: 'أعد تحميل الصفحة', action: 'reload' },
+        { icon: 'fa-shield-halved', text: 'أوقف AdBlocker' }
+      ]
+    },
+    burn_emergency: { title: 'حالة حرق تتطلب طوارئ!', icon: 'fa-fire', color: '#DC2626',
+      reason: 'الأعراض تشير إلى حرق خطير.',
+      solution: 'اتصل بالإسعاف (110) فوراً.',
+      commonCauses: [],
+      quickFixes: [
+        { icon: 'fa-ambulance', text: 'اتصل بالإسعاف 110', action: 'call-emergency' },
+        { icon: 'fa-hospital', text: 'أقرب مشفى', action: 'close-modal' }
+      ]
+    }
+  };
+
+  var TS_GROUPS = [
+    {
+      title: 'مشاكل أساسية', icon: 'fa-circle-exclamation',
+      items: [
+        { tool: 'اتصال الإنترنت', type: 'network', icon: 'fa-wifi', label: 'مشكلة الإنترنت', desc: 'اتصال / انقطاع' },
+        { tool: 'إرسال طلب', type: 'rate_limit', icon: 'fa-hourglass-half', label: 'محاولات كثيرة', desc: 'Rate Limit', details: { retryAfter: 60 } },
+        { tool: 'حفظ البيانات', type: 'validation', icon: 'fa-triangle-exclamation', label: 'حقول فاشلة', desc: 'Validation', details: { fields: [{name:'الاسم', error:'الحقل مطلوب'}, {name:'رقم الهاتف', error:'يجب أن يبدأ بـ 09'}] } },
+        { tool: 'التحقق الأمني', type: 'cloudflare', icon: 'fa-shield-virus', label: 'التحقق الأمني', desc: 'Cloudflare' },
+        { tool: 'طلب طويل', type: 'timeout', icon: 'fa-clock', label: 'انتهت المهلة', desc: 'Timeout' },
+        { tool: 'خادم', type: 'server', icon: 'fa-server', label: 'خطأ الخادم', desc: 'Server Error' },
+        { tool: 'تسجيل دخول', type: 'auth', icon: 'fa-user-lock', label: 'تسجيل الدخول', desc: 'Authentication' },
+        { tool: 'صلاحيات', type: 'permission', icon: 'fa-lock', label: 'صلاحيات غير كافية', desc: 'Permission' }
+      ]
+    },
+    {
+      title: 'مشاكل الأنظمة', icon: 'fa-layer-group',
+      items: [
+        { tool: 'حجز موعد', type: 'booking_slot_taken', icon: 'fa-calendar-xmark', label: 'الموعد محجوز', desc: 'نظام الحجز' },
+        { tool: 'حجز موعد', type: 'booking_doctor_closed', icon: 'fa-door-closed', label: 'العيادة مغلقة', desc: 'نظام الحجز' },
+        { tool: 'طلب دواء', type: 'medicine_not_found', icon: 'fa-pills', label: 'الدواء غير متوفر', desc: 'بنك الأدوية' },
+        { tool: 'استغاثة دم', type: 'blood_duplicate', icon: 'fa-tint', label: 'استغاثة مكررة', desc: 'بنك الدم' },
+        { tool: 'مسح QR', type: 'health_file_qr_invalid', icon: 'fa-qrcode', label: 'QR غير صالح', desc: 'الملف الصحي' },
+        { tool: 'متابعة الحجز', type: 'chat_not_confirmed', icon: 'fa-comment-slash', label: 'دردشة غير متاحة', desc: 'الدردشة' },
+        { tool: 'لوحة الطبيب', type: 'doctor_not_subscribed', icon: 'fa-crown', label: 'الاشتراك منتهي', desc: 'لوحة الطبيب' },
+        { tool: 'رفع صورة', type: 'image_upload_failed', icon: 'fa-image', label: 'فشل رفع الصورة', desc: 'رفع الملفات' }
+      ]
+    },
+    {
+      title: 'حالات طوارئ', icon: 'fa-triangle-exclamation',
+      items: [
+        { tool: 'مُسعف الحروق', type: 'burn_emergency', icon: 'fa-fire', label: 'حالة حرق طارئة', desc: 'طوارئ طبية' },
+        { tool: 'خوادم', type: 'backend_offline', icon: 'fa-server', label: 'الخوادم متوقفة', desc: 'تعطل كلي' },
+        { tool: 'طلب طويل', type: 'timeout', icon: 'fa-clock', label: 'انتهت المهلة', desc: 'استجابة بطيئة' },
+        { tool: 'التحقق الأمني', type: 'captcha_failed', icon: 'fa-shield-halved', label: 'فشل Captcha', desc: 'أمان' }
+      ]
+    },
+    {
+      title: 'مشاكل متفرقة', icon: 'fa-circle-question',
+      items: [
+        { tool: 'خطأ غير معروف', type: 'unknown', icon: 'fa-circle-question', label: 'خطأ غير متوقع', desc: 'Unknown' },
+        { tool: 'الدعم', type: 'support', icon: 'fa-headset', label: 'الدعم الفني', desc: 'تواصل معنا' },
+        { tool: 'غير موجود', type: 'not_found', icon: 'fa-magnifying-glass', label: 'العنصر غير موجود', desc: '404' },
+        { tool: 'صيانة', type: 'screwdriver', icon: 'fa-screwdriver-wrench', label: 'تحت الصيانة', desc: 'Maintenance' }
+      ]
+    }
+  ];
+
+  var countdownInterval = null;
+  var retryFunction = null;
+  var currentTsErrorId = null;
+  var previousTitle = null;
+
+  function updateCounts() {
+    var tsCount = 0;
+    TS_GROUPS.forEach(function (g) { tsCount += g.items.length; });
+    var faqCount = 0;
+    FAQ_DATA.forEach(function (s) { faqCount += s.faqs.length; });
+
+    ['countTs', 'tabCountTs'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = tsCount;
+    });
+    ['countFaq', 'tabCountFaq'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = faqCount;
+    });
+  }
+
+  function openHelpCenter(tab) {
+    var overlay = document.getElementById('helpCenterOverlay');
+    if (!overlay) return;
+
+    if (!previousTitle) previousTitle = document.title;
+    document.title = 'مركز المساعدة وحل المشكلات | LomedX';
+    injectFaqSchema();
+
+    renderTroubleshootPanel();
+    renderFaqPanel();
+    updateCounts();
+    switchHelpTab(tab || CONFIG.currentTab);
+
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    try { history.pushState({ help: true }, '', '/help'); } catch (e) {}
+  }
+
+  function closeHelpCenter() {
+    var overlay = document.getElementById('helpCenterOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    closeTroubleshootModal();
+    if (previousTitle) { document.title = previousTitle; previousTitle = null; }
+    var schema = document.getElementById('helpCenterFaqSchema');
+    if (schema) schema.remove();
+    try { if (window.location.pathname === '/help') history.pushState({}, '', '/'); } catch (e) {}
+  }
+
+  function switchHelpTab(tabName) {
+    CONFIG.currentTab = tabName;
+    document.querySelectorAll('.help-tab').forEach(function (t) {
+      t.classList.toggle('active', t.dataset.tab === tabName);
+    });
+    document.querySelectorAll('.help-panel').forEach(function (p) { p.classList.remove('active'); });
+    var panel = document.getElementById('panel' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+    if (panel) panel.classList.add('active');
+    var topics = document.getElementById('helpTopicsContainer');
+    if (topics) topics.scrollTop = 0;
+  }
+
+  function renderTroubleshootPanel(filter) {
+    var container = document.getElementById('panelTroubleshoot');
+    if (!container) return;
+
+    var q = (filter || '').trim().toLowerCase();
+    var groupsToRender = TS_GROUPS;
+
+    if (q.length >= 2) {
+      groupsToRender = TS_GROUPS.map(function (g) {
+        var matching = g.items.filter(function (item) {
+          return item.label.toLowerCase().indexOf(q) !== -1 ||
+                 item.desc.toLowerCase().indexOf(q) !== -1 ||
+                 item.tool.toLowerCase().indexOf(q) !== -1;
+        });
+        if (matching.length === 0) return null;
+        return { title: g.title, icon: g.icon, items: matching };
+      }).filter(Boolean);
+    }
+
+    if (groupsToRender.length === 0) {
+      container.innerHTML = emptyState();
+      return;
+    }
+
+    var html = '<div class="ts-groups">';
+    groupsToRender.forEach(function (group) {
+      html += '<div class="ts-group">';
+      html += '<div class="ts-group-title"><i class="fas ' + group.icon + '"></i><span>' + escapeHtml(group.title) + '</span></div>';
+      html += '<div class="ts-grid">';
+      group.items.forEach(function (item) {
+        var detailsAttr = item.details
+          ? ' data-details=\'' + JSON.stringify(item.details).replace(/'/g, '&#39;') + '\''
+          : '';
+        html += '<button type="button" class="ts-card" data-ts-action="trigger-issue"'
+              + ' data-tool="' + escapeHtml(item.tool) + '"'
+              + ' data-type="' + escapeHtml(item.type) + '"'
+              + detailsAttr + '>';
+        html += '<div class="ts-card-icon"><i class="fas ' + item.icon + '"></i></div>';
+        html += '<div class="ts-card-text">';
+        html += '<strong>' + escapeHtml(item.label) + '</strong>';
+        html += '<small>' + escapeHtml(item.desc) + '</small>';
+        html += '</div></button>';
+      });
+      html += '</div></div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
+  function renderFaqPanel(filter) {
+    var container = document.getElementById('panelFaq');
+    if (!container) return;
+
+    var q = (filter || '').trim().toLowerCase();
+    var sectionsToRender = FAQ_DATA;
+
+    if (q.length >= 2) {
+      sectionsToRender = FAQ_DATA.map(function (section) {
+        var titleMatch = section.title.toLowerCase().indexOf(q) !== -1 ||
+                         section.desc.toLowerCase().indexOf(q) !== -1;
+        var matchingFaqs = section.faqs.filter(function (faq) {
+          return faq.q.toLowerCase().indexOf(q) !== -1 ||
+                 faq.a.toLowerCase().indexOf(q) !== -1;
+        });
+        if (titleMatch) return section;
+        if (matchingFaqs.length > 0) {
+          var copy = {};
+          for (var k in section) copy[k] = section[k];
+          copy.faqs = matchingFaqs;
+          return copy;
+        }
+        return null;
+      }).filter(Boolean);
+    }
+
+    if (sectionsToRender.length === 0) {
+      container.innerHTML = emptyState();
+      return;
+    }
+
+    var html = '<div class="ts-groups">';
+    html += '<div class="ts-group">';
+    html += '<div class="ts-group-title"><i class="fas fa-book-open"></i><span>أقسام الدليل الشامل</span></div>';
+    html += '<div class="ts-grid ts-grid--faq">';
+
+    sectionsToRender.forEach(function (section) {
+      var faqCount = section.faqs.length;
+      html += '<button type="button" class="ts-card ts-card--faq" data-ts-action="open-faq" data-faq-id="' + escapeHtml(section.id) + '">';
+      html += '<div class="ts-card-icon" style="background:linear-gradient(135deg,' + section.color + '25,' + section.color + '08);color:' + section.color + ';box-shadow:0 4px 12px -4px ' + section.color + '40;">';
+      html += '<i class="fas ' + escapeHtml(section.icon) + '"></i>';
+      html += '</div>';
+      html += '<div class="ts-card-text">';
+      html += '<strong>' + escapeHtml(section.title) + '</strong>';
+      html += '<small>' + faqCount + ' سؤال</small>';
+      html += '</div>';
+      html += '<span class="ts-card-count">' + faqCount + '</span>';
+      html += '</button>';
+    });
+
+    html += '</div></div></div>';
+    container.innerHTML = html;
+  }
+
+  function emptyState() {
+    return '<div class="help-empty">' +
+      '<div class="empty-icon"><i class="fas fa-magnifying-glass"></i></div>' +
+      '<p>لم نجد نتائج مطابقة</p>' +
+      '<span>جرّب كلمة أخرى</span>' +
+      '</div>';
+  }
+
+  function filterHelpCenter(query) {
+    var q = (query || '').trim().toLowerCase();
+    if (q.length < 2) { renderTroubleshootPanel(); renderFaqPanel(); return; }
+    renderTroubleshootPanel(q);
+    renderFaqPanel(q);
+    var tsHas = document.querySelectorAll('#panelTroubleshoot .ts-card').length > 0;
+    var faqHas = document.querySelectorAll('#panelFaq .ts-card--faq').length > 0;
+    if (tsHas && !faqHas) switchHelpTab('troubleshoot');
+    else if (faqHas && !tsHas) switchHelpTab('faq');
+  }
+
+  function clearHelpSearch() {
+    var input = document.getElementById('helpSearchInput');
+    if (input) { input.value = ''; input.focus(); }
+    renderTroubleshootPanel();
+    renderFaqPanel();
+  }
+
+  function openFaqSection(sectionId) {
+    var section = FAQ_DATA.find(function (s) { return s.id === sectionId; });
+    if (!section) { showToast('لم يتم العثور على القسم', 'error'); return; }
+    var overlay = document.getElementById('tsModalOverlay');
+    if (!overlay) return;
+    overlay.querySelector('.ts-panel-body').innerHTML = buildFaqSectionHTML(section);
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    setTimeout(function () {
+      var w = overlay.querySelector('.ts-panel-wrapper');
+      if (w) w.scrollTop = 0;
+    }, 50);
+  }
+
+  function buildFaqSectionHTML(section) {
+    var headerHTML =
+      '<div class="ts-header">' +
+      '<div class="ts-icon-wrap" style="color:' + section.color + '">' +
+      '<div class="ts-icon-bg" style="background:' + section.color + '"></div>' +
+      '<div class="ts-icon-ring"></div>' +
+      '<div class="ts-icon-main" style="background:linear-gradient(135deg,' + section.color + ' 0%,' + section.color + 'cc 100%)">' +
+      '<i class="fas ' + escapeHtml(section.icon) + '"></i>' +
+      '</div></div>' +
+      '<h3 class="ts-title">' + escapeHtml(section.title) + '</h3>' +
+      '<div class="ts-badges">' +
+      '<span class="ts-badge ts-badge--tool"><i class="fas fa-list-check"></i> ' + section.faqs.length + ' سؤال</span>' +
+      '</div></div>';
+
+    var faqListHTML = section.faqs.map(function (faq, i) {
+      return '<div class="faq-item" data-faq-index="' + i + '">' +
+        '<button type="button" class="faq-item-header" data-ts-action="toggle-faq">' +
+        '<span class="faq-item-num">' + (i + 1) + '</span>' +
+        '<span class="faq-item-q">' + escapeHtml(faq.q) + '</span>' +
+        '<i class="fas fa-chevron-down faq-item-chevron"></i>' +
+        '</button>' +
+        '<div class="faq-item-body">' +
+        '<div class="faq-item-answer">' + faq.a + '</div>' +
+        (faq.tip ? '<div class="help-tip"><i class="fas fa-lightbulb"></i><span>' + escapeHtml(faq.tip) + '</span></div>' : '') +
+        '</div></div>';
+    }).join('');
+
+    var faqSectionHTML = '<div class="faq-section-intro"><p>' + escapeHtml(section.desc) + '</p></div>' +
+      '<div class="faq-section-list">' + faqListHTML + '</div>';
+
+    var actionsHTML =
+      '<div class="ts-actions">' +
+      '<button type="button" class="ts-btn ts-btn--primary" data-ts-action="support">' +
+      '<i class="fas fa-headset"></i> <span>لم تجد إجابتك؟ تواصل معنا</span>' +
+      '</button>' +
+      '<button type="button" class="ts-btn ts-btn--secondary" data-ts-action="close-modal">' +
+      '<i class="fas fa-arrow-rotate-left"></i> <span>العودة</span>' +
+      '</button></div>';
+
+    return '<div class="ts-panel">' + headerHTML + faqSectionHTML + actionsHTML + '</div>';
+  }
+
+  function toggleFaqItem(headerEl) {
+    var item = headerEl.closest ? headerEl.closest('.faq-item') : headerEl.parentElement;
+    if (!item) return;
+    var isOpen = item.classList.contains('open');
+    var parent = item.parentElement;
+    if (parent) parent.querySelectorAll('.faq-item.open').forEach(function (i) { i.classList.remove('open'); });
+    if (!isOpen) item.classList.add('open');
+  }
+
+  function openTroubleshootModal(toolName, issueType, details) {
+    toolName = toolName || 'غير محددة';
+    issueType = issueType || 'unknown';
+    details = details || {};
+
+    if (!ISSUES[issueType]) issueType = 'unknown';
+    var issue = ISSUES[issueType];
+    var errorId = generateErrorId();
+    currentTsErrorId = errorId;
+
+    var overlay = document.getElementById('tsModalOverlay');
+    if (!overlay) return;
+
+    overlay.querySelector('.ts-panel-body').innerHTML =
+      buildTroubleshootHTML(toolName, issueType, issue, errorId, details);
+
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+
+    setTimeout(function () {
+      var w = overlay.querySelector('.ts-panel-wrapper');
+      if (w) w.scrollTop = 0;
+    }, 50);
+
+    if (issueType === 'rate_limit' && details.retryAfter) startCountdown(details.retryAfter);
+  }
+
+  function closeTroubleshootModal() {
+    var overlay = document.getElementById('tsModalOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+    if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+    currentTsErrorId = null;
+  }
+
+  function buildTroubleshootHTML(toolName, issueType, issue, errorId, details) {
+    var safeToolName = escapeHtml(toolName);
+    var isOnline = navigator.onLine;
+    var localTime = new Date().toLocaleString('ar-SY', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit'
+    });
+
+    var headerHTML =
+      '<div class="ts-header">' +
+      '<div class="ts-icon-wrap" style="color:' + issue.color + '">' +
+      '<div class="ts-icon-bg" style="background:' + issue.color + '"></div>' +
+      '<div class="ts-icon-ring"></div>' +
+      '<div class="ts-icon-main" style="background:linear-gradient(135deg,' + issue.color + ' 0%,' + issue.color + 'cc 100%)">' +
+      '<i class="fas ' + issue.icon + '"></i>' +
+      '</div></div>' +
+      '<h3 class="ts-title">' + escapeHtml(issue.title) + '</h3>' +
+      '<div class="ts-badges">' +
+      '<span class="ts-badge ts-badge--tool"><i class="fas fa-toolbox"></i> ' + safeToolName + '</span>' +
+      '<button type="button" class="ts-badge ts-badge--id" data-ts-action="copy-id" data-error-id="' + errorId + '">' +
+      '<i class="fas fa-fingerprint"></i> ' + errorId +
+      '</button></div></div>';
+
+    var countdownHTML = '';
+    if (issueType === 'rate_limit' && details.retryAfter) {
+      countdownHTML = '<div class="ts-countdown">' +
+        '<div class="ts-countdown-label"><i class="fas fa-hourglass-half"></i> يمكنك المحاولة بعد</div>' +
+        '<div class="ts-countdown-value" data-countdown="' + details.retryAfter + '">' + formatTime(details.retryAfter) + '</div>' +
+        '</div>';
+    }
+
+    var failedFieldsHTML = '';
+    if (issueType === 'validation' && Array.isArray(details.fields) && details.fields.length) {
+      var fieldsHtml = details.fields.map(function (f) {
+        return '<li class="ts-list-item"><i class="fas fa-circle-xmark"></i>' +
+          '<span><strong>' + escapeHtml(f.name) + ':</strong> ' + escapeHtml(f.error) + '</span></li>';
+      }).join('');
+      failedFieldsHTML = '<div class="ts-section ts-section--validation">' +
+        '<div class="ts-section-title"><i class="fas fa-list-check"></i><span>حقول تحتاج مراجعة (' + details.fields.length + ')</span></div>' +
+        '<ul class="ts-list">' + fieldsHtml + '</ul></div>';
+    }
+
+    var reasonHTML = '<div class="ts-section ts-section--reason">' +
+      '<div class="ts-section-title"><i class="fas fa-bug"></i> <span>السبب المحتمل</span></div>' +
+      '<p class="ts-section-body">' + escapeHtml(issue.reason) + '</p></div>';
+
+    var causesHTML = '';
+    if (issue.commonCauses && issue.commonCauses.length) {
+      var causesList = issue.commonCauses.map(function (c) {
+        return '<li class="ts-list-item ts-list-item--cause"><i class="fas fa-circle"></i><span>' + escapeHtml(c) + '</span></li>';
+      }).join('');
+      causesHTML = '<div class="ts-section ts-section--causes">' +
+        '<div class="ts-section-title"><i class="fas fa-magnifying-glass"></i> <span>أسباب شائعة</span></div>' +
+        '<ul class="ts-list ts-list--causes">' + causesList + '</ul></div>';
+    }
+
+    var solutionHTML = '<div class="ts-section ts-section--solution">' +
+      '<div class="ts-section-title"><i class="fas fa-lightbulb"></i> <span>كيف تحل المشكلة؟</span></div>' +
+      '<p class="ts-section-body">' + escapeHtml(issue.solution) + '</p></div>';
+
+    var quickFixesHTML = '';
+    if (issue.quickFixes && issue.quickFixes.length) {
+      var fixesHtml = issue.quickFixes.map(function (fix, i) {
+        var actionAttr = fix.action ? 'data-ts-action="' + fix.action + '"' : '';
+        var isPrimary = i === 0 && fix.action;
+        return '<button type="button" ' + actionAttr + ' class="ts-quickfix ' +
+          (isPrimary ? 'ts-quickfix--primary' : '') + '">' +
+          '<span class="ts-quickfix-icon"><i class="fas ' + fix.icon + '"></i></span>' +
+          '<span class="ts-quickfix-text">' + escapeHtml(fix.text) + '</span>' +
+          (fix.action ? '<i class="fas fa-arrow-left ts-quickfix-arrow"></i>' : '') +
+          '</button>';
+      }).join('');
+      quickFixesHTML = '<div class="ts-quickfixes">' +
+        '<div class="ts-quickfixes-title"><i class="fas fa-bolt"></i> <span>حلول سريعة</span></div>' +
+        '<div class="ts-quickfixes-grid">' + fixesHtml + '</div></div>';
+    }
+
+    var supportDetails = [
+      { key: 'رقم المرجع', value: errorId, icon: 'fa-fingerprint' },
+      { key: 'رقم الجلسة', value: SESSION_REF, icon: 'fa-hashtag' },
+      { key: 'الأداة', value: toolName, icon: 'fa-toolbox' },
+      { key: 'التوقيت', value: localTime, icon: 'fa-clock' },
+      { key: 'حالة الإنترنت', value: isOnline ? 'متصل' : 'غير متصل', icon: isOnline ? 'fa-circle-check' : 'fa-circle-xmark' }
+    ];
+
+    var detailsRows = supportDetails.map(function (d) {
+      return '<div class="ts-details-row">' +
+        '<span class="ts-details-key"><i class="fas ' + d.icon + '"></i> ' + escapeHtml(d.key) + '</span>' +
+        '<span class="ts-details-value">' + escapeHtml(d.value) + '</span></div>';
+    }).join('');
+
+    var detailsHTML = '<details class="ts-details">' +
+      '<summary class="ts-details-summary">' +
+      '<span><i class="fas fa-headset"></i> معلومات للدعم الفني</span>' +
+      '<i class="fas fa-chevron-down ts-details-arrow"></i>' +
+      '</summary>' +
+      '<div class="ts-details-content">' + detailsRows +
+      '<div class="ts-details-note"><i class="fas fa-info-circle"></i><span>أرسل رقم المرجع فقط عند التواصل مع الدعم</span></div>' +
+      '</div></details>';
+
+    var actionsHTML = '<div class="ts-actions">' +
+      '<button type="button" class="ts-btn ts-btn--primary" data-ts-action="copy">' +
+      '<i class="fas fa-copy"></i> <span>نسخ رقم المرجع</span>' +
+      '</button>' +
+      '<button type="button" class="ts-btn ts-btn--secondary" data-ts-action="close-modal">' +
+      '<i class="fas fa-arrow-rotate-left"></i> <span>العودة</span>' +
+      '</button></div>';
+
+    var supportLinkHTML = '<button type="button" class="ts-support-link" data-ts-action="support">' +
+      '<i class="fas fa-headset"></i><span>لم تحل المشكلة؟ تواصل مع الدعم</span></button>';
+
+    return '<div class="ts-panel">' +
+      headerHTML + countdownHTML + failedFieldsHTML +
+      reasonHTML + causesHTML + solutionHTML + quickFixesHTML +
+      '<div class="ts-connection-result hidden"></div>' +
+      detailsHTML + actionsHTML + supportLinkHTML + '</div>';
+  }
+
+  function startCountdown(seconds) {
+    if (countdownInterval) clearInterval(countdownInterval);
+    var el = document.querySelector('[data-countdown]');
+    if (!el) return;
+    var remaining = seconds;
+    var retryBtns = document.querySelectorAll('[data-ts-action="retry"]');
+    retryBtns.forEach(function (b) { b.disabled = true; });
+    countdownInterval = setInterval(function () {
+      remaining--;
+      el.textContent = formatTime(Math.max(0, remaining));
+      if (remaining <= 0) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+        el.textContent = '✅ يمكنك المحاولة الآن';
+        el.classList.add('is-ready');
+        retryBtns.forEach(function (b) { b.disabled = false; });
+      }
+    }, 1000);
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-ts-action]');
+    if (!btn) return;
+    var action = btn.dataset.tsAction;
+
+    if (action === 'open-help') { e.preventDefault(); openHelpCenter(); return; }
+    if (action === 'open-tab') {
+      e.preventDefault();
+      var tab = btn.dataset.openTab;
+      if (tab) openHelpCenter(tab);
+      return;
+    }
+    if (action === 'switch-tab') {
+      e.preventDefault();
+      var tabName = btn.dataset.tab;
+      if (tabName) switchHelpTab(tabName);
+      return;
+    }
+    if (action === 'clear-search') { e.preventDefault(); clearHelpSearch(); return; }
+
+    if (action === 'trigger-issue') {
+      e.preventDefault();
+      var tool = btn.getAttribute('data-tool') || 'غير محددة';
+      var type = btn.getAttribute('data-type') || 'unknown';
+      var detailsStr = btn.getAttribute('data-details');
+      var details = {};
+      if (detailsStr) { try { details = JSON.parse(detailsStr); } catch (err) {} }
+      openTroubleshootModal(tool, type, details);
+      return;
+    }
+
+    if (action === 'open-faq') {
+      e.preventDefault();
+      var faqId = btn.getAttribute('data-faq-id');
+      if (faqId) openFaqSection(faqId);
+      return;
+    }
+
+    if (action === 'toggle-faq') { e.preventDefault(); toggleFaqItem(btn); return; }
+    if (action === 'close-modal') { e.preventDefault(); closeTroubleshootModal(); return; }
+    if (action === 'close-center') { e.preventDefault(); closeHelpCenter(); return; }
+    if (action === 'reload') { e.preventDefault(); closeTroubleshootModal(); setTimeout(function () { location.reload(); }, 200); return; }
+    if (action === 'home') { e.preventDefault(); closeTroubleshootModal(); setTimeout(function () { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 200); return; }
+    if (action === 'back') { e.preventDefault(); closeTroubleshootModal(); setTimeout(function () { history.back(); }, 200); return; }
+    if (action === 'call-emergency') { e.preventDefault(); closeTroubleshootModal(); setTimeout(function () { window.location.href = 'tel:' + CONFIG.emergencyPhone; }, 200); return; }
+
+    if (action === 'support') {
+      e.preventDefault();
+      closeTroubleshootModal();
+      setTimeout(function () {
+        var msg = encodeURIComponent('مرحباً، أحتاج مساعدة في منصة ' + CONFIG.brandNameAr + '. رقم المرجع: ' + (currentTsErrorId || SESSION_REF));
+        window.open('https://wa.me/' + CONFIG.supportPhone + '?text=' + msg, '_blank', 'noopener');
+      }, 300);
+      return;
+    }
+
+    if (action === 'copy-id') {
+      e.preventDefault();
+      copyToClipboard(btn.dataset.errorId).then(function (ok) {
+        showToast(ok ? 'تم نسخ المعرّف' : 'تعذّر النسخ', ok ? 'success' : 'error');
+      });
+      return;
+    }
+
+    if (action === 'copy') {
+      e.preventDefault();
+      if (!currentTsErrorId) { showToast('لا يوجد معرّف', 'error'); return; }
+      var id = currentTsErrorId;
+      var originalHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>جارٍ النسخ...</span>';
+      copyToClipboard(id).then(function (ok) {
+        if (ok) {
+          btn.innerHTML = '<i class="fas fa-check"></i><span>تم النسخ ✓</span>';
+          showToast('تم نسخ: ' + id, 'success');
+          setTimeout(function () { btn.disabled = false; btn.innerHTML = originalHTML; }, 2000);
+        } else {
+          btn.disabled = false;
+          btn.innerHTML = originalHTML;
+          showToast('انسخ يدوياً: ' + id, 'error');
+        }
+      });
+      return;
+    }
+
+    if (action === 'test-connection') {
+      e.preventDefault();
+      var box = document.querySelector('.ts-connection-result');
+      if (!box) return;
+      box.classList.remove('hidden');
+      box.innerHTML = '<div class="ts-connection-status ts-connection-status--loading">' +
+        '<i class="fas fa-spinner fa-spin"></i><span>جارٍ اختبار الاتصال...</span></div>';
+      testServerConnection().then(function (result) {
+        var ok = result.ok;
+        box.innerHTML = '<div class="ts-connection-status ' + (ok ? 'ts-connection-status--ok' : 'ts-connection-status--fail') + '">' +
+          '<i class="fas ' + (ok ? 'fa-circle-check' : 'fa-circle-xmark') + '"></i>' +
+          '<span>' + (ok ? 'الاتصال سليم' : 'تعذّر الاتصال') + '</span>' +
+          '<span class="ts-connection-time">' + result.time + 'ms</span></div>';
+        showToast(ok ? 'الاتصال سليم' : 'مشاكل في الاتصال', ok ? 'success' : 'error');
+      });
+      return;
+    }
+
+    if (action === 'retry') { e.preventDefault(); closeTroubleshootModal(); setTimeout(retryLastAction, 300); return; }
+    if (action === 'payment') {
+      e.preventDefault(); closeTroubleshootModal();
+      setTimeout(function () {
+        if (typeof window.openPaymentModal === 'function') window.openPaymentModal('طبيب', 'غير محدد');
+        else showToast('يرجى فتح صفحة الاشتراكات', 'info');
+      }, 300);
+      return;
+    }
+    if (action === 'login') {
+      e.preventDefault(); closeTroubleshootModal();
+      setTimeout(function () {
+        if (typeof window.openDoctorLogin === 'function') window.openDoctorLogin();
+        else showToast('يرجى فتح صفحة تسجيل الدخول', 'info');
+      }, 300);
+      return;
+    }
+    if (action === 'forgot-password') {
+      e.preventDefault(); closeTroubleshootModal();
+      setTimeout(function () { showToast('يرجى التواصل مع الدعم لاستعادة كلمة المرور', 'info'); }, 300);
+      return;
+    }
+  });
+
+  document.addEventListener('input', function (e) {
+    if (e.target && e.target.id === 'helpSearchInput') {
+      filterHelpCenter(e.target.value);
+    }
+  });
+
+  function testServerConnection() {
+    var url = location.pathname === '/' ? '/favicon.ico' : location.pathname.split('?')[0];
+    var start = performance.now();
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, CONFIG.testTimeoutMs);
+    return fetch(url, { method: 'HEAD', cache: 'no-store', signal: controller.signal })
+      .then(function () { clearTimeout(timer); return { ok: true, time: Math.round(performance.now() - start) }; })
+      .catch(function () { clearTimeout(timer); return { ok: false, time: Math.round(performance.now() - start) }; });
+  }
+
+  function registerRetry(fn) { retryFunction = fn; }
+
+  function retryLastAction() {
+    if (typeof retryFunction === 'function') {
+      var fn = retryFunction;
+      retryFunction = null;
+      try { return Promise.resolve(fn()).catch(function () { showToast('فشلت المحاولة مرة أخرى', 'error'); }); }
+      catch (e) { showToast('فشلت المحاولة مرة أخرى', 'error'); }
+    } else {
+      showToast('لا توجد عملية لإعادة المحاولة', 'info');
+    }
+    return Promise.resolve();
+  }
+
+  function injectFaqSchema() {
+    var old = document.getElementById('helpCenterFaqSchema');
+    if (old) old.remove();
+    var mainEntity = [];
+    FAQ_DATA.forEach(function (section) {
+      section.faqs.slice(0, 3).forEach(function (faq) {
+        mainEntity.push({
+          '@type': 'Question',
+          'name': faq.q,
+          'acceptedAnswer': { '@type': 'Answer', 'text': faq.a.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() }
+        });
+      });
+    });
+    var schema = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      'name': 'مركز المساعدة وحل المشكلات - LomedX',
+      'identifier': SESSION_REF,
+      'mainEntity': mainEntity
+    };
+    var script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'helpCenterFaqSchema';
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+  }
+
+  document.addEventListener('click', function (e) {
+    var overlay = document.getElementById('helpCenterOverlay');
+    if (overlay && e.target === overlay && overlay.classList.contains('active')) closeHelpCenter();
+    var tsOverlay = document.getElementById('tsModalOverlay');
+    if (tsOverlay && e.target === tsOverlay && tsOverlay.classList.contains('active')) closeTroubleshootModal();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' || e.key === 'Esc') {
+      var tsOverlay = document.getElementById('tsModalOverlay');
+      if (tsOverlay && tsOverlay.classList.contains('active')) { closeTroubleshootModal(); return; }
+      var overlay = document.getElementById('helpCenterOverlay');
+      if (overlay && overlay.classList.contains('active')) closeHelpCenter();
+    }
+  });
+
+  window.openHelpCenter = openHelpCenter;
+  window.closeHelpCenter = closeHelpCenter;
+  window.switchHelpTab = switchHelpTab;
+  window.filterHelpCenter = filterHelpCenter;
+  window.clearHelpSearch = clearHelpSearch;
+  window.openFaqSection = openFaqSection;
+  window.toggleFaqItem = toggleFaqItem;
+  window.openTroubleshootModal = openTroubleshootModal;
+  window.closeTroubleshootModal = closeTroubleshootModal;
+  window.registerRetry = registerRetry;
+  window.retryLastAction = retryLastAction;
+  window.showToast = showToast;
+  window.getSessionReference = function () { return SESSION_REF; };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateCounts);
+  } else {
+    updateCounts();
+  }
+
+  if (window.location.pathname === '/help') {
+    window.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () { openHelpCenter(); }, 300);
+    });
+  }
+
+  if (window.console) {
+    console.log('%c💎 LomedX Help Center v' + CONFIG.version + ' — Session: ' + SESSION_REF,
+      'background:linear-gradient(135deg,#D4A040,#F0D77B);color:#1A1508;padding:6px 14px;border-radius:6px;font-weight:bold;font-size:12px;');
+  }
+
+})(window, document);
+</script>
+
+</body>
+</html>
