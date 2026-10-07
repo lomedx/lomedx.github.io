@@ -2970,15 +2970,7 @@ if (action === 'support') {
   return;
 }
 
-    // ✅ فتح الموقع الرئيسي
-    if (action === 'go-to-site') {
-      e.preventDefault();
-      closeTroubleshootModal();
-      setTimeout(function () {
-        window.open(CONFIG.mainSiteUrl, '_blank', 'noopener');
-      }, 300);
-      return;
-    }
+
 
     if (action === 'copy-id') {
       e.preventDefault();
@@ -3027,16 +3019,7 @@ if (action === 'support') {
       return;
     }
 
-    // ✅ إعادة المحاولة → تفتح الموقع
-    if (action === 'retry') {
-      e.preventDefault();
-      closeTroubleshootModal();
-      setTimeout(function () {
-        window.open(CONFIG.mainSiteUrl, '_blank', 'noopener');
-      }, 300);
-      return;
-    }
-  });
+    
 
   document.addEventListener('input', function (e) {
     if (e.target && e.target.id === 'helpSearchInput') {
