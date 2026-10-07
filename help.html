@@ -3202,7 +3202,9 @@ body {
     updateCounts();
   }
 
-  if (window.location.pathname === '/help') {
+  if (window.location.pathname === '/help' || 
+    window.location.pathname === '/help.html' ||
+    window.location.pathname.includes('/help')) {
     window.addEventListener('DOMContentLoaded', function () {
       setTimeout(function () { openHelpCenter(); }, 300);
     });
