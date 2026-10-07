@@ -143,7 +143,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════ */
-/* [3] Hero — Logo Morphing Animation                                */
+/* [3] Hero                                                          */
 /* ═══════════════════════════════════════════════════════════════════ */
 .hero {
   text-align: center;
@@ -157,7 +157,6 @@ body {
   to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
-/* ─── حاوية الشعار ─── */
 .hero-logo-wrap {
   position: relative;
   display: inline-flex;
@@ -169,7 +168,6 @@ body {
   perspective: 1000px;
 }
 
-/* ─── صندوق Morphing ─── */
 .logo-morph-box {
   position: relative;
   width: 108px;
@@ -192,7 +190,6 @@ body {
   will-change: width, height, border-radius;
 }
 
-/* اللمعان المتحرك */
 .logo-morph-box::before {
   content: '';
   position: absolute;
@@ -206,7 +203,6 @@ body {
   pointer-events: none;
 }
 
-/* ─── الحرف L ─── */
 .logo-morph-letter {
   position: absolute;
   font-size: 3.2rem;
@@ -216,7 +212,6 @@ body {
   animation: morphLetterOut 8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
 }
 
-/* ─── نص LomedX ─── */
 .logo-morph-text {
   position: absolute;
   font-size: 3.1rem;
@@ -228,73 +223,26 @@ body {
   animation: morphTextIn 8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
 }
 
-/* ═══ Keyframes ═══ */
-
-/* تمدد الصندوق من مربع إلى مستطيل ثم يعود */
 @keyframes morphExpand {
-  0%, 12% {
-    width: 108px;
-    height: 108px;
-    border-radius: 26px;
-  }
-  22%, 30% {
-    width: 420px;
-    height: 108px;
-    border-radius: 54px;
-  }
-  40%, 68% {
-    width: 420px;
-    height: 108px;
-    border-radius: 54px;
-  }
-  78%, 86% {
-    width: 108px;
-    height: 108px;
-    border-radius: 26px;
-  }
-  92%, 100% {
-    width: 108px;
-    height: 108px;
-    border-radius: 26px;
-  }
+  0%, 12% { width: 108px; height: 108px; border-radius: 26px; }
+  22%, 30% { width: 420px; height: 108px; border-radius: 54px; }
+  40%, 68% { width: 420px; height: 108px; border-radius: 54px; }
+  78%, 86% { width: 108px; height: 108px; border-radius: 26px; }
+  92%, 100% { width: 108px; height: 108px; border-radius: 26px; }
 }
 
-/* اختفاء الحرف L */
 @keyframes morphLetterOut {
-  0%, 15% {
-    opacity: 1;
-    transform: scale(1) rotate(0);
-  }
-  22%, 68% {
-    opacity: 0;
-    transform: scale(0.4) rotate(-90deg);
-  }
-  78%, 100% {
-    opacity: 1;
-    transform: scale(1) rotate(0);
-  }
+  0%, 15% { opacity: 1; transform: scale(1) rotate(0); }
+  22%, 68% { opacity: 0; transform: scale(0.4) rotate(-90deg); }
+  78%, 100% { opacity: 1; transform: scale(1) rotate(0); }
 }
 
-/* ظهور نص LomedX */
 @keyframes morphTextIn {
-  0%, 20% {
-    opacity: 0;
-    transform: scale(0.5);
-    filter: blur(12px);
-  }
-  32%, 66% {
-    opacity: 1;
-    transform: scale(1);
-    filter: blur(0);
-  }
-  78%, 100% {
-    opacity: 0;
-    transform: scale(0.5);
-    filter: blur(12px);
-  }
+  0%, 20% { opacity: 0; transform: scale(0.5); filter: blur(12px); }
+  32%, 66% { opacity: 1; transform: scale(1); filter: blur(0); }
+  78%, 100% { opacity: 0; transform: scale(0.5); filter: blur(12px); }
 }
 
-/* اللمعان */
 @keyframes morphShine {
   0%, 15% { left: -150%; }
   35% { left: 150%; }
@@ -302,7 +250,6 @@ body {
   85%, 100% { left: -150%; }
 }
 
-/* ─── العنوان الفرعي ─── */
 .hero-subtitle {
   font-size: 1.05rem;
   color: var(--text-secondary);
@@ -610,17 +557,6 @@ body {
   line-height: 1.9;
   font-weight: 500;
 }
-
-.page-footer a {
-  color: var(--gold-light);
-  text-decoration: none;
-  font-weight: 700;
-  transition: color 0.2s;
-  direction: ltr;
-  display: inline-block;
-}
-
-.page-footer a:hover { color: var(--gold-bright); text-decoration: underline; }
 
 /* ═══════════════════════════════════════════════════════════════════ */
 /* [6] Help Center Overlay                                           */
@@ -1052,23 +988,16 @@ body {
   border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 12px;
   flex-shrink: 0;
-}
-
-.help-footer p {
-  font-size: 12.5px;
-  color: var(--text-tertiary);
-  margin: 0;
-  font-weight: 500;
 }
 
 .help-support-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 18px;
+  padding: 10px 22px;
   background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
   color: #1A1508;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1878,7 +1807,7 @@ body {
   .help-search-wrap > i.fa-search { right: 32px; }
   .help-search-clear { left: 30px; }
   .help-topics { padding: 10px 18px 16px; }
-  .help-footer { padding: 14px 18px; flex-direction: column; gap: 10px; }
+  .help-footer { padding: 14px 18px; }
   .help-support-btn { width: 100%; justify-content: center; }
 
   .ts-grid { grid-template-columns: 1fr 1fr; }
@@ -1995,8 +1924,6 @@ body {
     <div class="page-footer-divider"></div>
     <p>
       LomedX © 2026 — منصة طبية شاملة في سوريا
-      <br>
-      للتواصل: <a href="https://wa.me/963980390813" target="_blank" rel="noopener">+963 980 390 813</a>
     </p>
   </footer>
 
@@ -2047,10 +1974,9 @@ body {
     </div>
 
     <div class="help-footer">
-      <p>لم تجد حلك؟ تواصل مع الدعم الفني</p>
       <button type="button" data-ts-action="support" class="help-support-btn">
         <i class="fas fa-headset"></i>
-        <span>اتصل بنا</span>
+        <span>تواصل مع الدعم</span>
       </button>
     </div>
   </div>
@@ -2072,16 +1998,17 @@ body {
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════ */
-/* Help Center — Unified Engine v3.2                                  */
+/* Help Center — Unified Engine v3.3                                  */
 /* ═══════════════════════════════════════════════════════════════════ */
 (function (window, document) {
   'use strict';
 
   var CONFIG = {
-    version: '3.2.0',
+    version: '3.3.0',
     brandNameAr: 'لوميدكس',
     supportPhone: '963980390813',
     emergencyPhone: '110',
+    mainSiteUrl: 'https://lomedx.pages.dev',
     testTimeoutMs: 5000,
     currentTab: 'troubleshoot'
   };
@@ -2273,7 +2200,7 @@ body {
     }
   ];
 
-  /* ═══ TROUBLESHOOT DATA ═══ */
+  /* ═══ TROUBLESHOOT DATA — مع الأزرار الصحيحة ═══ */
   var ISSUES = {
     network: { title: 'مشكلة في الاتصال بالإنترنت', icon: 'fa-wifi', color: '#EF4444',
       reason: 'تعذر الوصول إلى خوادمنا. غالباً السبب هو ضعف شبكة الإنترنت، أو بيانات الهاتف لديك، أو أن المتصفح يمنع الاتصال.',
@@ -2282,9 +2209,8 @@ body {
       quickFixes: [
         { icon: 'fa-sync', text: 'أعد تحميل الصفحة', action: 'reload' },
         { icon: 'fa-wifi', text: 'اختبار الاتصال', action: 'test-connection' },
-        { icon: 'fa-mobile-screen', text: 'جرب بيانات الهاتف' },
-        { icon: 'fa-shield-halved', text: 'أوقف VPN' },
-        { icon: 'fa-clock', text: 'تحقق من وقت الجهاز' }
+        { icon: 'fa-globe', text: 'افتح الموقع الرئيسي', action: 'go-to-site' },
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
       ]
     },
     rate_limit: { title: 'محاولات كثيرة جداً', icon: 'fa-hourglass-half', color: '#F59E0B',
@@ -2293,15 +2219,17 @@ body {
       commonCauses: ['النقر المتكرر على زر الإرسال.', 'تحديث الصفحة بشكل متكرر.', 'فتح عدة تبويبات.', 'استخدام أداة آلية.'],
       quickFixes: [
         { icon: 'fa-clock', text: 'انتظر انتهاء العدّاد' },
-        { icon: 'fa-ban', text: 'لا تعد النقر' },
-        { icon: 'fa-hand', text: 'أرسل الطلب مرة واحدة' }
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
       ]
     },
     validation: { title: 'بيانات غير مكتملة', icon: 'fa-triangle-exclamation', color: '#F59E0B',
       reason: 'بعض الحقول الإلزامية فارغة أو تحتوي على بيانات غير صحيحة.',
       solution: 'راجع الحقول ذات العلامة (*) وتأكد من إدخال البيانات بشكل صحيح.',
       commonCauses: ['حقول مطلوبة فارغة.', 'رقم هاتف غير صحيح.', 'بريد إلكتروني خاطئ.', 'نص قصير جداً.', 'نص طويل جداً.'],
-      quickFixes: [{ icon: 'fa-arrow-rotate-left', text: 'العودة وإصلاح الحقول', action: 'close-modal' }]
+      quickFixes: [
+        { icon: 'fa-arrow-rotate-left', text: 'العودة وإصلاح الحقول', action: 'close-modal' },
+        { icon: 'fa-globe', text: 'افتح الموقع للمتابعة', action: 'go-to-site' }
+      ]
     },
     cloudflare: { title: 'فشل التحقق الأمني', icon: 'fa-shield-virus', color: '#EF4444',
       reason: 'لم يتمكن نظام الحماية من التأكد أنك لست روبوت، ربما لأنك تستخدم AdBlocker.',
@@ -2309,7 +2237,8 @@ body {
       commonCauses: ['AdBlocker.', 'وضع التصفح الخفي.', 'متصفح قديم.', 'VPN.'],
       quickFixes: [
         { icon: 'fa-shield-halved', text: 'أوقف AdBlocker' },
-        { icon: 'fa-sync', text: 'أعد تحميل الصفحة', action: 'reload' }
+        { icon: 'fa-sync', text: 'أعد تحميل الصفحة', action: 'reload' },
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
       ]
     },
     timeout: { title: 'انتهت مهلة الطلب', icon: 'fa-clock', color: '#F59E0B',
@@ -2318,7 +2247,8 @@ body {
       commonCauses: ['بطء الإنترنت.', 'ضغط على الخوادم.', 'ملف كبير.', 'شبكة غير مستقرة.'],
       quickFixes: [
         { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' },
-        { icon: 'fa-gauge-high', text: 'اختبار الاتصال', action: 'test-connection' }
+        { icon: 'fa-gauge-high', text: 'اختبار الاتصال', action: 'test-connection' },
+        { icon: 'fa-globe', text: 'افتح الموقع الرئيسي', action: 'go-to-site' }
       ]
     },
     server: { title: 'خطأ مؤقت في الخادم', icon: 'fa-server', color: '#EF4444',
@@ -2327,6 +2257,7 @@ body {
       commonCauses: ['صيانة مجدولة.', 'ضغط على الخوادم.', 'خطأ برمجي.', 'تعطل قاعدة البيانات.'],
       quickFixes: [
         { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' },
+        { icon: 'fa-globe', text: 'افتح الموقع الرئيسي', action: 'go-to-site' },
         { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
       ]
     },
@@ -2335,22 +2266,25 @@ body {
       solution: 'سجّل الدخول من جديد ثم أعد المحاولة.',
       commonCauses: ['انتهاء الجلسة.', 'تسجيل خروج من تبويب آخر.', 'تغيير كلمة المرور.'],
       quickFixes: [
-        { icon: 'fa-right-to-bracket', text: 'تسجيل الدخول', action: 'login' },
-        { icon: 'fa-key', text: 'نسيت كلمة المرور؟', action: 'forgot-password' }
+        { icon: 'fa-right-to-bracket', text: 'تسجيل الدخول', action: 'go-to-site' },
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
       ]
     },
     permission: { title: 'صلاحيات غير كافية', icon: 'fa-lock', color: '#EF4444',
       reason: 'حسابك لا يملك الصلاحيات المطلوبة.',
       solution: 'تواصل مع مدير النظام.',
       commonCauses: ['دور مستخدم عادي.', 'مورد لا يخصك.', 'حساب موقوف.'],
-      quickFixes: [{ icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }]
+      quickFixes: [
+        { icon: 'fa-globe', text: 'افتح الموقع الرئيسي', action: 'go-to-site' },
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
+      ]
     },
     not_found: { title: 'العنصر غير موجود', icon: 'fa-magnifying-glass', color: '#F59E0B',
       reason: 'العنصر حُذف أو تم نقله.',
       solution: 'تحقق من الرابط أو ارجع للرئيسية.',
       commonCauses: ['رابط قديم.', 'حذف العنصر.', 'خطأ مطبعي.'],
       quickFixes: [
-        { icon: 'fa-home', text: 'العودة للرئيسية', action: 'home' },
+        { icon: 'fa-globe', text: 'افتح الموقع الرئيسي', action: 'go-to-site' },
         { icon: 'fa-undo', text: 'الصفحة السابقة', action: 'back' }
       ]
     },
@@ -2379,7 +2313,7 @@ body {
       commonCauses: [],
       quickFixes: [
         { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' },
-        { icon: 'fa-house', text: 'العودة للرئيسية', action: 'home' }
+        { icon: 'fa-globe', text: 'افتح الموقع الرئيسي', action: 'go-to-site' }
       ]
     },
     backend_offline: { title: 'خوادم المنصة غير متاحة', icon: 'fa-server', color: '#DC2626',
@@ -2388,7 +2322,8 @@ body {
       commonCauses: ['انقطاع إنترنت.', 'صيانة طارئة.', 'هجوم DDoS.'],
       quickFixes: [
         { icon: 'fa-clock', text: 'انتظر 5-10 دقائق' },
-        { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' }
+        { icon: 'fa-redo', text: 'أعد المحاولة', action: 'retry' },
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
       ]
     },
     booking_slot_taken: { title: 'الموعد محجوز مسبقاً', icon: 'fa-calendar-xmark', color: '#F59E0B',
@@ -2396,7 +2331,7 @@ body {
       solution: 'اختر وقتاً آخر متاحاً.',
       commonCauses: ['شخصان لنفس الموعد.', 'الطبيب أغلق الموعد.'],
       quickFixes: [
-        { icon: 'fa-calendar-day', text: 'اختر وقتاً آخر', action: 'close-modal' },
+        { icon: 'fa-globe', text: 'افتح الموقع لاختيار وقت آخر', action: 'go-to-site' },
         { icon: 'fa-sync', text: 'حدّث المواعيد', action: 'reload' }
       ]
     },
@@ -2405,8 +2340,8 @@ body {
       solution: 'جرب يوماً آخر.',
       commonCauses: ['إجازة.', 'يوم غير عمل.', 'نهاية دوام.'],
       quickFixes: [
-        { icon: 'fa-calendar-week', text: 'جرب يوماً آخر', action: 'close-modal' },
-        { icon: 'fa-phone', text: 'اتصل بالعيادة', action: 'close-modal' }
+        { icon: 'fa-globe', text: 'افتح الموقع لجرب يوم آخر', action: 'go-to-site' },
+        { icon: 'fa-phone', text: 'اتصل بالعيادة', action: 'support' }
       ]
     },
     booking_already_exists: { title: 'لديك حجز نشط', icon: 'fa-calendar-check', color: '#3B82F6',
@@ -2414,8 +2349,8 @@ body {
       solution: 'تابع حجزك الحالي أو ألغِه أولاً.',
       commonCauses: ['حجز سابق.', 'نفس الرقم مستخدم.'],
       quickFixes: [
-        { icon: 'fa-search', text: 'استعلام عن حجزي', action: 'close-modal' },
-        { icon: 'fa-phone', text: 'تواصل مع العيادة', action: 'close-modal' }
+        { icon: 'fa-globe', text: 'افتح الموقع لمتابعة الحجز', action: 'go-to-site' },
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
       ]
     },
     medicine_not_found: { title: 'لم يتم العثور على الدواء', icon: 'fa-pills', color: '#F59E0B',
@@ -2423,7 +2358,7 @@ body {
       solution: 'جرب اسماً بديلاً.',
       commonCauses: ['غير متوفر.', 'اسم خاطئ.', 'مسحوب من السوق.'],
       quickFixes: [
-        { icon: 'fa-search', text: 'جرب اسماً بديلاً', action: 'close-modal' },
+        { icon: 'fa-globe', text: 'افتح الموقع لبحث جديد', action: 'go-to-site' },
         { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
       ]
     },
@@ -2432,7 +2367,7 @@ body {
       solution: 'أنهِ الحالية أولاً أو انتظر 20 ساعة.',
       commonCauses: ['استغاثة سابقة.', 'نفس الرقم.'],
       quickFixes: [
-        { icon: 'fa-check', text: 'أنهِ الاستغاثة', action: 'close-modal' },
+        { icon: 'fa-globe', text: 'افتح الموقع لإدارة الاستغاثة', action: 'go-to-site' },
         { icon: 'fa-clock', text: 'انتظر 20 ساعة' }
       ]
     },
@@ -2441,8 +2376,8 @@ body {
       solution: 'اطلب من المريض تحديث رمز QR.',
       commonCauses: ['رمز قديم.', 'لم يُقرأ بشكل صحيح.', 'ملف محذوف.'],
       quickFixes: [
-        { icon: 'fa-redo', text: 'أعد مسح الرمز', action: 'close-modal' },
-        { icon: 'fa-user', text: 'اطلب البيانات يدوياً', action: 'close-modal' }
+        { icon: 'fa-redo', text: 'أعد مسح الرمز', action: 'go-to-site' },
+        { icon: 'fa-user', text: 'اطلب البيانات يدوياً', action: 'go-to-site' }
       ]
     },
     chat_not_confirmed: { title: 'الدردشة غير متاحة', icon: 'fa-comment-slash', color: '#F59E0B',
@@ -2451,7 +2386,7 @@ body {
       commonCauses: ['الطلب لم يُقبل بعد.', 'الموعد ملغي.'],
       quickFixes: [
         { icon: 'fa-clock', text: 'انتظر تأكيد الطبيب' },
-        { icon: 'fa-phone', text: 'اتصل بالعيادة', action: 'close-modal' }
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
       ]
     },
     doctor_not_subscribed: { title: 'اشتراك الطبيب منتهي', icon: 'fa-crown', color: '#F59E0B',
@@ -2459,7 +2394,7 @@ body {
       solution: 'جدّد اشتراكك للاستمرار.',
       commonCauses: ['انتهت المدة.', 'لم يتم التجديد.', 'مشكلة في الدفع.'],
       quickFixes: [
-        { icon: 'fa-crown', text: 'تجديد الاشتراك', action: 'payment' },
+        { icon: 'fa-globe', text: 'افتح الموقع للتجديد', action: 'go-to-site' },
         { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
       ]
     },
@@ -2468,7 +2403,7 @@ body {
       solution: 'جدّد اشتراكك.',
       commonCauses: ['انتهت المدة.', 'مشكلة في الدفع.'],
       quickFixes: [
-        { icon: 'fa-crown', text: 'تجديد الاشتراك', action: 'payment' },
+        { icon: 'fa-globe', text: 'افتح الموقع للتجديد', action: 'go-to-site' },
         { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
       ]
     },
@@ -2477,8 +2412,8 @@ body {
       solution: 'جرب صورة أصغر.',
       commonCauses: ['حجم كبير.', 'صيغة غير مدعومة.', 'انقطاع.'],
       quickFixes: [
-        { icon: 'fa-image', text: 'جرب صورة أصغر', action: 'close-modal' },
-        { icon: 'fa-redo', text: 'أعد الرفع', action: 'retry' }
+        { icon: 'fa-globe', text: 'افتح الموقع وأعد المحاولة', action: 'go-to-site' },
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
       ]
     },
     captcha_failed: { title: 'فشل التحقق الأمني', icon: 'fa-shield-halved', color: '#EF4444',
@@ -2487,7 +2422,8 @@ body {
       commonCauses: ['لم تكمل التحقق.', 'AdBlocker.', 'مشكلة في الشبكة.'],
       quickFixes: [
         { icon: 'fa-sync', text: 'أعد تحميل الصفحة', action: 'reload' },
-        { icon: 'fa-shield-halved', text: 'أوقف AdBlocker' }
+        { icon: 'fa-shield-halved', text: 'أوقف AdBlocker' },
+        { icon: 'fa-globe', text: 'افتح الموقع الرئيسي', action: 'go-to-site' }
       ]
     },
     burn_emergency: { title: 'حالة حرق تتطلب طوارئ!', icon: 'fa-fire', color: '#DC2626',
@@ -2496,7 +2432,7 @@ body {
       commonCauses: [],
       quickFixes: [
         { icon: 'fa-ambulance', text: 'اتصل بالإسعاف 110', action: 'call-emergency' },
-        { icon: 'fa-hospital', text: 'أقرب مشفى', action: 'close-modal' }
+        { icon: 'fa-headset', text: 'تواصل مع الدعم', action: 'support' }
       ]
     }
   };
@@ -2543,7 +2479,7 @@ body {
         { tool: 'خطأ غير معروف', type: 'unknown', icon: 'fa-circle-question', label: 'خطأ غير متوقع', desc: 'Unknown' },
         { tool: 'الدعم', type: 'support', icon: 'fa-headset', label: 'الدعم الفني', desc: 'تواصل معنا' },
         { tool: 'غير موجود', type: 'not_found', icon: 'fa-magnifying-glass', label: 'العنصر غير موجود', desc: '404' },
-        { tool: 'صيانة', type: 'screwdriver', icon: 'fa-screwdriver-wrench', label: 'تحت الصيانة', desc: 'Maintenance' }
+        { tool: 'صيانة', type: 'maintenance', icon: 'fa-screwdriver-wrench', label: 'تحت الصيانة', desc: 'Maintenance' }
       ]
     }
   ];
@@ -2585,8 +2521,6 @@ body {
     overlay.classList.add('active');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-
-    try { history.pushState({ help: true }, '', '/help'); } catch (e) {}
   }
 
   function closeHelpCenter() {
@@ -2599,7 +2533,6 @@ body {
     if (previousTitle) { document.title = previousTitle; previousTitle = null; }
     var schema = document.getElementById('helpCenterFaqSchema');
     if (schema) schema.remove();
-    try { if (window.location.pathname === '/help') history.pushState({}, '', '/'); } catch (e) {}
   }
 
   function switchHelpTab(tabName) {
@@ -2790,7 +2723,7 @@ body {
     var actionsHTML =
       '<div class="ts-actions">' +
       '<button type="button" class="ts-btn ts-btn--primary" data-ts-action="support">' +
-      '<i class="fas fa-headset"></i> <span>لم تجد إجابتك؟ تواصل معنا</span>' +
+      '<i class="fas fa-headset"></i> <span>تواصل مع الدعم</span>' +
       '</button>' +
       '<button type="button" class="ts-btn ts-btn--secondary" data-ts-action="close-modal">' +
       '<i class="fas fa-arrow-rotate-left"></i> <span>العودة</span>' +
@@ -3024,16 +2957,26 @@ body {
     if (action === 'close-modal') { e.preventDefault(); closeTroubleshootModal(); return; }
     if (action === 'close-center') { e.preventDefault(); closeHelpCenter(); return; }
     if (action === 'reload') { e.preventDefault(); closeTroubleshootModal(); setTimeout(function () { location.reload(); }, 200); return; }
-    if (action === 'home') { e.preventDefault(); closeTroubleshootModal(); setTimeout(function () { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 200); return; }
     if (action === 'back') { e.preventDefault(); closeTroubleshootModal(); setTimeout(function () { history.back(); }, 200); return; }
     if (action === 'call-emergency') { e.preventDefault(); closeTroubleshootModal(); setTimeout(function () { window.location.href = 'tel:' + CONFIG.emergencyPhone; }, 200); return; }
 
+    // ✅ تواصل مع الدعم → واتساب
     if (action === 'support') {
       e.preventDefault();
       closeTroubleshootModal();
       setTimeout(function () {
         var msg = encodeURIComponent('مرحباً، أحتاج مساعدة في منصة ' + CONFIG.brandNameAr + '. رقم المرجع: ' + (currentTsErrorId || SESSION_REF));
         window.open('https://wa.me/' + CONFIG.supportPhone + '?text=' + msg, '_blank', 'noopener');
+      }, 300);
+      return;
+    }
+
+    // ✅ فتح الموقع الرئيسي
+    if (action === 'go-to-site') {
+      e.preventDefault();
+      closeTroubleshootModal();
+      setTimeout(function () {
+        window.open(CONFIG.mainSiteUrl, '_blank', 'noopener');
       }, 300);
       return;
     }
@@ -3085,26 +3028,13 @@ body {
       return;
     }
 
-    if (action === 'retry') { e.preventDefault(); closeTroubleshootModal(); setTimeout(retryLastAction, 300); return; }
-    if (action === 'payment') {
-      e.preventDefault(); closeTroubleshootModal();
+    // ✅ إعادة المحاولة → تفتح الموقع
+    if (action === 'retry') {
+      e.preventDefault();
+      closeTroubleshootModal();
       setTimeout(function () {
-        if (typeof window.openPaymentModal === 'function') window.openPaymentModal('طبيب', 'غير محدد');
-        else showToast('يرجى فتح صفحة الاشتراكات', 'info');
+        window.open(CONFIG.mainSiteUrl, '_blank', 'noopener');
       }, 300);
-      return;
-    }
-    if (action === 'login') {
-      e.preventDefault(); closeTroubleshootModal();
-      setTimeout(function () {
-        if (typeof window.openDoctorLogin === 'function') window.openDoctorLogin();
-        else showToast('يرجى فتح صفحة تسجيل الدخول', 'info');
-      }, 300);
-      return;
-    }
-    if (action === 'forgot-password') {
-      e.preventDefault(); closeTroubleshootModal();
-      setTimeout(function () { showToast('يرجى التواصل مع الدعم لاستعادة كلمة المرور', 'info'); }, 300);
       return;
     }
   });
@@ -3200,14 +3130,6 @@ body {
     document.addEventListener('DOMContentLoaded', updateCounts);
   } else {
     updateCounts();
-  }
-
-  if (window.location.pathname === '/help' || 
-    window.location.pathname === '/help.html' ||
-    window.location.pathname.includes('/help')) {
-    window.addEventListener('DOMContentLoaded', function () {
-      setTimeout(function () { openHelpCenter(); }, 300);
-    });
   }
 
   if (window.console) {
