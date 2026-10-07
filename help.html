@@ -2960,16 +2960,15 @@ body {
     if (action === 'back') { e.preventDefault(); closeTroubleshootModal(); setTimeout(function () { history.back(); }, 200); return; }
     if (action === 'call-emergency') { e.preventDefault(); closeTroubleshootModal(); setTimeout(function () { window.location.href = 'tel:' + CONFIG.emergencyPhone; }, 200); return; }
 
-    // ✅ تواصل مع الدعم → واتساب
-    if (action === 'support') {
-      e.preventDefault();
-      closeTroubleshootModal();
-      setTimeout(function () {
-        var msg = encodeURIComponent('مرحباً، أحتاج مساعدة في منصة ' + CONFIG.brandNameAr + '. رقم المرجع: ' + (currentTsErrorId || SESSION_REF));
-        window.open('https://wa.me/' + CONFIG.supportPhone + '?text=' + msg, '_blank', 'noopener');
-      }, 300);
-      return;
-    }
+    // ✅ تواصل مع الدعم → يفتح نافذة التواصل في موقعك
+if (action === 'support') {
+  e.preventDefault();
+  closeTroubleshootModal();
+  setTimeout(function () {
+    window.open('https://lomedx.pages.dev/contact', '_blank', 'noopener');
+  }, 300);
+  return;
+}
 
     // ✅ فتح الموقع الرئيسي
     if (action === 'go-to-site') {
