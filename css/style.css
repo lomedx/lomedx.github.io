@@ -2545,3 +2545,690 @@ html.dark .contact-input:focus { background-color: var(--card) !important; borde
     from { opacity: 0; transform: translateY(-4px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+
+
+
+
+/* ═══════════════════════════════════════════════════════════ */
+/* 🗺️ الخريطة الطبية التفاعلية (Leaflet)                      */
+/* ═══════════════════════════════════════════════════════════ */
+
+/* عند فتح الخريطة — اجعل الـ ctrl-content أكبر */
+.ctrl-overlay:has(.medical-map-wrapper) .ctrl-content {
+    max-width: 1400px;
+    width: 96vw;
+    height: 92vh;
+    max-height: 92vh;
+}
+
+.medical-map-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    background: var(--bg);
+    position: relative;
+}
+
+/* ─── Header ─── */
+.medical-map-header {
+    padding: 16px 20px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.medical-map-search-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.medical-map-search-wrap > i.fa-search {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.medical-map-search {
+    width: 100%;
+    padding: 12px 44px 12px 44px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.25s;
+}
+
+.medical-map-search:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-light);
+}
+
+.medical-map-search-clear {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.06);
+    color: var(--muted);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s;
+}
+
+.medical-map-search:not(:placeholder-shown) ~ .medical-map-search-clear {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.medical-map-search-clear:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #EF4444;
+}
+
+/* ─── الفلاتر ─── */
+.medical-map-filters {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    justify-content: center;
+}
+
+.medical-map-filters::-webkit-scrollbar { display: none; }
+
+.medical-map-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.medical-map-filter:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-1px);
+}
+
+.medical-map-filter.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px -4px rgba(14, 124, 95, 0.5);
+}
+
+.medical-map-filter i { font-size: 12px; }
+
+.medical-map-filter-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.08);
+    font-family: 'Menlo', monospace;
+    font-size: 10px;
+    font-weight: 800;
+    direction: ltr;
+}
+
+.medical-map-filter.active .medical-map-filter-count {
+    background: rgba(255,255,255,0.25);
+}
+
+/* ─── Body: Sidebar + Map ─── */
+.medical-map-body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    position: relative;
+}
+
+/* ─── Sidebar ─── */
+.medical-map-sidebar {
+    width: 340px;
+    flex-shrink: 0;
+    background: var(--card);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.medical-map-sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-deep);
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--fg);
+    flex-shrink: 0;
+}
+
+.medical-map-sidebar-header i {
+    color: var(--accent);
+    font-size: 14px;
+}
+
+.medical-map-sidebar-count {
+    margin-right: auto;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    font-family: 'Menlo', monospace;
+    font-size: 11px;
+    font-weight: 800;
+    direction: ltr;
+}
+
+.medical-map-sidebar-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.medical-map-sidebar-list::-webkit-scrollbar { width: 6px; }
+.medical-map-sidebar-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 999px;
+}
+
+/* ─── Sidebar Group ─── */
+.medical-map-sidebar-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.medical-map-sidebar-group-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 4px;
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.medical-map-sidebar-group-title i {
+    color: var(--accent);
+    font-size: 11px;
+}
+
+/* ─── Card ─── */
+.medical-map-card {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    isolation: isolate;
+}
+
+.medical-map-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--place-color, var(--accent));
+    border-radius: 0 12px 12px 0;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.3s;
+}
+
+.medical-map-card:hover {
+    border-color: var(--place-color, var(--accent));
+    transform: translateX(-3px);
+    box-shadow: 0 6px 20px -6px rgba(0,0,0,0.15);
+}
+
+.medical-map-card:hover::before,
+.medical-map-card.active::before {
+    transform: scaleY(1);
+}
+
+.medical-map-card.active {
+    border-color: var(--place-color, var(--accent));
+    background: var(--card);
+    box-shadow: 0 6px 20px -6px rgba(0,0,0,0.15);
+}
+
+.medical-map-card.no-coords {
+    opacity: 0.85;
+}
+
+.medical-map-card.no-coords:hover {
+    opacity: 1;
+}
+
+.medical-map-card-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 14px;
+    color: #fff;
+    background: var(--place-color, var(--accent));
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px -3px var(--place-color, var(--accent));
+}
+
+.medical-map-card-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.medical-map-card-name {
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--fg);
+    margin-bottom: 3px;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+.medical-map-card-type {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--place-color, var(--accent));
+    margin-bottom: 4px;
+}
+
+.medical-map-card-address {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.medical-map-card-address i {
+    font-size: 9px;
+    flex-shrink: 0;
+}
+
+.medical-map-card-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+}
+
+.medical-map-card-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.medical-map-card-btn.call {
+    background: rgba(59, 130, 246, 0.12);
+    color: #3B82F6;
+}
+
+.medical-map-card-btn.call:hover {
+    background: #3B82F6;
+    color: #fff;
+}
+
+.medical-map-card-btn.route {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10B981;
+}
+
+.medical-map-card-btn.route:hover {
+    background: #10B981;
+    color: #fff;
+}
+
+/* ─── Empty state ─── */
+.medical-map-sidebar-empty {
+    text-align: center;
+    padding: 50px 16px;
+    color: var(--muted);
+}
+
+.medical-map-sidebar-empty i {
+    font-size: 40px;
+    color: var(--border);
+    margin-bottom: 12px;
+    display: block;
+}
+
+.medical-map-sidebar-empty strong {
+    display: block;
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-size: 14px;
+    color: var(--fg-light);
+    margin-bottom: 4px;
+}
+
+.medical-map-sidebar-empty span {
+    font-size: 12px;
+}
+
+/* ─── Map ─── */
+.medical-map-leaflet {
+    flex: 1;
+    min-height: 0;
+    background: #0a1f1a;
+    position: relative;
+    z-index: 1;
+}
+
+/* ─── Markers مخصصة ─── */
+.medical-map-marker-pin {
+    width: 36px;
+    height: 36px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: grid;
+    place-items: center;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: transform 0.2s;
+}
+
+.medical-map-marker-pin i {
+    transform: rotate(45deg);
+    color: #fff;
+    font-size: 14px;
+}
+
+.medical-map-marker-pin:hover {
+    transform: rotate(-45deg) scale(1.15);
+}
+
+/* ─── Popup ─── */
+.leaflet-popup-content-wrapper {
+    background: var(--card) !important;
+    color: var(--fg) !important;
+    border-radius: 14px !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 12px 40px -8px rgba(0,0,0,0.4) !important;
+    padding: 0 !important;
+}
+
+.leaflet-popup-content {
+    margin: 0 !important;
+    padding: 14px 16px !important;
+    font-family: 'IBM Plex Sans Arabic', sans-serif !important;
+    direction: rtl !important;
+    min-width: 220px !important;
+}
+
+.leaflet-popup-tip {
+    background: var(--card) !important;
+    border: 1px solid var(--border) !important;
+}
+
+.leaflet-popup-close-button {
+    color: var(--muted) !important;
+    font-size: 18px !important;
+    padding: 8px !important;
+}
+
+.leaflet-popup-close-button:hover {
+    color: #EF4444 !important;
+}
+
+.medical-map-popup-title {
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--fg);
+    margin-bottom: 6px;
+    padding-left: 20px;
+}
+
+.medical-map-popup-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.medical-map-popup-type i { font-size: 10px; }
+
+.medical-map-popup-specialty {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+.medical-map-popup-address {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.medical-map-popup-address i {
+    margin-top: 3px;
+    font-size: 10px;
+    flex-shrink: 0;
+}
+
+.medical-map-popup-actions {
+    display: flex;
+    gap: 6px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+}
+
+.medical-map-popup-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.medical-map-popup-btn.call {
+    background: #3B82F6;
+    color: #fff;
+}
+
+.medical-map-popup-btn.call:hover {
+    background: #2563EB;
+}
+
+.medical-map-popup-btn.route {
+    background: #10B981;
+    color: #fff;
+}
+
+.medical-map-popup-btn.route:hover {
+    background: #059669;
+}
+
+/* ─── User marker ─── */
+.medical-map-user-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #3B82F6;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), 0 3px 12px rgba(0,0,0,0.4);
+    animation: medicalMapUserPulse 2s ease-in-out infinite;
+}
+
+@keyframes medicalMapUserPulse {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), 0 3px 12px rgba(0,0,0,0.4); }
+    50% { box-shadow: 0 0 0 12px rgba(59, 130, 246, 0), 0 3px 12px rgba(0,0,0,0.4); }
+}
+
+/* ─── Locate button ─── */
+.medical-map-locate {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    z-index: 500;
+    display: grid;
+    place-items: center;
+    font-size: 17px;
+    box-shadow: 0 6px 20px -4px rgba(14, 124, 95, 0.5);
+    transition: all 0.25s;
+}
+
+.medical-map-locate:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 10px 28px -6px rgba(14, 124, 95, 0.6);
+}
+
+.medical-map-locate.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+    .ctrl-overlay:has(.medical-map-wrapper) .ctrl-content {
+        max-width: 100%;
+        width: 100%;
+        height: 95vh;
+        max-height: 95vh;
+        border-radius: 24px 24px 0 0;
+    }
+    
+    .medical-map-body {
+        flex-direction: column;
+    }
+    
+    .medical-map-sidebar {
+        width: 100%;
+        max-height: 40vh;
+        border-left: none;
+        border-top: 1px solid var(--border);
+        order: 2;
+    }
+    
+    .medical-map-leaflet {
+        flex: 1;
+        order: 1;
+        min-height: 40vh;
+    }
+    
+    .medical-map-filters {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 500px) {
+    .medical-map-header { padding: 12px 14px; }
+    .medical-map-search { font-size: 13px; padding: 11px 40px 11px 40px; }
+    .medical-map-filter { font-size: 11.5px; padding: 7px 11px; }
+    .medical-map-sidebar { max-height: 45vh; }
+    .medical-map-sidebar-list { padding: 10px 8px; }
+    .medical-map-card { padding: 10px; }
+    .medical-map-card-name { font-size: 12px; }
+    .medical-map-card-icon { width: 30px; height: 30px; font-size: 12px; }
+    .medical-map-locate { bottom: 14px; left: 14px; width: 44px; height: 44px; }
+}
+
+/* ─── الوضع المظلم ─── */
+html.dark .medical-map-leaflet {
+    background: #050810;
+}
