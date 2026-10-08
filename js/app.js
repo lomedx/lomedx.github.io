@@ -5941,7 +5941,6 @@ function bindMedicalMapEvents() {
         locateBtn.dataset.bound = 'true';
         locateBtn.addEventListener('click', locateMedicalMapUser);
     }
-}
 
 // ✅ فلترة markers على الخريطة
 function filterMedicalMapMarkers() {
