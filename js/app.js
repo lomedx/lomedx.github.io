@@ -7985,6 +7985,3 @@ window.showToast = (message, type = 'info', duration = 4000) => {
 
 
 
-
-// === Troubleshoot Modal Engine (مركز حل المشكلات) ===
-        // === Troubleshoot Modal Engine (LomedX Native Integration) ===
