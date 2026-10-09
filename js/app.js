@@ -2449,6 +2449,9 @@ window.renderDoctorDashboard = async (doc) => {
             <button onclick="openAskDoctor('${doc.name}')" class="w-full py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all" style="background: #2563EB;">
                 <i class="fas fa-comments"></i> قسم اسأل طبيب
             </button>
+            <button onclick="openDocMedsLibrary()" class="w-full py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all" style="background: #8B5CF6;">
+    <i class="fas fa-book-medical"></i> مكتبة الأدوية الخاصة
+</button>
         </div>
                         <!-- إدارة ازدحام العيادة المباشر -->
         <div class="bg-white p-5 rounded-2xl border shadow-sm" style="border-color: var(--border);">
