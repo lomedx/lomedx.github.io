@@ -7473,7 +7473,158 @@ window.showToast = (message, type = 'info', duration = 4000) => {
 };
 
 
+// ==========================================
+// [الخطوة 1] نظام مكتبة الأدوية المحلية للطبيب
+// ==========================================
+let docMedsLibrary = JSON.parse(localStorage.getItem('lomedx_doc_meds_library') || '[]');
 
+window.openDocMedsLibrary = () => {
+    openCtrlPanel('مكتبة الأدوية الخاصة', `
+        <div class="flex flex-col gap-5">
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm flex items-center gap-3">
+                <i class="fas fa-book-medical text-xl"></i>
+                <span>جهز قائمتك هنا. ستظهر لك الأدوية بضغطة زر عند كتابة أي روشتة. (تُحفظ على هذا الجهاز فقط).</span>
+            </div>
+
+            <!-- قسم النسخ الاحتياطي -->
+            <div class="bg-gray-50 p-4 rounded-xl border" style="border-color: var(--border);">
+                <h4 class="font-bold text-sm mb-3 flex items-center gap-2"><i class="fas fa-cloud-arrow-down text-gray-600"></i> النسخ الاحتياطي والاستعادة</h4>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="exportMedsLibrary()" class="bg-green-500 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-green-600 transition-all">
+                        <i class="fas fa-file-export ml-1"></i> نسخة احتياطية
+                    </button>
+                    <label class="bg-blue-500 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-blue-600 transition-all cursor-pointer text-center">
+                        <i class="fas fa-file-import ml-1"></i> استعادة المكتبة
+                        <input type="file" id="importMedsInput" accept=".json" class="hidden" onchange="importMedsLibrary(event)">
+                    </label>
+                </div>
+            </div>
+
+            <!-- قسم إضافة فئة جديدة -->
+            <div class="bg-white p-4 rounded-xl border" style="border-color: var(--border);">
+                <h4 class="font-bold text-sm mb-3 flex items-center gap-2"><i class="fas fa-plus-circle text-blue-600"></i> إضافة فئة جديدة</h4>
+                <div class="flex gap-2">
+                    <input type="text" id="newCatName" class="ctrl-input text-sm flex-1" placeholder="اسم الفئة (مثال: مسكنات، مضادات حيوية)">
+                    <button onclick="addMedCategory()" class="bg-blue-600 text-white px-4 rounded-xl text-sm font-bold hover:bg-blue-700">إضافة</button>
+                </div>
+            </div>
+
+            <!-- عرض المكتبة الحالية -->
+            <div id="docMedsLibraryContainer" class="flex flex-col gap-4"></div>
+        </div>
+    `, '#2563EB');
+    renderDocMedsLibrary();
+};
+
+function renderDocMedsLibrary() {
+    const container = document.getElementById('docMedsLibraryContainer');
+    if (!container) return;
+
+    if (docMedsLibrary.length === 0) {
+        container.innerHTML = '<p class="text-center text-gray-400 text-sm py-8">مكتبتك فارغة. أضف فئة جديدة لتبدأ.</p>';
+        return;
+    }
+
+    container.innerHTML = docMedsLibrary.map((cat, catIndex) => `
+        <div class="bg-white p-4 rounded-xl border" style="border-color: var(--border);">
+            <div class="flex justify-between items-center mb-3">
+                <h5 class="font-bold text-sm text-gray-800"><i class="fas fa-folder text-blue-500 ml-2"></i> ${escapeHtml(cat.name)}</h5>
+                <button onclick="deleteMedCategory(${catIndex})" class="text-red-500 text-xs hover:text-red-700"><i class="fas fa-trash"></i> حذف الفئة</button>
+            </div>
+            <div class="flex gap-2 mb-3">
+                <input type="text" id="medName_${catIndex}" class="ctrl-input text-sm py-2" placeholder="اسم الدواء (مثال: Augmentin 1g)">
+                <input type="text" id="medDose_${catIndex}" class="ctrl-input text-sm py-2 w-40" placeholder="الجرعة (مثال: حبة كل 12 ساعة)">
+                <button onclick="addMedToCategory(${catIndex})" class="bg-green-500 text-white px-3 rounded-lg text-sm font-bold hover:bg-green-600"><i class="fas fa-plus"></i></button>
+            </div>
+            <div class="flex flex-col gap-2">
+                ${cat.meds.length === 0 ? '<p class="text-xs text-gray-400">لا توجد أدوية في هذه الفئة بعد.</p>' : cat.meds.map((med, medIndex) => `
+                    <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg text-sm">
+                        <div>
+                            <span class="font-bold text-gray-800">${escapeHtml(med.name)}</span>
+                            <span class="text-gray-500 text-xs mr-2">(${escapeHtml(med.dose)})</span>
+                        </div>
+                        <button onclick="deleteMedItem(${catIndex}, ${medIndex})" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-times-circle"></i></button>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+window.addMedCategory = () => {
+    const input = document.getElementById('newCatName');
+    const name = input.value.trim();
+    if (!name) return showToast('أدخل اسم الفئة');
+    docMedsLibrary.push({ id: Date.now(), name: name, meds: [] });
+    localStorage.setItem('lomedx_doc_meds_library', JSON.stringify(docMedsLibrary));
+    input.value = '';
+    renderDocMedsLibrary();
+    showToast('تمت إضافة الفئة', 'success');
+};
+
+window.deleteMedCategory = (catIndex) => {
+    docMedsLibrary.splice(catIndex, 1);
+    localStorage.setItem('lomedx_doc_meds_library', JSON.stringify(docMedsLibrary));
+    renderDocMedsLibrary();
+    showToast('تم حذف الفئة');
+};
+
+window.addMedToCategory = (catIndex) => {
+    const nameInput = document.getElementById(`medName_${catIndex}`);
+    const doseInput = document.getElementById(`medDose_${catIndex}`);
+    const name = nameInput.value.trim();
+    const dose = doseInput.value.trim();
+    if (!name) return showToast('أدخل اسم الدواء');
+    
+    docMedsLibrary[catIndex].meds.push({ name, dose });
+    localStorage.setItem('lomedx_doc_meds_library', JSON.stringify(docMedsLibrary));
+    nameInput.value = ''; doseInput.value = '';
+    renderDocMedsLibrary();
+};
+
+window.deleteMedItem = (catIndex, medIndex) => {
+    docMedsLibrary[catIndex].meds.splice(medIndex, 1);
+    localStorage.setItem('lomedx_doc_meds_library', JSON.stringify(docMedsLibrary));
+    renderDocMedsLibrary();
+};
+
+window.exportMedsLibrary = () => {
+    if (docMedsLibrary.length === 0) return showToast('المكتبة فارغة، لا يوجد ما يتم تصديره', 'error');
+    const dataStr = JSON.stringify(docMedsLibrary, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `LomedX_Meds_Backup_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('تم تحميل النسخة الاحتياطية بنجاح', 'success');
+};
+
+window.importMedsLibrary = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            if (Array.isArray(importedData)) {
+                docMedsLibrary = importedData;
+                localStorage.setItem('lomedx_doc_meds_library', JSON.stringify(docMedsLibrary));
+                renderDocMedsLibrary();
+                showToast('تم استعادة المكتبة بنجاح!', 'success');
+            } else {
+                showToast('الملف غير صالح', 'error');
+            }
+        } catch (err) {
+            showToast('خطأ في قراءة الملف', 'error');
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+};
 
 
 
