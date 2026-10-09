@@ -7506,9 +7506,9 @@ window.openDocMedsLibrary = () => {
             <!-- قسم إضافة فئة جديدة -->
             <div class="bg-white p-4 rounded-xl border" style="border-color: var(--border);">
                 <h4 class="font-bold text-sm mb-3 flex items-center gap-2"><i class="fas fa-plus-circle text-blue-600"></i> إضافة فئة جديدة</h4>
-                <div class="flex gap-2">
+                <div class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="newCatName" class="ctrl-input text-sm flex-1" placeholder="اسم الفئة (مثال: مسكنات، مضادات حيوية)">
-                    <button onclick="addMedCategory()" class="bg-blue-600 text-white px-4 rounded-xl text-sm font-bold hover:bg-blue-700">إضافة</button>
+                    <button onclick="addMedCategory()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 sm:self-auto">إضافة</button>
                 </div>
             </div>
 
@@ -7518,7 +7518,6 @@ window.openDocMedsLibrary = () => {
     `, '#2563EB');
     renderDocMedsLibrary();
 };
-
 function renderDocMedsLibrary() {
     const container = document.getElementById('docMedsLibraryContainer');
     if (!container) return;
@@ -7534,19 +7533,21 @@ function renderDocMedsLibrary() {
                 <h5 class="font-bold text-sm text-gray-800"><i class="fas fa-folder text-blue-500 ml-2"></i> ${escapeHtml(cat.name)}</h5>
                 <button onclick="deleteMedCategory(${catIndex})" class="text-red-500 text-xs hover:text-red-700"><i class="fas fa-trash"></i> حذف الفئة</button>
             </div>
-            <div class="flex gap-2 mb-3">
-                <input type="text" id="medName_${catIndex}" class="ctrl-input text-sm py-2" placeholder="اسم الدواء (مثال: Augmentin 1g)">
-                <input type="text" id="medDose_${catIndex}" class="ctrl-input text-sm py-2 w-40" placeholder="الجرعة (مثال: حبة كل 12 ساعة)">
-                <button onclick="addMedToCategory(${catIndex})" class="bg-green-500 text-white px-3 rounded-lg text-sm font-bold hover:bg-green-600"><i class="fas fa-plus"></i></button>
+            
+            <div class="flex flex-col sm:flex-row gap-2 mb-3">
+                <input type="text" id="medName_${catIndex}" class="ctrl-input text-sm py-2 flex-1" placeholder="اسم الدواء (مثال: Augmentin 1g)">
+                <input type="text" id="medDose_${catIndex}" class="ctrl-input text-sm py-2 sm:w-44 w-full" placeholder="الجرعة (مثال: حبة كل 12 ساعة)">
+                <button onclick="addMedToCategory(${catIndex})" class="bg-green-500 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-green-600 sm:self-auto"><i class="fas fa-plus"></i></button>
             </div>
+            
             <div class="flex flex-col gap-2">
                 ${cat.meds.length === 0 ? '<p class="text-xs text-gray-400">لا توجد أدوية في هذه الفئة بعد.</p>' : cat.meds.map((med, medIndex) => `
-                    <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg text-sm">
-                        <div>
-                            <span class="font-bold text-gray-800">${escapeHtml(med.name)}</span>
-                            <span class="text-gray-500 text-xs mr-2">(${escapeHtml(med.dose)})</span>
+                    <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded-lg text-sm gap-2">
+                        <div class="flex-1 min-w-0">
+                            <span class="font-bold text-gray-800 block">${escapeHtml(med.name)}</span>
+                            <span class="text-gray-500 text-xs">${escapeHtml(med.dose)}</span>
                         </div>
-                        <button onclick="deleteMedItem(${catIndex}, ${medIndex})" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-times-circle"></i></button>
+                        <button onclick="deleteMedItem(${catIndex}, ${medIndex})" class="text-red-400 hover:text-red-600 text-xs flex-shrink-0 p-1"><i class="fas fa-times-circle text-lg"></i></button>
                     </div>
                 `).join('')}
             </div>
