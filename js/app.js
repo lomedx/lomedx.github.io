@@ -5941,6 +5941,7 @@ function bindMedicalMapEvents() {
         locateBtn.dataset.bound = 'true';
         locateBtn.addEventListener('click', locateMedicalMapUser);
     }
+} // <--- تم إضافة هذا القوس المغلق ل إغلاق دالة bindMedicalMapEvents
 
 // ✅ فلترة markers على الخريطة
 function filterMedicalMapMarkers() {
