@@ -202,27 +202,24 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 sm:h-20">
 
-<a href="#home" class="flex flex-col gap-2 text-white no-underline">
-    <!-- شارة الزوار -->
-    <div class="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 shadow-md hover:bg-white/20 transition-all duration-300 w-fit">
-        <i class="fas fa-users text-yellow-400 text-xs"></i>
-        <span class="text-[10px] text-white/70">الزوار:</span>
+<a href="#home" class="stat-pill-pro text-white no-underline" title="إحصائيات المنصة">
+    <!-- الزوار -->
+    <div class="flex items-center gap-1.5">
+        <i class="fas fa-users text-yellow-400 text-[10px]"></i>
         <span id="visitorCount" class="text-[11px] font-bold text-white">0</span>
-        <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-        </span>
     </div>
-    <!-- شارة المشاهدات -->
-    <div class="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 shadow-md hover:bg-white/20 transition-all duration-300 w-fit">
-        <i class="fas fa-eye text-yellow-400 text-xs"></i>
-        <span class="text-[10px] text-white/70">المشاهدات:</span>
+    
+    <!-- فاصل -->
+    <span class="w-px h-3 bg-white/20"></span>
+    
+    <!-- المشاهدات -->
+    <div class="flex items-center gap-1.5">
+        <i class="fas fa-eye text-yellow-400 text-[10px]"></i>
         <span id="viewsCount" class="text-[11px] font-bold text-white">0</span>
-        <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-        </span>
     </div>
+    
+    <!-- مؤشر الحالة -->
+    <span class="radar-dot-pro"></span>
 </a>
                 <div class="hidden lg:flex items-center gap-6">
                 <!-- تم إزالة الهاش # وتحويله إلى مسار / -->
