@@ -458,8 +458,8 @@ window.addEventListener('DOMContentLoaded', () => {
     fetchEmergencyContacts();
     
     document.getElementById('lightbox').addEventListener('click', () => { document.getElementById('lightbox').classList.remove('active'); unlockScroll(); });
-    document.getElementById('darkModeToggle').addEventListener('click', () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('darkMode', document.documentElement.classList.contains('dark')); });
-    if (localStorage.getItem('darkMode') === 'true') document.documentElement.classList.add('dark');
+    
+      if (localStorage.getItem('darkMode') === 'true') document.documentElement.classList.add('dark');
     
     const heroLogo = document.querySelector('.hero-medical-logo');
     if (heroLogo) {
@@ -8067,4 +8067,448 @@ window.printVerifiedPrescription = () => {
 
 
 
+// ═══════════════════════════════════════════════════════════
+// THEME COMPACT TOGGLE — Dual Ring with Web Bridge
+// ═══════════════════════════════════════════════════════════
+(function initThemeCompact() {
+    'use strict';
 
+    const compactLight = document.getElementById('compactRingLight');
+    const compactDark = document.getElementById('compactRingDark');
+    const compactCanvas = document.getElementById('themeCompactCanvas');
+    const container = document.getElementById('themeCompact');
+    
+    // إذا لم تكن العناصر موجودة، اخرج بهدوء
+    if (!compactLight || !compactDark || !compactCanvas || !container) return;
+
+    const ctx = compactCanvas.getContext('2d');
+
+    // ═══════════════════════════════════════════════════════
+    // ⚙️ إعدادات الشبكة (قابلة للتعديل)
+    // ═══════════════════════════════════════════════════════
+    const CONFIG = {
+        animationDuration: 2500,   // مدة نسج الشبكة
+        fadeOutDuration: 700,       // مدة التلاشي
+        webRows: 4,                 // عدد الصفوف
+        webCols: 6,                 // عدد الأعمدة
+        verticalSpread: 0.45,       // الانتشار العمودي
+        jitterAmount: 2             // اهتزاز بسيط
+    };
+
+    // ═══════════════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════════════
+    let isAnimating = false;
+    let animFrame = null;
+    let lightCenter = { x: 0, y: 0 };
+    let darkCenter = { x: 0, y: 0 };
+    let webProgress = 0;
+    let webDirection = 'light-to-dark';
+    let webNodes = [];
+    let webConnections = [];
+    let resizeTimeout = null;
+
+    // ═══════════════════════════════════════════════════════
+    // SETUP CANVAS
+    // ═══════════════════════════════════════════════════════
+    function setupCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const rect = compactCanvas.getBoundingClientRect();
+        
+        compactCanvas.width = rect.width * dpr;
+        compactCanvas.height = rect.height * dpr;
+        compactCanvas.style.width = rect.width + 'px';
+        compactCanvas.style.height = rect.height + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function calculateRingCenters() {
+        const canvasRect = compactCanvas.getBoundingClientRect();
+        const lightRect = compactLight.getBoundingClientRect();
+        const darkRect = compactDark.getBoundingClientRect();
+
+        lightCenter = {
+            x: lightRect.left - canvasRect.left + lightRect.width / 2,
+            y: lightRect.top - canvasRect.top + lightRect.height / 2
+        };
+
+        darkCenter = {
+            x: darkRect.left - canvasRect.left + darkRect.width / 2,
+            y: darkRect.top - canvasRect.top + darkRect.height / 2
+        };
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // WEB GENERATION — شبكة منظمة
+    // ═══════════════════════════════════════════════════════
+    function generateOrganizedWeb(from, to) {
+        const nodes = [];
+        const connections = [];
+
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance === 0) return { nodes, connections };
+
+        const perpX = -dy / distance;
+        const perpY = dx / distance;
+        const verticalReach = distance * CONFIG.verticalSpread;
+
+        // نقطة البداية
+        const startAnchorIdx = 0;
+        nodes.push({ 
+            x: from.x, y: from.y, 
+            size: 2.5, delay: 0,
+            isAnchor: true, row: -1, col: -1
+        });
+
+        // شبكة منظمة
+        const rows = CONFIG.webRows;
+        const cols = CONFIG.webCols;
+        const gridIndices = [];
+
+        for (let row = 0; row < rows; row++) {
+            const rowIndices = [];
+            const rowRatio = rows > 1 ? (row / (rows - 1)) * 2 - 1 : 0;
+            
+            for (let col = 0; col < cols; col++) {
+                const t = (col + 1) / (cols + 1);
+                const baseX = from.x + dx * t;
+                const baseY = from.y + dy * t;
+                
+                const centerFactor = Math.sin(t * Math.PI);
+                const verticalOffset = rowRatio * verticalReach * centerFactor;
+                
+                const jitterX = (Math.random() - 0.5) * CONFIG.jitterAmount;
+                const jitterY = (Math.random() - 0.5) * CONFIG.jitterAmount;
+                
+                const nodeX = baseX + perpX * verticalOffset + jitterX;
+                const nodeY = baseY + perpY * verticalOffset + jitterY;
+                
+                const colDelay = t * 0.55;
+                const rowDelay = Math.abs(rowRatio) * 0.15;
+                const totalDelay = colDelay + rowDelay;
+                
+                const nodeIdx = nodes.length;
+                nodes.push({
+                    x: nodeX, y: nodeY,
+                    size: 0.9 + Math.random() * 0.5,
+                    delay: totalDelay,
+                    row, col, t, rowRatio
+                });
+                
+                rowIndices.push(nodeIdx);
+            }
+            
+            gridIndices.push(rowIndices);
+        }
+
+        // نقطة النهاية
+        const endAnchorIdxActual = nodes.length;
+        nodes.push({ 
+            x: to.x, y: to.y, 
+            size: 2.5, delay: 1,
+            isAnchor: true, row: -1, col: -1
+        });
+
+        // اتصالات أفقية
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols - 1; col++) {
+                const idx1 = gridIndices[row][col];
+                const idx2 = gridIndices[row][col + 1];
+                connections.push({
+                    from: idx1, to: idx2,
+                    delay: Math.min(nodes[idx1].delay, nodes[idx2].delay),
+                    width: 0.55
+                });
+            }
+        }
+
+        // اتصالات عمودية
+        for (let row = 0; row < rows - 1; row++) {
+            for (let col = 0; col < cols; col++) {
+                const idx1 = gridIndices[row][col];
+                const idx2 = gridIndices[row + 1][col];
+                connections.push({
+                    from: idx1, to: idx2,
+                    delay: Math.min(nodes[idx1].delay, nodes[idx2].delay) + 0.05,
+                    width: 0.45
+                });
+            }
+        }
+
+        // اتصالات قطرية
+        for (let row = 0; row < rows - 1; row++) {
+            for (let col = 0; col < cols - 1; col++) {
+                const idxA1 = gridIndices[row][col];
+                const idxA2 = gridIndices[row + 1][col + 1];
+                connections.push({
+                    from: idxA1, to: idxA2,
+                    delay: Math.min(nodes[idxA1].delay, nodes[idxA2].delay) + 0.08,
+                    width: 0.35
+                });
+                
+                const idxB1 = gridIndices[row][col + 1];
+                const idxB2 = gridIndices[row + 1][col];
+                connections.push({
+                    from: idxB1, to: idxB2,
+                    delay: Math.min(nodes[idxB1].delay, nodes[idxB2].delay) + 0.08,
+                    width: 0.35
+                });
+            }
+        }
+
+        // اتصالات Anchor
+        for (let row = 0; row < rows; row++) {
+            const idx = gridIndices[row][0];
+            connections.push({
+                from: startAnchorIdx, to: idx,
+                delay: nodes[idx].delay * 0.7,
+                width: 0.6
+            });
+        }
+
+        for (let row = 0; row < rows; row++) {
+            const idx = gridIndices[row][cols - 1];
+            connections.push({
+                from: idx, to: endAnchorIdxActual,
+                delay: Math.min(nodes[idx].delay + 0.1, 0.85),
+                width: 0.6
+            });
+        }
+
+        return { nodes, connections };
+    }
+
+    function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // DRAW
+    // ═══════════════════════════════════════════════════════
+    function drawWeb() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = compactCanvas.width / dpr;
+        const h = compactCanvas.height / dpr;
+
+        ctx.clearRect(0, 0, w, h);
+        if (webProgress <= 0 || webNodes.length === 0) return;
+
+        const eased = easeOutCubic(Math.min(webProgress, 1));
+        const isGoingToDark = webDirection === 'light-to-dark';
+        
+        // ✅ استخدام ألوان المنصة
+        const webColor = isGoingToDark 
+            ? 'rgba(240, 215, 123, 0.95)'
+            : 'rgba(196, 150, 44, 0.95)';
+        
+        const glowColor = isGoingToDark 
+            ? 'rgba(240, 215, 123, 0.35)'
+            : 'rgba(196, 150, 44, 0.35)';
+
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // 1. رسم الاتصالات
+        webConnections.forEach(conn => {
+            const localProgress = Math.max(0, Math.min(1, (eased - conn.delay) / (1 - conn.delay + 0.001)));
+            if (localProgress <= 0) return;
+
+            const fromNode = webNodes[conn.from];
+            const toNode = webNodes[conn.to];
+            const currentX = fromNode.x + (toNode.x - fromNode.x) * localProgress;
+            const currentY = fromNode.y + (toNode.y - fromNode.y) * localProgress;
+
+            // Glow
+            ctx.beginPath();
+            ctx.moveTo(fromNode.x, fromNode.y);
+            ctx.lineTo(currentX, currentY);
+            ctx.strokeStyle = glowColor;
+            ctx.lineWidth = conn.width * 3 * localProgress;
+            ctx.globalAlpha = 0.35 * localProgress;
+            ctx.stroke();
+
+            // Main
+            ctx.beginPath();
+            ctx.moveTo(fromNode.x, fromNode.y);
+            ctx.lineTo(currentX, currentY);
+            ctx.strokeStyle = webColor;
+            ctx.lineWidth = conn.width * localProgress;
+            ctx.globalAlpha = 0.9 * localProgress;
+            ctx.stroke();
+        });
+
+        // 2. رسم النقاط
+        webNodes.forEach(node => {
+            const localProgress = Math.max(0, Math.min(1, (eased - node.delay) / (1 - node.delay + 0.001)));
+            if (localProgress <= 0) return;
+
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, node.size * 2.5 * localProgress, 0, Math.PI * 2);
+            ctx.fillStyle = glowColor;
+            ctx.globalAlpha = 0.4 * localProgress;
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, node.size * localProgress, 0, Math.PI * 2);
+            ctx.fillStyle = webColor;
+            ctx.globalAlpha = localProgress;
+            ctx.fill();
+
+            if (node.isAnchor) {
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, node.size * 0.45 * localProgress, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffff';
+                ctx.globalAlpha = 0.95 * localProgress;
+                ctx.fill();
+            }
+        });
+
+        // 3. نبضات الطاقة
+        if (eased > 0.55) {
+            const pulseTime = (performance.now() / 2000) % 1;
+            if (pulseTime <= eased) {
+                const x = lightCenter.x + (darkCenter.x - lightCenter.x) * pulseTime;
+                const y = lightCenter.y + (darkCenter.y - lightCenter.y) * pulseTime;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+                ctx.fillStyle = webColor;
+                ctx.globalAlpha = 0.95 * Math.sin(pulseTime * Math.PI);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(x, y, 7, 0, Math.PI * 2);
+                ctx.fillStyle = glowColor;
+                ctx.globalAlpha = 0.35 * Math.sin(pulseTime * Math.PI);
+                ctx.fill();
+            }
+        }
+
+        ctx.globalAlpha = 1;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // ANIMATE
+    // ═══════════════════════════════════════════════════════
+    function animateWeb(from, to, duration, onComplete) {
+        const startTime = performance.now();
+        const delta = to - from;
+
+        function step(now) {
+            const elapsed = now - startTime;
+            const t = Math.min(elapsed / duration, 1);
+            webProgress = from + delta * t;
+            drawWeb();
+
+            if (t < 1) {
+                animFrame = requestAnimationFrame(step);
+            } else {
+                webProgress = to;
+                if (onComplete) onComplete();
+            }
+        }
+
+        if (animFrame) cancelAnimationFrame(animFrame);
+        animFrame = requestAnimationFrame(step);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // APPLY THEME — يتوافق مع نظامك (html.dark)
+    // ═══════════════════════════════════════════════════════
+    function applyTheme(isDark, animate = true) {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        const from = isDark ? lightCenter : darkCenter;
+        const to = isDark ? darkCenter : lightCenter;
+        webDirection = isDark ? 'light-to-dark' : 'dark-to-light';
+
+        const webData = generateOrganizedWeb(from, to);
+        webNodes = webData.nodes;
+        webConnections = webData.connections;
+        webProgress = 0;
+
+        const targetRing = isDark ? compactDark : compactLight;
+        targetRing.classList.remove('pulse');
+        void targetRing.offsetWidth;
+        targetRing.classList.add('pulse');
+
+        if (animate) {
+            animateWeb(0, 1, CONFIG.animationDuration, () => {
+                // ✅ تطبيق الثيم على <html> كما في نظامك الأصلي
+                document.documentElement.classList.toggle('dark', isDark);
+                
+                compactLight.setAttribute('aria-pressed', (!isDark).toString());
+                compactDark.setAttribute('aria-pressed', isDark.toString());
+
+                // ✅ حفظ في localStorage بنفس مفتاح نظامك
+                try {
+                    localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+                } catch (e) {}
+
+                setTimeout(() => {
+                    animateWeb(1, 0, CONFIG.fadeOutDuration, () => {
+                        isAnimating = false;
+                    });
+                }, 400);
+            });
+        } else {
+            document.documentElement.classList.toggle('dark', isDark);
+            compactLight.setAttribute('aria-pressed', (!isDark).toString());
+            compactDark.setAttribute('aria-pressed', isDark.toString());
+            webProgress = 0;
+            drawWeb();
+            isAnimating = false;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // EVENTS
+    // ═══════════════════════════════════════════════════════
+    compactLight.addEventListener('click', () => {
+        if (document.documentElement.classList.contains('dark')) {
+            applyTheme(false);
+        }
+    });
+
+    compactDark.addEventListener('click', () => {
+        if (!document.documentElement.classList.contains('dark')) {
+            applyTheme(true);
+        }
+    });
+
+    [compactLight, compactDark].forEach(ring => {
+        ring.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                ring.click();
+            }
+        });
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════════════
+    function init() {
+        setupCanvas();
+        calculateRingCenters();
+        
+        const isDark = document.documentElement.classList.contains('dark');
+        applyTheme(isDark, false);
+    }
+
+    setTimeout(init, 200);
+
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            setupCanvas();
+            calculateRingCenters();
+            if (webProgress > 0) drawWeb();
+        }, 200);
+    });
+
+})();
