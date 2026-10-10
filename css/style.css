@@ -2813,8 +2813,9 @@ html.dark .contact-input:focus { background-color: var(--card) !important; borde
 
 
 /* ═══════════════════════════════════════════════════════════
-   THEME COMPACT — Dual Ring for Navbar
+   THEME COMPACT — Dual Ring للـ Navbar
    ═══════════════════════════════════════════════════════════ */
+
 .theme-compact {
     position: relative;
     width: 100px;
@@ -2828,9 +2829,7 @@ html.dark .contact-input:focus { background-color: var(--card) !important; borde
     border: 1px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    transition: 
-        background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-        border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.5s ease, border-color 0.5s ease;
     overflow: visible;
     isolation: isolate;
 }
@@ -2850,8 +2849,9 @@ html.dark .theme-compact {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   RING (زر الشمس/القمر)
+   RING (حلقة الشمس/القمر)
    ═══════════════════════════════════════════════════════════ */
+
 .theme-compact-ring {
     position: relative;
     z-index: 3;
@@ -2867,10 +2867,10 @@ html.dark .theme-compact {
     padding: 0;
     transition: 
         transform 0.4s cubic-bezier(0.34, 1.4, 0.64, 1),
-        opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-        background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-        box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-        color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity 0.5s ease,
+        background 0.4s ease,
+        box-shadow 0.4s ease,
+        color 0.4s ease;
     -webkit-tap-highlight-color: transparent;
     font-family: inherit;
     outline: none;
@@ -2892,8 +2892,9 @@ html.dark .theme-compact {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   LIGHT RING — الحلقة الذهبية
+   LIGHT RING — الحلقة الذهبية (الوضع النهاري)
    ═══════════════════════════════════════════════════════════ */
+
 .theme-compact-light {
     color: rgba(255, 255, 255, 0.7);
 }
@@ -2919,8 +2920,9 @@ html:not(.dark) .theme-compact-light svg {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   DARK RING — الحلقة الشامبانيا
+   DARK RING — الحلقة الليلية
    ═══════════════════════════════════════════════════════════ */
+
 .theme-compact-dark {
     color: rgba(255, 255, 255, 0.7);
 }
@@ -2947,6 +2949,7 @@ html.dark .theme-compact-dark svg {
 /* ═══════════════════════════════════════════════════════════
    HOVER & ACTIVE
    ═══════════════════════════════════════════════════════════ */
+
 .theme-compact-ring:hover {
     transform: scale(1.12);
 }
@@ -2966,8 +2969,9 @@ html.dark .theme-compact-dark:hover {
 /* ═══════════════════════════════════════════════════════════
    PULSE ANIMATION
    ═══════════════════════════════════════════════════════════ */
+
 .theme-compact-ring.pulse {
-    animation: compactRingPulse 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: compactRingPulse 0.7s ease;
 }
 
 @keyframes compactRingPulse {
@@ -2976,23 +2980,18 @@ html.dark .theme-compact-dark:hover {
     100% { transform: scale(1.05); }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   RESPONSIVE (Mobile)
-   ═══════════════════════════════════════════════════════════ */
-@        opacity: 0.8;
-        filter: blur(25px);
-    }
-}
 
 /* ═══════════════════════════════════════════════════════════
-   LomedX Brand Hero — نفس لون القائمة الجانبية + تأثير لامع
+   LOMEDX BRAND HERO — كلمة LomedX في Hero
+   (نفس لون القائمة الجانبية + تأثير لامع)
    ═══════════════════════════════════════════════════════════ */
+
 .lomedx-brand-hero {
     font-family: 'Outfit', 'Poppins', sans-serif;
     font-weight: 800;
     font-size: 2.5rem;
     letter-spacing: 0.08em;
-    margin-bottom: 2rem;
+    margin: 1.5rem 0 2rem 0;
     display: inline-block;
     position: relative;
     
@@ -3009,7 +3008,7 @@ html.dark .theme-compact-dark:hover {
     -webkit-text-fill-color: transparent;
     color: transparent;
     
-    /* ✨ تأثير اللمعان المتحرك (فقط في Hero) */
+    /* ✨ تأثير اللمعان المتحرك */
     animation: shimmerGoldHero 4s linear infinite;
     
     /* توهج خارجي ذهبي */
@@ -3017,14 +3016,21 @@ html.dark .theme-compact-dark:hover {
             drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
 }
 
-/* حركة اللمعان الذهبي */
-@keyframes shimmerGoldHero {
-    to {
-        background-position: -200% center;
-    }
+/* الوضع الليلي */
+html.dark .lomedx-brand-hero {
+    background: linear-gradient(
+        135deg,
+        #f8d674 0%,
+        #F0D77B 50%,
+        #10B981 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-/* توهج نبضي داخلي */
+/* توهج نبضي خلفي */
 .lomedx-brand-hero::after {
     content: 'LomedX';
     position: absolute;
@@ -3040,6 +3046,16 @@ html.dark .theme-compact-dark:hover {
     pointer-events: none;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════════════ */
+
+@keyframes shimmerGoldHero {
+    to {
+        background-position: -200% center;
+    }
+}
+
 @keyframes pulseGlowHero {
     0%, 100% {
         opacity: 0.3;
@@ -3051,10 +3067,25 @@ html.dark .theme-compact-dark:hover {
     }
 }
 
+
 /* ═══════════════════════════════════════════════════════════
-   Responsive
+   RESPONSIVE
    ═══════════════════════════════════════════════════════════ */
+
 @media (max-width: 640px) {
+    .theme-compact {
+        width: 86px;
+        height: 36px;
+        padding: 2px;
+    }
+    .theme-compact-ring {
+        width: 28px;
+        height: 28px;
+    }
+    .theme-compact-ring svg {
+        width: 15px;
+        height: 15px;
+    }
     .lomedx-brand-hero {
         font-size: 2rem;
         letter-spacing: 0.06em;
@@ -3062,6 +3093,18 @@ html.dark .theme-compact-dark:hover {
 }
 
 @media (max-width: 380px) {
+    .theme-compact {
+        width: 78px;
+        height: 32px;
+    }
+    .theme-compact-ring {
+        width: 26px;
+        height: 26px;
+    }
+    .theme-compact-ring svg {
+        width: 13px;
+        height: 13px;
+    }
     .lomedx-brand-hero {
         font-size: 1.75rem;
     }
