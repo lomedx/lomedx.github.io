@@ -202,24 +202,29 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 sm:h-20">
 
-<a href="#home" class="stat-pill-pro text-white no-underline" title="إحصائيات المنصة">
+<!-- 📊 الإحصائيات — متجاوبة -->
+<a href="#home" 
+   class="stat-pill-pro text-white no-underline flex-shrink-0" 
+   title="إحصائيات المنصة"
+   style="padding: 4px 8px; gap: 5px;">
+    
     <!-- الزوار -->
-    <div class="flex items-center gap-1.5">
-        <i class="fas fa-users text-yellow-400 text-[10px]"></i>
-        <span id="visitorCount" class="text-[11px] font-bold text-white">0</span>
-    </div>
+    <span class="flex items-center" style="gap: 3px;">
+        <i class="fas fa-users text-yellow-400" style="font-size: 9px;"></i>
+        <span id="visitorCount" class="font-bold text-white" style="font-size: 10px;">0</span>
+    </span>
     
     <!-- فاصل -->
-    <span class="w-px h-3 bg-white/20"></span>
+    <span class="bg-white/20" style="width: 1px; height: 10px;"></span>
     
     <!-- المشاهدات -->
-    <div class="flex items-center gap-1.5">
-        <i class="fas fa-eye text-yellow-400 text-[10px]"></i>
-        <span id="viewsCount" class="text-[11px] font-bold text-white">0</span>
-    </div>
+    <span class="flex items-center" style="gap: 3px;">
+        <i class="fas fa-eye text-yellow-400" style="font-size: 9px;"></i>
+        <span id="viewsCount" class="font-bold text-white" style="font-size: 10px;">0</span>
+    </span>
     
     <!-- مؤشر الحالة -->
-    <span class="radar-dot-pro"></span>
+    <span class="radar-dot-pro" style="width: 5px; height: 5px;"></span>
 </a>
                 <div class="hidden lg:flex items-center gap-6">
                 <!-- تم إزالة الهاش # وتحويله إلى مسار / -->
