@@ -2870,12 +2870,21 @@ window.tempPatientContext = {
     } catch (e) { showToast("خطأ في قراءة الملف.", 'error'); }
 }
 
-// استبدل بداية دالة openPrescriptionModal بهذا:
+// ==========================================
+// نظام الروشتة الجديد (مكتبة + طباعة + أمان الخادم)
+// ==========================================
+window.tempSelectedMeds = [];
+
 window.openPrescriptionModal = () => {
     const { userId, patientName, doctorInfo } = window.tempPatientContext; 
     window.currentDoctorInfo = doctorInfo; 
+    window.tempSelectedMeds = [];
     closeModal(); 
     
+    const catsHtml = docMedsLibrary.map((cat, i) => `
+        <button onclick="filterMedsForPresc(${i})" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-600 text-xs font-bold transition-all">${escapeHtml(cat.name)}</button>
+    `).join('');
+
     document.getElementById('modalContent').innerHTML = `
         <div class="p-6">
             <div class="flex justify-between items-center mb-6">
@@ -2885,87 +2894,287 @@ window.openPrescriptionModal = () => {
             <div class="bg-blue-50 p-3 rounded-xl mb-4 text-sm text-blue-800 flex items-center gap-2">
                 <i class="fas fa-user"></i> المريض: <b>${escapeHtml(patientName)}</b>
             </div>
-            <form onsubmit="generatePrescription(event, '${userId}', '${escapeHtml(patientName)}')">
-        <div id="medListContainer" class="flex flex-col gap-3 mb-4">
-                    <div class="bg-gray-50 p-3 rounded-xl border" style="border-color: var(--border)">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            <input type="text" required class="ctrl-input text-sm" placeholder="اسم الدواء" name="drugName[]">
-                            <input type="text" required class="ctrl-input text-sm" placeholder="الجرعة (مثال: حبة)" name="dose[]">
-                            <input type="text" required class="ctrl-input text-sm" placeholder="التكرار (مثال: 3 مرات يومياً)" name="freq[]">
-                        </div>
-                    </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-semibold mb-2">اختر من مكتبتك:</label>
+                <div class="flex flex-wrap gap-2 mb-3">
+                   ${catsHtml || '<span class="text-xs text-gray-400">مكتبتك فارغة. أضف أدوية يدوياً بالأسفل.</span>'}
                 </div>
-                <button type="button" onclick="addPrescriptionRow()" class="w-full py-2 mb-4 rounded-xl border-2 border-dashed text-sm font-semibold" style="border-color: var(--doctor); color: var(--doctor)">
-                    <i class="fas fa-plus"></i> إضافة دواء آخر
-                </button>
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold mb-2">ملاحظات الطبيب / التعليمات</label>
-                    <textarea class="ctrl-input text-sm" rows="2" placeholder="مثال: يؤخذ بعد الأكل، مراجعة بعد أسبوع..." name="rxNotes"></textarea>
+                <div id="prescMedsContainer" class="flex flex-wrap gap-2 bg-gray-50 p-3 rounded-xl min-h-[60px] items-center">
+                   <span class="text-xs text-gray-400 w-full text-center">اختر فئة لتظهر الأدوية</span>
                 </div>
-                <button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: var(--doctor)">
-                    <i class="fas fa-save"></i> حفظ الروشتة في ملف المريض
-                </button>
-            </form>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2 mb-4">
+                <input type="text" id="manualMedName" class="ctrl-input text-sm flex-1" placeholder="إضافة يدوية: اسم الدواء">
+                <input type="text" id="manualMedDose" class="ctrl-input text-sm sm:w-44 w-full" placeholder="الجرعة">
+                <button onclick="addManualMedToPresc()" class="bg-gray-200 text-gray-700 px-4 rounded-lg text-sm hover:bg-gray-300"><i class="fas fa-plus"></i></button>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-semibold mb-2">أدوية الروشتة الحالية:</label>
+                <div id="selectedPrescMeds" class="flex flex-col gap-2">
+                    <p class="text-xs text-gray-400 text-center py-2">لم تتم إضافة أي دواء بعد.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <textarea class="ctrl-input text-sm" rows="2" id="rxNotes" placeholder="ملاحظات الطبيب / التعليمات"></textarea>
+            </div>
+
+            <button onclick="generatePrescription('${userId}', '${escapeHtml(patientName)}')" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: var(--doctor)">
+                <i class="fas fa-save"></i> حفظ الروشتة في ملف المريض
+            </button>
         </div>`;
     document.getElementById('modalOverlay').classList.add('active');
     lockScroll();
 }
-window.generatePrescription = async (e, patientId, patientName) => {
-    e.preventDefault();
-    const form = e.target;
-    const drugNames = form.elements['drugName[]'];
-    const doses = form.elements['dose[]'];
-    const freqs = form.elements['freq[]'];
-    const notes = form.elements['rxNotes'].value;
+
+window.filterMedsForPresc = (catIndex) => {
+    const container = document.getElementById('prescMedsContainer');
+    const meds = docMedsLibrary[catIndex].meds;
+    if(meds.length === 0) {
+        container.innerHTML = '<span class="text-xs text-gray-400 w-full text-center">لا توجد أدوية في هذه الفئة</span>';
+        return;
+    }
+    container.innerHTML = meds.map(m => `
+        <button onclick="addMedToPrescList('${escapeHtml(m.name)}', '${escapeHtml(m.dose)}')" class="bg-white border border-blue-200 text-blue-700 px-3 py-1.5 rounded-full text-xs font-bold hover:bg-blue-50 transition-all">
+            ${escapeHtml(m.name)} <span class="text-gray-400 font-normal">(${escapeHtml(m.dose)})</span>
+        </button>
+    `).join('');
+}
+
+window.addManualMedToPresc = () => {
+    const name = document.getElementById('manualMedName').value.trim();
+    const dose = document.getElementById('manualMedDose').value.trim();
+    if(!name) return showToast('أدخل اسم الدواء');
+    addMedToPrescList(name, dose);
+    document.getElementById('manualMedName').value = '';
+    document.getElementById('manualMedDose').value = '';
+}
+
+window.addMedToPrescList = (name, dose) => {
+    window.tempSelectedMeds.push({ name, dose });
+    renderSelectedPrescMeds();
+}
+
+window.removeMedFromPresc = (index) => {
+    window.tempSelectedMeds.splice(index, 1);
+    renderSelectedPrescMeds();
+}
+
+window.updatePrescMed = (index, field, value) => {
+    window.tempSelectedMeds[index][field] = value;
+}
+
+function renderSelectedPrescMeds() {
+    const container = document.getElementById('selectedPrescMeds');
+    if(window.tempSelectedMeds.length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-400 text-center py-2">لم تتم إضافة أي دواء بعد.</p>';
+        return;
+    }
+    container.innerHTML = window.tempSelectedMeds.map((m, i) => `
+        <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 p-2 rounded-lg">
+            <span class="text-xs bg-blue-100 text-blue-800 w-6 h-6 rounded-full flex items-center justify-center font-bold flex-shrink-0">${i+1}</span>
+            <input type="text" value="${escapeHtml(m.name)}" onchange="updatePrescMed(${i}, 'name', this.value)" class="bg-transparent flex-1 text-sm font-bold text-gray-800 outline-none min-w-0">
+            <input type="text" value="${escapeHtml(m.dose)}" onchange="updatePrescMed(${i}, 'dose', this.value)" placeholder="الجرعة" class="bg-transparent sm:w-32 w-24 text-sm text-gray-600 outline-none border-r border-gray-200 pr-2">
+            <button onclick="removeMedFromPresc(${i})" class="text-red-400 hover:text-red-600 px-2 flex-shrink-0"><i class="fas fa-trash"></i></button>
+        </div>
+    `).join('');
+}
+
+window.generatePrescription = async (patientId, patientName) => {
+    const meds = window.tempSelectedMeds;
+    const notes = document.getElementById('rxNotes').value;
+
+    if(meds.length === 0) return showToast('الرجاء إضافة دواء واحد على الأقل', 'error');
 
     let rxText = `📋 *روشتة طبية إلكترونية*\n_______________________\n`;
-    
-    if (drugNames.length === undefined) {
-        rxText += `\n💊 ${drugNames.value}\n   الجرعة: ${doses.value} | ${freqs.value}\n`;
-    } else {
-        for (let i = 0; i < drugNames.length; i++) {
-            rxText += `\n${i + 1}. 💊 ${drugNames[i].value}\n   الجرعة: ${doses[i].value} | ${freqs[i].value}\n`;
-        }
-    }
+    meds.forEach((m, i) => {
+        rxText += `\n${i + 1}. 💊 ${m.name}\n   الجرعة: ${m.dose || 'حسب الإرشاد'}\n`;
+    });
     if (notes) rxText += `\n📝 *ملاحظات:* ${notes}\n`;
-    rxText += `_______________________\nيرجى الالتزام بالجرعات ولا تنسأ المراجعة.`;
+    rxText += `_______________________\nيرجى الالتزام بالجرعات ولا تنسَ المراجعة.`;
 
-    const docInfo = window.currentDoctorInfo || { name: 'طبيب', specialty: 'طبيب عام', id: 'unknown' };
+    const docInfo = window.currentDoctorInfo || { name: 'طبيب', specialty: 'طبيب عام', id: 'unknown', phone: '' };
     const date = new Date();
-    const verCode = btoa(`${docInfo.id}-${date.getTime()}`).substring(0, 12).toUpperCase();
 
-    const submitBtn = form.querySelector('button[type="submit"]');
+    const submitBtn = document.querySelector('#modalContent button[onclick*="generatePrescription"]');
     if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ والتشفير...'; }
 
     try {
-        // === استدعاء الـ Edge Function الآمنة لتقوم بالتشفير في الخادم ===
-        const { error: funcError } = await supabase.functions.invoke('save-prescription', {
-    body: { patient_id: patientId, text: rxText, date: date.toISOString() }
-             });
+        // ✅ إرسال البيانات الأساسية فقط (Edge Function تستخرج بيانات الطبيب من التوكن تلقائياً)
+        const { data: funcData, error: funcError } = await supabase.functions.invoke('save-prescription', {
+            body: { 
+                patient_id: patientId, 
+                text: rxText, 
+                date: date.toISOString()
+            }
+        });
 
+        // ✅ معالجة الأخطاء بشكل دقيق
         if (funcError) {
             let errMsg = funcError.message;
-            if (funcError.context && funcError.context.error) errMsg = funcError.context.error;
+            if (funcError.context && typeof funcError.context.json === 'function') {
+                try { const errBody = await funcError.context.json(); if (errBody.error) errMsg = errBody.error; } catch (e) {}
+            } else if (funcError.context && funcError.context.error) { 
+                errMsg = funcError.context.error; 
+            }
             throw new Error(errMsg);
         }
-        
-        showToast('تم حفظ الروشتة وتشفيرها في ملف المريض بنجاح!', 'success');
-        closeModal();
+
+        // ✅ التأكد من نجاح الحفظ الفعلي قبل عرض شاشة النجاح
+        if (!funcData || !funcData.success) {
+            throw new Error(funcData?.error || 'لم يتم استلام رد صالح من الخادم');
+        }
+
+        // ✅ استخدام البيانات الموثوقة من الخادم (وليس من الواجهة)
+        const serverVerCode = funcData.verCode;
+        const serverDoctorName = funcData.doctor || docInfo.name;
+
+        showToast('تم حفظ الروشتة بنجاح!', 'success');
         window.tempPatientContext.hasAddedPrescription = true;
-        // إعادة فتح ملف المريض لعرض الروشتة الجديدة (المفرود عنها تشفيرها محلياً سيتم فكه تلقائياً)
-        fetchPatientHealthFile(patientId, { specialty: 'general' }); 
+
+        // تجهيز بيانات الطباعة (مع تعقيم HTML لمنع XSS)
+        const printData = {
+            patientName: escapeHtml(patientName), 
+            meds: meds.map(m => ({ name: escapeHtml(m.name), dose: escapeHtml(m.dose) })), 
+            notes: escapeHtml(notes), 
+            docName: escapeHtml(serverDoctorName),
+            docSpec: escapeHtml(docInfo.specialty), 
+            docPhone: escapeHtml(docInfo.phone || ''), 
+            verCode: serverVerCode, 
+            dateStr: date.toLocaleDateString('ar-EG')
+        };
+        localStorage.setItem('temp_print_data', JSON.stringify(printData));
+
+        document.getElementById('modalContent').innerHTML = `
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-3xl text-green-600"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">تم حفظ الروشتة وتشفيرها!</h3>
+                <p class="text-sm text-gray-500 mb-6">يمكنك طباعة الروشتة الآن وتسليمها للمريض، أو إغلاق النافذة.</p>
+                <button onclick="printPrescription()" class="w-full py-3 rounded-xl text-white font-bold text-sm mb-2" style="background: var(--accent)">
+                    <i class="fas fa-print ml-2"></i> طباعة الروشتة الآن
+                </button>
+                <button onclick="closeModal()" class="w-full py-2 rounded-xl border font-bold text-sm" style="border-color: var(--border)">إغلاق</button>
+            </div>
+        `;
     } catch (err) { 
         showToast('خطأ في حفظ الروشتة: ' + err.message, 'error'); 
         if(submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-save"></i> حفظ الروشتة في ملف المريض'; }
     }
 };
-window.addPrescriptionRow = () => {
-    const container = document.getElementById('medListContainer');
-    const newRow = document.createElement('div');
-    newRow.className = 'bg-gray-50 p-3 rounded-xl border relative';
-    newRow.innerHTML = `<button type="button" onclick="this.parentElement.remove()" class="absolute top-2 left-2 text-red-500"><i class="fas fa-times-circle"></i></button><div class="grid grid-cols-1 sm:grid-cols-3 gap-2"><input type="text" required class="ctrl-input text-sm" placeholder="اسم الدواء" name="drugName[]"><input type="text" required class="ctrl-input text-sm" placeholder="الجرعة" name="dose[]"><input type="text" required class="ctrl-input text-sm" placeholder="التكرار" name="freq[]"></div>`;
-    container.appendChild(newRow);
-}
+
+window.printPrescription = () => {
+    const data = JSON.parse(localStorage.getItem('temp_print_data') || '{}');
+    if(!data.patientName) return showToast('بيانات الطباعة غير متوفرة', 'error');
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>روشتة طبية - ${data.patientName}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Outfit:wght@600;800&display=swap" rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+            <link rel="stylesheet" href="css/style.css?v=4">
+        </head>
+        <body>
+            <div id="rxPrintWindow">
+                <div class="toolbar">
+                    <button class="btn btn-primary" onclick="window.print()">
+                        <i class="fas fa-print"></i><span>طباعة الروشتة</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.close()">
+                        <i class="fas fa-times"></i><span>إغلاق</span>
+                    </button>
+                </div>
+                
+                <div class="paper">
+                    <div class="header">
+                        <div class="doctor-info">
+                            <div class="doctor-avatar"><i class="fas fa-user-md"></i></div>
+                            <div class="doctor-text">
+                                <h1>د. ${data.docName}</h1>
+                                <p><i class="fas fa-stethoscope"></i> ${data.docSpec}</p>
+                                ${data.docPhone ? `<p><i class="fas fa-phone"></i> ${data.docPhone}</p>` : ''}
+                            </div>
+                        </div>
+                        <div class="header-brand">
+                            <div class="brand-logo">LomedX</div>
+                            <div class="brand-date">${data.dateStr}</div>
+                        </div>
+                    </div>
+
+                    <div class="patient-section">
+                        <div class="patient-field">
+                            <span class="patient-label"><i class="fas fa-user"></i> اسم المريض</span>
+                            <span class="patient-value">${data.patientName}</span>
+                        </div>
+                        <div class="patient-field">
+                            <span class="patient-label"><i class="fas fa-calendar"></i> التاريخ</span>
+                            <span class="patient-value">${data.dateStr}</span>
+                        </div>
+                    </div>
+
+                    <div class="content">
+                        <ul class="med-list">
+                            ${data.meds.map((m, i) => `
+                                <li>
+                                    <span class="num-circle">${i+1}</span>
+                                    <span class="med-name">${m.name}</span>
+                                    <span class="med-dose">الجرعة: ${m.dose || 'حسب الإرشاد'}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+
+                        ${data.notes ? `
+                        <div class="notes-box">
+                            <div class="notes-icon"><i class="fas fa-lightbulb"></i></div>
+                            <div class="notes-content">
+                                <b>ملاحظات الطبيب:</b>
+                                ${data.notes}
+                            </div>
+                        </div>` : ''}
+
+                        <div class="footer">
+                            <div class="signature">
+                                <div class="signature-line">توقيع الطبيب</div>
+                            </div>
+                            <div class="verification-block">
+                                <div class="qr-container" id="rxQrCode"></div>
+                                <div class="ver-code">VRX: ${data.verCode}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+            <script>
+                const qrContainer = document.getElementById('rxQrCode');
+                if (qrContainer && window.QRCode) {
+                    new QRCode(qrContainer, {
+                        text: 'https://lomedx.pages.dev/verify-rx/${data.verCode}',
+                        width: 78, height: 78,
+                        colorDark: '#052E22', colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                }
+                window.onload = function() {
+                    setTimeout(function() { window.print(); }, 500);
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => localStorage.removeItem('temp_print_data'), 5000);
+};
 
 window.deletePrescription = async (rxDate) => {
     if (!window.checkOnlineStatus()) return; 
@@ -2978,7 +3187,6 @@ window.deletePrescription = async (rxDate) => {
 
         showToast('تم حذف الروشتة بنجاح', 'success');
         
-        // إعادة جلب الملف لتحديث الواجهة
         const { data: updatedFile } = await supabase.functions.invoke('manage-health-file', { body: { action: 'get' } });
         if (updatedFile) renderHealthDashboard(updatedFile);
     } catch (err) { 
