@@ -2111,6 +2111,9 @@ const { count: providedCount } = await supabase
             <div class="bg-white p-4 rounded-xl border text-center" style="border-color: var(--border);">
                 <i class="fas fa-phone-alt text-purple-500 text-xl mb-1"></i><div class="text-2xl font-black text-gray-800" id="pharmPhoneClicks">${pharm.phone_clicks || 0}</div><div class="text-xs text-gray-500">نقرات الهاتف</div>
             </div>
+            <button onclick="openPharmacyScanner('${pharm.id}')" class="w-full py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all" style="background: #0D9488;">
+    <i class="fas fa-qrcode"></i> قارئ الروشتات الطبية
+</button>
         </div><div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm">طلبات الأدوية الواردة</h4><div id="requestsContainer" class="flex flex-col gap-3"><p class="text-center py-10" style="color: var(--muted)">جاري تحميل الطلبات...</p></div></div> <button onclick="logoutPharmacy()" class="w-full py-3 rounded-xl border font-bold text-sm mt-3" style="border-color: #EF4444; color: #EF4444;"><i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج</button></div>`, '#0E7C5F', true); 
     
         // إيقاف أي تحديث سابق
@@ -7830,6 +7833,235 @@ window.importMedsLibrary = (event) => {
     event.target.value = '';
 };
 
+// ==========================================
+// قارئ الروشتة للصيدلية
+// ==========================================
+
+window.openPharmacyScanner = async (pharmacyId) => {
+    openCtrlPanel('قارئ الروشتة الطبية', `
+        <div class="flex flex-col gap-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm flex items-center gap-3">
+                <i class="fas fa-qrcode text-xl"></i>
+                <span>وجّه الكاميرا نحو رمز QR الموجود على الروشتة للتحقق منها.</span>
+            </div>
+            <div id="pharmacy-qr-reader" style="width:100%"></div>
+            <div class="border-t pt-4" style="border-color: var(--border);">
+                <label class="block text-sm font-semibold mb-2">أو أدخل رمز VRX يدوياً:</label>
+                <div class="flex gap-2">
+                    <input type="text" id="manualVerCode" class="ctrl-input flex-1 font-mono text-center uppercase" placeholder="ABC123DEF456" maxlength="12">
+                    <button onclick="fetchPrescriptionByCode()" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="prescriptionResultContainer"></div>
+        </div>
+    `, '#0E7C5F');
+
+    try {
+        await loadDynamicScript('https://unpkg.com/html5-qrcode', 'Html5Qrcode');
+        
+        activeQrScanner = new Html5Qrcode("pharmacy-qr-reader");
+        activeQrScanner.start(
+            { facingMode: "environment" }, 
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decodedText) => { 
+                // استخراج كود التحقق من الرابط
+                let verCode = decodedText;
+                if (decodedText.includes('verify-rx/')) {
+                    verCode = decodedText.split('verify-rx/')[1];
+                }
+                
+                activeQrScanner.stop().then(() => { 
+                    activeQrScanner = null; 
+                    fetchPrescriptionByCode(verCode); 
+                }).catch(() => {}); 
+            },
+            (errorMessage) => { }
+        ).catch(err => { 
+            showToast("تعذر الوصول للكاميرا.", 'error'); 
+        });
+    } catch (err) {
+        showToast("تعذر تحميل قارئ QR، تحقق من الإنترنت.", 'error');
+    }
+};
+
+window.fetchPrescriptionByCode = async (verCode = null) => {
+    // إذا لم يُمرر الكود، خذه من الحقل اليدوي
+    if (!verCode) {
+        const input = document.getElementById('manualVerCode');
+        verCode = input ? input.value.trim().toUpperCase() : '';
+    }
+
+    if (!verCode || verCode.length !== 12) {
+        showToast('الرجاء إدخال رمز صحيح (12 حرفاً)', 'error');
+        return;
+    }
+
+    const container = document.getElementById('prescriptionResultContainer');
+    container.innerHTML = `
+        <div class="text-center py-8">
+            <i class="fas fa-spinner fa-spin text-3xl text-blue-600"></i>
+            <p class="text-sm text-gray-500 mt-2">جاري التحقق من الروشتة...</p>
+        </div>
+    `;
+
+    try {
+        const { data, error } = await supabase.functions.invoke('verify-prescription', {
+            body: { verCode }
+        });
+
+        if (error) {
+            let errMsg = error.message;
+            if (error.context && typeof error.context.json === 'function') {
+                try { const errBody = await error.context.json(); if (errBody.error) errMsg = errBody.error; } catch (e) {}
+            }
+            throw new Error(errMsg);
+        }
+
+        if (!data || !data.success) {
+            throw new Error(data?.error || 'لم يتم العثور على الروشتة');
+        }
+
+        renderPrescriptionResult(data);
+
+    } catch (err) {
+        container.innerHTML = `
+            <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-6 text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-times text-3xl text-red-600"></i>
+                </div>
+                <h4 class="font-bold text-lg text-red-800 mb-2">الروشتة غير صالحة</h4>
+                <p class="text-sm text-red-600 mb-4">${escapeHtml(err.message)}</p>
+                <button onclick="document.getElementById('prescriptionResultContainer').innerHTML=''" class="text-sm text-red-700 font-bold underline">
+                    <i class="fas fa-redo"></i> حاول مرة أخرى
+                </button>
+            </div>
+        `;
+        showToast('الروشتة غير صالحة: ' + err.message, 'error');
+    }
+};
+
+function renderPrescriptionResult(data) {
+    const container = document.getElementById('prescriptionResultContainer');
+    const rx = data.prescription;
+    const patient = data.patient;
+
+    const dateStr = new Date(rx.date).toLocaleDateString('ar-EG', { 
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
+    container.innerHTML = `
+        <div class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl p-5 mb-4">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-check text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg text-green-800">روشتة صالحة وموثقة</h4>
+                    <p class="text-xs text-green-600">تم التحقق بواسطة: ${escapeHtml(data.verifiedBy)}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- بطاقة الطبيب -->
+        <div class="bg-white rounded-2xl border p-4 mb-4" style="border-color: var(--border);">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                    <i class="fas fa-user-md text-blue-600 text-xl"></i>
+                </div>
+                <div>
+                    <div class="font-bold text-gray-800">د. ${escapeHtml(rx.doctor)}</div>
+                    <div class="text-xs text-gray-500">${escapeHtml(rx.specialty || 'طبيب عام')}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- بطاقة المريض -->
+        <div class="bg-white rounded-2xl border p-4 mb-4" style="border-color: var(--border);">
+            <div class="flex items-center gap-2 mb-2">
+                <i class="fas fa-user text-blue-600"></i>
+                <span class="font-bold text-sm text-gray-700">بيانات المريض:</span>
+            </div>
+            <div class="text-sm font-semibold text-gray-800">${escapeHtml(patient.name)}</div>
+            <div class="text-xs text-gray-500 mt-1">التاريخ: ${escapeHtml(dateStr)}</div>
+        </div>
+
+        <!-- نص الروشتة -->
+        <div class="bg-white rounded-2xl border p-4 mb-4" style="border-color: var(--border);">
+            <div class="flex items-center gap-2 mb-3 border-b pb-2" style="border-color: var(--border);">
+                <i class="fas fa-prescription-bottle-medical text-emerald-600"></i>
+                <span class="font-bold text-sm text-gray-700">تفاصيل الروشتة:</span>
+            </div>
+            <div class="whitespace-pre-line font-sans text-gray-800 text-sm leading-loose" style="white-space: pre-wrap;">${escapeHtml(rx.text)}</div>
+        </div>
+
+        <!-- كود التحقق -->
+        <div class="bg-gray-50 rounded-xl p-3 text-center border" style="border-color: var(--border);">
+            <div class="text-[10px] text-gray-500 mb-1">كود التحقق الرسمي</div>
+            <div class="font-mono font-bold text-emerald-700 tracking-wider">VRX: ${escapeHtml(rx.verCode)}</div>
+        </div>
+
+        <div class="mt-4 flex gap-2">
+            <button onclick="printVerifiedPrescription()" class="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-sm">
+                <i class="fas fa-print"></i> طباعة نسخة
+            </button>
+            <button onclick="document.getElementById('prescriptionResultContainer').innerHTML=''" class="flex-1 py-2.5 rounded-xl border font-bold text-sm" style="border-color: var(--border);">
+                <i class="fas fa-qrcode"></i> مسح روشتة أخرى
+            </button>
+        </div>
+    `;
+
+    // حفظ البيانات للطباعة
+    window.lastVerifiedRx = data;
+}
+
+window.printVerifiedPrescription = () => {
+    const data = window.lastVerifiedRx;
+    if (!data) return showToast('لا توجد بيانات للطباعة', 'error');
+
+    const rx = data.prescription;
+    const patient = data.patient;
+    const dateStr = new Date(rx.date).toLocaleDateString('ar-EG');
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+        <head>
+            <meta charset="UTF-8">
+            <title>روشتة موثقة - ${escapeHtml(patient.name)}</title>
+            <style>
+                body { font-family: 'Arial', sans-serif; padding: 20px; direction: rtl; }
+                .paper { max-width: 600px; margin: auto; border: 2px solid #10B981; padding: 20px; border-radius: 10px; }
+                .header { background: #10B981; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+                .field { margin: 10px 0; padding: 8px; background: #f3f4f6; border-radius: 5px; }
+                .field b { color: #065F46; }
+                .content { background: #f9fafb; padding: 15px; border-radius: 8px; white-space: pre-wrap; line-height: 1.8; margin: 15px 0; }
+                .vercode { background: #065F46; color: white; padding: 10px; border-radius: 8px; text-align: center; font-family: monospace; font-weight: bold; }
+                .stamp { text-align: center; margin-top: 20px; color: #10B981; font-weight: bold; }
+            </style>
+        </head>
+        <body>
+            <div class="paper">
+                <div class="header">
+                    <h2 style="margin: 0;">✓ روشتة طبية موثقة</h2>
+                    <p style="margin: 5px 0 0 0;">تم التحقق بواسطة: ${escapeHtml(data.verifiedBy)}</p>
+                </div>
+                <div class="field"><b>الطبيب:</b> د. ${escapeHtml(rx.doctor)}</div>
+                <div class="field"><b>التخصص:</b> ${escapeHtml(rx.specialty || 'طبيب عام')}</div>
+                <div class="field"><b>المريض:</b> ${escapeHtml(patient.name)}</div>
+                <div class="field"><b>التاريخ:</b> ${escapeHtml(dateStr)}</div>
+                <div class="content">${escapeHtml(rx.text)}</div>
+                <div class="vercode">VRX: ${escapeHtml(rx.verCode)}</div>
+                <div class="stamp">🛡️ LomedX | روشتة موثقة إلكترونياً</div>
+            </div>
+            <script>window.onload = () => setTimeout(() => window.print(), 300);<\/script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+};
 
 
 
