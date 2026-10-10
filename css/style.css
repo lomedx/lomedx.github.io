@@ -2979,39 +2979,13 @@ html.dark .theme-compact-dark:hover {
 /* ═══════════════════════════════════════════════════════════
    RESPONSIVE (Mobile)
    ═══════════════════════════════════════════════════════════ */
-@media (max-width: 640px) {
-    .theme-compact {
-        width: 86px;
-        height: 36px;
-        padding: 2px;
-    }
-    .theme-compact-ring {
-        width: 28px;
-        height: 28px;
-    }
-    .theme-compact-ring svg {
-        width: 15px;
-        height: 15px;
-    }
-}
-
-@media (max-width: 380px) {
-    .theme-compact {
-        width: 78px;
-        height: 32px;
-    }
-    .theme-compact-ring {
-        width: 26px;
-        height: 26px;
-    }
-    .theme-compact-ring svg {
-        width: 13px;
-        height: 13px;
+@        opacity: 0.8;
+        filter: blur(25px);
     }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   LomedX Brand Hero — تأثير احترافي متوهج
+   LomedX Brand Hero — نفس لون القائمة الجانبية + تأثير لامع
    ═══════════════════════════════════════════════════════════ */
 .lomedx-brand-hero {
     font-family: 'Outfit', 'Poppins', sans-serif;
@@ -3022,14 +2996,12 @@ html.dark .theme-compact-dark:hover {
     display: inline-block;
     position: relative;
     
-    /* التدرج الذهبي المتحرك */
+    /* ✅ نفس تدرج القائمة الجانبية بالضبط */
     background: linear-gradient(
-        110deg,
+        135deg,
         #F0D77B 0%,
-        #C4962C 25%,
-        #F8D674 50%,
-        #C4962C 75%,
-        #F0D77B 100%
+        #C4962C 50%,
+        #0E7C5F 100%
     );
     background-size: 200% auto;
     -webkit-background-clip: text;
@@ -3037,22 +3009,22 @@ html.dark .theme-compact-dark:hover {
     -webkit-text-fill-color: transparent;
     color: transparent;
     
-    /* حركة اللمعان */
+    /* ✨ تأثير اللمعان المتحرك (فقط في Hero) */
     animation: shimmerGoldHero 4s linear infinite;
     
-    /* توهج خفيف */
-    filter: drop-shadow(0 0 15px rgba(196, 150, 44, 0.4))
-            drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    /* توهج خارجي ذهبي */
+    filter: drop-shadow(0 0 15px rgba(196, 150, 44, 0.35))
+            drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
 }
 
-/* التأثير الذهبي المتحرك */
+/* حركة اللمعان الذهبي */
 @keyframes shimmerGoldHero {
     to {
         background-position: -200% center;
     }
 }
 
-/* تأثير إضافي: توهج نبض */
+/* توهج نبضي داخلي */
 .lomedx-brand-hero::after {
     content: 'LomedX';
     position: absolute;
@@ -3062,24 +3034,25 @@ html.dark .theme-compact-dark:hover {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: blur(20px);
-    opacity: 0.6;
+    opacity: 0.5;
     animation: pulseGlowHero 3s ease-in-out infinite;
     z-index: -1;
+    pointer-events: none;
 }
 
 @keyframes pulseGlowHero {
     0%, 100% {
-        opacity: 0.4;
+        opacity: 0.3;
         filter: blur(15px);
     }
     50% {
-        opacity: 0.8;
+        opacity: 0.6;
         filter: blur(25px);
     }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   RESPONSIVE
+   Responsive
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
     .lomedx-brand-hero {
