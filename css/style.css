@@ -17,9 +17,9 @@ h1, h2, h3, h4, h5 { font-family: 'Noto Kufi Arabic', sans-serif; }
 
 /* === Hero  Medical Logo Styles === */
 .hero-medical-logo {
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 2rem;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 2.5rem;
     position: relative;
     display: flex;
     align-items: center;
@@ -103,10 +103,17 @@ h1, h2, h3, h4, h5 { font-family: 'Noto Kufi Arabic', sans-serif; }
 }
 
 /* إخفاء الشعار على الشاشات الصغيرة جداً */
+@media (max-width: 640px) {
+    .hero-medical-logo {
+        width: 150px;
+        height: 150px;
+    }
+}
+
 @media (max-width: 400px) {
     .hero-medical-logo {
-        width: 90px;
-        height: 90px;
+        width: 130px;
+        height: 130px;
     }
 }
 /* طبقة التوهج الزمردي الساطع في الأعلى */
