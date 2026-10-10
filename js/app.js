@@ -1,13 +1,5 @@
 import { supabase } from './supabase.js';
 
-// ═══════════════════════════════════════════════════════════
-// executeAction —3 مستويات
-// ═══════════════════════════════════════════════════════
-
-// ═══════════════════════════════════════════════════════════
-// تصنيف الخطأ
-// ═══════════════════════════════════════════════════════════
-
 
 const daysOfWeek = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
 
@@ -3006,7 +2998,7 @@ window.generatePrescription = async (patientId, patientName) => {
         // ✅ إرسال البيانات الأساسية فقط (Edge Function تستخرج بيانات الطبيب من التوكن تلقائياً)
         const { data: funcData, error: funcError } = await supabase.functions.invoke('save-prescription', {
             body: { 
-                patient_id: patientId, 
+                patient_qr_token: patientId, 
                 text: rxText, 
                 date: date.toISOString()
             }
