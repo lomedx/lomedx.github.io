@@ -1543,7 +1543,32 @@ function showToast(message, type = 'info') {
     setTimeout(() => toast.classList.remove('show'), 4000); 
 }
 window.showToast = showToast;
-window.toggleMobileMenu = () => { const menu = document.getElementById('mobileMenu'); const overlay = document.getElementById('menuOverlay'); const icon = document.getElementById('menuIcon'); const isOpen = menu.classList.contains('open'); if (isOpen) { menu.classList.remove('open'); overlay.classList.add('hidden'); icon.className = 'fas fa-bars'; unlockScroll(); } else { menu.classList.add('open'); overlay.classList.remove('hidden'); icon.className = 'fas fa-times'; lockScroll(); } }
+window.toggleMobileMenu = () => { 
+    const menu = document.getElementById('mobileMenu'); 
+    const overlay = document.getElementById('menuOverlay'); 
+    const icon = document.getElementById('menuIcon'); 
+    const isOpen = menu.classList.contains('open'); 
+    
+    if (isOpen) { 
+        menu.classList.remove('open'); 
+        overlay.classList.add('hidden'); 
+        // ✅ للـ SVG، نستخدم classList
+        if (icon) {
+            icon.style.transform = 'rotate(0deg)';
+            icon.style.transition = 'transform 0.3s ease';
+        }
+        unlockScroll(); 
+    } else { 
+        menu.classList.add('open'); 
+        overlay.classList.remove('hidden'); 
+        // ✅ للـ SVG، نستخدم style
+        if (icon) {
+            icon.style.transform = 'rotate(90deg)';
+            icon.style.transition = 'transform 0.3s ease';
+        }
+        lockScroll(); 
+    } 
+}
 window.togglePlatformInfo = () => {
     const infoDiv = document.getElementById('platformInfo');
     const icon = document.getElementById('platformInfoIcon');
