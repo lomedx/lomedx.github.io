@@ -2812,5 +2812,201 @@ html.dark .contact-input:focus { background-color: var(--card) !important; borde
 }
 
 
+/* ═══════════════════════════════════════════════════════════
+   THEME COMPACT — Dual Ring for Navbar
+   ═══════════════════════════════════════════════════════════ */
+.theme-compact {
+    position: relative;
+    width: 100px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: 
+        background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: visible;
+    isolation: isolate;
+}
 
+html.dark .theme-compact {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-compact-canvas {
+    position: absolute;
+    inset: -18px;
+    width: calc(100% + 36px);
+    height: calc(100% + 36px);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RING (زر الشمس/القمر)
+   ═══════════════════════════════════════════════════════════ */
+.theme-compact-ring {
+    position: relative;
+    z-index: 3;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: 
+        transform 0.4s cubic-bezier(0.34, 1.4, 0.64, 1),
+        opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    font-family: inherit;
+    outline: none;
+}
+
+.theme-compact-ring:focus-visible {
+    box-shadow: 0 0 0 2px rgba(196, 150, 44, 0.5);
+}
+
+.theme-compact-ring svg {
+    width: 17px;
+    height: 17px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LIGHT RING — الحلقة الذهبية
+   ═══════════════════════════════════════════════════════════ */
+.theme-compact-light {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+html.dark .theme-compact-light {
+    opacity: 0.5;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+html:not(.dark) .theme-compact-light {
+    background: linear-gradient(145deg, #C4962C, #F0D77B);
+    color: #052E22;
+    box-shadow: 
+        0 2px 8px rgba(196, 150, 44, 0.4),
+        0 0 0 1px rgba(240, 215, 123, 0.4),
+        0 0 16px rgba(196, 150, 44, 0.3);
+    transform: scale(1.05);
+}
+
+html:not(.dark) .theme-compact-light svg {
+    filter: drop-shadow(0 0 3px rgba(240, 215, 123, 0.7));
+    stroke: #052E22;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DARK RING — الحلقة الشامبانيا
+   ═══════════════════════════════════════════════════════════ */
+.theme-compact-dark {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+html:not(.dark) .theme-compact-dark {
+    opacity: 0.5;
+}
+
+html.dark .theme-compact-dark {
+    background: linear-gradient(145deg, #C4962C, #F0D77B);
+    color: #052E22;
+    box-shadow: 
+        0 2px 8px rgba(196, 150, 44, 0.4),
+        0 0 0 1px rgba(240, 215, 123, 0.4),
+        0 0 16px rgba(196, 150, 44, 0.3);
+    transform: scale(1.05);
+}
+
+html.dark .theme-compact-dark svg {
+    filter: drop-shadow(0 0 3px rgba(240, 215, 123, 0.7));
+    stroke: #052E22;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HOVER & ACTIVE
+   ═══════════════════════════════════════════════════════════ */
+.theme-compact-ring:hover {
+    transform: scale(1.12);
+}
+
+.theme-compact-ring:active {
+    transform: scale(0.92);
+}
+
+html:not(.dark) .theme-compact-light:hover {
+    transform: scale(1.12);
+}
+
+html.dark .theme-compact-dark:hover {
+    transform: scale(1.12);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PULSE ANIMATION
+   ═══════════════════════════════════════════════════════════ */
+.theme-compact-ring.pulse {
+    animation: compactRingPulse 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes compactRingPulse {
+    0% { transform: scale(1.05); }
+    40% { transform: scale(1.3); }
+    100% { transform: scale(1.05); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE (Mobile)
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+    .theme-compact {
+        width: 86px;
+        height: 36px;
+        padding: 2px;
+    }
+    .theme-compact-ring {
+        width: 28px;
+        height: 28px;
+    }
+    .theme-compact-ring svg {
+        width: 15px;
+        height: 15px;
+    }
+}
+
+@media (max-width: 380px) {
+    .theme-compact {
+        width: 78px;
+        height: 32px;
+    }
+    .theme-compact-ring {
+        width: 26px;
+        height: 26px;
+    }
+    .theme-compact-ring svg {
+        width: 13px;
+        height: 13px;
+    }
+}
 
