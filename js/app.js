@@ -1749,8 +1749,12 @@ window.searchArticles = () => {
 window.closeCtrlPanel = (event) => { 
     const overlay = document.getElementById('ctrlOverlay');
     if (event && event.target.id === 'ctrlOverlay' && overlay.dataset.preventClose === 'true') return; 
- clearToolSEO(); 
-    if (window.activeHealthFileSub) { supabase.removeChannel(window.activeHealthFileSub); window.activeHealthFileSub = null; }
+    clearToolSEO(); 
+    
+    if (window.activeHealthFileSub) { 
+        supabase.removeChannel(window.activeHealthFileSub); 
+        window.activeHealthFileSub = null; 
+    }
     
     if (activeQrScanner) {
         activeQrScanner.stop().then(() => {
@@ -1759,23 +1763,48 @@ window.closeCtrlPanel = (event) => {
         }).catch(() => { activeQrScanner = null; });
     }
     
-        if ('speechSynthesis' in window) window.speechSynthesis.cancel(); // إيقاف الصوت
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     overlay.classList.remove('active'); 
     unlockScroll(); 
     document.getElementById('ctrlContent').innerHTML = ''; 
     
     // === تنظيف الرابط وإعادة الـ SEO ===
     resetMetaTags();
-        if (window.location.pathname !== '/' && window.location.pathname !== '/index.html' || window.location.hash) {
+    if (window.location.pathname !== '/' && window.location.pathname !== '/index.html' || window.location.hash) {
         history.pushState({}, '', '/');
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
     
-    if (doctorDashboardInterval) { clearInterval(doctorDashboardInterval); doctorDashboardInterval = null; } 
-    if (unsubscribeMedRequests) { supabase.removeChannel(unsubscribeMedRequests); unsubscribeMedRequests = null; } 
-    if (unsubscribeMedRequestsInterval) { clearInterval(unsubscribeMedRequestsInterval); unsubscribeMedRequestsInterval = null; } 
-    if (unsubscribeDocBookings) { supabase.removeChannel(unsubscribeDocBookings); unsubscribeDocBookings = null; }
-    if (activeFollowupUnsub) { supabase.removeChannel(activeFollowupUnsub); activeFollowupUnsub = null; } 
+    if (doctorDashboardInterval) { 
+        clearInterval(doctorDashboardInterval); 
+        doctorDashboardInterval = null; 
+    } 
+    if (unsubscribeMedRequests) { 
+        supabase.removeChannel(unsubscribeMedRequests); 
+        unsubscribeMedRequests = null; 
+    } 
+    if (unsubscribeMedRequestsInterval) { 
+        clearInterval(unsubscribeMedRequestsInterval); 
+        unsubscribeMedRequestsInterval = null; 
+    } 
+    if (unsubscribeDocBookings) { 
+        supabase.removeChannel(unsubscribeDocBookings); 
+        unsubscribeDocBookings = null; 
+    }
+    if (activeFollowupUnsub) { 
+        supabase.removeChannel(activeFollowupUnsub); 
+        activeFollowupUnsub = null; 
+    } 
+    
+    // ✅ [جديد] إيقاف مؤقت المتابعة لتجنب استمراره في الخلفية
+    if (window.activeFollowupInterval) { 
+        clearInterval(window.activeFollowupInterval); 
+        window.activeFollowupInterval = null; 
+    }
+    
+    // ✅ [جديد] تصفير متغير اللوحة النشطة
+    window.currentDashboardData = null;
+    
     currentFollowupBookingId = null;
 };
 
