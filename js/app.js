@@ -1520,26 +1520,27 @@ window.trackPhoneClick = async (event, id, phoneNumber) => {
 };
 window.copyText = (text) => { navigator.clipboard.writeText(text).then(() => showToast('تم نسخ الكود بنجاح')).catch(() => showToast('تعذر النسخ')); }
 
-function showToast(message, type = 'info') { 
+function showToast(message, type = 'info', duration = 4000) { 
     const toast = document.getElementById('toast');
-    if (!toast) return; // حماية من الانهيار إذا لم يكن العنصر موجوداً
+    if (!toast) return; 
     
-    // تحديد الأيقونة واللون حسب نوع الإشعار
-    let icon = 'ℹ️'; // معلومات
-    let bgColor = '#1B2A1B'; // اللون الأساسي
-    
-    if (type === 'success') {
-        icon = '✅';
-        bgColor = '#10B981'; // أخضر
-    } else if (type === 'error') {
-        icon = '❌';
-        bgColor = '#EF4444'; // أحمر
-    }
+    let icon = 'ℹ️'; 
+    let bgColor = '#1B2A1B';
+    if (type === 'success') { icon = '✅'; bgColor = '#10B981'; }
+    else if (type === 'error') { icon = '❌'; bgColor = '#EF4444'; }
     
     toast.innerHTML = `<span style="margin-left: 8px;">${icon}</span> ${message}`;
     toast.style.backgroundColor = bgColor;
-    
     toast.classList.add('show'); 
+    
+    // ✅ مسح أي مؤقت سابق لمنع التعارض
+    if (window._toastTimer) clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+        window._toastTimer = null;
+    }, duration); 
+}
+window.showToast = showToast;
     setTimeout(() => toast.classList.remove('show'), 4000); 
 }
 window.showToast = showToast;
@@ -1701,9 +1702,13 @@ window.openCtrlPanel = (title, contentHtml, headerColor = '#073D2E', preventClos
     document.getElementById('ctrlTitle').textContent = title; 
     document.getElementById('ctrlContent').innerHTML = contentHtml; 
     const overlay = document.getElementById('ctrlOverlay');
+    
+    // ✅ تحديث لون الهيدر دائماً (حتى لو كانت اللوحة مفتوحة)
+    const headerEl = document.querySelector('#ctrlOverlay .p-5');
+    if (headerEl) headerEl.style.background = headerColor;
+    
     if (!overlay.classList.contains('active')) {
         overlay.classList.add('active'); 
-        document.querySelector('#ctrlOverlay .p-5').style.background = headerColor; 
         lockScroll(); 
     }
     overlay.dataset.preventClose = preventClose ? 'true' : 'false';
@@ -2103,6 +2108,9 @@ window.logoutPharmacy = async () => {
     showToast('تم تسجيل الخروج بنجاح', 'success');
 }
 window.renderPharmacyDashboard = async (pharm) => { 
+    // ✅ تعريف المتغير العالمي للوحة النشطة
+    window.currentDashboardData = pharm;
+    
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
         openPharmacyLogin();
@@ -2427,6 +2435,9 @@ window.handlePharmacyLogin = async (e) => {
     } 
 };
 window.renderDoctorDashboard = async (doc) => { 
+    // ✅ تعريف المتغير العالمي للوحة النشطة
+    window.currentDashboardData = doc;
+    
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
         openDoctorLogin();
@@ -7686,51 +7697,6 @@ window.submitFacilityRequest = (e) => {
         showToast('✓ تم تجهيز طلبك! يرجى إرسال الرسالة عبر واتساب لإتمام التسجيل.', 'success');
         closeAddFacilityModal();
     }, 400);
-};
-
-
-// ═══════════════════════════════════════════════════════════
-// Toast Notification System
-// ═══════════════════════════════════════════════════════════
-
-window.showToast = (message, type = 'info', duration = 4000) => {
-    // Remove existing toast
-    const existing = document.querySelector('.lomedx-toast');
-    if (existing) existing.remove();
-
-    const icons = {
-        success: 'fa-check-circle',
-        error: 'fa-exclamation-circle',
-        info: 'fa-info-circle',
-        warning: 'fa-exclamation-triangle'
-    };
-
-    const toast = document.createElement('div');
-    toast.className = `lomedx-toast lomedx-toast--${type}`;
-    toast.innerHTML = `
-        <i class="fas ${icons[type] || icons.info}"></i>
-        <span>${message}</span>
-    `;
-
-    document.body.appendChild(toast);
-
-    // Animate in
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => toast.classList.add('show'));
-    });
-
-    // Auto dismiss
-    const timer = setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 400);
-    }, duration);
-
-    // Click to dismiss
-    toast.addEventListener('click', () => {
-        clearTimeout(timer);
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 400);
-    });
 };
 
 
