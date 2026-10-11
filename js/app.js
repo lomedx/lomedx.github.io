@@ -1541,9 +1541,7 @@ function showToast(message, type = 'info', duration = 4000) {
     }, duration); 
 }
 window.showToast = showToast;
-    setTimeout(() => toast.classList.remove('show'), 4000); 
-}
-window.showToast = showToast;
+    
 window.toggleMobileMenu = () => { 
     const menu = document.getElementById('mobileMenu'); 
     const overlay = document.getElementById('menuOverlay'); 
