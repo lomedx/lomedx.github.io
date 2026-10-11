@@ -2136,8 +2136,20 @@ const { count: providedCount } = await supabase
             <div class="bg-white p-4 rounded-xl border text-center" style="border-color: var(--border);">
                 <i class="fas fa-phone-alt text-purple-500 text-xl mb-1"></i><div class="text-2xl font-black text-gray-800" id="pharmPhoneClicks">${pharm.phone_clicks || 0}</div><div class="text-xs text-gray-500">نقرات الهاتف</div>
             </div>
-            <button onclick="openPharmacyScanner('${pharm.id}')" class="w-full py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all" style="background: #0D9488;">
-    <i class="fas fa-qrcode"></i> قارئ الروشتات الطبية
+            <button onclick="openPharmacyScanner('${pharm.id}')" 
+        class="w-full py-4 px-5 rounded-2xl text-white font-bold flex items-center gap-4 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all text-right"
+        style="background: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%);">
+    
+    <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
+        <i class="fas fa-qrcode text-2xl"></i>
+    </div>
+    
+    <div class="flex-1">
+        <div class="text-base font-black" style="font-family: 'Noto Kufi Arabic';">قارئ الروشتات الطبية</div>
+        <div class="text-xs opacity-85 mt-0.5 font-normal">امسح رمز QR للتحقق من الروشتة</div>
+    </div>
+    
+    <i class="fas fa-arrow-left text-lg opacity-70"></i>
 </button>
         </div><div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm">طلبات الأدوية الواردة</h4><div id="requestsContainer" class="flex flex-col gap-3"><p class="text-center py-10" style="color: var(--muted)">جاري تحميل الطلبات...</p></div></div> <button onclick="logoutPharmacy()" class="w-full py-3 rounded-xl border font-bold text-sm mt-3" style="border-color: #EF4444; color: #EF4444;"><i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج</button></div>`, '#0E7C5F', true); 
     
