@@ -2483,6 +2483,14 @@ window.renderDoctorDashboard = async (doc) => {
             <button onclick="openDocMedsLibrary()" class="w-full py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all" style="background: #8B5CF6;">
     <i class="fas fa-book-medical"></i> مكتبة الأدوية الخاصة
 </button>
+<button onclick="openPatientsManager('${doc.id}')" 
+        class="w-full py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all"
+        style="background: linear-gradient(135deg, #2563EB, #3B82F6);">
+    <i class="fas fa-folder-medical"></i>
+    سجل المرضى
+    <span id="patientsCountBadge" 
+          class="text-[10px] bg-white/25 px-2 py-0.5 rounded-full font-bold">0</span>
+</button>
         </div>
                         <!-- إدارة ازدحام العيادة المباشر -->
         <div class="bg-white p-5 rounded-2xl border shadow-sm" style="border-color: var(--border);">
@@ -2556,7 +2564,18 @@ window.renderDoctorDashboard = async (doc) => {
             <i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج
         </button>
     </div>`, '#2563EB', true); 
-    
+    // ✅ تحديث عدّاد المرضى
+setTimeout(() => {
+    const patients = getPatients(doc.id);
+    const badge = document.getElementById('patientsCountBadge');
+    if (badge) {
+        badge.textContent = patients.length;
+        // إخفاء الشارة إذا كان فارغاً
+        if (patients.length === 0) {
+            badge.style.display = 'none';
+        }
+    }
+}, 150);
     // إيقاف أي اشتراك سابق
     if (unsubscribeDocBookings) { supabase.removeChannel(unsubscribeDocBookings); }
     
@@ -8548,3 +8567,1156 @@ window.printVerifiedPrescription = () => {
     });
 
 })();
+
+
+
+
+
+
+
+
+
+// ═══════════════════════════════════════════════════════════
+// 📁 نظام ملفات المرضى — localStorage
+// ═══════════════════════════════════════════════════════════
+
+const PATIENTS_KEY = (doctorId) => `doctor_patients_${doctorId}`;
+
+// ═══════════════════════════════════════════════════════════
+// 🗄️ دوال التخزين
+// ═══════════════════════════════════════════════════════════
+
+window.getPatients = (doctorId) => {
+    try {
+        const data = localStorage.getItem(PATIENTS_KEY(doctorId));
+        return data ? JSON.parse(data) : [];
+    } catch (e) { return []; }
+};
+
+window.savePatients = (doctorId, patients) => {
+    try {
+        localStorage.setItem(PATIENTS_KEY(doctorId), JSON.stringify(patients));
+        return true;
+    } catch (e) { return false; }
+};
+
+window.getPatient = (doctorId, patientId) => {
+    return getPatients(doctorId).find(p => p.id === patientId);
+};
+
+window.savePatient = (doctorId, patient) => {
+    const patients = getPatients(doctorId);
+    const index = patients.findIndex(p => p.id === patient.id);
+    
+    if (index !== -1) {
+        patients[index] = { ...patients[index], ...patient };
+    } else {
+        patients.unshift(patient);
+    }
+    
+    savePatients(doctorId, patients);
+    return patient;
+};
+
+window.createPatient = (doctorId, data) => {
+    const patient = {
+        id: 'p_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        name: data.name || 'غير محدد',
+        phone: data.phone || '',
+        birthdate: data.birthdate || '',
+        blood_type: data.blood_type || '',
+        gender: data.gender || '',
+        push_id: data.push_id || null,
+        custom_fields: [],
+        reviews: [],
+        medications: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+    };
+    
+    return savePatient(doctorId, patient);
+};
+
+window.deletePatient = (doctorId, patientId) => {
+    let patients = getPatients(doctorId);
+    patients = patients.filter(p => p.id !== patientId);
+    savePatients(doctorId, patients);
+};
+
+window.findOrCreatePatient = (doctorId, data) => {
+    if (!data.phone) return null;
+    
+    const patients = getPatients(doctorId);
+    let existing = patients.find(p => p.phone === data.phone);
+    
+    if (!existing) {
+        existing = createPatient(doctorId, data);
+    } else {
+        existing.updated_at = new Date().toISOString();
+        savePatient(doctorId, existing);
+    }
+    
+    return existing;
+};
+
+// ═══════════════════════════════════════════════════════════
+// 📋 قائمة المرضى
+// ═══════════════════════════════════════════════════════════
+
+window.openPatientsManager = (doctorId) => {
+    const patients = getPatients(doctorId);
+    
+    const html = `
+        <div class="flex flex-col gap-4">
+            
+            <!-- بحث + إضافة -->
+            <div class="flex gap-2">
+                <div class="relative flex-1">
+                    <input type="text" 
+                           id="patientsSearchInput"
+                           placeholder="🔍 ابحث بالاسم أو الهاتف..."
+                           class="ctrl-input pr-10"
+                           oninput="filterPatientsList('${doctorId}', this.value)">
+                    <i class="fas fa-search absolute top-1/2 -translate-y-1/2 right-4 text-gray-400 text-sm"></i>
+                </div>
+                <button onclick="openAddPatientForm('${doctorId}')" 
+                        class="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm flex items-center gap-2 flex-shrink-0">
+                    <i class="fas fa-plus"></i>
+                    <span class="hidden sm:inline">مريض جديد</span>
+                </button>
+            </div>
+            
+            <!-- الإحصائيات + أدوات النسخ -->
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
+                <span>إجمالي: <b class="text-gray-800">${patients.length}</b> ملف</span>
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="copyPatientsData('${doctorId}')" 
+                            class="px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 flex items-center gap-1.5 font-bold">
+                        <i class="fas fa-copy text-[10px]"></i> نسخ
+                    </button>
+                    <button onclick="exportPatientsData('${doctorId}')" 
+                            class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 flex items-center gap-1.5 font-bold">
+                        <i class="fas fa-download text-[10px]"></i> تصدير
+                    </button>
+                    <label class="px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 flex items-center gap-1.5 font-bold cursor-pointer">
+                        <i class="fas fa-upload text-[10px]"></i> استيراد
+                        <input type="file" accept=".json" class="hidden" 
+                               onchange="importPatientsData('${doctorId}', this.files[0])">
+                    </label>
+                </div>
+            </div>
+            
+            <!-- قائمة المرضى -->
+            <div id="patientsListContainer" class="flex flex-col gap-3">
+                ${patients.length === 0 
+                    ? `
+                        <div class="text-center py-12">
+                            <div class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-folder-open text-4xl text-blue-300"></i>
+                            </div>
+                            <h3 class="font-bold text-base mb-2">لا يوجد مرضى بعد</h3>
+                            <p class="text-xs text-gray-400 mb-4">ابدأ بإضافة أول مريض لإنشاء ملفه الطبي</p>
+                            <button onclick="openAddPatientForm('${doctorId}')"
+                                    class="px-6 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm">
+                                <i class="fas fa-plus"></i> إضافة مريض
+                            </button>
+                        </div>
+                    `
+                    : patients.map(p => renderPatientRow(p, doctorId)).join('')
+                }
+            </div>
+        </div>
+    `;
+    
+    openCtrlPanel('📁 ملفات المرضى', html, '#2563EB');
+};
+
+function renderPatientRow(patient, doctorId) {
+    const initial = patient.name?.charAt(0) || '؟';
+    
+    let age = '—';
+    if (patient.birthdate) {
+        const birth = new Date(patient.birthdate);
+        age = Math.floor((Date.now() - birth) / (365.25 * 24 * 60 * 60 * 1000)) + ' سنة';
+    }
+    
+    const reviewsCount = (patient.reviews || []).length;
+    const medsCount = (patient.medications || []).length;
+    const fieldsCount = (patient.custom_fields || []).length;
+    
+    return `
+        <div class="bg-white p-4 rounded-xl border hover:shadow-md hover:border-blue-300 transition-all cursor-pointer" 
+             style="border-color: var(--border)"
+             onclick="openPatientFile('${doctorId}', '${patient.id}')">
+            <div class="flex items-start gap-3">
+                
+                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-black text-lg flex-shrink-0"
+                     style="background: linear-gradient(135deg, #2563EB, #8B5CF6);">
+                    ${escapeHtml(initial)}
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                    <h5 class="font-bold text-sm mb-1">${escapeHtml(patient.name)}</h5>
+                    
+                    <div class="text-[11px] text-gray-600 flex items-center gap-3 flex-wrap mb-1">
+                        ${patient.phone ? `<span dir="ltr">📞 ${escapeHtml(patient.phone)}</span>` : ''}
+                        ${age !== '—' ? `<span>🎂 ${age}</span>` : ''}
+                        ${patient.blood_type ? `<span>🩸 ${patient.blood_type}</span>` : ''}
+                    </div>
+                    
+                    <div class="flex items-center gap-3 text-[10px] flex-wrap">
+                        ${fieldsCount > 0 ? `
+                            <span class="text-orange-600">
+                                <i class="fas fa-tags"></i> ${fieldsCount}
+                            </span>
+                        ` : ''}
+                        <span class="text-green-600">
+                            <i class="fas fa-clipboard-check"></i> ${reviewsCount} مراجعة
+                        </span>
+                        <span class="text-purple-600">
+                            <i class="fas fa-pills"></i> ${medsCount} دواء
+                        </span>
+                    </div>
+                </div>
+                
+                <i class="fas fa-chevron-left text-gray-300 text-sm"></i>
+            </div>
+        </div>
+    `;
+}
+
+// ═══════════════════════════════════════════════════════════
+// 📁 ملف المريض الكامل
+// ═══════════════════════════════════════════════════════════
+
+window.openPatientFile = (doctorId, patientId) => {
+    const patient = getPatient(doctorId, patientId);
+    if (!patient) return;
+    
+    const html = `
+        <div class="flex flex-col gap-4">
+            
+            <!-- رأس الملف -->
+            <div class="bg-gradient-to-l from-blue-600 to-indigo-600 text-white p-5 rounded-2xl shadow-lg">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-2xl font-black flex-shrink-0 backdrop-blur-sm">
+                        ${escapeHtml(patient.name?.charAt(0) || '؟')}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-black text-lg truncate" style="font-family: 'Noto Kufi Arabic';">${escapeHtml(patient.name)}</h3>
+                        <div class="text-xs opacity-90 mt-1 flex items-center gap-3 flex-wrap">
+                            ${patient.phone ? `<span dir="ltr"><i class="fas fa-phone"></i> ${escapeHtml(patient.phone)}</span>` : ''}
+                            ${patient.birthdate ? `<span><i class="fas fa-birthday-cake"></i> ${escapeHtml(patient.birthdate)}</span>` : ''}
+                            ${patient.blood_type ? `<span><i class="fas fa-tint"></i> ${escapeHtml(patient.blood_type)}</span>` : ''}
+                        </div>
+                    </div>
+                    <button onclick="editPatientInfo('${doctorId}', '${patientId}')" 
+                            class="w-9 h-9 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center text-sm transition-all flex-shrink-0">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 1️⃣ البيانات الأساسية -->
+            <div class="bg-white p-4 rounded-xl border" style="border-color: var(--border);">
+                <h4 class="font-bold text-sm mb-3 flex items-center gap-2 text-gray-800">
+                    <i class="fas fa-user-circle text-blue-600"></i>
+                    البيانات الأساسية
+                </h4>
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                        <div class="text-gray-500 mb-1 text-[10px]">الاسم</div>
+                        <div class="font-bold">${escapeHtml(patient.name)}</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500 mb-1 text-[10px]">الهاتف</div>
+                        <div class="font-bold" dir="ltr">${escapeHtml(patient.phone || '—')}</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500 mb-1 text-[10px]">تاريخ الميلاد</div>
+                        <div class="font-bold">${escapeHtml(patient.birthdate || '—')}</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500 mb-1 text-[10px]">فصيلة الدم</div>
+                        <div class="font-bold">${escapeHtml(patient.blood_type || '—')}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 2️⃣ الحالات الخاصة -->
+            <div class="bg-white p-4 rounded-xl border" style="border-color: var(--border);">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-bold text-sm flex items-center gap-2 text-gray-800">
+                        <i class="fas fa-tags text-orange-600"></i>
+                        حالات خاصة
+                        <span class="text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
+                            ${(patient.custom_fields || []).length}
+                        </span>
+                    </h4>
+                    <button onclick="addCustomField('${doctorId}', '${patientId}')" 
+                            class="text-xs bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-lg font-bold">
+                        <i class="fas fa-plus"></i> إضافة
+                    </button>
+                </div>
+                
+                ${(patient.custom_fields || []).length === 0 
+                    ? '<p class="text-center py-4 text-xs text-gray-400">لا توجد حالات خاصة مسجلة</p>'
+                    : patient.custom_fields.map((field, i) => `
+                        <div class="flex items-start gap-2 p-3 rounded-lg bg-orange-50 border-r-4 border-orange-500 mb-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-[10px] font-bold text-orange-700 mb-0.5">${escapeHtml(field.title)}</div>
+                                <div class="text-xs text-gray-700 whitespace-pre-line">${escapeHtml(field.value)}</div>
+                            </div>
+                            <button onclick="editCustomField('${doctorId}', '${patientId}', ${i})" 
+                                    class="w-7 h-7 rounded-lg text-blue-500 hover:bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-edit text-[10px]"></i>
+                            </button>
+                            <button onclick="deleteCustomField('${doctorId}', '${patientId}', ${i})" 
+                                    class="w-7 h-7 rounded-lg text-red-500 hover:bg-red-100 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-trash text-[10px]"></i>
+                            </button>
+                        </div>
+                    `).join('')
+                }
+            </div>
+            
+            <!-- 3️⃣ المراجعات -->
+            <div class="bg-white p-4 rounded-xl border" style="border-color: var(--border);">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-bold text-sm flex items-center gap-2 text-gray-800">
+                        <i class="fas fa-clipboard-check text-green-600"></i>
+                        المراجعات
+                        <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                            ${(patient.reviews || []).length}
+                        </span>
+                    </h4>
+                    <button onclick="addReview('${doctorId}', '${patientId}')" 
+                            class="text-xs bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg font-bold">
+                        <i class="fas fa-plus"></i> إضافة
+                    </button>
+                </div>
+                
+                ${(patient.reviews || []).length === 0 
+                    ? '<p class="text-center py-4 text-xs text-gray-400">لا توجد مراجعات مسجلة</p>'
+                    : patient.reviews.slice().reverse().map((review, i) => {
+                        const realIndex = patient.reviews.length - 1 - i;
+                        return `
+                        <div class="p-3 rounded-lg bg-green-50 border-r-4 border-green-500 mb-2">
+                            <div class="flex items-center justify-between mb-2 gap-2">
+                                <div class="text-[11px] font-bold text-green-700 flex items-center gap-1">
+                                    <i class="fas fa-calendar-day"></i>
+                                    ${new Date(review.date).toLocaleDateString('ar-EG', { 
+                                        year: 'numeric', month: 'long', day: 'numeric' 
+                                    })}
+                                </div>
+                                <div class="flex gap-1">
+                                    <button onclick="editReview('${doctorId}', '${patientId}', ${realIndex})" 
+                                            class="w-7 h-7 rounded-lg text-blue-500 hover:bg-blue-100 flex items-center justify-center">
+                                        <i class="fas fa-edit text-[10px]"></i>
+                                    </button>
+                                    <button onclick="deleteReview('${doctorId}', '${patientId}', ${realIndex})" 
+                                            class="w-7 h-7 rounded-lg text-red-500 hover:bg-red-100 flex items-center justify-center">
+                                        <i class="fas fa-trash text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-700 whitespace-pre-line leading-relaxed">${escapeHtml(review.notes || '')}</div>
+                        </div>
+                    `}).join('')
+                }
+            </div>
+            
+            <!-- 4️⃣ الأدوية -->
+            <div class="bg-white p-4 rounded-xl border" style="border-color: var(--border);">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-bold text-sm flex items-center gap-2 text-gray-800">
+                        <i class="fas fa-pills text-purple-600"></i>
+                        الأدوية
+                        <span class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
+                            ${(patient.medications || []).length}
+                        </span>
+                    </h4>
+                    <button onclick="addMedication('${doctorId}', '${patientId}')" 
+                            class="text-xs bg-purple-500 hover:bg-purple-600 text-white px-3 py-1.5 rounded-lg font-bold">
+                        <i class="fas fa-plus"></i> إضافة
+                    </button>
+                </div>
+                
+                ${(patient.medications || []).length === 0 
+                    ? '<p class="text-center py-4 text-xs text-gray-400">لا توجد أدوية مسجلة</p>'
+                    : patient.medications.slice().reverse().map((med, i) => {
+                        const realIndex = patient.medications.length - 1 - i;
+                        return `
+                        <div class="p-3 rounded-lg bg-purple-50 border-r-4 border-purple-500 mb-2 flex items-center gap-3">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-bold text-gray-800">${escapeHtml(med.name)}</div>
+                                <div class="text-[10px] text-gray-500 mt-0.5">
+                                    <i class="fas fa-calendar-day"></i>
+                                    ${new Date(med.date).toLocaleDateString('ar-EG')}
+                                </div>
+                            </div>
+                            <button onclick="editMedication('${doctorId}', '${patientId}', ${realIndex})" 
+                                    class="w-7 h-7 rounded-lg text-blue-500 hover:bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-edit text-[10px]"></i>
+                            </button>
+                            <button onclick="deleteMedication('${doctorId}', '${patientId}', ${realIndex})" 
+                                    class="w-7 h-7 rounded-lg text-red-500 hover:bg-red-100 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-trash text-[10px]"></i>
+                            </button>
+                        </div>
+                    `}).join('')
+                }
+            </div>
+            
+            <!-- أزرار -->
+            <div class="flex gap-2 pt-2">
+                <button onclick="openPatientsManager('${doctorId}')" 
+                        class="flex-1 py-3 rounded-xl border font-bold text-sm hover:bg-gray-50 transition-all"
+                        style="border-color: var(--border);">
+                    <i class="fas fa-arrow-right"></i> رجوع
+                </button>
+                <button onclick="confirmDeletePatient('${doctorId}', '${patientId}')" 
+                        class="px-4 py-3 rounded-xl bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 transition-all">
+                    <i class="fas fa-trash"></i> حذف
+                </button>
+            </div>
+        </div>
+    `;
+    
+    openCtrlPanel('📁 ملف المريض', html, '#2563EB');
+};
+
+// ═══════════════════════════════════════════════════════════
+// ➕ إضافة مريض جديد
+// ═══════════════════════════════════════════════════════════
+
+window.openAddPatientForm = (doctorId) => {
+    document.getElementById('ctrlContent').innerHTML = `
+        <div class="flex flex-col gap-4">
+            <h3 class="font-bold text-lg flex items-center gap-2">
+                <i class="fas fa-user-plus text-blue-600"></i>
+                إضافة مريض جديد
+            </h3>
+            
+            <div class="bg-white p-4 rounded-xl border" style="border-color: var(--border);">
+                <div class="flex flex-col gap-3">
+                    <div>
+                        <label class="text-xs font-bold text-gray-600 mb-1 block">
+                            الاسم الكامل <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="newPatientName" class="ctrl-input text-sm" 
+                               placeholder="محمد أحمد">
+                    </div>
+                    
+                    <div>
+                        <label class="text-xs font-bold text-gray-600 mb-1 block">رقم الهاتف</label>
+                        <input type="tel" id="newPatientPhone" class="ctrl-input text-sm" 
+                               placeholder="09XXXXXXXX" dir="ltr">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-bold text-gray-600 mb-1 block">تاريخ الميلاد</label>
+                            <input type="date" id="newPatientBirthdate" class="ctrl-input text-sm">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-600 mb-1 block">فصيلة الدم</label>
+                            <select id="newPatientBlood" class="ctrl-input text-sm">
+                                <option value="">—</option>
+                                ${['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(t => 
+                                    `<option value="${t}">${t}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="openPatientsManager('${doctorId}')" 
+                        class="flex-1 py-3 rounded-xl border font-bold text-sm hover:bg-gray-50"
+                        style="border-color: var(--border);">
+                    إلغاء
+                </button>
+                <button onclick="submitNewPatient('${doctorId}')" 
+                        class="flex-1 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    `;
+};
+
+window.submitNewPatient = (doctorId) => {
+    const name = document.getElementById('newPatientName').value.trim();
+    if (!name) return showToast('الرجاء إدخال اسم المريض', 'error');
+    
+    createPatient(doctorId, {
+        name: name,
+        phone: document.getElementById('newPatientPhone').value.trim(),
+        birthdate: document.getElementById('newPatientBirthdate').value,
+        blood_type: document.getElementById('newPatientBlood').value
+    });
+    
+    showToast('تمت إضافة المريض', 'success');
+    setTimeout(() => openPatientsManager(doctorId), 300);
+};
+
+window.editPatientInfo = (doctorId, patientId) => {
+    const patient = getPatient(doctorId, patientId);
+    if (!patient) return;
+    
+    document.getElementById('ctrlContent').innerHTML = `
+        <div class="flex flex-col gap-4">
+            <h3 class="font-bold text-lg flex items-center gap-2">
+                <i class="fas fa-edit text-blue-600"></i>
+                تعديل بيانات المريض
+            </h3>
+            
+            <div class="bg-white p-4 rounded-xl border" style="border-color: var(--border);">
+                <div class="flex flex-col gap-3">
+                    <div>
+                        <label class="text-xs font-bold text-gray-600 mb-1 block">الاسم</label>
+                        <input type="text" id="editPatientName" class="ctrl-input text-sm" 
+                               value="${escapeHtml(patient.name)}">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-600 mb-1 block">الهاتف</label>
+                        <input type="tel" id="editPatientPhone" class="ctrl-input text-sm" 
+                               value="${escapeHtml(patient.phone || '')}" dir="ltr">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-bold text-gray-600 mb-1 block">تاريخ الميلاد</label>
+                            <input type="date" id="editPatientBirthdate" class="ctrl-input text-sm"
+                                   value="${escapeHtml(patient.birthdate || '')}">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-600 mb-1 block">فصيلة الدم</label>
+                            <select id="editPatientBlood" class="ctrl-input text-sm">
+                                <option value="">—</option>
+                                ${['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(t => 
+                                    `<option value="${t}" ${patient.blood_type === t ? 'selected' : ''}>${t}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="openPatientFile('${doctorId}', '${patientId}')" 
+                        class="flex-1 py-3 rounded-xl border font-bold text-sm"
+                        style="border-color: var(--border);">
+                    إلغاء
+                </button>
+                <button onclick="submitEditPatient('${doctorId}', '${patientId}')" 
+                        class="flex-1 py-3 rounded-xl bg-blue-500 text-white font-bold text-sm">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    `;
+};
+
+window.submitEditPatient = (doctorId, patientId) => {
+    const patient = getPatient(doctorId, patientId);
+    if (!patient) return;
+    
+    patient.name = document.getElementById('editPatientName').value.trim();
+    patient.phone = document.getElementById('editPatientPhone').value.trim();
+    patient.birthdate = document.getElementById('editPatientBirthdate').value;
+    patient.blood_type = document.getElementById('editPatientBlood').value;
+    patient.updated_at = new Date().toISOString();
+    
+    savePatient(doctorId, patient);
+    showToast('تم حفظ التعديلات', 'success');
+    setTimeout(() => openPatientFile(doctorId, patientId), 300);
+};
+
+// ═══════════════════════════════════════════════════════════
+// ➕ الحقول المخصصة
+// ═══════════════════════════════════════════════════════════
+
+window.addCustomField = (doctorId, patientId) => {
+    document.getElementById('ctrlContent').innerHTML = `
+        <div class="flex flex-col gap-4">
+            <h3 class="font-bold text-lg flex items-center gap-2">
+                <i class="fas fa-tag text-orange-600"></i>
+                إضافة حالة خاصة
+            </h3>
+            
+            <div class="bg-orange-50 border border-orange-200 rounded-xl p-3 text-xs text-orange-800 flex items-start gap-2">
+                <i class="fas fa-lightbulb mt-0.5"></i>
+                <span>أمثلة: "سوابق جراحية"، "حساسية"، "أمراض مزمنة"، "أدوية حالية"، "عادات"</span>
+            </div>
+            
+            <div class="flex flex-col gap-3">
+                <div>
+                    <label class="text-xs font-bold text-gray-600 mb-1 block">
+                        اسم الحقل <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="customFieldTitle" class="ctrl-input text-sm" 
+                           placeholder="مثال: سوابق جراحية">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600 mb-1 block">
+                        القيمة <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="customFieldValue" class="ctrl-input text-sm" rows="3"
+                              placeholder="مثال: استئصال الزائدة 2015، عملية الغضروف 2019"></textarea>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="openPatientFile('${doctorId}', '${patientId}')" 
+                        class="flex-1 py-3 rounded-xl border font-bold text-sm"
+                        style="border-color: var(--border);">
+                    إلغاء
+                </button>
+                <button onclick="submitCustomField('${doctorId}', '${patientId}')" 
+                        class="flex-1 py-3 rounded-xl bg-orange-500 text-white font-bold text-sm">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    `;
+};
+
+window.submitCustomField = (doctorId, patientId) => {
+    const title = document.getElementById('customFieldTitle').value.trim();
+    const value = document.getElementById('customFieldValue').value.trim();
+    
+    if (!title || !value) return showToast('الرجاء ملء الحقلين', 'error');
+    
+    const patient = getPatient(doctorId, patientId);
+    if (!patient.custom_fields) patient.custom_fields = [];
+    
+    patient.custom_fields.push({
+        id: 'f_' + Date.now(),
+        title: title,
+        value: value,
+        created_at: new Date().toISOString()
+    });
+    
+    savePatient(doctorId, patient);
+    showToast('تمت الإضافة', 'success');
+    setTimeout(() => openPatientFile(doctorId, patientId), 300);
+};
+
+window.deleteCustomField = (doctorId, patientId, index) => {
+    if (!confirm('حذف هذه الحالة؟')) return;
+    const patient = getPatient(doctorId, patientId);
+    patient.custom_fields.splice(index, 1);
+    savePatient(doctorId, patient);
+    openPatientFile(doctorId, patientId);
+};
+
+window.editCustomField = (doctorId, patientId, index) => {
+    const patient = getPatient(doctorId, patientId);
+    const field = patient.custom_fields[index];
+    
+    document.getElementById('ctrlContent').innerHTML = `
+        <div class="flex flex-col gap-4">
+            <h3 class="font-bold text-lg flex items-center gap-2">
+                <i class="fas fa-edit text-orange-600"></i>
+                تعديل الحقل
+            </h3>
+            
+            <div class="flex flex-col gap-3">
+                <div>
+                    <label class="text-xs font-bold text-gray-600 mb-1 block">اسم الحقل</label>
+                    <input type="text" id="customFieldTitle" class="ctrl-input text-sm" 
+                           value="${escapeHtml(field.title)}">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600 mb-1 block">القيمة</label>
+                    <textarea id="customFieldValue" class="ctrl-input text-sm" rows="3">${escapeHtml(field.value)}</textarea>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="openPatientFile('${doctorId}', '${patientId}')" 
+                        class="flex-1 py-3 rounded-xl border font-bold text-sm"
+                        style="border-color: var(--border);">
+                    إلغاء
+                </button>
+                <button onclick="submitEditCustomField('${doctorId}', '${patientId}', ${index})" 
+                        class="flex-1 py-3 rounded-xl bg-orange-500 text-white font-bold text-sm">
+                    حفظ
+                </button>
+            </div>
+        </div>
+    `;
+};
+
+window.submitEditCustomField = (doctorId, patientId, index) => {
+    const patient = getPatient(doctorId, patientId);
+    patient.custom_fields[index].title = document.getElementById('customFieldTitle').value.trim();
+    patient.custom_fields[index].value = document.getElementById('customFieldValue').value.trim();
+    savePatient(doctorId, patient);
+    showToast('تم الحفظ', 'success');
+    setTimeout(() => openPatientFile(doctorId, patientId), 300);
+};
+
+// ═══════════════════════════════════════════════════════════
+// ➕ المراجعات
+// ═══════════════════════════════════════════════════════════
+
+window.addReview = (doctorId, patientId) => {
+    const today = new Date().toISOString().split('T')[0];
+    
+    document.getElementById('ctrlContent').innerHTML = `
+        <div class="flex flex-col gap-4">
+            <h3 class="font-bold text-lg flex items-center gap-2">
+                <i class="fas fa-clipboard-check text-green-600"></i>
+                إضافة مراجعة
+            </h3>
+            
+            <div class="flex flex-col gap-3">
+                <div>
+                    <label class="text-xs font-bold text-gray-600 mb-1 block">
+                        تاريخ المراجعة <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" id="reviewDate" class="ctrl-input text-sm" value="${today}">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600 mb-1 block">
+                        ملاحظات <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="reviewNotes" class="ctrl-input text-sm" rows="5"
+                              placeholder="تفاصيل المراجعة، التشخيص، التوصيات..."></textarea>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="openPatientFile('${doctorId}', '${patientId}')" 
+                        class="flex-1 py-3 rounded-xl border font-bold text-sm"
+                        style="border-color: var(--border);">
+                    إلغاء
+                </button>
+                <button onclick="submitReview('${doctorId}', '${patientId}')" 
+                        class="flex-1 py-3 rounded-xl bg-green-500 text-white font-bold text-sm">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    `;
+};
+
+window.submitReview = (doctorId, patientId) => {
+    const date = document.getElementById('reviewDate').value;
+    const notes = document.getElementById('reviewNotes').value.trim();
+    
+    if (!date || !notes) return showToast('الرجاء ملء البيانات', 'error');
+    
+    const patient = getPatient(doctorId, patientId);
+    if (!patient.reviews) patient.reviews = [];
+    
+    patient.reviews.push({
+        id: 'r_' + Date.now(),
+        date: date,
+        notes: notes,
+        created_at: new Date().toISOString()
+    });
+    
+    savePatient(doctorId, patient);
+    showToast('تمت إضافة المراجعة', 'success');
+    setTimeout(() => openPatientFile(doctorId, patientId), 300);
+};
+
+window.deleteReview = (doctorId, patientId, index) => {
+    if (!confirm('حذف هذه المراجعة؟')) return;
+    const patient = getPatient(doctorId, patientId);
+    patient.reviews.splice(index, 1);
+    savePatient(doctorId, patient);
+    openPatientFile(doctorId, patientId);
+};
+
+window.editReview = (doctorId, patientId, index) => {
+    const patient = getPatient(doctorId, patientId);
+    const review = patient.reviews[index];
+    
+    document.getElementById('ctrlContent').innerHTML = `
+        <div class="flex flex-col gap-4">
+            <h3 class="font-bold text-lg flex items-center gap-2">
+                <i class="fas fa-edit text-green-600"></i>
+                تعديل المراجعة
+            </h3>
+            
+            <div class="flex flex-col gap-3">
+                <div>
+                    <label class="text-xs font-bold text-gray-600 mb-1 block">التاريخ</label>
+                    <input type="date" id="reviewDate" class="ctrl-input text-sm" 
+                           value="${escapeHtml(review.date)}">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600 mb-1 block">الملاحظات</label>
+                    <textarea id="reviewNotes" class="ctrl-input text-sm" rows="5">${escapeHtml(review.notes)}</textarea>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="openPatientFile('${doctorId}', '${patientId}')" 
+                        class="flex-1 py-3 rounded-xl border font-bold text-sm"
+                        style="border-color: var(--border);">
+                    إلغاء
+                </button>
+                <button onclick="submitEditReview('${doctorId}', '${patientId}', ${index})" 
+                        class="flex-1 py-3 rounded-xl bg-green-500 text-white font-bold text-sm">
+                    حفظ
+                </button>
+            </div>
+        </div>
+    `;
+};
+
+window.submitEditReview = (doctorId, patientId, index) => {
+    const patient = getPatient(doctorId, patientId);
+    patient.reviews[index].date = document.getElementById('reviewDate').value;
+    patient.reviews[index].notes = document.getElementById('reviewNotes').value.trim();
+    savePatient(doctorId, patient);
+    showToast('تم الحفظ', 'success');
+    setTimeout(() => openPatientFile(doctorId, patientId), 300);
+};
+
+// ═══════════════════════════════════════════════════════════
+// ➕ الأدوية (مبسّط: تاريخ + اسم فقط)
+// ═══════════════════════════════════════════════════════════
+
+window.addMedication = (doctorId, patientId) => {
+    const today = new Date().toISOString().split('T')[0];
+    
+    document.getElementById('ctrlContent').innerHTML = `
+        <div class="flex flex-col gap-4">
+            <h3 class="font-bold text-lg flex items-center gap-2">
+                <i class="fas fa-pills text-purple-600"></i>
+                إضافة دواء
+            </h3>
+            
+            <div class="flex flex-col gap-3">
+                <div>
+                    <label class="text-xs font-bold text-gray-600 mb-1 block">
+                        تاريخ الوصف <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" id="medDate" class="ctrl-input text-sm" value="${today}">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600 mb-1 block">
+                        اسم الدواء <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="medName" class="ctrl-input text-sm" 
+                           placeholder="مثال: Augmentin 1g">
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="openPatientFile('${doctorId}', '${patientId}')" 
+                        class="flex-1 py-3 rounded-xl border font-bold text-sm"
+                        style="border-color: var(--border);">
+                    إلغاء
+                </button>
+                <button onclick="submitMedication('${doctorId}', '${patientId}')" 
+                        class="flex-1 py-3 rounded-xl bg-purple-500 text-white font-bold text-sm">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    `;
+};
+
+window.submitMedication = (doctorId, patientId) => {
+    const name = document.getElementById('medName').value.trim();
+    const date = document.getElementById('medDate').value;
+    
+    if (!name || !date) return showToast('الرجاء إدخال اسم الدواء والتاريخ', 'error');
+    
+    const patient = getPatient(doctorId, patientId);
+    if (!patient.medications) patient.medications = [];
+    
+    patient.medications.push({
+        id: 'm_' + Date.now(),
+        date: date,
+        name: name,
+        created_at: new Date().toISOString()
+    });
+    
+    savePatient(doctorId, patient);
+    showToast('تمت إضافة الدواء', 'success');
+    setTimeout(() => openPatientFile(doctorId, patientId), 300);
+};
+
+window.deleteMedication = (doctorId, patientId, index) => {
+    if (!confirm('حذف هذا الدواء؟')) return;
+    const patient = getPatient(doctorId, patientId);
+    patient.medications.splice(index, 1);
+    savePatient(doctorId, patient);
+    openPatientFile(doctorId, patientId);
+};
+
+window.editMedication = (doctorId, patientId, index) => {
+    const patient = getPatient(doctorId, patientId);
+    const med = patient.medications[index];
+    
+    document.getElementById('ctrlContent').innerHTML = `
+        <div class="flex flex-col gap-4">
+            <h3 class="font-bold text-lg flex items-center gap-2">
+                <i class="fas fa-edit text-purple-600"></i>
+                تعديل الدواء
+            </h3>
+            
+            <div class="flex flex-col gap-3">
+                <div>
+                    <label class="text-xs font-bold text-gray-600 mb-1 block">التاريخ</label>
+                    <input type="date" id="medDate" class="ctrl-input text-sm" 
+                           value="${escapeHtml(med.date)}">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600 mb-1 block">اسم الدواء</label>
+                    <input type="text" id="medName" class="ctrl-input text-sm" 
+                           value="${escapeHtml(med.name)}">
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="openPatientFile('${doctorId}', '${patientId}')" 
+                        class="flex-1 py-3 rounded-xl border font-bold text-sm"
+                        style="border-color: var(--border);">
+                    إلغاء
+                </button>
+                <button onclick="submitEditMedication('${doctorId}', '${patientId}', ${index})" 
+                        class="flex-1 py-3 rounded-xl bg-purple-500 text-white font-bold text-sm">
+                    حفظ
+                </button>
+            </div>
+        </div>
+    `;
+};
+
+window.submitEditMedication = (doctorId, patientId, index) => {
+    const patient = getPatient(doctorId, patientId);
+    patient.medications[index] = {
+        ...patient.medications[index],
+        date: document.getElementById('medDate').value,
+        name: document.getElementById('medName').value.trim()
+    };
+    savePatient(doctorId, patient);
+    showToast('تم الحفظ', 'success');
+    setTimeout(() => openPatientFile(doctorId, patientId), 300);
+};
+
+// ═══════════════════════════════════════════════════════════
+// 📋 نسخ / تصدير / استيراد
+// ═══════════════════════════════════════════════════════════
+
+window.copyPatientsData = (doctorId) => {
+    const patients = getPatients(doctorId);
+    
+    if (patients.length === 0) {
+        return showToast('لا يوجد مرضى للنسخ', 'error');
+    }
+    
+    // إنشاء نص منسق للنسخ
+    let text = `📁 ملفات المرضى - عدد: ${patients.length}\n`;
+    text += `📅 التاريخ: ${new Date().toLocaleDateString('ar-EG')}\n`;
+    text += `${'═'.repeat(40)}\n\n`;
+    
+    patients.forEach((p, i) => {
+        text += `${i + 1}) ${p.name}\n`;
+        if (p.phone) text += `   📞 ${p.phone}\n`;
+        if (p.birthdate) text += `   🎂 ${p.birthdate}\n`;
+        if (p.blood_type) text += `   🩸 ${p.blood_type}\n`;
+        
+        if (p.custom_fields?.length) {
+            text += `   🏷️ حالات خاصة:\n`;
+            p.custom_fields.forEach(f => {
+                text += `      • ${f.title}: ${f.value}\n`;
+            });
+        }
+        
+        if (p.reviews?.length) {
+            text += `   📋 مراجعات (${p.reviews.length}):\n`;
+            p.reviews.slice(-3).forEach(r => {
+                text += `      • ${new Date(r.date).toLocaleDateString('ar-EG')}: ${r.notes.substring(0, 50)}...\n`;
+            });
+        }
+        
+        if (p.medications?.length) {
+            text += `   💊 أدوية (${p.medications.length}):\n`;
+            p.medications.forEach(m => {
+                text += `      • ${new Date(m.date).toLocaleDateString('ar-EG')}: ${m.name}\n`;
+            });
+        }
+        
+        text += `\n${'─'.repeat(40)}\n\n`;
+    });
+    
+    navigator.clipboard.writeText(text).then(() => {
+        showToast(`✅ تم نسخ ${patients.length} ملف`, 'success');
+    }).catch(() => {
+        showToast('تعذر النسخ', 'error');
+    });
+};
+
+window.exportPatientsData = (doctorId) => {
+    const patients = getPatients(doctorId);
+    
+    if (patients.length === 0) {
+        return showToast('لا يوجد مرضى للتصدير', 'error');
+    }
+    
+    const exportData = {
+        version: '1.0',
+        doctor_id: doctorId,
+        exported_at: new Date().toISOString(),
+        total_patients: patients.length,
+        patients: patients
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const date = new Date().toISOString().split('T')[0];
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `patients_backup_${date}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast(`✅ تم تصدير ${patients.length} ملف`, 'success');
+};
+
+window.importPatientsData = (doctorId, file) => {
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const imported = JSON.parse(e.target.result);
+            const patients = imported.patients || imported;
+            
+            if (!Array.isArray(patients)) {
+                throw new Error('صيغة الملف غير صالحة');
+            }
+            
+            if (!confirm(`سيتم استيراد ${patients.length} ملف.\n\nسيتم دمجها مع الملفات الحالية.`)) {
+                return;
+            }
+            
+            const current = getPatients(doctorId);
+            let added = 0;
+            let skipped = 0;
+            
+            patients.forEach(p => {
+                const exists = current.find(m => 
+                    m.id === p.id || 
+                    (m.phone && p.phone && m.phone === p.phone)
+                );
+                
+                if (!exists) {
+                    current.push(p);
+                    added++;
+                } else {
+                    skipped++;
+                }
+            });
+            
+            savePatients(doctorId, current);
+            showToast(`تم استيراد ${added} ملف${skipped > 0 ? ` (تم تجاهل ${skipped} مكرر)` : ''}`, 'success');
+            
+            setTimeout(() => openPatientsManager(doctorId), 500);
+        } catch (err) {
+            showToast('خطأ في قراءة الملف: ' + err.message, 'error');
+        }
+    };
+    reader.readAsText(file);
+};
+
+// ═══════════════════════════════════════════════════════════
+// 🔍 البحث
+// ═══════════════════════════════════════════════════════════
+
+window.filterPatientsList = (doctorId, query) => {
+    const all = getPatients(doctorId);
+    const q = query.toLowerCase().trim();
+    
+    const filtered = q === '' ? all : all.filter(p => 
+        p.name?.toLowerCase().includes(q) ||
+        p.phone?.includes(q)
+    );
+    
+    const container = document.getElementById('patientsListContainer');
+    if (!container) return;
+    
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-search text-3xl text-gray-200 mb-2"></i>
+                <p class="text-sm text-gray-400">لا توجد نتائج</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = filtered.map(p => renderPatientRow(p, doctorId)).join('');
+};
+
+// ═══════════════════════════════════════════════════════════
+// 🗑️ تأكيد الحذف
+// ═══════════════════════════════════════════════════════════
+
+window.confirmDeletePatient = (doctorId, patientId) => {
+    if (!confirm('هل أنت متأكد من حذف هذا المريض؟\n\nسيتم حذف كل بياناته (المراجعات والأدوية).')) return;
+    deletePatient(doctorId, patientId);
+    showToast('تم حذف المريض', 'success');
+    setTimeout(() => openPatientsManager(doctorId), 300);
+};
+
+// ═══════════════════════════════════════════════════════════
+// 🎨 تحديث البطاقة في لوحة الطبيب
+// ═══════════════════════════════════════════════════════════
+
+window.updatePatientsCard = (doctorId) => {
+    const patients = getPatients(doctorId);
+    
+    const totalEl = document.getElementById('totalPatientsStat');
+    const badgeEl = document.getElementById('patientsCountBadge');
+    const reviewsEl = document.getElementById('totalReviewsStat');
+    const medsEl = document.getElementById('totalMedsStat');
+    const recentEl = document.getElementById('recentPatientsList');
+    
+    if (totalEl) totalEl.textContent = patients.length;
+    if (badgeEl) badgeEl.textContent = patients.length;
+    
+    const totalReviews = patients.reduce((sum, p) => sum + (p.reviews?.length || 0), 0);
+    if (reviewsEl) reviewsEl.textContent = totalReviews;
+    
+    const totalMeds = patients.reduce((sum, p) => sum + (p.medications?.length || 0), 0);
+    if (medsEl) medsEl.textContent = totalMeds;
+    
+    if (recentEl) {
+        if (patients.length === 0) {
+            recentEl.innerHTML = '<p class="text-center text-xs text-gray-400 py-2">لا يوجد مرضى بعد</p>';
+        } else {
+            recentEl.innerHTML = patients.slice(0, 3).map(p => `
+                <div onclick="openPatientFile('${doctorId}', '${p.id}')" 
+                     class="flex items-center gap-2 p-2 rounded-lg bg-gray-50 hover:bg-blue-50 cursor-pointer transition-all">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 
+                                flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        ${escapeHtml(p.name?.charAt(0) || '؟')}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-xs font-bold truncate">${escapeHtml(p.name)}</div>
+                        <div class="text-[10px] text-gray-500">
+                            ${p.reviews?.length || 0} مراجعة • ${p.medications?.length || 0} دواء
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left text-gray-300 text-xs"></i>
+                </div>
+            `).join('');
+        }
+    }
+};
