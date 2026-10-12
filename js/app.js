@@ -3533,33 +3533,33 @@ window.submitBloodRequest = async (e) => {
     const submitBtn = e.target.querySelector('button[type="submit"]');
     
     const lastBloodRequest = localStorage.getItem('last_blood_request_time');
-    if (lastBloodRequest && (Date.now() - parseInt(lastBloodRequest)) < 3600000) {
-        const minsLeft = Math.ceil((3600000 - (Date.now() - parseInt(lastBloodRequest))) / 60000);
-        showToast(`لقد أرسلت استغاثة مؤخراً. يرجى الانتظار ${minsLeft} دقيقة.`, 'error');
-        return;
-    }
-         // فحص الكلمات المسيئة قبل الإرسال
-    if (containsBadWords(name) || containsBadWords(hospital) || containsBadWords(notes)) {
-        showToast('تم رفض الاستغاثة لاحتوائها على كلمات غير لائقة.', 'error');
-        return;
-    }
+if (lastBloodRequest && (Date.now() - parseInt(lastBloodRequest)) < 3600000) {
+    const minsLeft = Math.ceil((3600000 - (Date.now() - parseInt(lastBloodRequest))) / 60000);
+    showToast(`لقد أرسلت استغاثة مؤخراً. يرجى الانتظار ${minsLeft} دقيقة.`, 'error');
+    return;
+}
+     // فحص الكلمات المسيئة قبل الإرسال
+if (containsBadWords(name) || containsBadWords(hospital) || containsBadWords(notes)) {
+    showToast('تم رفض الاستغاثة لاحتوائها على كلمات غير لائقة.', 'error');
+    return;
+}
 
-    submitBtn.disabled = true; submitBtn.innerText = 'جاري النشر...';
-    
-    const name = document.getElementById('bloodPatient').value.trim();
-    const bloodType = document.getElementById('bloodType').value;
-    const hospital = document.getElementById('bloodHospital').value.trim();
-    const phoneInput = document.getElementById('bloodPhone');
-    const phone = phoneInput.value.trim();
-    const notes = document.getElementById('bloodNotes').value.trim();
+submitBtn.disabled = true; submitBtn.innerText = 'جاري النشر...';
 
-    if (!/^09\d{8}$/.test(phone)) { 
-        phoneInput.classList.add('input-invalid'); 
-        showToast('رقم الهاتف غير صحيح', 'error'); 
-        submitBtn.disabled = false; submitBtn.innerText = 'نشر الاستغاثة';
-        return; 
-    } 
-    phoneInput.classList.remove('input-invalid');
+const name = document.getElementById('bloodPatient').value.trim();
+const bloodType = document.getElementById('bloodType').value;
+const hospital = document.getElementById('bloodHospital').value.trim();
+const phoneInput = document.getElementById('bloodPhone');
+const phone = phoneInput.value.trim();
+const notes = document.getElementById('bloodNotes').value.trim();
+
+if (!/^09\d{8}$/.test(phone)) { 
+    phoneInput.classList.add('input-invalid'); 
+    showToast('رقم الهاتف غير صحيح', 'error'); 
+    submitBtn.disabled = false; submitBtn.innerText = 'نشر الاستغاثة';
+    return; 
+} 
+phoneInput.classList.remove('input-invalid');
 
     try {
         
