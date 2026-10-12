@@ -7619,20 +7619,13 @@ if (window.location.pathname !== '/' && window.location.pathname !== '/index.htm
 
 window.openAddFacilityModal = () => {
     const overlay = document.getElementById('addFacilityOverlay');
+    if (!overlay) return;
     
-    // ✅ احفظ موقع التمرير قبل أي شيء
-    const scrollY = window.scrollY;
-    window.__scrollY = scrollY;
-    
-    // ✅ ثبّت body في مكانه الحالي (بدون قفزة للأعلى)
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;  // ← هذا يمنع القفزة
-    document.body.style.width = '100%';
-    document.body.style.overflow = 'hidden';
-    
+    // ✅ استخدم نفس نظام تواصل معنا
     overlay.classList.add('active');
+    lockScroll();  // ← نفس الدالة التي يستخدمها openCtrlPanel
     
-    // Focus first input
+    // Focus أول حقل
     setTimeout(() => {
         const firstInput = document.getElementById('facName');
         if (firstInput) {
@@ -7643,32 +7636,20 @@ window.openAddFacilityModal = () => {
 
 window.closeAddFacilityModal = () => {
     const overlay = document.getElementById('addFacilityOverlay');
+    if (!overlay) return;
     overlay.classList.remove('active');
-    
-    // ✅ استعد موقع التمرير
-    const scrollY = window.__scrollY || 0;
-    
-    document.body.style.position = '';
-    document.body.style.top = '';  // ← مهم: امسح top
-    document.body.style.width = '';
-    document.body.style.overflow = '';
-    
-    // ✅ ارجع للموقع الأصلي
-    window.scrollTo(0, scrollY);
-    window.__scrollY = undefined;
-    
-    // Reset form
+    // ✅ استخدم نفس نظام تواصل معنا
+    unlockScroll();  
+    // إعادة تعيين النموذج
     const form = document.getElementById('addFacilityForm');
     if (form) form.reset();
-    
-    // Reset submit button
+    // إعادة تعيين زر الإرسال
     const submitBtn = document.querySelector('.submit-facility-btn');
     if (submitBtn && submitBtn.disabled) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>إرسال طلب التسجيل</span>';
     }
-    
-    // Blur focused input
+    // إزالة التركيز
     if (document.activeElement && document.activeElement.blur) {
         document.activeElement.blur();
     }
