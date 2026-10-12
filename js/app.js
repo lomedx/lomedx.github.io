@@ -25,12 +25,11 @@ let favoriteDoctors = JSON.parse(localStorage.getItem('lomedx_favorites') || '[]
 let currentHealthFileId = localStorage.getItem('healthFileId') || null;
 let allQuestions = [];
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-let unsubscribeQuestions = null;
+
 let currentRadarTab = 'summer';
 let doctorDashboardInterval = null;
 let radarSettings = { defaultSeason: 'summer', lastReset: 0 };
-let unsubscribeRadar = null;
-let unsubscribeRadarSettings = null;
+
 let latestRadarReports = [];
 let activeAds = [];
 let currentAdIndex = 0;
@@ -450,12 +449,13 @@ window.addEventListener('DOMContentLoaded', () => {
         allData = JSON.parse(cachedData);
         if (!forceUpdate) { renderData(); updateStats(); }
     }
-
+    
     fetchListings();
     fetchBookings();
     fetchBloodRequests();
     fetchMedicineDonations();
     fetchEmergencyContacts();
+    fetchAnnouncements();
     
     document.getElementById('lightbox').addEventListener('click', () => { document.getElementById('lightbox').classList.remove('active'); unlockScroll(); });
     
@@ -846,7 +846,10 @@ function matchItem(item) {
     
     if (!searchQuery) return true; 
     const q = searchQuery.toLowerCase(); 
-    return ['name', 'specialty', 'address', 'description', 'services', 'tests', 'departments', 'floors', 'homesample', 'nightdetails', 'consulthours', 'bookingnotes'].some(key => (escapeHtml(item[key]) || '').toLowerCase().includes(q)); 
+    // ✅ إزالة escapeHtml — لا معنى له في البحث النصي
+    return ['name', 'specialty', 'address', 'description', 'services', 'tests', 'departments', 'floors', 'homesample', 'nightdetails', 'consulthours', 'bookingnotes'].some(key => 
+        String(item[key] || '').toLowerCase().includes(q)
+    ); 
 }
 
 window.setFilter = (filter, btn) => { 
@@ -2928,10 +2931,11 @@ window.fetchPatientHealthFile = async (userId, doctorData) => {
         }
 
         const docInfo = {
-            name: doctorData?.name || 'طبيب',
-            specialty: doctorData?.specialty || 'طبيب عام',
-            id: doctorData?.id || 'unknown'
-        };
+    name: doctorData?.name || 'طبيب',
+    specialty: doctorData?.specialty || 'طبيب عام',
+    id: doctorData?.id || 'unknown',
+    phone: doctorData?.phone || ''  
+};
 
 window.tempPatientContext = {
     userId: userId,
@@ -5179,7 +5183,6 @@ async function fetchHomeAdsPublic() {
     }
 }
 fetchHomeAdsPublic();
-fetchAnnouncements();
             
 //==========الجزء الأخير==============
 // === الأدوات الطبية والرادار واسأل طبيب ===
