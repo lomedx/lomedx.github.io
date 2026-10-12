@@ -6073,7 +6073,9 @@ window.openAskDoctor = (docName) => {
         <div class="flex flex-col gap-5">
             <div class="bg-sky-50 border border-sky-200 rounded-xl p-4 text-sky-800 text-sm flex items-center gap-3">
                 <i class="fas fa-comments text-xl"></i>
-                <span>اطرح سؤالك الطبي ليقوم الأطباء بالإجابة عليه. (الأسئلة عامة ولا تغني عن الكشف المباشر).</span>
+                <span>اطرح سؤالاً صحياً عاماً ليجيبك الأطباء.
+⚠️ للتوعية فقط — لا يمكن تقديم تشخيص، ولا تغني عن الكشف المباشر.
+للحصول على تشخيص دقيق، احجز موعداً مع طبيب.</span>
             </div>
             <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)">
                 <h4 class="font-bold mb-4 text-sm flex items-center gap-2"><i class="fas fa-question-circle text-sky-600"></i> اطرح سؤالاً جديداً</h4>
