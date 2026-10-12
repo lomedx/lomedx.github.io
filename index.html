@@ -612,16 +612,12 @@
                 </div>
 
                 <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-4 mt-12 max-w-4xl mx-auto">
-                    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-doctor">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">الطبيب</div></div>
-                    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-pharmacy">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">الصيدلية</div></div>
-                    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-lab">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">المخبر</div></div>
-
-                    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-center">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">المركز الطبي</div></div>
-                    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-hospital">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">المشفى</div></div>
-
-                        
-                        
-                    </div>
+    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-hospital">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">المشفى</div></div>
+    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-center">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">المركز الطبي</div></div>
+    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-lab">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">المخبر</div></div>
+    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-doctor">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">الطبيب</div></div>
+    <div class="stat-card p-3 sm:p-5 rounded-2xl text-center"><div class="text-xl sm:text-3xl font-black text-white" id="stat-pharmacy">0</div><div class="text-[9px] sm:text-xs text-white/50 mt-1">الصيدلية</div></div>
+                </div>
         </div>
                 <div class="absolute bottom-0 left-0 right-0"><svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H0Z" fill="var(--bg)"/></svg></div>
     </section> <!-- تم إغلاق قسم الهيرو هنا -->
@@ -715,29 +711,38 @@
             </section>
 
     
-    <section id="hospitals" class="py-12 sm:py-16 dot-pattern" style="background: var(--bg)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-hospital-symbol text-sm" style="color: var(--hospital)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">المشافي والمرافق الكبرى</h2><p class="text-sm" style="color: var(--muted)">المشافي الوطنية والخاصة في سوريا وريف دمشق</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="hospitalsGrid"></div></div><div class="text-center mt-8 mb-10">
-    <button onclick="loadMoreSection('hospital')" id="loadMore_hospital" class="hidden px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background: var(--hospital); color: white;">
-        <i class="fas fa-chevron-down"></i> عرض المزيد من المشافي
-    </button>
-    </div></section>
-    <section id="centers" class="py-12 sm:py-16 dot-pattern" style="background: var(--bg)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-clinic-medical text-sm" style="color: var(--center)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">المراكز الطبية</h2><p class="text-sm" style="color: var(--muted)">المراكز الطبية المتكاملة تقدم الخدمات الصحية الشاملة</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="centersGrid"></div></div><div class="text-center mt-8 mb-10">
-    <button onclick="loadMoreSection('center')" id="loadMore_center" class="hidden px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background: var(--center); color: white;">
-        <i class="fas fa-chevron-down"></i> عرض المزيد من المراكز
-    </button>
-    </div></section>
-    <section id="labs" class="py-12 sm:py-16" style="background: var(--bg-deep)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-flask text-sm" style="color: var(--lab)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">مخابر التحاليل الطبية</h2><p class="text-sm" style="color: var(--muted)">مخابر مجهزة بأحدث الأجهزة لجميع أنواع التحاليل</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="labsGrid"></div></div><div class="text-center mt-8 mb-10">
-    <button onclick="loadMoreSection('lab')" id="loadMore_lab" class="hidden px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background: var(--lab); color: white;">
-        <i class="fas fa-chevron-down"></i> عرض المزيد من المخابر
-    </button>
-    </div></section>
-    <section id="doctors" class="py-12 sm:py-16 dot-pattern" style="background: var(--bg)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-user-md text-sm" style="color: var(--doctor)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">الأطباء المختصون</h2><p class="text-sm" style="color: var(--muted)">نخبة من الأطباء في مختلف التخصصات الطبية</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="doctorsGrid"></div></div><div class="text-center mt-8 mb-10">
+    <!-- 1️⃣ الأطباء -->
+<section id="doctors" class="py-12 sm:py-16 dot-pattern" style="background: var(--bg)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-user-md text-sm" style="color: var(--doctor)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">الأطباء المختصون</h2><p class="text-sm" style="color: var(--muted)">نخبة من الأطباء في مختلف التخصصات الطبية</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="doctorsGrid"></div></div><div class="text-center mt-8 mb-10">
     <button onclick="loadMoreSection('doctor')" id="loadMore_doctor" class="hidden px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background: var(--doctor); color: white;">
         <i class="fas fa-chevron-down"></i> عرض المزيد من الأطباء
     </button>
     </div></section>
-    <section id="pharmacies" class="py-12 sm:py-16" style="background: var(--bg-deep)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-pills text-sm" style="color: var(--pharmacy)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">الصيدليات</h2><p class="text-sm" style="color: var(--muted)">الصيدليات المتوفرة على مدار الساعة</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="pharmaciesGrid"></div></div><div class="text-center mt-8 mb-10">
+
+<!-- 2️⃣ الصيدليات -->
+<section id="pharmacies" class="py-12 sm:py-16" style="background: var(--bg-deep)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-pills text-sm" style="color: var(--pharmacy)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">الصيدليات</h2><p class="text-sm" style="color: var(--muted)">الصيدليات المتوفرة على مدار الساعة</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="pharmaciesGrid"></div></div><div class="text-center mt-8 mb-10">
     <button onclick="loadMoreSection('pharmacy')" id="loadMore_pharmacy" class="hidden px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background: var(--pharmacy); color: white;">
         <i class="fas fa-chevron-down"></i> عرض المزيد من الصيدليات
+    </button>
+    </div></section>
+
+<!-- 3️⃣ المشافي -->
+<section id="hospitals" class="py-12 sm:py-16 dot-pattern" style="background: var(--bg)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-hospital-symbol text-sm" style="color: var(--hospital)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">المشافي والمرافق الكبرى</h2><p class="text-sm" style="color: var(--muted)">المشافي الوطنية والخاصة في سوريا وريف دمشق</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="hospitalsGrid"></div></div><div class="text-center mt-8 mb-10">
+    <button onclick="loadMoreSection('hospital')" id="loadMore_hospital" class="hidden px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background: var(--hospital); color: white;">
+        <i class="fas fa-chevron-down"></i> عرض المزيد من المشافي
+    </button>
+    </div></section>
+
+<!-- 4️⃣ المراكز -->
+<section id="centers" class="py-12 sm:py-16" style="background: var(--bg-deep)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-clinic-medical text-sm" style="color: var(--center)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">المراكز الطبية</h2><p class="text-sm" style="color: var(--muted)">المراكز الطبية المتكاملة تقدم الخدمات الصحية الشاملة</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="centersGrid"></div></div><div class="text-center mt-8 mb-10">
+    <button onclick="loadMoreSection('center')" id="loadMore_center" class="hidden px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background: var(--center); color: white;">
+        <i class="fas fa-chevron-down"></i> عرض المزيد من المراكز
+    </button>
+    </div></section>
+
+<!-- 5️⃣ المخابر -->
+<section id="labs" class="py-12 sm:py-16 dot-pattern" style="background: var(--bg)"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center mb-10"><div class="ornament-line mb-3"><i class="fas fa-flask text-sm" style="color: var(--lab)"></i></div><h2 class="text-2xl sm:text-3xl font-black mb-3" style="font-family: 'Noto Kufi Arabic'; color: var(--fg)">مخابر التحاليل الطبية</h2><p class="text-sm" style="color: var(--muted)">مخابر مجهزة بأحدث الأجهزة لجميع أنواع التحاليل</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="labsGrid"></div></div><div class="text-center mt-8 mb-10">
+    <button onclick="loadMoreSection('lab')" id="loadMore_lab" class="hidden px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90" style="background: var(--lab); color: white;">
+        <i class="fas fa-chevron-down"></i> عرض المزيد من المخابر
     </button>
     </div></section>
 
