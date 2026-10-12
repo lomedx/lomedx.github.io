@@ -7637,22 +7637,27 @@ window.openAddFacilityModal = () => {
 window.closeAddFacilityModal = () => {
     const overlay = document.getElementById('addFacilityOverlay');
     if (!overlay) return;
+    
     overlay.classList.remove('active');
-    // ✅ استخدم نفس نظام تواصل معنا
-    unlockScroll();  
-    // إعادة تعيين النموذج
-    const form = document.getElementById('addFacilityForm');
-    if (form) form.reset();
-    // إعادة تعيين زر الإرسال
-    const submitBtn = document.querySelector('.submit-facility-btn');
-    if (submitBtn && submitBtn.disabled) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>إرسال طلب التسجيل</span>';
-    }
-    // إزالة التركيز
-    if (document.activeElement && document.activeElement.blur) {
-        document.activeElement.blur();
-    }
+    
+    setTimeout(() => {
+    
+        unlockScroll();
+        const form = document.getElementById('addFacilityForm');
+        if (form) form.reset();
+        
+        // إعادة تعيين زر الإرسال
+        const submitBtn = document.querySelector('.submit-facility-btn');
+        if (submitBtn && submitBtn.disabled) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>إرسال طلب التسجيل</span>';
+        }
+        
+        // إزالة التركيز (بعد كل شيء)
+        if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur();
+        }
+    }, 350);  // ← تأخير بسيط
 };
 window.handleOverlayClick = (event) => {
     if (event.target.id === 'addFacilityOverlay') {
