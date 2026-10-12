@@ -7612,28 +7612,27 @@ if (window.location.pathname !== '/' && window.location.pathname !== '/index.htm
         setTimeout(handleRouteChange, 1200); 
     }
 }
-// نهاية ملف app.js
-// ═══════════════════════════════════════════════════════════
-// CTA Modal — Add Facility
-// ═══════════════════════════════════════════════════════════
-
+// نهاية ملف
 // ═══════════════════════════════════════════════════════════
 // Modal Management
 // ═══════════════════════════════════════════════════════════
 
 window.openAddFacilityModal = () => {
     const overlay = document.getElementById('addFacilityOverlay');
+    
+    // ✅ احفظ موقع التمرير قبل أي شيء
+    const scrollY = window.scrollY;
+    window.__scrollY = scrollY;
+    
+    // ✅ ثبّت body في مكانه الحالي (بدون قفزة للأعلى)
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;  // ← هذا يمنع القفزة
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+    
     overlay.classList.add('active');
     
-    // Prevent body scroll
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    
-    // Save scroll position
-    window.__scrollY = window.scrollY;
-    
-    // Focus first input (after animation)
+    // Focus first input
     setTimeout(() => {
         const firstInput = document.getElementById('facName');
         if (firstInput) {
@@ -7646,15 +7645,17 @@ window.closeAddFacilityModal = () => {
     const overlay = document.getElementById('addFacilityOverlay');
     overlay.classList.remove('active');
     
-    // Restore scroll
-    document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.width = '';
+    // ✅ استعد موقع التمرير
+    const scrollY = window.__scrollY || 0;
     
-    if (window.__scrollY !== undefined) {
-        window.scrollTo(0, window.__scrollY);
-        window.__scrollY = undefined;
-    }
+    document.body.style.position = '';
+    document.body.style.top = '';  // ← مهم: امسح top
+    document.body.style.width = '';
+    document.body.style.overflow = '';
+    
+    // ✅ ارجع للموقع الأصلي
+    window.scrollTo(0, scrollY);
+    window.__scrollY = undefined;
     
     // Reset form
     const form = document.getElementById('addFacilityForm');
@@ -7667,12 +7668,11 @@ window.closeAddFacilityModal = () => {
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>إرسال طلب التسجيل</span>';
     }
     
-    // Blur focused input (fix iOS keyboard)
+    // Blur focused input
     if (document.activeElement && document.activeElement.blur) {
         document.activeElement.blur();
     }
 };
-
 window.handleOverlayClick = (event) => {
     if (event.target.id === 'addFacilityOverlay') {
         closeAddFacilityModal();
