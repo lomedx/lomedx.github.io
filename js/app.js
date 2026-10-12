@@ -1391,8 +1391,6 @@ window.openModal = (id) => {
             ${servicesHtml}
             ${phonesHtml}
         `;
-     } else if (item.type === 'doctor') { 
-        // مؤشر الازدحام المباشر
 } else if (item.type === 'doctor') { 
     // مؤشر الازدحام المباشر
     let queueWidget = '';
