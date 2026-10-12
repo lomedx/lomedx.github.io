@@ -7583,7 +7583,6 @@ function handleRouteChange() {
 window.addEventListener('popstate', handleRouteChange);
 
 document.addEventListener('click', (e) => {
-    // هذا السطر يمنع محرك التوجيه من التدخل إذا كان الزر يفتح أكورديون (مثل الفوتر)
     if (e.defaultPrevented) return; 
     
     const link = e.target.closest('a[href^="/"]');
@@ -7593,7 +7592,13 @@ document.addEventListener('click', (e) => {
         const path = new URL(link.href).pathname;
         history.pushState({}, '', path);
         handleRouteChange();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // ✅ لا تمرر للأعلى للصفحات التي تفتح نوافذ منبثقة
+        const modalRoutes = ['/add-facility', '/contact', '/ask-doctor', '/blood-bank', '/first-aid', '/burn-calculator', '/raheba-radar', '/medicine-finder', '/medicine-donation', '/medical-map', '/events-first-aid', '/blog'];
+        
+        if (!modalRoutes.includes(path)) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     }
 });
 
