@@ -6830,7 +6830,7 @@ window.openArticleReader = async (id) => {
                         <i class="fas fa-user-md text-2xl text-blue-600"></i>
                     </div>
                     <h4 class="font-bold text-base text-blue-900 mb-2">هل تحتاج إلى استشارة طبية؟</h4>
-                    <p class="text-xs text-blue-700 mb-4 max-w-md mx-auto">لا تعتمد على المقالات فقط. تواصل مباشرةً مع أطباء متخصصين عبر منصة لوميديكس.</p>
+                    <p class="text-xs text-blue-700 mb-4 max-w-md mx-auto">لا تعتمد على المقالات فقط. تواصل مباشرةً مع أطباء متخصصين عبر منصة لوميدكس.</p>
                     <div class="flex flex-col sm:flex-row gap-3 justify-center w-full max-w-md mx-auto">
                         <button onclick="closeAllOverlays(); openAskDoctor()" class="flex-1 min-w-[160px] bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center gap-1">
                               <i class="fas fa-comments"></i> اسأل طبيباً الآن
