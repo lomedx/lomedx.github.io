@@ -1393,40 +1393,93 @@ window.openModal = (id) => {
         `;
      } else if (item.type === 'doctor') { 
         // مؤشر الازدحام المباشر
-                // مؤشر الازدحام المباشر
         let queueWidget = '';
-        if (item.current_queue !== -1) { // لا تعرض المؤشر إذا كان معطلاً (-1)
-            const queueCount = item.current_queue || 0;
-            const waitTime = item.avg_wait_time || 15;
-            const totalWait = queueCount * waitTime;
-            let queueStatusText = "العيادة فارغة الآن", queueColor = "#34D399";
-            if (queueCount > 0 && queueCount <= 3) { queueStatusText = "ازدحام خفيف"; queueColor = "#fbbf24"; }
-            else if (queueCount > 3) { queueStatusText = "ازدحام مرتفع"; queueColor = "#f87171"; }
+if (item.current_queue !== -1) {
+    const queueCount = item.current_queue || 0;
+    const waitTime = item.avg_wait_time || 15;
+    const totalWait = queueCount * waitTime;
+    
+    // تحديد الحالة واللون والنسبة
+    let queueStatusText = "العيادة فارغة";
+    let queueColor = "#10B981";
+    let queueBg = "#ECFDF5";
+    let queueIcon = "fa-circle-check";
+    let percent = 0;
+    
+    if (queueCount > 0 && queueCount <= 3) {
+        queueStatusText = "ازدحام خفيف";
+        queueColor = "#F59E0B";
+        queueBg = "#FFFBEB";
+        queueIcon = "fa-hourglass-half";
+        percent = Math.min(40, (queueCount / 10) * 100);
+    } else if (queueCount > 3 && queueCount <= 8) {
+        queueStatusText = "ازدحام متوسط";
+        queueColor = "#F97316";
+        queueBg = "#FFF7ED";
+        queueIcon = "fa-users";
+        percent = Math.min(70, (queueCount / 10) * 100);
+    } else if (queueCount > 8) {
+        queueStatusText = "ازدحام مرتفع";
+        queueColor = "#EF4444";
+        queueBg = "#FEF2F2";
+        queueIcon = "fa-triangle-exclamation";
+        percent = Math.min(100, (queueCount / 10) * 100);
+    }
 
-            queueWidget = `
-<div class="queue-tracker-card">
-    <div class="qt-header">
-        <div class="qt-icon" style="color: ${queueColor}; border-color: ${queueColor}40; background: ${queueColor}15;"><i class="fas fa-users"></i></div>
-        <div class="qt-info">
-            <span class="qt-title">حالة الازدحام المباشر</span>
-            <span class="qt-status" style="color: ${queueColor};">
-                <span class="qt-pulse-dot" style="background: ${queueColor};"></span> ${queueStatusText}
+    queueWidget = `
+<div class="new-queue-widget" style="--q-color: ${queueColor}; --q-bg: ${queueBg};">
+    <!-- Header -->
+    <div class="nqw-header">
+        <div class="nqw-status">
+            <span class="nqw-dot" style="background: ${queueColor};"></span>
+            <span class="nqw-status-text" style="color: ${queueColor};">
+                <i class="fas ${queueIcon}"></i>
+                ${queueStatusText}
             </span>
         </div>
+        <div class="nqw-live">
+            <span class="nqw-live-dot"></span>
+            <span>LIVE</span>
+        </div>
     </div>
-    <div class="qt-stats">
-        <div class="qt-stat-box">
-            <span class="qt-num">${queueCount}</span>
-            <span class="qt-label">شخص في الانتظار</span>
+
+    <!-- Stats -->
+    <div class="nqw-stats">
+        <div class="nqw-stat">
+            <div class="nqw-stat-icon" style="background: ${queueColor}15; color: ${queueColor};">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="nqw-stat-value">${queueCount}</div>
+            <div class="nqw-stat-label">في الانتظار</div>
         </div>
-        <div class="qt-divider"></div>
-        <div class="qt-stat-box">
-            <span class="qt-num">${totalWait}</span>
-            <span class="qt-label">دقيقة متوقعة</span>
+        <div class="nqw-divider"></div>
+        <div class="nqw-stat">
+            <div class="nqw-stat-icon" style="background: ${queueColor}15; color: ${queueColor};">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="nqw-stat-value">${totalWait}</div>
+            <div class="nqw-stat-label">دقيقة متوقعة</div>
         </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="nqw-progress-wrapper">
+        <div class="nqw-progress-label">
+            <span>نسبة الازدحام</span>
+            <span style="color: ${queueColor}; font-weight: 800;">${Math.round(percent)}%</span>
+        </div>
+        <div class="nqw-progress-track">
+            <div class="nqw-progress-fill" style="width: ${percent}%; background: linear-gradient(90deg, ${queueColor}80, ${queueColor});"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="nqw-footer">
+        <i class="fas fa-sync-alt nqw-refresh-icon"></i>
+        <span>يُحدَّث تلقائياً كل 30 ثانية</span>
     </div>
 </div>`;
-        } 
+}
 
         extraHTML = `${queueWidget} ${item.bookingnotes ? `<div class="flex items-center gap-3 p-3 rounded-xl mt-3" style="background: var(--bg)"><i class="fas fa-info-circle" style="color: var(--doctor)"></i><div><div class="text-xs" style="color: var(--muted)">تفاصيل إضافية</div><div class="text-sm font-bold">${escapeHtml(item.bookingnotes)}</div></div></div>` : ''}`;
            
