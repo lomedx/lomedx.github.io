@@ -1393,95 +1393,93 @@ window.openModal = (id) => {
         `;
      } else if (item.type === 'doctor') { 
         // مؤشر الازدحام المباشر
-let queueWidget = '';
-if (item.current_queue !== -1 && item.current_queue !== undefined && item.current_queue !== null) {
-    const queueCount = item.current_queue || 0;
-    const waitTime = item.avg_wait_time || 15;
-    const totalWait = queueCount * waitTime;
-    
-    let queueStatusText = "العيادة فارغة";
-    let queueColor = "#10B981";
-    let queueBg = "#ECFDF5";
-    let queueIcon = "fa-circle-check";
-    let percent = 0;
-    
-    if (queueCount > 0 && queueCount <= 3) {
-        queueStatusText = "ازدحام خفيف";
-        queueColor = "#F59E0B";
-        queueBg = "#FFFBEB";
-        queueIcon = "fa-hourglass-half";
-        percent = Math.min(40, (queueCount / 10) * 100);
-    } else if (queueCount > 3 && queueCount <= 8) {
-        queueStatusText = "ازدحام متوسط";
-        queueColor = "#F97316";
-        queueBg = "#FFF7ED";
-        queueIcon = "fa-users";
-        percent = Math.min(70, (queueCount / 10) * 100);
-    } else if (queueCount > 8) {
-        queueStatusText = "ازدحام مرتفع";
-        queueColor = "#EF4444";
-        queueBg = "#FEF2F2";
-        queueIcon = "fa-triangle-exclamation";
-        percent = Math.min(100, (queueCount / 10) * 100);
-    }
+} else if (item.type === 'doctor') { 
+    // مؤشر الازدحام المباشر
+    let queueWidget = '';
+    if (item.current_queue !== -1 && item.current_queue !== undefined && item.current_queue !== null) {
+        const queueCount = item.current_queue || 0;
+        const waitTime = item.avg_wait_time || 15;
+        const totalWait = queueCount * waitTime;
+        
+        let queueStatusText = "العيادة فارغة";
+        let queueColor = "#10B981";
+        let queueBg = "#ECFDF5";
+        let queueIcon = "fa-circle-check";
+        let percent = 0;
+        
+        if (queueCount > 0 && queueCount <= 3) {
+            queueStatusText = "ازدحام خفيف";
+            queueColor = "#F59E0B";
+            queueBg = "#FFFBEB";
+            queueIcon = "fa-hourglass-half";
+            percent = 40;
+        } else if (queueCount > 3 && queueCount <= 8) {
+            queueStatusText = "ازدحام متوسط";
+            queueColor = "#F97316";
+            queueBg = "#FFF7ED";
+            queueIcon = "fa-users";
+            percent = 70;
+        } else if (queueCount > 8) {
+            queueStatusText = "ازدحام مرتفع";
+            queueColor = "#EF4444";
+            queueBg = "#FEF2F2";
+            queueIcon = "fa-triangle-exclamation";
+            percent = 100;
+        }
 
-    queueWidget = `
-<div class="new-queue-widget" style="--q-color: ${queueColor}; --q-bg: ${queueBg};">
-    <div class="nqw-header">
-        <div class="nqw-status">
-            <span class="nqw-dot" style="background: ${queueColor};"></span>
-            <span class="nqw-status-text" style="color: ${queueColor};">
-                <i class="fas ${queueIcon}"></i>
+        queueWidget = `
+<div style="background:linear-gradient(135deg, ${queueBg} 0%, #FFFFFF 100%); border:2px solid ${queueColor}; border-radius:20px; padding:18px; margin-top:15px; position:relative; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.05); font-family:'IBM Plex Sans Arabic',sans-serif;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:14px; border-bottom:1px dashed ${queueColor}80;">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span style="width:10px; height:10px; border-radius:50%; background:${queueColor}; box-shadow:0 0 0 4px ${queueColor}25;"></span>
+            <span style="color:${queueColor}; font-weight:800; font-size:0.9rem; font-family:'Noto Kufi Arabic',sans-serif; display:flex; align-items:center; gap:6px;">
+                <i class="fas ${queueIcon}" style="font-size:0.85rem;"></i>
                 ${queueStatusText}
             </span>
         </div>
-        <div class="nqw-live">
-            <span class="nqw-live-dot"></span>
-            <span>LIVE</span>
-        </div>
+        <span style="background:#FEE2E2; color:#DC2626; padding:4px 10px; border-radius:20px; font-size:0.65rem; font-weight:800; letter-spacing:0.5px; display:flex; align-items:center; gap:5px;">
+            <span style="width:6px; height:6px; border-radius:50%; background:#DC2626; animation:pulse 1.5s infinite;"></span>
+            LIVE
+        </span>
     </div>
-    <div class="nqw-stats">
-        <div class="nqw-stat">
-            <div class="nqw-stat-icon" style="background: ${queueColor}15; color: ${queueColor};">
+    <div style="display:grid; grid-template-columns:1fr 1px 1fr; gap:12px; align-items:center;">
+        <div style="text-align:center; padding:8px;">
+            <div style="width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin:0 auto 8px; background:${queueColor}20; color:${queueColor}; font-size:1.1rem;">
                 <i class="fas fa-users"></i>
             </div>
-            <div class="nqw-stat-value">${queueCount}</div>
-            <div class="nqw-stat-label">في الانتظار</div>
+            <div style="font-family:'Noto Kufi Arabic',sans-serif; font-size:2rem; font-weight:900; color:${queueColor}; line-height:1; margin-bottom:4px;">${queueCount}</div>
+            <div style="font-size:0.72rem; color:#64748B; font-weight:600;">في الانتظار</div>
         </div>
-        <div class="nqw-divider"></div>
-        <div class="nqw-stat">
-            <div class="nqw-stat-icon" style="background: ${queueColor}15; color: ${queueColor};">
+        <div style="width:1px; height:60px; background:${queueColor}40; border-radius:2px;"></div>
+        <div style="text-align:center; padding:8px;">
+            <div style="width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin:0 auto 8px; background:${queueColor}20; color:${queueColor}; font-size:1.1rem;">
                 <i class="fas fa-clock"></i>
             </div>
-            <div class="nqw-stat-value">${totalWait}</div>
-            <div class="nqw-stat-label">دقيقة متوقعة</div>
+            <div style="font-family:'Noto Kufi Arabic',sans-serif; font-size:2rem; font-weight:900; color:${queueColor}; line-height:1; margin-bottom:4px;">${totalWait}</div>
+            <div style="font-size:0.72rem; color:#64748B; font-weight:600;">دقيقة متوقعة</div>
         </div>
     </div>
-    <div class="nqw-progress-wrapper">
-        <div class="nqw-progress-label">
+    <div style="margin-top:16px; margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#64748B; font-weight:600; margin-bottom:8px;">
             <span>نسبة الازدحام</span>
-            <span style="color: ${queueColor}; font-weight: 800;">${Math.round(percent)}%</span>
+            <span style="color:${queueColor}; font-weight:800;">${percent}%</span>
         </div>
-        <div class="nqw-progress-track">
-            <div class="nqw-progress-fill" style="width: ${percent}%; background: linear-gradient(90deg, ${queueColor}80, ${queueColor});"></div>
+        <div style="height:8px; background:#E2E8F0; border-radius:20px; overflow:hidden; position:relative;">
+            <div style="height:100%; width:${percent}%; background:linear-gradient(90deg, ${queueColor}80, ${queueColor}); border-radius:20px; transition:width 1s ease;"></div>
         </div>
     </div>
-    <div class="nqw-footer">
-        <i class="fas fa-sync-alt nqw-refresh-icon"></i>
+    <div style="display:flex; align-items:center; justify-content:center; gap:6px; font-size:0.68rem; color:#94A3B8; padding-top:12px; border-top:1px dashed ${queueColor}40; font-weight:600;">
+        <i class="fas fa-sync-alt" style="font-size:0.7rem;"></i>
         <span>يُحدَّث تلقائياً كل 30 ثانية</span>
     </div>
 </div>`;
-} else {
-    queueWidget = '';
-}
-
-
-
-
-        
-        extraHTML = `${queueWidget} ${item.bookingnotes ? `<div class="flex items-center gap-3 p-3 rounded-xl mt-3" style="background: var(--bg)"><i class="fas fa-info-circle" style="color: var(--doctor)"></i><div><div class="text-xs" style="color: var(--muted)">تفاصيل إضافية</div><div class="text-sm font-bold">${escapeHtml(item.bookingnotes)}</div></div></div>` : ''}`;
+    } else {
+        queueWidget = '';
+    }
+    
+    extraHTML = `${queueWidget} ${item.bookingnotes ? `<div class="flex items-center gap-3 p-3 rounded-xl mt-3" style="background: var(--bg)"><i class="fas fa-info-circle" style="color: var(--doctor)"></i><div><div class="text-xs" style="color: var(--muted)">تفاصيل إضافية</div><div class="text-sm font-bold">${escapeHtml(item.bookingnotes)}</div></div></div>` : ''}`;
            
-    } else if (item.type === 'lab') {
+} else if (item.type === 'lab') {
         extraHTML = `${item.tests ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: #FEE2E2"><i class="fas fa-vials" style="color: var(--lab)"></i><div><div class="text-xs" style="color: var(--muted)">نوع التحاليل والخدمات</div><div class="text-sm font-bold" style="color: var(--lab)">${escapeHtml(item.tests)}</div></div></div>` : ''}${item.homesample && item.homesample !== 'لا' ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: #D1FAE5"><i class="fas fa-house-user" style="color: #059669"></i><div><div class="text-xs" style="color: var(--muted)">خدمة سحب العينات من المنزل</div><div class="text-sm font-bold" style="color: #059669">متوفرة</div></div></div>` : ''}`;
     } else if (item.type === 'pharmacy') {
         extraHTML = `${item.night ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--gold-light)"><i class="fas fa-moon" style="color: var(--gold)"></i><div><div class="text-xs" style="color: var(--muted)">المناوبة</div><div class="text-sm font-bold" style="color: var(--gold)">${escapeHtml(item.nightdetails || 'صيدلية مناوبة ليلية')}</div></div></div>` : ''}`;
