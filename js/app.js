@@ -3532,37 +3532,40 @@ window.submitBloodRequest = async (e) => {
     if (!window.checkOnlineStatus()) return;
     const submitBtn = e.target.querySelector('button[type="submit"]');
     
+    // ✅ 1. cooldown check
     const lastBloodRequest = localStorage.getItem('last_blood_request_time');
-if (lastBloodRequest && (Date.now() - parseInt(lastBloodRequest)) < 3600000) {
-    const minsLeft = Math.ceil((3600000 - (Date.now() - parseInt(lastBloodRequest))) / 60000);
-    showToast(`لقد أرسلت استغاثة مؤخراً. يرجى الانتظار ${minsLeft} دقيقة.`, 'error');
-    return;
-}
-     // فحص الكلمات المسيئة قبل الإرسال
-if (containsBadWords(name) || containsBadWords(hospital) || containsBadWords(notes)) {
-    showToast('تم رفض الاستغاثة لاحتوائها على كلمات غير لائقة.', 'error');
-    return;
-}
+    if (lastBloodRequest && (Date.now() - parseInt(lastBloodRequest)) < 3600000) {
+        const minsLeft = Math.ceil((3600000 - (Date.now() - parseInt(lastBloodRequest))) / 60000);
+        showToast(`لقد أرسلت استغاثة مؤخراً. يرجى الانتظار ${minsLeft} دقيقة.`, 'error');
+        return;
+    }
 
-submitBtn.disabled = true; submitBtn.innerText = 'جاري النشر...';
+    // ✅ 2. تعريف المتغيرات أولاً
+    const name = document.getElementById('bloodPatient').value.trim();
+    const bloodType = document.getElementById('bloodType').value;
+    const hospital = document.getElementById('bloodHospital').value.trim();
+    const phoneInput = document.getElementById('bloodPhone');
+    const phone = phoneInput.value.trim();
+    const notes = document.getElementById('bloodNotes').value.trim();
 
-const name = document.getElementById('bloodPatient').value.trim();
-const bloodType = document.getElementById('bloodType').value;
-const hospital = document.getElementById('bloodHospital').value.trim();
-const phoneInput = document.getElementById('bloodPhone');
-const phone = phoneInput.value.trim();
-const notes = document.getElementById('bloodNotes').value.trim();
+    // ✅ 3. التحقق من صحة الهاتف
+    if (!/^09\d{8}$/.test(phone)) { 
+        phoneInput.classList.add('input-invalid'); 
+        showToast('رقم الهاتف غير صحيح', 'error'); 
+        return; 
+    } 
+    phoneInput.classList.remove('input-invalid');
 
-if (!/^09\d{8}$/.test(phone)) { 
-    phoneInput.classList.add('input-invalid'); 
-    showToast('رقم الهاتف غير صحيح', 'error'); 
-    submitBtn.disabled = false; submitBtn.innerText = 'نشر الاستغاثة';
-    return; 
-} 
-phoneInput.classList.remove('input-invalid');
+    // ✅ 4. فحص الكلمات المسيئة (بعد التعريف)
+    if (containsBadWords(name) || containsBadWords(hospital) || containsBadWords(notes)) {
+        showToast('تم رفض الاستغاثة لاحتوائها على كلمات غير لائقة.', 'error');
+        return;
+    }
+
+    // ✅ 5. بدء النشر
+    submitBtn.disabled = true; submitBtn.innerText = 'جاري النشر...';
 
     try {
-        
         const { data: funcData, error: funcError } = await supabase.functions.invoke('manage-public-requests', {
             body: { action: 'submit_request', type: 'blood', patient_phone: phone, payload: { patient_name: name, blood_type: bloodType, hospital: hospital, notes: notes } }
         });
