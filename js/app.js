@@ -1393,13 +1393,12 @@ window.openModal = (id) => {
         `;
      } else if (item.type === 'doctor') { 
         // مؤشر الازدحام المباشر
-        let queueWidget = '';
-if (item.current_queue !== -1) {
+let queueWidget = '';
+if (item.current_queue !== -1 && item.current_queue !== undefined && item.current_queue !== null) {
     const queueCount = item.current_queue || 0;
     const waitTime = item.avg_wait_time || 15;
     const totalWait = queueCount * waitTime;
     
-    // تحديد الحالة واللون والنسبة
     let queueStatusText = "العيادة فارغة";
     let queueColor = "#10B981";
     let queueBg = "#ECFDF5";
@@ -1428,7 +1427,6 @@ if (item.current_queue !== -1) {
 
     queueWidget = `
 <div class="new-queue-widget" style="--q-color: ${queueColor}; --q-bg: ${queueBg};">
-    <!-- Header -->
     <div class="nqw-header">
         <div class="nqw-status">
             <span class="nqw-dot" style="background: ${queueColor};"></span>
@@ -1442,8 +1440,6 @@ if (item.current_queue !== -1) {
             <span>LIVE</span>
         </div>
     </div>
-
-    <!-- Stats -->
     <div class="nqw-stats">
         <div class="nqw-stat">
             <div class="nqw-stat-icon" style="background: ${queueColor}15; color: ${queueColor};">
@@ -1461,8 +1457,6 @@ if (item.current_queue !== -1) {
             <div class="nqw-stat-label">دقيقة متوقعة</div>
         </div>
     </div>
-
-    <!-- Progress Bar -->
     <div class="nqw-progress-wrapper">
         <div class="nqw-progress-label">
             <span>نسبة الازدحام</span>
@@ -1472,15 +1466,19 @@ if (item.current_queue !== -1) {
             <div class="nqw-progress-fill" style="width: ${percent}%; background: linear-gradient(90deg, ${queueColor}80, ${queueColor});"></div>
         </div>
     </div>
-
-    <!-- Footer -->
     <div class="nqw-footer">
         <i class="fas fa-sync-alt nqw-refresh-icon"></i>
         <span>يُحدَّث تلقائياً كل 30 ثانية</span>
     </div>
 </div>`;
+} else {
+    queueWidget = '';
 }
 
+
+
+
+        
         extraHTML = `${queueWidget} ${item.bookingnotes ? `<div class="flex items-center gap-3 p-3 rounded-xl mt-3" style="background: var(--bg)"><i class="fas fa-info-circle" style="color: var(--doctor)"></i><div><div class="text-xs" style="color: var(--muted)">تفاصيل إضافية</div><div class="text-sm font-bold">${escapeHtml(item.bookingnotes)}</div></div></div>` : ''}`;
            
     } else if (item.type === 'lab') {
