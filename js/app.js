@@ -9623,7 +9623,7 @@ async function loadDuties() {
 
 // 4. إضافة مناوبة (افتراضياً 21:00 إلى 01:00)
 window.openAddDutyForm = () => {
-    const cityPharmacies = allData.filter(p => p.type === 'pharmacy' && p.address && p.address.includes(dutyFilters.city));
+    const cityPharmacies = allData.filter(p => p.type === 'pharmacy' && (p.address?.includes(dutyFilters.city) || p.name?.includes(dutyFilters.city)));
     const today = new Date().toISOString().split('T')[0];
     const list = document.getElementById('dutiesList');
     
