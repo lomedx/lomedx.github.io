@@ -3414,3 +3414,97 @@ html.dark .lomedx-brand-hero {
         padding: 3px 8px;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ==========================================
+   لوحة إدارة المناوبات الرسمية
+========================================== */
+#dutyRosterPanel { padding: 10px; font-family: 'IBM Plex Sans Arabic', sans-serif; }
+#dutyRosterPanel .duty-card {
+    background: var(--card); border-radius: 12px; padding: 20px;
+    margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border);
+}
+#dutyRosterPanel .duty-header {
+    display: flex; align-items: center; gap: 10px;
+    padding-bottom: 12px; margin-bottom: 16px; border-bottom: 2px solid var(--border);
+}
+#dutyRosterPanel .duty-header-icon {
+    width: 36px; height: 36px; border-radius: 8px; background: #EFF6FF; color: #1E3A5F;
+    display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+#dutyRosterPanel .duty-header h3 { font-family: 'Noto Kufi Arabic', sans-serif; font-size: 0.95rem; font-weight: 800; color: #1E3A5F; }
+#dutyRosterPanel .filter-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; }
+@media (max-width: 768px) { #dutyRosterPanel .filter-grid { grid-template-columns: 1fr; } }
+#dutyRosterPanel .form-label { display: block; font-weight: 700; font-size: 0.75rem; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+#dutyRosterPanel .form-input, #dutyRosterPanel .form-select {
+    width: 100%; padding: 10px 12px; border: 2px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 0.85rem; background: var(--card); color: var(--text); font-weight: 600; transition: all 0.2s;
+}
+#dutyRosterPanel .form-input:focus, #dutyRosterPanel .form-select:focus { outline: none; border-color: #0891B2; box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1); }
+#dutyRosterPanel .btn {
+    padding: 10px 20px; border-radius: 8px; border: none; font-family: inherit;
+    font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;
+}
+#dutyRosterPanel .btn-primary { background: #1E3A5F; color: white; }
+#dutyRosterPanel .btn-success { background: #059669; color: white; }
+#dutyRosterPanel .btn-danger { background: #DC2626; color: white; }
+#dutyRosterPanel .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); }
+#dutyRosterPanel .actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+@media (max-width: 640px) { #dutyRosterPanel .actions-grid { grid-template-columns: repeat(2, 1fr); } }
+#dutyRosterPanel .action-btn {
+    padding: 16px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--card);
+    font-family: inherit; font-weight: 700; font-size: 0.78rem; color: var(--text); cursor: pointer; transition: all 0.2s;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+#dutyRosterPanel .action-btn i { font-size: 1.3rem; margin-bottom: 2px; }
+#dutyRosterPanel .action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); border-color: #0891B2; }
+#dutyRosterPanel .action-btn-excel { color: #059669; }
+#dutyRosterPanel .action-btn-export { color: #2563EB; }
+#dutyRosterPanel .action-btn-print { color: var(--muted); }
+#dutyRosterPanel .duty-table-wrapper { background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+#dutyRosterPanel .duty-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+#dutyRosterPanel .duty-table thead { background: #1E3A5F; color: white; }
+#dutyRosterPanel .duty-table th { padding: 12px 14px; text-align: right; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+#dutyRosterPanel .duty-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+#dutyRosterPanel .duty-table tbody tr:last-child { border-bottom: none; }
+#dutyRosterPanel .duty-table tbody tr:hover { background: #F8FAFC; }
+#dutyRosterPanel .duty-table td { padding: 12px 14px; vertical-align: middle; }
+#dutyRosterPanel .col-date { font-family: 'IBM Plex Sans Arabic', sans-serif; white-space: nowrap; }
+#dutyRosterPanel .date-day { font-weight: 900; color: #1E3A5F; font-size: 1rem; }
+#dutyRosterPanel .date-month { font-size: 0.7rem; color: var(--muted); display: block; }
+#dutyRosterPanel .col-pharmacy { font-family: 'Noto Kufi Arabic', sans-serif; font-weight: 800; color: var(--text); }
+#dutyRosterPanel .col-phone { font-family: 'Courier New', monospace; font-weight: 700; color: #0E7490; direction: ltr; text-align: right; }
+#dutyRosterPanel .col-actions { text-align: center; width: 100px; }
+#dutyRosterPanel .row-btn {
+    width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: var(--card);
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s; font-size: 0.75rem;
+}
+#dutyRosterPanel .row-btn-del { color: #DC2626; }
+#dutyRosterPanel .row-btn-del:hover { background: #DC2626; color: white; border-color: #DC2626; }
+#dutyRosterPanel .empty-state { text-align: center; padding: 60px 20px; }
+#dutyRosterPanel .empty-state-icon { width: 80px; height: 80px; border-radius: 50%; background: #F1F5F9; color: var(--muted); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 20px; }
+#dutyRosterPanel .drop-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--card); }
+#dutyRosterPanel .drop-zone:hover { border-color: #0891B2; background: #F0FDFF; }
+#dutyRosterPanel .drop-zone-icon { font-size: 2.5rem; color: var(--muted); margin-bottom: 12px; }
+
+/* شارة مناوبة اليوم للبطاقات */
+.badge-duty-today {
+    background: #10B981 !important; color: white !important; animation: pulse-duty 2s infinite;
+}
+@keyframes pulse-duty {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
