@@ -3508,3 +3508,130 @@ html.dark .lomedx-brand-hero {
     70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
     100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
+
+
+
+
+/* ═══════════════════════════════════════════════════════════ */
+/* 🌙 شارات فترة المناوبة                                     */
+/* ═══════════════════════════════════════════════════════════ */
+
+#dutyRosterPanel .badge-midnight {
+    display: inline-block;
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+    color: #78350F;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    border: 1px solid #FCD34D;
+    white-space: nowrap;
+}
+
+#dutyRosterPanel .badge-normal {
+    display: inline-block;
+    background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+    color: #1E40AF;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    border: 1px solid #93C5FD;
+    white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* 🌙 دعم الوضع المظلم                                         */
+/* ═══════════════════════════════════════════════════════════ */
+
+html.dark #dutyRosterPanel .duty-card {
+    background: var(--card);
+    border-color: var(--border);
+}
+
+html.dark #dutyRosterPanel .duty-header-icon {
+    background: rgba(30, 58, 95, 0.3);
+    color: #7DD3FC;
+}
+
+html.dark #dutyRosterPanel .duty-header h3 {
+    color: #7DD3FC;
+}
+
+html.dark #dutyRosterPanel .duty-header {
+    border-bottom-color: var(--border);
+}
+
+html.dark #dutyRosterPanel .form-input,
+html.dark #dutyRosterPanel .form-select {
+    background: var(--bg-deep);
+    color: var(--fg);
+    border-color: var(--border);
+}
+
+html.dark #dutyRosterPanel .duty-table thead {
+    background: #0F172A;
+}
+
+html.dark #dutyRosterPanel .duty-table tbody tr:hover {
+    background: var(--bg-deep);
+}
+
+html.dark #dutyRosterPanel .date-day {
+    color: #7DD3FC;
+}
+
+html.dark #dutyRosterPanel .col-phone {
+    color: #67E8F9;
+}
+
+html.dark #dutyRosterPanel .action-btn {
+    background: var(--card);
+    border-color: var(--border);
+    color: var(--fg);
+}
+
+html.dark #dutyRosterPanel .drop-zone {
+    background: var(--card);
+    border-color: var(--border);
+}
+
+html.dark #dutyRosterPanel .drop-zone:hover {
+    background: rgba(8, 145, 178, 0.1);
+    border-color: #0891B2;
+}
+
+html.dark #dutyRosterPanel .row-btn {
+    background: var(--card);
+    border-color: var(--border);
+}
+
+html.dark #dutyRosterPanel .empty-state-icon {
+    background: rgba(30, 41, 59, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* 🌙 شارات الوقت في الوضع المظلم                              */
+/* ═══════════════════════════════════════════════════════════ */
+
+html.dark #dutyRosterPanel .badge-midnight {
+    background: linear-gradient(135deg, #422006, #713F12);
+    color: #FDE68A;
+    border-color: #B45309;
+}
+
+html.dark #dutyRosterPanel .badge-normal {
+    background: linear-gradient(135deg, #1E3A8A, #1E40AF);
+    color: #BFDBFE;
+    border-color: #3B82F6;
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* 🌙 badge-duty-today — تحسين للوضع المظلم                    */
+/* ═══════════════════════════════════════════════════════════ */
+
+html.dark .badge-duty-today {
+    background: #059669 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
