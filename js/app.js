@@ -10255,6 +10255,9 @@ window.printSchedule = () => {
 // ═══════════════════════════════════════════════════════════════════
 // 8. جلب مناوبات اليوم (مع دعم العبور لمنتصف الليل) — الإصلاح الحرِج
 // ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// 🌙 جلب مناوبات اليوم — يدعم العبور لمنتصف الليل
+// ═══════════════════════════════════════════════════════════════
 async function fetchTodayDutiesForBadge() {
     const now = new Date();
     const todayStr = now.toISOString().split('T')[0];
@@ -10275,15 +10278,28 @@ async function fetchTodayDutiesForBadge() {
         return;
     }
     
+    // 🛠️ دالة مساعدة: تنظيف الوقت من HH:MM:SS إلى HH:MM
+    const normalizeTime = (timeStr, fallback) => {
+        if (!timeStr) return fallback;
+        // إزالة الثواني إن وُجدت
+        return String(timeStr).substring(0, 5);
+    };
+    
     // فلترة دقيقة: هل المناوبة فعّالة في هذه اللحظة؟
     const activeIds = data.filter(d => {
-        const startStr = d.start_time || DUTY_DEFAULTS.startTime;
-        const endStr = d.end_time || DUTY_DEFAULTS.endTime;
+        const startStr = normalizeTime(d.start_time, '21:00');
+        const endStr = normalizeTime(d.end_time, '01:00');
         
         const start = new Date(`${d.duty_date}T${startStr}:00`);
         const end = new Date(`${d.duty_date}T${endStr}:00`);
         
-        // إذا كانت النهاية قبل البداية → عابرة لمنتصف الليل
+        // حماية إضافية: تجاهل أي تاريخ غير صالح
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            console.warn('⚠️ تاريخ غير صالح:', d);
+            return false;
+        }
+        
+        // إذا كانت نهاية المناوبة ≤ بدايتها → عابرة لمنتصف الليل
         if (end <= start) {
             end.setDate(end.getDate() + 1);
         }
@@ -10293,7 +10309,7 @@ async function fetchTodayDutiesForBadge() {
     
     todayDutyPharmacyIds = activeIds;
     
-    // إعادة رسم البطاقات لتظهر الشارات
+    // إعادة رسم البطاقات لإظهار الشارات
     if (typeof renderData === 'function') renderData();
 }
 
