@@ -9474,7 +9474,7 @@ let dutyFilters = {
 };
 let currentDuties = [];
 let pendingExcelRows = null;
-let todayDutyPharmacyIds = [];
+var todayDutyPharmacyIds = [];
 
 // ─── ثوابت المناوبات ───
 const DUTY_DEFAULTS = {
