@@ -705,6 +705,7 @@ function createCard(item) {
     ${['doctor', 'pharmacy'].includes(item.type) && item.isopen === true ? '<span class="badge" style="background:#10B981;color:white"><i class="fas fa-door-open ml-1"></i>مفتوح</span>' : ''}
     ${['doctor', 'pharmacy'].includes(item.type) && item.isopen === false ? '<span class="badge" style="background:#EF4444;color:white"><i class="fas fa-door-closed ml-1"></i>مغلق</span>' : ''}
     ${item.night ? '<span class="badge" style="background:rgba(196,150,44,0.9);color:white"><i class="fas fa-moon ml-1"></i>ليلي</span>' : ''}
+     ${todayDutyPharmacyIds.includes(item.id) ? '<span class="badge badge-duty-today"><i class="fas fa-clock ml-1"></i>مناوبة اليوم</span>' : ''}
 </div></div><div class="p-5"><div class="flex items-start gap-3 mb-3"><div class="cat-icon ${t.iconClass}"><i class="fas ${t.icon}"></i></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 justify-between">
     <h3 class="font-bold text-sm mb-1 leading-tight flex-1 min-w-0" style="font-family: 'Noto Kufi Arabic'; color: var(--fg);">
         ${escapeHtml(item.name)}
@@ -9447,3 +9448,399 @@ window.updatePatientsCard = (doctorId) => {
         if (patients.length === 0) badge.style.display = 'none';
     }
 };
+
+
+
+
+
+
+
+
+
+
+// ==========================================
+// نظام إدارة المناوبات الرسمية (مستقل ومربوط بقاعدة البيانات)
+// ==========================================
+let dutyFilters = { city: 'الرحيبة', month: new Date().toISOString().slice(0, 7) };
+let currentDuties = [];
+let pendingExcelRows = null;
+let todayDutyPharmacyIds = [];
+
+// 1. تسجيل الدخول المستقل للوحة المناوبات
+window.openDutyAdminLogin = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+        const { data: isAdmin } = await supabase.rpc('is_admin');
+        if (isAdmin) { renderDutyDashboard(); return; }
+    }
+    openCtrlPanel('لوحة إدارة المناوبات', `
+        <div class="max-w-sm mx-auto py-8">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3 bg-blue-50">
+                    <i class="fas fa-calendar-check text-2xl text-[#1E3A5F]"></i>
+                </div>
+                <h3 class="font-bold text-lg">دخول إدارة المناوبات</h3>
+            </div>
+            <form onsubmit="handleDutyAdminLogin(event)" class="flex flex-col gap-4">
+                <input type="email" id="dutyAdminEmail" class="ctrl-input text-center" placeholder="البريد الإلكتروني" required>
+                <input type="password" id="dutyAdminPass" class="ctrl-input text-center" placeholder="كلمة المرور" required>
+                <button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: #1E3A5F">دخول</button>
+            </form>
+        </div>
+    `, '#1E3A5F');
+};
+
+window.handleDutyAdminLogin = async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('dutyAdminEmail').value.trim();
+    const password = document.getElementById('dutyAdminPass').value.trim();
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) { showToast('الإيميل أو كلمة المرور غير صحيحة!', 'error'); return; }
+    const { data: isAdmin } = await supabase.rpc('is_admin');
+    if (!isAdmin) {
+        await supabase.auth.signOut();
+        showToast('تم رفض الوصول: هذا الحساب لا يملك صلاحيات إدارية!', 'error');
+        return;
+    }
+    renderDutyDashboard();
+};
+
+// 2. واجهة لوحة التحكم
+function renderDutyDashboard() {
+    openCtrlPanel('🌙 إدارة المناوبات الصيدليات', `
+        <div id="dutyRosterPanel">
+            <div class="duty-card">
+                <div class="duty-header">
+                    <div class="duty-header-icon"><i class="fas fa-filter"></i></div>
+                    <h3>اختر المدينة والشهر لعرض/إضافة المناوبات</h3>
+                </div>
+                <div class="filter-grid">
+                    <div class="form-group">
+                        <label class="form-label">المدينة</label>
+                        <select id="cityFilter" class="form-select" onchange="onCityChange()">
+                            ${allCities.filter(c => c !== 'كل المدن').map(c => `<option value="${c}" ${c === dutyFilters.city ? 'selected' : ''}>${c}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">الشهر</label>
+                        <input type="month" id="monthFilter" class="form-input" value="${dutyFilters.month}" onchange="loadDuties()">
+                    </div>
+                    <button onclick="loadDuties()" class="btn btn-primary" style="height: 42px;">
+                        <i class="fas fa-sync-alt"></i> تحديث
+                    </button>
+                </div>
+            </div>
+
+            <div class="actions-grid">
+                <button onclick="openAddDutyForm()" class="action-btn" style="color: #059669;">
+                    <i class="fas fa-plus-circle"></i><span>إضافة مناوبة</span>
+                </button>
+                <button onclick="openExcelImporter()" class="action-btn action-btn-excel">
+                    <i class="fas fa-file-excel"></i><span>استيراد Excel</span>
+                </button>
+                <button onclick="exportToExcel()" class="action-btn action-btn-export">
+                    <i class="fas fa-download"></i><span>تصدير Excel</span>
+                </button>
+                <button onclick="printSchedule()" class="action-btn action-btn-print">
+                    <i class="fas fa-print"></i><span>طباعة</span>
+                </button>
+            </div>
+
+            <div id="dutiesList"></div>
+        </div>
+    `, '#1E3A5F', true);
+    loadDuties();
+}
+
+function onCityChange() {
+    dutyFilters.city = document.getElementById('cityFilter').value;
+    loadDuties();
+}
+
+// 3. جلب البيانات من Supabase
+async function loadDuties() {
+    dutyFilters.city = document.getElementById('cityFilter').value;
+    dutyFilters.month = document.getElementById('monthFilter').value;
+    const [year, month] = dutyFilters.month.split('-');
+    const startDate = `${year}-${month}-01`;
+    const endDate = `${year}-${month}-31`;
+
+    const { data, error } = await supabase
+        .from('pharmacy_duties')
+        .select('id, duty_date, pharmacy_id')
+        .eq('city', dutyFilters.city)
+        .gte('duty_date', startDate)
+        .lte('duty_date', endDate)
+        .order('duty_date', { ascending: true });
+
+    const list = document.getElementById('dutiesList');
+    if (error || !data) {
+        list.innerHTML = '<div class="duty-card"><p class="text-center py-6 text-red-500 text-sm">خطأ في تحميل البيانات.</p></div>';
+        return;
+    }
+    
+    currentDuties = data;
+    if (currentDuties.length === 0) {
+        list.innerHTML = `
+            <div class="duty-card">
+                <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fas fa-calendar-times"></i></div>
+                    <h3 style="font-family: 'Noto Kufi Arabic'; font-size: 1.05rem; margin-bottom: 8px; color: var(--text);">لا توجد مناوبات مسجلة</h3>
+                    <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 20px;">لم يتم تسجيل أي مناوبات لهذا الشهر في ${escapeHtml(dutyFilters.city)}</p>
+                    <button onclick="openAddDutyForm()" class="btn btn-success"><i class="fas fa-plus"></i> إضافة مناوبة جديدة</button>
+                </div>
+            </div>`;
+        return;
+    }
+
+    let rows = currentDuties.map(duty => {
+        const pharmacy = allData.find(p => p.id === duty.pharmacy_id);
+        const dateObj = new Date(duty.duty_date + 'T00:00:00');
+        return `
+            <tr>
+                <td class="col-date">
+                    <div class="date-day">${dateObj.getDate()}</div>
+                    <div class="date-month">${dateObj.toLocaleDateString('ar-EG', { month: 'short' })} · ${dateObj.toLocaleDateString('ar-EG', { weekday: 'long' })}</div>
+                </td>
+                <td class="col-pharmacy">${pharmacy ? escapeHtml(pharmacy.name) : '<span style="color:var(--danger)">صيدلية محذوفة</span>'}</td>
+                <td class="col-phone">${pharmacy ? escapeHtml(pharmacy.phone || '-') : '-'}</td>
+                <td class="col-actions">
+                    <button onclick="deleteDuty('${duty.id}')" class="row-btn row-btn-del" title="حذف"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+    }).join('');
+
+    list.innerHTML = `
+        <div class="duty-table-wrapper">
+            <table class="duty-table">
+                <thead><tr><th style="width: 100px;">التاريخ</th><th>اسم الصيدلية</th><th style="width: 140px;">الهاتف</th><th style="width: 80px;">حذف</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>`;
+}
+
+// 4. إضافة مناوبة جديدة (تستخدم بطاقاتك الحقيقية)
+window.openAddDutyForm = () => {
+    // جلب الصيدليات الحقيقية من allData التي تطابق المدينة المختارة
+    const cityPharmacies = allData.filter(p => p.type === 'pharmacy' && p.address && p.address.includes(dutyFilters.city));
+    const today = new Date().toISOString().split('T')[0];
+    const list = document.getElementById('dutiesList');
+    
+    list.innerHTML = `
+        <div class="duty-card">
+            <div class="duty-header">
+                <div class="duty-header-icon" style="background: #F0FDF4; color: #059669;"><i class="fas fa-plus"></i></div>
+                <h3>إضافة مناوبة جديدة في ${escapeHtml(dutyFilters.city)}</h3>
+            </div>
+            <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label">اختر الصيدلية *</label>
+                <select id="newDutyPharmacyId" class="form-select">
+                    <option value="">-- اختر من القائمة --</option>
+                    ${cityPharmacies.map(p => `<option value="${p.id}">${escapeHtml(p.name)} - ${escapeHtml(p.address || '')}</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label class="form-label">التاريخ *</label>
+                <input type="date" id="newDutyDate" class="form-input" value="${today}">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="loadDuties()" class="btn btn-outline" style="flex: 1;">إلغاء</button>
+                <button onclick="saveNewDuty()" class="btn btn-success" style="flex: 2;"><i class="fas fa-save"></i> حفظ المناوبة</button>
+            </div>
+        </div>`;
+};
+
+window.saveNewDuty = async () => {
+    const pharmacyId = document.getElementById('newDutyPharmacyId').value;
+    const date = document.getElementById('newDutyDate').value;
+    if (!pharmacyId || !date) { showToast('الرجاء اختيار الصيدلية والتاريخ', 'error'); return; }
+
+    const { error } = await supabase.from('pharmacy_duties').insert([{
+        city: dutyFilters.city, duty_date: date, pharmacy_id: pharmacyId
+    }]);
+
+    if (error) { showToast('خطأ: قد تكون هناك مناوبة مسجلة لهذا اليوم مسبقاً', 'error'); }
+    else {
+        showToast('تمت إضافة المناوبة بنجاح', 'success');
+        loadDuties(); fetchTodayDutiesForBadge();
+    }
+};
+
+window.deleteDuty = async (id) => {
+    if (!confirm('هل أنت متأكد من حذف هذه المناوبة؟')) return;
+    const { error } = await supabase.from('pharmacy_duties').delete().eq('id', id);
+    if (error) { showToast('خطأ في الحذف', 'error'); return; }
+    showToast('تم الحذف', 'success'); loadDuties(); fetchTodayDutiesForBadge();
+};
+
+// 5. استيراد Excel
+window.openExcelImporter = () => {
+    const list = document.getElementById('dutiesList');
+    list.innerHTML = `
+        <div class="duty-card">
+            <div class="duty-header">
+                <div class="duty-header-icon" style="background: #F0FDF4; color: #059669;"><i class="fas fa-file-excel"></i></div>
+                <h3>استيراد جدول من Excel إلى ${escapeHtml(dutyFilters.city)}</h3>
+            </div>
+            <div class="drop-zone" onclick="document.getElementById('excelInput').click()">
+                <div class="drop-zone-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                <div class="drop-zone-title">اضغط لاختيار ملف Excel</div>
+                <div class="drop-zone-sub" style="font-size: 0.75rem; color: var(--muted);">يجب أن يحتوي الملف على أعمدة: التاريخ، اسم الصيدلية</div>
+                <input type="file" id="excelInput" accept=".xlsx,.xls" style="display: none;" onchange="handleExcelUpload(event)">
+            </div>
+            <div id="excelPreview"></div>
+        </div>`;
+};
+
+window.handleExcelUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById('excelPreview');
+    preview.innerHTML = '<p style="text-align: center; padding: 20px; color: var(--muted);"><i class="fas fa-spinner fa-spin"></i> جاري القراءة...</p>';
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(worksheet);
+            if (rows.length === 0) { preview.innerHTML = '<p style="text-align: center; color: var(--danger);">الملف فارغ</p>'; return; }
+
+            pendingExcelRows = rows;
+            preview.innerHTML = `
+                <div class="preview-wrapper" style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-top: 16px;">
+                    <h4 style="font-weight: 800; font-size: 0.9rem; margin-bottom: 12px;"><i class="fas fa-eye" style="color: #2563EB;"></i> معاينة الملف (${rows.length} سجل)</h4>
+                    <div style="max-height: 280px; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border); background: white;">
+                        <table class="preview-table" style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
+                            <thead><tr><th style="background: #F1F5F9; padding: 10px; text-align: right;">التاريخ</th><th style="background: #F1F5F9; padding: 10px; text-align: right;">الصيدلية</th></tr></thead>
+                            <tbody>${rows.slice(0, 15).map(r => `<tr><td style="padding: 8px 10px; border-bottom: 1px solid var(--border);">${escapeHtml(String(r['التاريخ'] || r['date'] || ''))}</td><td style="padding: 8px 10px; border-bottom: 1px solid var(--border);"><b>${escapeHtml(String(r['اسم الصيدلية'] || r['الصيدلية'] || ''))}</b></td></tr>`).join('')}</tbody>
+                        </table>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 16px;">
+                        <button onclick="loadDuties()" class="btn btn-outline" style="flex: 1;">إلغاء</button>
+                        <button onclick="confirmImport()" class="btn btn-success" style="flex: 2;"><i class="fas fa-check"></i> استيراد ${rows.length} سجل</button>
+                    </div>
+                </div>`;
+        } catch (err) { preview.innerHTML = `<p style="text-align: center; color: var(--danger);">خطأ: ${escapeHtml(err.message)}</p>`; }
+    };
+    reader.readAsArrayBuffer(file);
+};
+
+window.confirmImport = async () => {
+    if (!pendingExcelRows) return;
+    let importedCount = 0, skippedCount = 0;
+    const rowsToInsert = [];
+
+    pendingExcelRows.forEach(row => {
+        let date = row['التاريخ'] || row['date'] || '';
+        if (typeof date === 'number') {
+            const excelEpoch = new Date(1899, 11, 30);
+            date = new Date(excelEpoch.getTime() + date * 86400000).toISOString().split('T')[0];
+        } else if (typeof date === 'string') {
+            const parsed = new Date(date);
+            if (!isNaN(parsed)) date = parsed.toISOString().split('T')[0];
+        }
+
+        const pharmacyName = String(row['اسم الصيدلية'] || row['الصيدلية'] || '').trim();
+        if (!pharmacyName || !date) { skippedCount++; return; }
+
+        // مطابقة الصيدلية مع بطاقاتك الحقيقية
+        const matched = allData.find(p => p.type === 'pharmacy' && p.name.trim() === pharmacyName);
+        if (matched) {
+            rowsToInsert.push({ city: dutyFilters.city, duty_date: date, pharmacy_id: matched.id });
+            importedCount++;
+        } else { skippedCount++; }
+    });
+
+    if (rowsToInsert.length > 0) {
+        const { error } = await supabase.from('pharmacy_duties').insert(rowsToInsert);
+        if (error) { showToast('حدث خطأ أثناء الاستيراد', 'error'); return; }
+    }
+    showToast(`تم استيراد ${importedCount} مناوبة${skippedCount > 0 ? ` (تم تجاهل ${skippedCount})` : ''}`, 'success');
+    pendingExcelRows = null; loadDuties(); fetchTodayDutiesForBadge();
+};
+
+// 6. تصدير Excel
+window.exportToExcel = () => {
+    if (currentDuties.length === 0) { showToast('لا توجد بيانات للتصدير', 'error'); return; }
+    try {
+        const data = currentDuties.map(d => {
+            const ph = allData.find(p => p.id === d.pharmacy_id);
+            const dateObj = new Date(d.duty_date + 'T00:00:00');
+            return {
+                'التاريخ': d.duty_date,
+                'اليوم': dateObj.toLocaleDateString('ar-EG', { weekday: 'long' }),
+                'اسم الصيدلية': ph ? ph.name : 'محذوفة',
+                'العنوان': ph ? (ph.address || '') : '',
+                'الهاتف': ph ? (ph.phone || '') : ''
+            };
+        });
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'المناوبات');
+        worksheet['!cols'] = [{ wch: 12 }, { wch: 12 }, { wch: 25 }, { wch: 30 }, { wch: 15 }];
+        XLSX.writeFile(workbook, `مناوبات_${dutyFilters.city}_${dutyFilters.month}.xlsx`);
+        showToast('تم تصدير الملف', 'success');
+    } catch (err) { showToast('خطأ: ' + err.message, 'error'); }
+};
+
+// 7. طباعة الجدول
+window.printSchedule = () => {
+    if (currentDuties.length === 0) { showToast('لا توجد بيانات للطباعة', 'error'); return; }
+    const monthName = new Date(dutyFilters.month + '-01').toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>جدول المناوبات الرسمي</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; direction: rtl; color: #0F172A; }
+            .header { text-align: center; padding: 20px; border-bottom: 3px solid #1E3A5F; margin-bottom: 20px; }
+            .header h1 { color: #1E3A5F; margin-bottom: 5px; font-size: 20px; }
+            .header h2 { color: #64748B; font-size: 14px; font-weight: normal; }
+            .meta { display: flex; justify-content: space-between; background: #F1F5F9; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; }
+            table { width: 100%; border-collapse: collapse; }
+            th { background: #1E3A5F; color: white; padding: 10px; text-align: right; font-size: 12px; }
+            td { padding: 10px; border-bottom: 1px solid #E2E8F0; font-size: 13px; }
+            tr:nth-child(even) { background: #F8FAFC; }
+            @media print { @page { size: A4; margin: 15mm; } }
+        </style></head><body>
+            <div class="header">
+                <h1>جدول المناوبات الرسمي</h1>
+                <h2>نقابة صيدلة — ${escapeHtml(dutyFilters.city)}</h2>
+            </div>
+            <div class="meta">
+                <span><b>الشهر:</b> ${monthName}</span>
+                <span><b>عدد المناوبات:</b> ${currentDuties.length}</span>
+                <span><b>تاريخ الطباعة:</b> ${new Date().toLocaleDateString('ar-EG')}</span>
+            </div>
+            <table><thead><tr><th style="width: 60px;">التاريخ</th><th style="width: 80px;">اليوم</th><th>الصيدلية</th><th>العنوان</th><th style="width: 120px;">الهاتف</th></tr></thead><tbody>
+                ${currentDuties.map(d => {
+                    const ph = allData.find(p => p.id === d.pharmacy_id);
+                    const dateObj = new Date(d.duty_date + 'T00:00:00');
+                    return `<tr>
+                        <td>${dateObj.toLocaleDateString('ar-EG', { day: 'numeric', month: 'numeric' })}</td>
+                        <td>${dateObj.toLocaleDateString('ar-EG', { weekday: 'long' })}</td>
+                        <td><b>${ph ? escapeHtml(ph.name) : 'محذوفة'}</b></td>
+                        <td>${ph ? escapeHtml(ph.address || '-') : '-'}</td>
+                        <td dir="ltr" style="text-align: right;">${ph ? escapeHtml(ph.phone || '-') : '-'}</td>
+                    </tr>`;
+                }).join('')}
+            </tbody></table>
+            <script>window.onload = () => setTimeout(() => window.print(), 400);<\/script>
+        </body></html>
+    `);
+    printWindow.document.close();
+};
+
+// 8. جلب مناوبات اليوم لعرض الشارة على البطاقات في الموقع
+async function fetchTodayDutiesForBadge() {
+    const today = new Date().toISOString().split('T')[0];
+    const { data } = await supabase.from('pharmacy_duties').select('pharmacy_id').eq('duty_date', today);
+    todayDutyPharmacyIds = data ? data.map(d => d.pharmacy_id) : [];
+    if (typeof renderData === 'function') renderData(); // تحديث البطاقات
+}
+
+// استدعاء الدالة عند تحميل الصفحة
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(fetchTodayDutiesForBadge, 2000); // تأخير بسيط لضمان تحميل allData
+});
