@@ -9457,36 +9457,62 @@ window.updatePatientsCard = (doctorId) => {
 
 
 
+// ═══════════════════════════════════════════════════════════════════
+// 🌙 نظام إدارة المناوبات الرسمية — النسخة الاحترافية المُحسّنة
+// ═══════════════════════════════════════════════════════════════════
+// الميزات:
+//  ✓ دعم المناوبات العابرة لمنتصف الليل (21:00 → 01:00)
+//  ✓ حفظ آخر مدينة مختارة
+//  ✓ تحقق دقيق من التواريخ (شهر 30/31/28 يوم)
+//  ✓ معالجة كاملة للأخطاء
+// ═══════════════════════════════════════════════════════════════════
 
-// ==========================================
-
-// ==========================================
-// نظام إدارة المناوبات الرسمية (محدّث بالكامل)
-// ==========================================
-let dutyFilters = { city: 'الرحيبة', month: new Date().toISOString().slice(0, 7) };
+// ─── الحالة العامة ───
+let dutyFilters = {
+    city: localStorage.getItem('lomedx_duty_last_city') || 'الرحيبة',
+    month: new Date().toISOString().slice(0, 7)
+};
 let currentDuties = [];
 let pendingExcelRows = null;
 let todayDutyPharmacyIds = [];
 
-// 1. تسجيل الدخول المستقل
+// ─── ثوابت المناوبات ───
+const DUTY_DEFAULTS = {
+    startTime: '21:00',
+    endTime: '01:00',
+    crossingMidnightEndTime: '01:00' // نهاية المناوبة إذا تجاوزت منتصف الليل
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// 1. تسجيل الدخول المستقل للإدارة
+// ═══════════════════════════════════════════════════════════════════
 window.openDutyAdminLogin = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
         const { data: isAdmin } = await supabase.rpc('is_admin');
-        if (isAdmin) { renderDutyDashboard(); return; }
+        if (isAdmin) { 
+            renderDutyDashboard(); 
+            return; 
+        }
     }
-    openCtrlPanel('لوحة إدارة المناوبات', `
+    openCtrlPanel('🌙 لوحة إدارة المناوبات', `
         <div class="max-w-sm mx-auto py-8">
             <div class="text-center mb-6">
                 <div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3 bg-blue-50">
                     <i class="fas fa-calendar-check text-2xl text-[#1E3A5F]"></i>
                 </div>
-                <h3 class="font-bold text-lg">دخول إدارة المناوبات</h3>
+                <h3 class="font-bold text-lg" style="font-family: 'Noto Kufi Arabic';">دخول إدارة المناوبات</h3>
+                <p class="text-xs text-gray-500 mt-1">مخصص للمسؤولين فقط</p>
             </div>
             <form onsubmit="handleDutyAdminLogin(event)" class="flex flex-col gap-4">
-                <input type="email" id="dutyAdminEmail" class="ctrl-input text-center" placeholder="البريد الإلكتروني" required>
-                <input type="password" id="dutyAdminPass" class="ctrl-input text-center" placeholder="كلمة المرور" required>
-                <button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: #1E3A5F">دخول</button>
+                <input type="email" id="dutyAdminEmail" class="ctrl-input text-center" 
+                       placeholder="البريد الإلكتروني" required>
+                <input type="password" id="dutyAdminPass" class="ctrl-input text-center" 
+                       placeholder="كلمة المرور" required>
+                <button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" 
+                        style="background: #1E3A5F">
+                    <i class="fas fa-sign-in-alt ml-2"></i> دخول
+                </button>
             </form>
         </div>
     `, '#1E3A5F');
@@ -9496,8 +9522,13 @@ window.handleDutyAdminLogin = async (e) => {
     e.preventDefault();
     const email = document.getElementById('dutyAdminEmail').value.trim();
     const password = document.getElementById('dutyAdminPass').value.trim();
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { showToast('الإيميل أو كلمة المرور غير صحيحة!', 'error'); return; }
+    
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) { 
+        showToast('الإيميل أو كلمة المرور غير صحيحة!', 'error'); 
+        return; 
+    }
+    
     const { data: isAdmin } = await supabase.rpc('is_admin');
     if (!isAdmin) {
         await supabase.auth.signOut();
@@ -9507,10 +9538,16 @@ window.handleDutyAdminLogin = async (e) => {
     renderDutyDashboard();
 };
 
-// 2. واجهة لوحة التحكم
+// ═══════════════════════════════════════════════════════════════════
+// 2. الواجهة الرئيسية للوحة
+// ═══════════════════════════════════════════════════════════════════
 function renderDutyDashboard() {
-    openCtrlPanel('🌙 إدارة المناوبات الصيدليات', `
+    const cities = allCities.filter(c => c !== 'كل المدن');
+    
+    openCtrlPanel('🌙 إدارة مناوبات الصيدليات', `
         <div id="dutyRosterPanel">
+            
+            <!-- بطاقة الفلتر -->
             <div class="duty-card">
                 <div class="duty-header">
                     <div class="duty-header-icon"><i class="fas fa-filter"></i></div>
@@ -9519,13 +9556,18 @@ function renderDutyDashboard() {
                 <div class="filter-grid" style="grid-template-columns: 1fr 1fr auto;">
                     <div class="form-group">
                         <label class="form-label">المدينة</label>
-                        <select id="cityFilter" class="form-select" onchange="loadDuties()">
-                            ${allCities.filter(c => c !== 'كل المدن').map(c => `<option value="${c}" ${c === dutyFilters.city ? 'selected' : ''}>${c}</option>`).join('')}
+                        <select id="cityFilter" class="form-select" onchange="onDutyCityChange()">
+                            ${cities.map(c => `
+                                <option value="${c}" ${c === dutyFilters.city ? 'selected' : ''}>
+                                    ${c}
+                                </option>
+                            `).join('')}
                         </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">الشهر</label>
-                        <input type="month" id="monthFilter" class="form-input" value="${dutyFilters.month}" onchange="loadDuties()">
+                        <input type="month" id="monthFilter" class="form-input" 
+                               value="${dutyFilters.month}" onchange="loadDuties()">
                     </div>
                     <button onclick="loadDuties()" class="btn btn-primary" style="height: 42px;">
                         <i class="fas fa-sync-alt"></i> تحديث
@@ -9533,35 +9575,62 @@ function renderDutyDashboard() {
                 </div>
             </div>
 
+            <!-- أزرار الإجراءات -->
             <div class="actions-grid">
                 <button onclick="openAddDutyForm()" class="action-btn" style="color: #059669;">
-                    <i class="fas fa-plus-circle"></i><span>إضافة مناوبة</span>
+                    <i class="fas fa-plus-circle"></i>
+                    <span>إضافة مناوبة</span>
                 </button>
                 <button onclick="openExcelImporter()" class="action-btn action-btn-excel">
-                    <i class="fas fa-file-excel"></i><span>استيراد Excel</span>
+                    <i class="fas fa-file-excel"></i>
+                    <span>استيراد Excel</span>
                 </button>
                 <button onclick="exportToExcel()" class="action-btn action-btn-export">
-                    <i class="fas fa-download"></i><span>تصدير Excel</span>
+                    <i class="fas fa-download"></i>
+                    <span>تصدير Excel</span>
                 </button>
                 <button onclick="printSchedule()" class="action-btn action-btn-print">
-                    <i class="fas fa-print"></i><span>طباعة</span>
+                    <i class="fas fa-print"></i>
+                    <span>طباعة</span>
                 </button>
             </div>
 
+            <!-- قائمة المناوبات -->
             <div id="dutiesList"></div>
         </div>
     `, '#1E3A5F', true);
+    
     loadDuties();
 }
 
-// 3. جلب البيانات من Supabase
+// ─── عند تغيير المدينة ───
+window.onDutyCityChange = () => {
+    dutyFilters.city = document.getElementById('cityFilter').value;
+    localStorage.setItem('lomedx_duty_last_city', dutyFilters.city);
+    loadDuties();
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// 3. تحميل المناوبات من Supabase
+// ═══════════════════════════════════════════════════════════════════
 async function loadDuties() {
     dutyFilters.city = document.getElementById('cityFilter').value;
     dutyFilters.month = document.getElementById('monthFilter').value;
-    const [year, month] = dutyFilters.month.split('-');
-    const startDate = `${year}-${month}-01`;
-    const endDate = `${year}-${month}-31`;
-
+    
+    // حساب أول وآخر يوم في الشهر بدقة
+    const [year, month] = dutyFilters.month.split('-').map(Number);
+    const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+    const lastDay = new Date(year, month, 0).getDate();
+    const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    
+    const list = document.getElementById('dutiesList');
+    list.innerHTML = `
+        <div class="duty-card">
+            <p class="text-center py-8" style="color: var(--muted);">
+                <i class="fas fa-spinner fa-spin"></i> جاري التحميل...
+            </p>
+        </div>`;
+    
     const { data, error } = await supabase
         .from('pharmacy_duties')
         .select('id, duty_date, pharmacy_id, start_time, end_time')
@@ -9569,75 +9638,141 @@ async function loadDuties() {
         .gte('duty_date', startDate)
         .lte('duty_date', endDate)
         .order('duty_date', { ascending: true });
-
-    const list = document.getElementById('dutiesList');
-    if (error || !data) {
-        list.innerHTML = '<div class="duty-card"><p class="text-center py-6 text-red-500 text-sm">خطأ في تحميل البيانات.</p></div>';
+    
+    if (error) {
+        list.innerHTML = `
+            <div class="duty-card">
+                <p class="text-center py-6 text-red-500 text-sm">
+                    <i class="fas fa-exclamation-circle ml-1"></i>
+                    خطأ في تحميل البيانات: ${escapeHtml(error.message)}
+                </p>
+            </div>`;
         return;
     }
     
-    currentDuties = data;
+    currentDuties = data || [];
+    
     if (currentDuties.length === 0) {
         list.innerHTML = `
             <div class="duty-card">
                 <div class="empty-state">
                     <div class="empty-state-icon"><i class="fas fa-calendar-times"></i></div>
-                    <h3 style="font-family: 'Noto Kufi Arabic'; font-size: 1.05rem; margin-bottom: 8px; color: var(--text);">لا توجد مناوبات مسجلة</h3>
-                    <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 20px;">لم يتم تسجيل أي مناوبات لهذا الشهر في ${escapeHtml(dutyFilters.city)}</p>
-                    <button onclick="openAddDutyForm()" class="btn btn-success"><i class="fas fa-plus"></i> إضافة مناوبة جديدة</button>
+                    <h3 style="font-family: 'Noto Kufi Arabic'; font-size: 1.05rem; margin-bottom: 8px; color: var(--text);">
+                        لا توجد مناوبات مسجلة
+                    </h3>
+                    <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 20px;">
+                        لم يتم تسجيل أي مناوبات لهذا الشهر في ${escapeHtml(dutyFilters.city)}
+                    </p>
+                    <button onclick="openAddDutyForm()" class="btn btn-success">
+                        <i class="fas fa-plus"></i> إضافة مناوبة جديدة
+                    </button>
                 </div>
             </div>`;
         return;
     }
-
-    let rows = currentDuties.map(duty => {
+    
+    // بناء الجدول
+    const rows = currentDuties.map(duty => {
         const pharmacy = allData.find(p => p.id === duty.pharmacy_id);
         const dateObj = new Date(duty.duty_date + 'T00:00:00');
-        const timeStr = `${duty.start_time.substring(0, 5)} - ${duty.end_time.substring(0, 5)}`;
+        const startStr = (duty.start_time || DUTY_DEFAULTS.startTime).substring(0, 5);
+        const endStr = (duty.end_time || DUTY_DEFAULTS.endTime).substring(0, 5);
+        const crossesMidnight = endStr < startStr;
+        const timeBadge = crossesMidnight 
+            ? `<span class="badge-midnight">🌙 ${startStr} → ${endStr} (اليوم التالي)</span>`
+            : `<span class="badge-normal">☀️ ${startStr} → ${endStr}</span>`;
         
         return `
             <tr>
                 <td class="col-date">
                     <div class="date-day">${dateObj.getDate()}</div>
-                    <div class="date-month">${dateObj.toLocaleDateString('ar-EG', { month: 'short' })} · ${dateObj.toLocaleDateString('ar-EG', { weekday: 'long' })}</div>
+                    <div class="date-month">
+                        ${dateObj.toLocaleDateString('ar-EG', { month: 'short' })} · 
+                        ${dateObj.toLocaleDateString('ar-EG', { weekday: 'long' })}
+                    </div>
                 </td>
-                <td class="col-pharmacy">${pharmacy ? escapeHtml(pharmacy.name) : '<span style="color:var(--danger)">صيدلية محذوفة</span>'}</td>
-                <td style="font-size: 0.8rem; color: var(--accent-dark); font-weight: 700;">${timeStr}</td>
-                <td class="col-phone">${pharmacy ? escapeHtml(pharmacy.phone || '-') : '-'}</td>
+                <td class="col-pharmacy">
+                    ${pharmacy 
+                        ? escapeHtml(pharmacy.name) 
+                        : '<span style="color: var(--danger); font-style: italic;">صيدلية محذوفة</span>'}
+                </td>
+                <td style="font-size: 0.8rem; font-weight: 700;">
+                    ${timeBadge}
+                </td>
+                <td class="col-phone">
+                    ${pharmacy ? escapeHtml(pharmacy.phone || '—') : '—'}
+                </td>
                 <td class="col-actions">
-                    <button onclick="deleteDuty('${duty.id}')" class="row-btn row-btn-del" title="حذف"><i class="fas fa-trash"></i></button>
+                    <button onclick="deleteDuty('${duty.id}')" 
+                            class="row-btn row-btn-del" 
+                            title="حذف">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </td>
             </tr>`;
     }).join('');
-
+    
     list.innerHTML = `
         <div class="duty-table-wrapper">
             <table class="duty-table">
-                <thead><tr>
-                    <th style="width: 100px;">التاريخ</th><th>الصيدلية</th><th>فترة المناوبة</th><th style="width: 140px;">الهاتف</th><th style="width: 80px;">حذف</th>
-                </tr></thead>
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">التاريخ</th>
+                        <th>الصيدلية</th>
+                        <th style="width: 200px;">فترة المناوبة</th>
+                        <th style="width: 140px;">الهاتف</th>
+                        <th style="width: 80px;">حذف</th>
+                    </tr>
+                </thead>
                 <tbody>${rows}</tbody>
             </table>
         </div>`;
 }
 
-// 4. إضافة مناوبة (افتراضياً 21:00 إلى 01:00)
+// ═══════════════════════════════════════════════════════════════════
+// 4. إضافة مناوبة
+// ═══════════════════════════════════════════════════════════════════
 window.openAddDutyForm = () => {
-    const cityPharmacies = allData.filter(p => p.type === 'pharmacy' && (p.address?.includes(dutyFilters.city) || p.name?.includes(dutyFilters.city)));
+    const cityPharmacies = allData
+        .filter(p => p.type === 'pharmacy' && 
+                     (p.address?.includes(dutyFilters.city) || p.name?.includes(dutyFilters.city)))
+        .sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+    
     const today = new Date().toISOString().split('T')[0];
     const list = document.getElementById('dutiesList');
+    
+    if (cityPharmacies.length === 0) {
+        showToast(`لا توجد صيدليات مسجلة في ${dutyFilters.city}`, 'error');
+        return;
+    }
     
     list.innerHTML = `
         <div class="duty-card">
             <div class="duty-header">
-                <div class="duty-header-icon" style="background: #F0FDF4; color: #059669;"><i class="fas fa-plus"></i></div>
+                <div class="duty-header-icon" style="background: #F0FDF4; color: #059669;">
+                    <i class="fas fa-plus"></i>
+                </div>
                 <h3>إضافة مناوبة في ${escapeHtml(dutyFilters.city)}</h3>
             </div>
+            
+            <div class="info-panel">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                    <b>${cityPharmacies.length}</b> صيدلية متوفرة.
+                    <br>
+                    <span style="font-size: 0.75rem;">التوقيت الافتراضي: 21:00 → 01:00 (يوم التالي)</span>
+                </div>
+            </div>
+            
             <div class="form-group" style="margin-bottom: 14px;">
                 <label class="form-label">اختر الصيدلية *</label>
                 <select id="newDutyPharmacyId" class="form-select">
-                    <option value="">-- اختر من القائمة --</option>
-                    ${cityPharmacies.map(p => `<option value="${p.id}">${escapeHtml(p.name)} - ${escapeHtml(p.address || '')}</option>`).join('')}
+                    <option value="">— اختر من القائمة —</option>
+                    ${cityPharmacies.map(p => `
+                        <option value="${p.id}">
+                            ${escapeHtml(p.name)} — ${escapeHtml(p.address || 'بدون عنوان')}
+                        </option>
+                    `).join('')}
                 </select>
             </div>
             
@@ -9648,17 +9783,26 @@ window.openAddDutyForm = () => {
                 </div>
                 <div class="form-group">
                     <label class="form-label">بداية المناوبة *</label>
-                    <input type="time" id="newDutyStartTime" class="form-input" value="21:00">
+                    <input type="time" id="newDutyStartTime" class="form-input" 
+                           value="${DUTY_DEFAULTS.startTime}">
                 </div>
                 <div class="form-group">
                     <label class="form-label">نهاية المناوبة *</label>
-                    <input type="time" id="newDutyEndTime" class="form-input" value="01:00">
+                    <input type="time" id="newDutyEndTime" class="form-input" 
+                           value="${DUTY_DEFAULTS.endTime}">
+                    <span style="font-size: 10px; color: var(--muted);">
+                        (إذا كانت قبل البداية → تعني اليوم التالي)
+                    </span>
                 </div>
             </div>
 
             <div style="display: flex; gap: 10px;">
-                <button onclick="loadDuties()" class="btn btn-outline" style="flex: 1;">إلغاء</button>
-                <button onclick="saveNewDuty()" class="btn btn-success" style="flex: 2;"><i class="fas fa-save"></i> حفظ المناوبة</button>
+                <button onclick="loadDuties()" class="btn btn-outline" style="flex: 1;">
+                    إلغاء
+                </button>
+                <button onclick="saveNewDuty()" class="btn btn-success" style="flex: 2;">
+                    <i class="fas fa-save"></i> حفظ المناوبة
+                </button>
             </div>
         </div>`;
 };
@@ -9666,69 +9810,119 @@ window.openAddDutyForm = () => {
 window.saveNewDuty = async () => {
     const pharmacyId = document.getElementById('newDutyPharmacyId').value;
     const date = document.getElementById('newDutyDate').value;
-    const startTime = document.getElementById('newDutyStartTime').value || '21:00';
-    const endTime = document.getElementById('newDutyEndTime').value || '01:00';
+    const startTime = document.getElementById('newDutyStartTime').value || DUTY_DEFAULTS.startTime;
+    const endTime = document.getElementById('newDutyEndTime').value || DUTY_DEFAULTS.endTime;
     
-    if (!pharmacyId || !date) { showToast('الرجاء اختيار الصيدلية والتاريخ', 'error'); return; }
-
-    const { error } = await supabase.from('pharmacy_duties').insert([{
-        city: dutyFilters.city, 
-        duty_date: date, 
-        pharmacy_id: pharmacyId,
-        start_time: startTime,
-        end_time: endTime
-    }]);
-
-    if (error) { showToast('خطأ: قد تكون هناك مناوبة مسجلة لهذه الصيدلية في هذا اليوم', 'error'); }
-    else {
-        showToast('تمت إضافة المناوبة بنجاح', 'success');
-        loadDuties(); 
+    if (!pharmacyId || !date) { 
+        showToast('الرجاء اختيار الصيدلية والتاريخ', 'error'); 
+        return; 
+    }
+    
+    const saveBtn = event.target;
+    const originalHTML = saveBtn.innerHTML;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+    
+    try {
+        const { error } = await supabase.from('pharmacy_duties').insert([{
+            city: dutyFilters.city,
+            duty_date: date,
+            pharmacy_id: pharmacyId,
+            start_time: startTime,
+            end_time: endTime
+        }]);
+        
+        if (error) {
+            if (error.code === '23505') {
+                showToast('هذه الصيدلية مسجّلة بالفعل مناوبة في هذا اليوم', 'error');
+            } else {
+                showToast('خطأ في الحفظ: ' + error.message, 'error');
+            }
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalHTML;
+            return;
+        }
+        
+        showToast('✅ تمت إضافة المناوبة بنجاح', 'success');
+        loadDuties();
         fetchTodayDutiesForBadge();
+    } catch (err) {
+        showToast('خطأ غير متوقع: ' + err.message, 'error');
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalHTML;
     }
 };
 
 window.deleteDuty = async (id) => {
     if (!confirm('هل أنت متأكد من حذف هذه المناوبة؟')) return;
+    
     const { error } = await supabase.from('pharmacy_duties').delete().eq('id', id);
-    if (error) { showToast('خطأ في الحذف', 'error'); return; }
-    showToast('تم الحذف', 'success'); loadDuties(); fetchTodayDutiesForBadge();
+    if (error) { 
+        showToast('خطأ في الحذف', 'error'); 
+        return; 
+    }
+    showToast('تم الحذف بنجاح', 'success');
+    loadDuties();
+    fetchTodayDutiesForBadge();
 };
 
+// ═══════════════════════════════════════════════════════════════════
 // 5. استيراد Excel
+// ═══════════════════════════════════════════════════════════════════
 window.openExcelImporter = () => {
     const list = document.getElementById('dutiesList');
     list.innerHTML = `
         <div class="duty-card">
             <div class="duty-header">
-                <div class="duty-header-icon" style="background: #F0FDF4; color: #059669;"><i class="fas fa-file-excel"></i></div>
-                <h3>استيراد جدول من Excel إلى ${escapeHtml(dutyFilters.city)}</h3>
+                <div class="duty-header-icon" style="background: #F0FDF4; color: #059669;">
+                    <i class="fas fa-file-excel"></i>
+                </div>
+                <h3>استيراد جدول من Excel</h3>
             </div>
+            
             <div class="info-panel">
                 <i class="fas fa-info-circle"></i>
                 <div>
                     <b>الأعمدة المطلوبة في الملف:</b>
                     <ul style="margin-top: 6px; padding-right: 20px; font-size: 0.8rem;">
-                        <li>التاريخ (أو Date)</li>
-                        <li>اسم الصيدلية (أو الصيدلية)</li>
+                        <li><b>التاريخ</b> (أو Date) — بصيغة YYYY-MM-DD</li>
+                        <li><b>اسم الصيدلية</b> (أو الصيدلية)</li>
                     </ul>
+                    <br>
+                    <b>الاستيراد إلى:</b> ${escapeHtml(dutyFilters.city)}
+                    <br>
+                    <span style="font-size: 11px;">التوقيت الافتراضي: 21:00 → 01:00</span>
                 </div>
             </div>
+            
             <div class="drop-zone" onclick="document.getElementById('excelInput').click()">
                 <div class="drop-zone-icon"><i class="fas fa-cloud-upload-alt"></i></div>
                 <div class="drop-zone-title">اضغط لاختيار ملف Excel</div>
-                <div class="drop-zone-sub" style="font-size: 0.75rem; color: var(--muted);">صيغة .xlsx أو .xls</div>
-                <input type="file" id="excelInput" accept=".xlsx,.xls" style="display: none;" onchange="handleExcelUpload(event)">
+                <div class="drop-zone-sub">صيغة .xlsx أو .xls</div>
+                <input type="file" id="excelInput" accept=".xlsx,.xls" 
+                       style="display: none;" onchange="handleExcelUpload(event)">
             </div>
+            
             <div id="excelPreview"></div>
+            
+            <div style="margin-top: 16px;">
+                <button onclick="loadDuties()" class="btn btn-outline" style="width: 100%;">
+                    <i class="fas fa-arrow-right"></i> رجوع
+                </button>
+            </div>
         </div>`;
 };
 
 window.handleExcelUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
+    
     const preview = document.getElementById('excelPreview');
-    preview.innerHTML = '<p style="text-align: center; padding: 20px; color: var(--muted);"><i class="fas fa-spinner fa-spin"></i> جاري القراءة...</p>';
-
+    preview.innerHTML = `
+        <p style="text-align: center; padding: 20px; color: var(--muted);">
+            <i class="fas fa-spinner fa-spin"></i> جاري قراءة الملف...
+        </p>`;
+    
     const reader = new FileReader();
     reader.onload = (e) => {
         try {
@@ -9736,157 +9930,374 @@ window.handleExcelUpload = (event) => {
             const workbook = XLSX.read(data, { type: 'array' });
             const worksheet = workbook.Sheets[workbook.SheetNames[0]];
             const rows = XLSX.utils.sheet_to_json(worksheet);
-            if (rows.length === 0) { preview.innerHTML = '<p style="text-align: center; color: var(--danger);">الملف فارغ</p>'; return; }
-
+            
+            if (rows.length === 0) {
+                preview.innerHTML = `
+                    <p style="text-align: center; color: var(--danger);">
+                        <i class="fas fa-exclamation-triangle"></i> الملف فارغ
+                    </p>`;
+                return;
+            }
+            
             pendingExcelRows = rows;
+            
             preview.innerHTML = `
-                <div class="preview-wrapper" style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-top: 16px;">
-                    <h4 style="font-weight: 800; font-size: 0.9rem; margin-bottom: 12px;"><i class="fas fa-eye" style="color: #2563EB;"></i> معاينة الملف (${rows.length} سجل)</h4>
-                    <div style="max-height: 280px; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border); background: white;">
-                        <table class="preview-table" style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
-                            <thead><tr><th style="background: #F1F5F9; padding: 10px; text-align: right;">التاريخ</th><th style="background: #F1F5F9; padding: 10px; text-align: right;">الصيدلية</th></tr></thead>
-                            <tbody>${rows.slice(0, 15).map(r => `<tr><td style="padding: 8px 10px; border-bottom: 1px solid var(--border);">${escapeHtml(String(r['التاريخ'] || r['date'] || ''))}</td><td style="padding: 8px 10px; border-bottom: 1px solid var(--border);"><b>${escapeHtml(String(r['اسم الصيدلية'] || r['الصيدلية'] || ''))}</b></td></tr>`).join('')}</tbody>
+                <div class="preview-wrapper">
+                    <h4 style="font-weight: 800; font-size: 0.9rem; margin-bottom: 12px;">
+                        <i class="fas fa-eye" style="color: #2563EB;"></i> 
+                        معاينة الملف (${rows.length} سجل)
+                    </h4>
+                    <div class="preview-table-wrap">
+                        <table class="preview-table">
+                            <thead>
+                                <tr>
+                                    <th>التاريخ</th>
+                                    <th>الصيدلية</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows.slice(0, 15).map(r => `
+                                    <tr>
+                                        <td>${escapeHtml(String(r['التاريخ'] || r['date'] || ''))}</td>
+                                        <td><b>${escapeHtml(String(r['اسم الصيدلية'] || r['الصيدلية'] || ''))}</b></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
                         </table>
                     </div>
+                    ${rows.length > 15 
+                        ? `<p style="text-align: center; margin-top: 8px; font-size: 0.75rem; color: var(--muted);">
+                             ...و ${rows.length - 15} سجل آخر
+                           </p>` 
+                        : ''}
                     <div style="display: flex; gap: 10px; margin-top: 16px;">
-                        <button onclick="loadDuties()" class="btn btn-outline" style="flex: 1;">إلغاء</button>
-                        <button onclick="confirmImport()" class="btn btn-success" style="flex: 2;"><i class="fas fa-check"></i> استيراد ${rows.length} سجل</button>
+                        <button onclick="openExcelImporter()" class="btn btn-outline" style="flex: 1;">
+                            إلغاء
+                        </button>
+                        <button onclick="confirmImport()" class="btn btn-success" style="flex: 2;">
+                            <i class="fas fa-check"></i> استيراد ${rows.length} سجل
+                        </button>
                     </div>
                 </div>`;
-        } catch (err) { preview.innerHTML = `<p style="text-align: center; color: var(--danger);">خطأ: ${escapeHtml(err.message)}</p>`; }
+        } catch (err) {
+            preview.innerHTML = `
+                <p style="text-align: center; color: var(--danger);">
+                    خطأ: ${escapeHtml(err.message)}
+                </p>`;
+        }
     };
     reader.readAsArrayBuffer(file);
 };
 
 window.confirmImport = async () => {
     if (!pendingExcelRows) return;
-    let importedCount = 0, skippedCount = 0;
+    
+    let importedCount = 0;
+    let skippedCount = 0;
+    const skippedReasons = [];
     const rowsToInsert = [];
-
-    pendingExcelRows.forEach(row => {
-        let date = row['التاريخ'] || row['date'] || '';
+    const seenKeys = new Set(); // منع التكرار داخل الملف نفسه
+    
+    pendingExcelRows.forEach((row, idx) => {
+        // ─── معالجة التاريخ ───
+        let date = row['التاريخ'] || row['date'] || row['Date'] || '';
         if (typeof date === 'number') {
+            // Excel serial date
             const excelEpoch = new Date(1899, 11, 30);
             date = new Date(excelEpoch.getTime() + date * 86400000).toISOString().split('T')[0];
         } else if (typeof date === 'string') {
             const parsed = new Date(date);
-            if (!isNaN(parsed)) date = parsed.toISOString().split('T')[0];
+            if (!isNaN(parsed)) {
+                date = parsed.toISOString().split('T')[0];
+            }
         }
-
-        const pharmacyName = String(row['اسم الصيدلية'] || row['الصيدلية'] || '').trim();
-        if (!pharmacyName || !date) { skippedCount++; return; }
-
-        const matched = allData.find(p => p.type === 'pharmacy' && p.name.trim() === pharmacyName);
-        if (matched) {
-            rowsToInsert.push({ 
-                city: dutyFilters.city, 
-                duty_date: date, 
-                pharmacy_id: matched.id,
-                start_time: '21:00',
-                end_time: '01:00'
-            });
-            importedCount++;
-        } else { skippedCount++; }
+        
+        // ─── معالجة اسم الصيدلية ───
+        const pharmacyName = String(
+            row['اسم الصيدلية'] || row['الصيدلية'] || row['pharmacy'] || ''
+        ).trim();
+        
+        if (!pharmacyName || !date) {
+            skippedCount++;
+            if (idx < 5) skippedReasons.push(`السطر ${idx + 2}: بيانات ناقصة`);
+            return;
+        }
+        
+        // ─── مطابقة الصيدلية ───
+        const matched = allData.find(p => 
+            p.type === 'pharmacy' && p.name.trim() === pharmacyName
+        );
+        
+        if (!matched) {
+            skippedCount++;
+            if (idx < 5) skippedReasons.push(`"${pharmacyName}" غير مسجّلة`);
+            return;
+        }
+        
+        // ─── منع التكرار داخل الملف ───
+        const key = `${date}_${matched.id}`;
+        if (seenKeys.has(key)) {
+            skippedCount++;
+            return;
+        }
+        seenKeys.add(key);
+        
+        rowsToInsert.push({
+            city: dutyFilters.city,
+            duty_date: date,
+            pharmacy_id: matched.id,
+            start_time: DUTY_DEFAULTS.startTime,
+            end_time: DUTY_DEFAULTS.endTime
+        });
+        importedCount++;
     });
-
-    if (rowsToInsert.length > 0) {
-        const { error } = await supabase.from('pharmacy_duties').insert(rowsToInsert);
-        if (error) { showToast('حدث خطأ أثناء الاستيراد', 'error'); return; }
+    
+    if (rowsToInsert.length === 0) {
+        showToast('لا توجد بيانات صالحة للاستيراد', 'error');
+        return;
     }
-    showToast(`تم استيراد ${importedCount} مناوبة${skippedCount > 0 ? ` (تم تجاهل ${skippedCount})` : ''}`, 'success');
-    pendingExcelRows = null; loadDuties(); fetchTodayDutiesForBadge();
+    
+    // ─── الاستيراد مع تجاهل المكررات ───
+    const { error } = await supabase
+        .from('pharmacy_duties')
+        .upsert(rowsToInsert, { 
+            onConflict: 'city,duty_date,pharmacy_id',
+            ignoreDuplicates: true 
+        });
+    
+    if (error) {
+        showToast('خطأ في الاستيراد: ' + error.message, 'error');
+        return;
+    }
+    
+    let msg = `تم استيراد ${importedCount} مناوبة`;
+    if (skippedCount > 0) {
+        msg += ` (تم تجاهل ${skippedCount})`;
+        if (skippedReasons.length > 0) {
+            console.log('أسباب التجاهل:', skippedReasons);
+        }
+    }
+    showToast(msg, 'success');
+    pendingExcelRows = null;
+    loadDuties();
+    fetchTodayDutiesForBadge();
 };
 
+// ═══════════════════════════════════════════════════════════════════
 // 6. تصدير Excel
+// ═══════════════════════════════════════════════════════════════════
 window.exportToExcel = () => {
-    if (currentDuties.length === 0) { showToast('لا توجد بيانات للتصدير', 'error'); return; }
+    if (currentDuties.length === 0) { 
+        showToast('لا توجد بيانات للتصدير', 'error'); 
+        return; 
+    }
+    
     try {
         const data = currentDuties.map(d => {
             const ph = allData.find(p => p.id === d.pharmacy_id);
             const dateObj = new Date(d.duty_date + 'T00:00:00');
+            const startStr = (d.start_time || DUTY_DEFAULTS.startTime).substring(0, 5);
+            const endStr = (d.end_time || DUTY_DEFAULTS.endTime).substring(0, 5);
+            
             return {
                 'التاريخ': d.duty_date,
                 'اليوم': dateObj.toLocaleDateString('ar-EG', { weekday: 'long' }),
                 'الصيدلية': ph ? ph.name : 'محذوفة',
-                'بداية المناوبة': d.start_time.substring(0, 5),
-                'نهاية المناوبة': d.end_time.substring(0, 5),
-                'الهاتف': ph ? (ph.phone || '') : ''
+                'بداية المناوبة': startStr,
+                'نهاية المناوبة': endStr,
+                'الهاتف': ph ? (ph.phone || '') : '',
+                'العنوان': ph ? (ph.address || '') : ''
             };
         });
+        
         const worksheet = XLSX.utils.json_to_sheet(data);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'المناوبات');
-        worksheet['!cols'] = [{ wch: 12 }, { wch: 12 }, { wch: 25 }, { wch: 12 }, { wch: 12 }, { wch: 15 }];
+        
+        worksheet['!cols'] = [
+            { wch: 12 }, { wch: 12 }, { wch: 25 }, 
+            { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 30 }
+        ];
+        
         XLSX.writeFile(workbook, `مناوبات_${dutyFilters.city}_${dutyFilters.month}.xlsx`);
-        showToast('تم تصدير الملف', 'success');
-    } catch (err) { showToast('خطأ: ' + err.message, 'error'); }
+        showToast('تم تصدير الملف بنجاح', 'success');
+    } catch (err) {
+        showToast('خطأ: ' + err.message, 'error');
+    }
 };
 
-// 7. طباعة الجدول
+// ═══════════════════════════════════════════════════════════════════
+// 7. الطباعة الرسمية
+// ═══════════════════════════════════════════════════════════════════
 window.printSchedule = () => {
-    if (currentDuties.length === 0) { showToast('لا توجد بيانات للطباعة', 'error'); return; }
-    const monthName = new Date(dutyFilters.month + '-01').toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+    if (currentDuties.length === 0) { 
+        showToast('لا توجد بيانات للطباعة', 'error'); 
+        return; 
+    }
+    
+    const monthName = new Date(dutyFilters.month + '-01')
+        .toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+    
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
-        <!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>جدول المناوبات الرسمي</title>
-        <style>
-            body { font-family: Arial, sans-serif; padding: 20px; direction: rtl; color: #0F172A; }
-            .header { text-align: center; padding: 20px; border-bottom: 3px solid #1E3A5F; margin-bottom: 20px; }
-            .header h1 { color: #1E3A5F; margin-bottom: 5px; font-size: 20px; }
-            .header h2 { color: #64748B; font-size: 14px; font-weight: normal; }
-            .meta { display: flex; justify-content: space-between; background: #F1F5F9; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; }
-            table { width: 100%; border-collapse: collapse; }
-            th { background: #1E3A5F; color: white; padding: 10px; text-align: right; font-size: 12px; }
-            td { padding: 10px; border-bottom: 1px solid #E2E8F0; font-size: 13px; }
-            tr:nth-child(even) { background: #F8FAFC; }
-            @media print { @page { size: A4; margin: 15mm; } }
-        </style></head><body>
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+        <head>
+            <meta charset="UTF-8">
+            <title>جدول المناوبات الرسمي — ${escapeHtml(dutyFilters.city)}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700;800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+            <style>
+                body { 
+                    font-family: 'IBM Plex Sans Arabic', Arial, sans-serif; 
+                    padding: 20px; direction: rtl; color: #0F172A; 
+                }
+                .header { 
+                    text-align: center; padding: 20px; 
+                    border-bottom: 3px solid #1E3A5F; margin-bottom: 20px; 
+                }
+                .header h1 { 
+                    font-family: 'Noto Kufi Arabic'; 
+                    color: #1E3A5F; margin-bottom: 5px; font-size: 22px; 
+                }
+                .header h2 { color: #64748B; font-size: 14px; font-weight: normal; }
+                .meta { 
+                    display: flex; justify-content: space-between; 
+                    background: #F1F5F9; padding: 12px 16px; 
+                    border-radius: 8px; margin-bottom: 20px; 
+                    font-size: 13px; flex-wrap: wrap; gap: 8px;
+                }
+                table { width: 100%; border-collapse: collapse; }
+                th { 
+                    background: #1E3A5F; color: white; 
+                    padding: 12px 10px; text-align: right; font-size: 12px; 
+                }
+                td { 
+                    padding: 10px; border-bottom: 1px solid #E2E8F0; 
+                    font-size: 13px; vertical-align: middle;
+                }
+                tr:nth-child(even) { background: #F8FAFC; }
+                .midnight { 
+                    background: #FEF3C7; padding: 2px 8px; 
+                    border-radius: 4px; font-size: 11px; font-weight: 700; 
+                    color: #92400E;
+                }
+                .normal { 
+                    background: #DBEAFE; padding: 2px 8px; 
+                    border-radius: 4px; font-size: 11px; font-weight: 700; 
+                    color: #1E40AF;
+                }
+                .footer { 
+                    text-align: center; margin-top: 30px; 
+                    color: #94A3B8; font-size: 11px; 
+                    padding-top: 15px; border-top: 1px solid #E2E8F0; 
+                }
+                @media print { @page { size: A4; margin: 15mm; } }
+            </style>
+        </head>
+        <body>
             <div class="header">
                 <h1>جدول المناوبات الرسمي</h1>
                 <h2>نقابة صيدلة — ${escapeHtml(dutyFilters.city)}</h2>
             </div>
+            
             <div class="meta">
                 <span><b>الشهر:</b> ${monthName}</span>
                 <span><b>عدد المناوبات:</b> ${currentDuties.length}</span>
                 <span><b>تاريخ الطباعة:</b> ${new Date().toLocaleDateString('ar-EG')}</span>
             </div>
-            <table><thead><tr><th style="width: 60px;">التاريخ</th><th style="width: 80px;">اليوم</th><th>الصيدلية</th><th>فترة المناوبة</th><th style="width: 120px;">الهاتف</th></tr></thead><tbody>
-                ${currentDuties.map(d => {
-                    const ph = allData.find(p => p.id === d.pharmacy_id);
-                    const dateObj = new Date(d.duty_date + 'T00:00:00');
-                    const timeStr = `${d.start_time.substring(0, 5)} - ${d.end_time.substring(0, 5)}`;
-                    return `<tr>
-                        <td>${dateObj.toLocaleDateString('ar-EG', { day: 'numeric', month: 'numeric' })}</td>
-                        <td>${dateObj.toLocaleDateString('ar-EG', { weekday: 'long' })}</td>
-                        <td><b>${ph ? escapeHtml(ph.name) : 'محذوفة'}</b></td>
-                        <td dir="ltr" style="text-align: right;">${timeStr}</td>
-                        <td dir="ltr" style="text-align: right;">${ph ? escapeHtml(ph.phone || '-') : '-'}</td>
-                    </tr>`;
-                }).join('')}
-            </tbody></table>
-            <script>window.onload = () => setTimeout(() => window.print(), 400);<\/script>
-        </body></html>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">التاريخ</th>
+                        <th style="width: 80px;">اليوم</th>
+                        <th>الصيدلية</th>
+                        <th style="width: 150px;">فترة المناوبة</th>
+                        <th style="width: 120px;">الهاتف</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${currentDuties.map(d => {
+                        const ph = allData.find(p => p.id === d.pharmacy_id);
+                        const dateObj = new Date(d.duty_date + 'T00:00:00');
+                        const startStr = (d.start_time || DUTY_DEFAULTS.startTime).substring(0, 5);
+                        const endStr = (d.end_time || DUTY_DEFAULTS.endTime).substring(0, 5);
+                        const crossesMidnight = endStr < startStr;
+                        
+                        return `
+                            <tr>
+                                <td>${dateObj.toLocaleDateString('ar-EG', { day: 'numeric', month: 'numeric' })}</td>
+                                <td>${dateObj.toLocaleDateString('ar-EG', { weekday: 'long' })}</td>
+                                <td><b>${ph ? escapeHtml(ph.name) : 'محذوفة'}</b></td>
+                                <td>
+                                    <span class="${crossesMidnight ? 'midnight' : 'normal'}" dir="ltr">
+                                        ${startStr} → ${endStr}
+                                    </span>
+                                </td>
+                                <td dir="ltr" style="text-align: right;">
+                                    ${ph ? escapeHtml(ph.phone || '—') : '—'}
+                                </td>
+                            </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+            
+            <div class="footer">
+                صادر عن منصة LomedX — نسخة رسمية
+            </div>
+            <script>window.onload = () => setTimeout(() => window.print(), 500);<\/script>
+        </body>
+        </html>
     `);
     printWindow.document.close();
 };
 
-// 8. جلب مناوبات اليوم لعرض الشارة (تظهر طوال اليوم وتختفي في نهايته)
+// ═══════════════════════════════════════════════════════════════════
+// 8. جلب مناوبات اليوم (مع دعم العبور لمنتصف الليل) — الإصلاح الحرِج
+// ═══════════════════════════════════════════════════════════════════
 async function fetchTodayDutiesForBadge() {
-    // الحصول على تاريخ اليوم الحالي بصيغة YYYY-MM-DD
-    const today = new Date().toISOString().split('T')[0];
-
-    const { data } = await supabase
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    
+    // جلب تاريخ الأمس أيضاً (احتياط للمناوبات العابرة لمنتصف الليل)
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    
+    const { data, error } = await supabase
         .from('pharmacy_duties')
-        .select('pharmacy_id')
-        .eq('duty_date', today);
+        .select('pharmacy_id, duty_date, start_time, end_time')
+        .in('duty_date', [todayStr, yesterdayStr]);
+    
+    if (error || !data) {
+        todayDutyPharmacyIds = [];
+        if (typeof renderData === 'function') renderData();
+        return;
+    }
+    
+    // فلترة دقيقة: هل المناوبة فعّالة في هذه اللحظة؟
+    const activeIds = data.filter(d => {
+        const startStr = d.start_time || DUTY_DEFAULTS.startTime;
+        const endStr = d.end_time || DUTY_DEFAULTS.endTime;
         
-    // جلب أرقام الصيدليات التي لها مناوبة اليوم
-    todayDutyPharmacyIds = data ? data.map(d => d.pharmacy_id) : [];
-
-    // إعادة رسم البطاقات لتظهر الشارة طوال اليوم
-    if (typeof renderData === 'function') renderData(); 
+        const start = new Date(`${d.duty_date}T${startStr}:00`);
+        const end = new Date(`${d.duty_date}T${endStr}:00`);
+        
+        // إذا كانت النهاية قبل البداية → عابرة لمنتصف الليل
+        if (end <= start) {
+            end.setDate(end.getDate() + 1);
+        }
+        
+        return now >= start && now <= end;
+    }).map(d => d.pharmacy_id);
+    
+    todayDutyPharmacyIds = activeIds;
+    
+    // إعادة رسم البطاقات لتظهر الشارات
+    if (typeof renderData === 'function') renderData();
 }
 
+// ─── استدعاء أولي عند تحميل الصفحة ───
 window.addEventListener('DOMContentLoaded', () => {
     setTimeout(fetchTodayDutiesForBadge, 2000);
 });
