@@ -10129,6 +10129,35 @@ window.exportToExcel = () => {
 // ═══════════════════════════════════════════════════════════════════
 // 7. الطباعة الرسمية
 // ═══════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
+// 🕐 دالة تحويل الوقت إلى ص/م
+// ═══════════════════════════════════════════════════════════════
+function formatTime12h(timeStr) {
+    if (!timeStr) return '';
+    
+    // تنظيف الوقت من HH:MM:SS إلى HH:MM
+    const clean = String(timeStr).substring(0, 5);
+    const [hourStr, minute] = clean.split(':');
+    let hour = parseInt(hourStr, 10);
+    
+    if (isNaN(hour)) return '';
+    
+    // تحديد الفترة
+    const period = hour >= 12 ? 'م' : 'ص';
+    
+    // تحويل 24 إلى 12
+    if (hour === 0) {
+        hour = 12;        // 00:00 → 12:00 ص
+    } else if (hour > 12) {
+        hour = hour - 12; // 13:00 → 01:00 م
+    }
+    
+    const paddedHour = String(hour).padStart(2, '0');
+    
+    return `${paddedHour}:${minute} ${period}`;
+}
+
 window.printSchedule = () => {
     if (currentDuties.length === 0) { 
         showToast('لا توجد بيانات للطباعة', 'error'); 
@@ -10218,27 +10247,27 @@ window.printSchedule = () => {
                 </thead>
                 <tbody>
                     ${currentDuties.map(d => {
-                        const ph = allData.find(p => p.id === d.pharmacy_id);
-                        const dateObj = new Date(d.duty_date + 'T00:00:00');
-                        const startStr = (d.start_time || DUTY_DEFAULTS.startTime).substring(0, 5);
-                        const endStr = (d.end_time || DUTY_DEFAULTS.endTime).substring(0, 5);
-                        const crossesMidnight = endStr < startStr;
-                        
-                        return `
-                            <tr>
-                                <td>${dateObj.toLocaleDateString('ar-EG', { day: 'numeric', month: 'numeric' })}</td>
-                                <td>${dateObj.toLocaleDateString('ar-EG', { weekday: 'long' })}</td>
-                                <td><b>${ph ? escapeHtml(ph.name) : 'محذوفة'}</b></td>
-                                <td>
-                                    <span class="${crossesMidnight ? 'midnight' : 'normal'}" dir="ltr">
-                                        ${startStr} → ${endStr}
-                                    </span>
-                                </td>
-                                <td dir="ltr" style="text-align: right;">
-                                    ${ph ? escapeHtml(ph.phone || '—') : '—'}
-                                </td>
-                            </tr>`;
-                    }).join('')}
+    const ph = allData.find(p => p.id === d.pharmacy_id);
+    const dateObj = new Date(d.duty_date + 'T00:00:00');
+    const startStr = (d.start_time || DUTY_DEFAULTS.startTime);
+    const endStr = (d.end_time || DUTY_DEFAULTS.endTime);
+    const crossesMidnight = startStr.substring(0, 5) > endStr.substring(0, 5);
+    
+    return `
+        <tr>
+            <td>${dateObj.toLocaleDateString('ar-EG', { day: 'numeric', month: 'numeric' })}</td>
+            <td>${dateObj.toLocaleDateString('ar-EG', { weekday: 'long' })}</td>
+            <td><b>${ph ? escapeHtml(ph.name) : 'محذوفة'}</b></td>
+            <td>
+                <span class="${crossesMidnight ? 'midnight' : 'normal'}">
+                    ${formatTime12h(startStr)} ← ${formatTime12h(endStr)}
+                </span>
+            </td>
+            <td dir="ltr" style="text-align: right;">
+                ${ph ? escapeHtml(ph.phone || '—') : '—'}
+            </td>
+        </tr>`;
+}).join('')}
                 </tbody>
             </table>
             
@@ -10255,15 +10284,6 @@ window.printSchedule = () => {
 // ═══════════════════════════════════════════════════════════════════
 // 8. جلب مناوبات اليوم (مع دعم العبور لمنتصف الليل) — الإصلاح الحرِج
 // ═══════════════════════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════════════════
-// 🌙 جلب مناوبات اليوم — يدعم العبور لمنتصف الليل
-// ═══════════════════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════════════════
-// 🌙 نظام المناوبات — منطق "اليوم المنطقي"
-// ═══════════════════════════════════════════════════════════════
-// اليوم المنطقي = من 02:00 صباحاً حتى 01:59 فجر الغد
-// ═══════════════════════════════════════════════════════════════
-
 window.todayDutyPharmacyIds = [];
 window.todayDutyNextTransition = null;
 let dutyTransitionTimer = null;
