@@ -669,6 +669,107 @@ function resetMetaTags() {
         history.replaceState(null, '', window.location.pathname + window.location.search);
     }
 }
+
+// ═══════════════════════════════════════════════════════════════
+// 🔗 روابط البطاقات + المشاركة
+// ═══════════════════════════════════════════════════════════════
+function getItemLink(item) {
+    if (!item || !item.id) return '/';
+    const map = {
+        pharmacy: 'pharmacy',
+        doctor:   'doctor',
+        hospital: 'hospital',
+        center:   'center',
+        lab:      'lab'
+    };
+    return `/${map[item.type] || 'item'}/${item.id}`;
+}
+
+function getItemFullUrl(item) {
+    return `${window.location.origin}${getItemLink(item)}`;
+}
+
+window.handleCardClick = (e, id) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const item = allData.find(d => d.id === id);
+    if (!item) return;
+    
+    history.pushState({ itemId: id }, '', getItemLink(item));
+    
+    const labels = { pharmacy: 'صيدلية', doctor: 'طبيب', hospital: 'مشفى', center: 'مركز طبي', lab: 'مخبر' };
+    updateMetaTags(
+        `${item.name} - ${item.specialty || labels[item.type]} | LomedX`,
+        `${item.name} في ${item.address || item.clinic || 'سوريا'}`,
+        item.image || DEFAULT_SEO.image
+    );
+    
+    openModal(id);
+};
+
+window.shareItem = (id) => {
+    const item = allData.find(d => d.id === id);
+    if (!item) return;
+    
+    const url = getItemFullUrl(item);
+    const text = `🏥 ${item.name}\n${item.specialty || ''}\n📍 ${item.address || item.clinic || 'سوريا'}\n\n`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: `${item.name} | LomedX`,
+            text: text + url,
+            url: url
+        }).catch(() => {});
+    } else {
+        navigator.clipboard.writeText(url)
+            .then(() => showToast('✅ تم نسخ رابط البطاقة', 'success'))
+            .catch(() => window.open(`https://wa.me/?text=${encodeURIComponent(text + url)}`, '_blank'));
+    }
+};
+
+function handleItemRouteFromURL() {
+    const match = window.location.pathname.match(/^\/(pharmacy|doctor|hospital|center|lab)\/([a-zA-Z0-9-]+)$/);
+    if (!match) return false;
+    
+    const id = match[2];
+    let attempts = 0;
+    
+    const tryOpen = () => {
+        attempts++;
+        const item = allData.find(d => d.id === id);
+        
+        if (item) {
+            setTimeout(() => {
+                openModal(id);
+                updateMetaTags(
+                    `${item.name} | LomedX`,
+                    `${item.name} في ${item.address || 'سوريا'}`,
+                    item.image || DEFAULT_SEO.image
+                );
+            }, 300);
+            return;
+        }
+        
+        if (attempts < 20) setTimeout(tryOpen, 500);
+        else {
+            showToast('لم يتم العثور على البطاقة', 'error');
+            history.replaceState({}, '', '/');
+        }
+    };
+    
+    tryOpen();
+    return true;
+}
+
+// زر الرجوع
+window.addEventListener('popstate', () => {
+    const match = window.location.pathname.match(/^\/(pharmacy|doctor|hospital|center|lab)\//);
+    if (!match) {
+        closeModal();
+        resetMetaTags();
+    }
+});
+
 function createCard(item) {
     const typeMap = { 
         hospital: { cardClass: 'hospital-card', badgeClass: 'badge-hospital', iconClass: 'cat-icon-hospital', icon: 'fa-hospital-symbol', label: 'مشفى', color: 'var(--hospital)' }, 
@@ -700,7 +801,7 @@ function createCard(item) {
         }
     }
     
-    return `<div class="card ${t.cardClass} cursor-pointer" onclick="openModal('${escapeHtml(item.id)}')" data-type="${escapeHtml(item.type)}"><div class="relative h-40 overflow-hidden rounded-t-2xl">
+    return `<a href="${getItemLink(item)}" class="card ${t.cardClass} cursor-pointer" onclick="handleCardClick(event, '${escapeHtml(item.id)}')" data-type="${escapeHtml(item.type)}" style="text-decoration:none;display:block;color:inherit;"><div class="relative h-40 overflow-hidden rounded-t-2xl">
 <img src="${getOptimizedImageUrl(item.image, 400, 300)}" alt="${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} في سوريا | منصة LomedX" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 cursor-zoom-in" loading="lazy" onclick="event.stopPropagation(); openLightbox(this.src, 'صورة ${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} | LomedX')"><div class="absolute top-3 right-3"><span class="badge ${t.badgeClass}">${t.label}</span></div><div class="absolute top-3 left-3 flex flex-col gap-1 items-start">
     ${['doctor', 'pharmacy'].includes(item.type) && item.isopen === true ? '<span class="badge" style="background:#10B981;color:white"><i class="fas fa-door-open ml-1"></i>مفتوح</span>' : ''}
     ${['doctor', 'pharmacy'].includes(item.type) && item.isopen === false ? '<span class="badge" style="background:#EF4444;color:white"><i class="fas fa-door-closed ml-1"></i>مغلق</span>' : ''}
@@ -740,7 +841,7 @@ ${(() => {
             <i class="${favoriteDoctors.includes(item.id) ? 'fas' : 'far'} fa-heart"></i>
         </button>
     ` : ''}
-</div><div class="flex items-center gap-1 text-[11px]" style="color: ${t.color};">${starsHTML}<span class="mr-1 font-semibold">${escapeHtml(item.rating || 0)}</span></div></div></div><div class="flex flex-col gap-1.5 mb-4">${detailsHTML}</div><div class="flex items-center gap-2"> ${item.phone ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); trackPhoneClick(event, '${escapeHtml(item.id)}', '${escapeHtml(item.phone)}')" class="call-btn flex-1 py-2.5 rounded-xl text-white text-xs font-semibold text-center flex items-center justify-center gap-2" style="background: ${t.color}"><i class="fas fa-phone-alt"></i><span dir="ltr">${escapeHtml(item.phone)}</span></a>` : (['doctor', 'pharmacy', 'lab'].includes(item.type) ? `<div class="flex-1 py-2.5 rounded-xl text-gray-400 text-xs font-semibold text-center flex items-center justify-center gap-2 bg-gray-100 cursor-not-allowed"><i class="fas fa-phone-slash"></i><span>لا يوجد رقم</span></div>` : '')}${bookingBtn}<button onclick="event.stopPropagation(); openModal('${escapeHtml(item.id)}')" class="w-10 h-10 rounded-xl border flex items-center justify-center transition-all hover:bg-gray-50" style="border-color: var(--border); color: var(--muted);" aria-label="تفاصيل"><i class="fas fa-info-circle"></i></button></div></div></div>`;
+</div><div class="flex items-center gap-1 text-[11px]" style="color: ${t.color};">${starsHTML}<span class="mr-1 font-semibold">${escapeHtml(item.rating || 0)}</span></div></div></div><div class="flex flex-col gap-1.5 mb-4">${detailsHTML}</div><div class="flex items-center gap-2"> ${item.phone ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); trackPhoneClick(event, '${escapeHtml(item.id)}', '${escapeHtml(item.phone)}')" class="call-btn flex-1 py-2.5 rounded-xl text-white text-xs font-semibold text-center flex items-center justify-center gap-2" style="background: ${t.color}"><i class="fas fa-phone-alt"></i><span dir="ltr">${escapeHtml(item.phone)}</span></a>` : (['doctor', 'pharmacy', 'lab'].includes(item.type) ? `<div class="flex-1 py-2.5 rounded-xl text-gray-400 text-xs font-semibold text-center flex items-center justify-center gap-2 bg-gray-100 cursor-not-allowed"><i class="fas fa-phone-slash"></i><span>لا يوجد رقم</span></div>` : '')}${bookingBtn}<button onclick="event.stopPropagation(); openModal('${escapeHtml(item.id)}')" class="w-10 h-10 rounded-xl border flex items-center justify-center transition-all hover:bg-gray-50" style="border-color: var(--border); color: var(--muted);" aria-label="تفاصيل"><i class="fas fa-info-circle"></i></button></div></div></div></a>`;
 }
 // دالة توليد الـ Schema للقائمة الطبية
 function generateItemListSchema(items) {
@@ -1645,7 +1746,11 @@ window.openModal = (id) => {
     
     // لاحظ هنا أننا نضع ${doctorsListHtml} قبل ${mapEmbed} مباشرة
     document.getElementById('modalContent').innerHTML = `<div class="relative h-48 overflow-hidden rounded-t-2xl">
-<img src="${getOptimizedImageUrl(item.image, 800, 400)}"  alt="${escapeHtml(item.name)}" class="w-full h-full object-cover cursor-zoom-in" onclick="openLightbox(this.src)"><div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.6), transparent)"></div><button onclick="closeModal()" class="absolute top-4 left-4 w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/50 transition-all"><i class="fas fa-times text-sm"></i></button><div class="absolute bottom-4 right-5 left-5"><span class="badge ${t.badgeClass} mb-2 inline-block">${t.label}</span><h3 class="text-white font-bold text-lg" style="font-family: 'Noto Kufi Arabic'">${escapeHtml(item.name)}</h3></div></div><div class="p-6"><div class="flex items-center gap-2 mb-4"><div class="flex items-center gap-0.5 text-sm" style="color: ${t.color}">${starsHTML}</div><span class="text-sm font-bold">${escapeHtml(item.rating || 0)}</span><span class="text-xs" style="color: var(--muted)">/ 5</span></div><p class="text-sm leading-relaxed mb-5" style="color: var(--fg-light)">${escapeHtml(item.description || '')}</p><div class="flex flex-col gap-2 mb-5"><div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--bg)"><i class="fas ${t.icon}" style="color: ${t.color}"></i><div><div class="text-xs" style="color: var(--muted)">${item.type === 'doctor' ? 'التخصص' : (item.type === 'clinic' || item.type === 'center' ? 'التخصص الأساسي' : 'النوع')}</div><div class="text-sm font-bold">${escapeHtml(item.specialty || 'غير محدد')}</div></div></div> ${(item.address || item.clinic) ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--bg)"><i class="fas fa-map-marker-alt" style="color: ${t.color}"></i><div><div class="text-xs" style="color: var(--muted)">العنوان / الموقع</div><div class="text-sm font-bold">${escapeHtml(item.address || item.clinic)}</div></div></div>` : ''}
+<img src="${getOptimizedImageUrl(item.image, 800, 400)}"  alt="${escapeHtml(item.name)}" class="w-full h-full object-cover cursor-zoom-in" onclick="openLightbox(this.src)"><div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.6), transparent)"></div><button onclick="event.stopPropagation(); shareItem('${escapeHtml(item.id)}')" 
+        class="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--accent)] backdrop-blur-sm text-white flex items-center justify-center hover:bg-[var(--accent-dark)] transition-all shadow-lg" 
+        title="مشاركة البطاقة">
+    <i class="fas fa-share-alt text-sm"></i>
+</button><div class="absolute bottom-4 right-5 left-5"><span class="badge ${t.badgeClass} mb-2 inline-block">${t.label}</span><h3 class="text-white font-bold text-lg" style="font-family: 'Noto Kufi Arabic'">${escapeHtml(item.name)}</h3></div></div><div class="p-6"><div class="flex items-center gap-2 mb-4"><div class="flex items-center gap-0.5 text-sm" style="color: ${t.color}">${starsHTML}</div><span class="text-sm font-bold">${escapeHtml(item.rating || 0)}</span><span class="text-xs" style="color: var(--muted)">/ 5</span></div><p class="text-sm leading-relaxed mb-5" style="color: var(--fg-light)">${escapeHtml(item.description || '')}</p><div class="flex flex-col gap-2 mb-5"><div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--bg)"><i class="fas ${t.icon}" style="color: ${t.color}"></i><div><div class="text-xs" style="color: var(--muted)">${item.type === 'doctor' ? 'التخصص' : (item.type === 'clinic' || item.type === 'center' ? 'التخصص الأساسي' : 'النوع')}</div><div class="text-sm font-bold">${escapeHtml(item.specialty || 'غير محدد')}</div></div></div> ${(item.address || item.clinic) ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--bg)"><i class="fas fa-map-marker-alt" style="color: ${t.color}"></i><div><div class="text-xs" style="color: var(--muted)">العنوان / الموقع</div><div class="text-sm font-bold">${escapeHtml(item.address || item.clinic)}</div></div></div>` : ''}
 <div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--bg)">
     <i class="fas fa-clock" style="color: ${t.color}"></i>
     <div class="flex-1">
