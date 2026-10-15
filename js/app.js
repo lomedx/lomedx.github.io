@@ -2,7 +2,7 @@ import { supabase } from './supabase.js';
 
 
 const daysOfWeek = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
-
+let todayDutyPharmacyIds = ['2eeb1d22-b68f-4b6d-9cad-51dc8e176aac']; 
 let currentAnnouncement = null;
 let allAnnouncements = [];
 let currentFilter = 'all';
