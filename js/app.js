@@ -712,18 +712,18 @@ window.shareItem = (id) => {
     if (!item) return;
     
     const url = getItemFullUrl(item);
-    const text = `🏥 ${item.name}\n${item.specialty || ''}\n📍 ${item.address || item.clinic || 'سوريا'}\n\n`;
+    const text = `🏥 ${item.name}\n${item.specialty || ''}\n📍 ${item.address || item.clinic || 'سوريا'}\n\nاكتشف على LomedX:`;
     
     if (navigator.share) {
         navigator.share({
             title: `${item.name} | LomedX`,
-            text: text + url,
-            url: url
+            text: text,           // ✅ بدون URL
+            url: url              // ✅ URL منفصل → يُضاف تلقائياً
         }).catch(() => {});
     } else {
         navigator.clipboard.writeText(url)
             .then(() => showToast('✅ تم نسخ رابط البطاقة', 'success'))
-            .catch(() => window.open(`https://wa.me/?text=${encodeURIComponent(text + url)}`, '_blank'));
+            .catch(() => window.open(`https://wa.me/?text=${encodeURIComponent(text + '\n' + url)}`, '_blank'));
     }
 };
 
