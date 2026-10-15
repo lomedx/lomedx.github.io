@@ -507,23 +507,42 @@
 
             <!-- 6. بوابات النظام -->
             <div class="premium-card rounded-3xl p-4 mb-8">
-                <div class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
-                    <i class="fas fa-shield-halved text-xs"></i> بوابات النظام
-                </div>
-                <div class="grid grid-cols-3 gap-3">
-                    <button onclick="toggleMobileMenu(); openDoctorLogin()" class="portal-grid-btn flex flex-col items-center justify-center gap-2 p-3 rounded-2xl">
-                        <i class="fas fa-user-doctor text-lg icon-gold-gradient"></i>
-                        <span class="text-[10px] font-bold text-white/90">الطبيب</span>
-                    </button>
-                    <button onclick="toggleMobileMenu(); openPharmacyLogin()" class="portal-grid-btn flex flex-col items-center justify-center gap-2 p-3 rounded-2xl">
-                        <i class="fas fa-prescription-bottle-medical text-lg icon-gold-gradient"></i>
-                        <span class="text-[10px] font-bold text-white/90">الصيدلية</span>
-                    </button>
-                    <button onclick="toggleMobileMenu(); openAdminLogin()" class="portal-grid-btn flex flex-col items-center justify-center gap-2 p-3 rounded-2xl">
-                        <i class="fas fa-gears text-lg icon-gold-gradient"></i>
-                        <span class="text-[10px] font-bold text-white/90">الإدارة</span>
-                    </button>
-                </div>
+    <div class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
+        <i class="fas fa-shield-halved text-xs"></i> بوابات النظام
+    </div>
+    
+    <!-- الشبكة الثلاثية -->
+    <div class="grid grid-cols-3 gap-3 mb-3">
+        <button onclick="toggleMobileMenu(); openDoctorLogin()" class="portal-grid-btn flex flex-col items-center justify-center gap-2 p-3 rounded-2xl">
+            <i class="fas fa-user-doctor text-lg icon-gold-gradient"></i>
+            <span class="text-[10px] font-bold text-white/90">الطبيب</span>
+        </button>
+        <button onclick="toggleMobileMenu(); openPharmacyLogin()" class="portal-grid-btn flex flex-col items-center justify-center gap-2 p-3 rounded-2xl">
+            <i class="fas fa-prescription-bottle-medical text-lg icon-gold-gradient"></i>
+            <span class="text-[10px] font-bold text-white/90">الصيدلية</span>
+        </button>
+        <button onclick="toggleMobileMenu(); openAdminLogin()" class="portal-grid-btn flex flex-col items-center justify-center gap-2 p-3 rounded-2xl">
+            <i class="fas fa-gears text-lg icon-gold-gradient"></i>
+            <span class="text-[10px] font-bold text-white/90">الإدارة</span>
+        </button>
+    </div>
+    
+    <!-- ⭐ زر المناوبات المستطيل — أسفل البوابات -->
+    <button onclick="toggleMobileMenu(); openDutyAdminLogin()" class="duty-portal-bar">
+        
+        <div class="duty-portal-bar-icon">
+            <i class="fas fa-calendar-check"></i>
+        </div>
+        
+        <div class="duty-portal-bar-text">
+            <span class="duty-portal-bar-title">لوحة إدارة المناوبات</span>
+            <span class="duty-portal-bar-subtitle">جدول الصيدليات المناوبة</span>
+        </div>
+        
+        <i class="fas fa-chevron-left duty-portal-bar-arrow"></i>
+        
+    </button>
+</div>
             </div>
 
         </div>
