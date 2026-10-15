@@ -1217,6 +1217,120 @@ window.selectCity = (city) => {
     renderData();
 };  
 window.resetSearch = () => { searchQuery = ''; currentFilter = 'all'; const heroSearch = document.getElementById('heroSearch'); if(heroSearch) heroSearch.value = ''; document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active'); b.style.background = ''; b.style.color = ''; b.style.borderColor = ''; }); const allBtn = document.querySelector('[data-filter="all"]'); allBtn.classList.add('active'); allBtn.style.background = 'var(--accent)'; allBtn.style.color = 'white'; allBtn.style.borderColor = 'var(--accent)'; renderData(); }
+
+// ═══════════════════════════════════════════════════════════════
+// 🌙 دالة توليد HTML لحالة المناوبة داخل بطاقة الصيدلية
+// ═══════════════════════════════════════════════════════════════
+function getDutyStatusHtml(item) {
+    // تعمل فقط للصيدليات
+    if (item.type !== 'pharmacy') return '';
+    
+    const dutyInfo = window.todayDutyDetails?.[item.id];
+    if (!dutyInfo) return '';
+    
+    // ═══════════════════════════════════════════════════════
+    // 🟢 نشطة الآن
+    // ═══════════════════════════════════════════════════════
+    if (dutyInfo.status === 'active') {
+        return `
+        <div class="flex items-center gap-3 p-3 rounded-xl mt-2 relative overflow-hidden"
+             style="background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); border: 2px solid #10B981;">
+            
+            <!-- خلفية متحركة -->
+            <div style="position:absolute; top:0; left:0; right:0; bottom:0; 
+                        background: radial-gradient(circle at top right, rgba(16,185,129,0.1), transparent 60%);
+                        pointer-events: none;"></div>
+            
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 relative"
+                 style="background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 15px rgba(16,185,129,0.4);">
+                <i class="fas fa-clock text-white text-xl"></i>
+                <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                </span>
+            </div>
+            
+            <div class="flex-1 relative">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-[10px] font-black px-2 py-0.5 rounded-full" 
+                          style="background: #10B981; color: white;">مناوبة الآن</span>
+                    <span class="text-[10px] font-bold" style="color: #059669;">LIVE</span>
+                </div>
+                <div class="text-sm font-black" style="color: #065F46;">
+                    مفتوحة حتى ${dutyInfo.endStr}
+                </div>
+                <div class="text-[11px] mt-0.5" style="color: #047857;">
+                    <i class="fas fa-info-circle ml-1"></i>
+                    متاحة على مدار المناوبة
+                </div>
+            </div>
+            
+            <div class="flex flex-col items-center relative">
+                <i class="fas fa-circle text-[8px]" style="color: #10B981; animation: dot-blink 1s infinite;"></i>
+            </div>
+        </div>
+        `;
+    }
+    
+    // ═══════════════════════════════════════════════════════
+    // 🟡 قادمة الليلة
+    // ═══════════════════════════════════════════════════════
+    if (dutyInfo.status === 'upcoming') {
+        return `
+        <div class="flex items-center gap-3 p-3 rounded-xl mt-2"
+             style="background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 2px solid #F59E0B;">
+            
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                 style="background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 15px rgba(245,158,11,0.4);">
+                <i class="fas fa-clock text-white text-xl"></i>
+            </div>
+            
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-[10px] font-black px-2 py-0.5 rounded-full" 
+                          style="background: #F59E0B; color: white;">مناوبة اليوم</span>
+                </div>
+                <div class="text-sm font-black" style="color: #78350F;">
+                    تبدأ الليلة ${dutyInfo.startStr}
+                </div>
+                <div class="text-[11px] mt-0.5" style="color: #92400E;">
+                    <i class="fas fa-hourglass-half ml-1"></i>
+                    متاحة حتى ${dutyInfo.endStr}
+                </div>
+            </div>
+        </div>
+        `;
+    }
+    
+    // ═══════════════════════════════════════════════════════
+    // ⚪ منتهية (كانت مناوبة اليوم)
+    // ═══════════════════════════════════════════════════════
+    if (dutyInfo.status === 'ended') {
+        return `
+        <div class="flex items-center gap-3 p-3 rounded-xl mt-2"
+             style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border: 2px solid #CBD5E1;">
+            
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                 style="background: linear-gradient(135deg, #64748B, #475569);">
+                <i class="fas fa-check-circle text-white text-xl"></i>
+            </div>
+            
+            <div class="flex-1">
+                <div class="text-sm font-bold" style="color: #475569;">
+                    كانت مناوبة اليوم
+                </div>
+                <div class="text-[11px] mt-0.5" style="color: #64748B;">
+                    <i class="fas fa-clock ml-1"></i>
+                    انتهت في ${dutyInfo.endStr}
+                </div>
+            </div>
+        </div>
+        `;
+    }
+    
+    return '';
+}
+
 window.openModal = (id) => { 
     const item = allData.find(d => d.id === id);
     if (!item) return;
@@ -1531,7 +1645,23 @@ window.openModal = (id) => {
     
     // لاحظ هنا أننا نضع ${doctorsListHtml} قبل ${mapEmbed} مباشرة
     document.getElementById('modalContent').innerHTML = `<div class="relative h-48 overflow-hidden rounded-t-2xl">
-<img src="${getOptimizedImageUrl(item.image, 800, 400)}"  alt="${escapeHtml(item.name)}" class="w-full h-full object-cover cursor-zoom-in" onclick="openLightbox(this.src)"><div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.6), transparent)"></div><button onclick="closeModal()" class="absolute top-4 left-4 w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/50 transition-all"><i class="fas fa-times text-sm"></i></button><div class="absolute bottom-4 right-5 left-5"><span class="badge ${t.badgeClass} mb-2 inline-block">${t.label}</span><h3 class="text-white font-bold text-lg" style="font-family: 'Noto Kufi Arabic'">${escapeHtml(item.name)}</h3></div></div><div class="p-6"><div class="flex items-center gap-2 mb-4"><div class="flex items-center gap-0.5 text-sm" style="color: ${t.color}">${starsHTML}</div><span class="text-sm font-bold">${escapeHtml(item.rating || 0)}</span><span class="text-xs" style="color: var(--muted)">/ 5</span></div><p class="text-sm leading-relaxed mb-5" style="color: var(--fg-light)">${escapeHtml(item.description || '')}</p><div class="flex flex-col gap-2 mb-5"><div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--bg)"><i class="fas ${t.icon}" style="color: ${t.color}"></i><div><div class="text-xs" style="color: var(--muted)">${item.type === 'doctor' ? 'التخصص' : (item.type === 'clinic' || item.type === 'center' ? 'التخصص الأساسي' : 'النوع')}</div><div class="text-sm font-bold">${escapeHtml(item.specialty || 'غير محدد')}</div></div></div> ${(item.address || item.clinic) ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--bg)"><i class="fas fa-map-marker-alt" style="color: ${t.color}"></i><div><div class="text-xs" style="color: var(--muted)">العنوان / الموقع</div><div class="text-sm font-bold">${escapeHtml(item.address || item.clinic)}</div></div></div>` : ''}<div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--bg)"><i class="fas fa-clock" style="color: ${t.color}"></i><div class="flex-1"><div class="text-xs" style="color: var(--muted)">${item.type === 'doctor' ? 'أوقات المعاينة' : 'أوقات العمل'}</div><div class="text-sm font-bold">${escapeHtml(item.consulthours || item.hours || '')}</div></div>${['doctor', 'clinic', 'pharmacy'].includes(item.type) && item.isopen === true ? '<span class="text-xs px-2 py-1 rounded bg-green-100 text-green-700 font-bold">مفتوح الآن</span>' : ''}${['doctor', 'clinic', 'pharmacy'].includes(item.type) && item.isopen === false ? '<span class="text-xs px-2 py-1 rounded bg-red-100 text-red-700 font-bold">مغلق حالياً</span>' : ''}</div>${extraHTML}</div>${doctorsListHtml}${mapEmbed}${item.phone ? `<div class="flex items-center gap-3 mt-4"><a href="javascript:void(0)" onclick="trackPhoneClick(event, '${escapeHtml(item.id)}', '${escapeHtml(item.phone)}')" class="call-btn flex-1 py-3.5 rounded-xl text-white text-sm font-bold text-center flex items-center justify-center gap-2" style="background: ${t.color}"><i class="fas fa-phone-alt"></i> اتصال ${escapeHtml(item.phone)}</a><button onclick="copyNumber('${escapeHtml(item.phone)}')" class="w-12 h-12 rounded-xl border flex items-center justify-center transition-all hover:bg-gray-50 flex-shrink-0" style="border-color: var(--border)"><i class="fas fa-copy" style="color: var(--muted)"></i></button></div>` : ''}${canBook ? `<div class="mt-3">${bookingBtnModal}</div>` : ''}</div>`;  
+<img src="${getOptimizedImageUrl(item.image, 800, 400)}"  alt="${escapeHtml(item.name)}" class="w-full h-full object-cover cursor-zoom-in" onclick="openLightbox(this.src)"><div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.6), transparent)"></div><button onclick="closeModal()" class="absolute top-4 left-4 w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/50 transition-all"><i class="fas fa-times text-sm"></i></button><div class="absolute bottom-4 right-5 left-5"><span class="badge ${t.badgeClass} mb-2 inline-block">${t.label}</span><h3 class="text-white font-bold text-lg" style="font-family: 'Noto Kufi Arabic'">${escapeHtml(item.name)}</h3></div></div><div class="p-6"><div class="flex items-center gap-2 mb-4"><div class="flex items-center gap-0.5 text-sm" style="color: ${t.color}">${starsHTML}</div><span class="text-sm font-bold">${escapeHtml(item.rating || 0)}</span><span class="text-xs" style="color: var(--muted)">/ 5</span></div><p class="text-sm leading-relaxed mb-5" style="color: var(--fg-light)">${escapeHtml(item.description || '')}</p><div class="flex flex-col gap-2 mb-5"><div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--bg)"><i class="fas ${t.icon}" style="color: ${t.color}"></i><div><div class="text-xs" style="color: var(--muted)">${item.type === 'doctor' ? 'التخصص' : (item.type === 'clinic' || item.type === 'center' ? 'التخصص الأساسي' : 'النوع')}</div><div class="text-sm font-bold">${escapeHtml(item.specialty || 'غير محدد')}</div></div></div> ${(item.address || item.clinic) ? `<div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--bg)"><i class="fas fa-map-marker-alt" style="color: ${t.color}"></i><div><div class="text-xs" style="color: var(--muted)">العنوان / الموقع</div><div class="text-sm font-bold">${escapeHtml(item.address || item.clinic)}</div></div></div>` : ''}
+<div class="flex items-center gap-3 p-3 rounded-xl" style="background: var(--bg)">
+    <i class="fas fa-clock" style="color: ${t.color}"></i>
+    <div class="flex-1">
+        <div class="text-xs" style="color: var(--muted)">
+            ${item.type === 'doctor' ? 'أوقات المعاينة' : 'أوقات العمل'}
+        </div>
+        <div class="text-sm font-bold">
+            ${escapeHtml(item.consulthours || item.hours || 'غير محدد')}
+        </div>
+    </div>
+    ${['doctor', 'clinic', 'pharmacy'].includes(item.type) && item.isopen === true ? '<span class="text-xs px-2 py-1 rounded bg-green-100 text-green-700 font-bold">مفتوح الآن</span>' : ''}
+    ${['doctor', 'clinic', 'pharmacy'].includes(item.type) && item.isopen === false ? '<span class="text-xs px-2 py-1 rounded bg-red-100 text-red-700 font-bold">مغلق حالياً</span>' : ''}
+</div>
+
+
+${getDutyStatusHtml(item)}${extraHTML}</div>${doctorsListHtml}${mapEmbed}${item.phone ? `<div class="flex items-center gap-3 mt-4"><a href="javascript:void(0)" onclick="trackPhoneClick(event, '${escapeHtml(item.id)}', '${escapeHtml(item.phone)}')" class="call-btn flex-1 py-3.5 rounded-xl text-white text-sm font-bold text-center flex items-center justify-center gap-2" style="background: ${t.color}"><i class="fas fa-phone-alt"></i> اتصال ${escapeHtml(item.phone)}</a><button onclick="copyNumber('${escapeHtml(item.phone)}')" class="w-12 h-12 rounded-xl border flex items-center justify-center transition-all hover:bg-gray-50 flex-shrink-0" style="border-color: var(--border)"><i class="fas fa-copy" style="color: var(--muted)"></i></button></div>` : ''}${canBook ? `<div class="mt-3">${bookingBtnModal}</div>` : ''}</div>`;  
     
     document.getElementById('modalOverlay').classList.add('active'); 
     lockScroll(); 
