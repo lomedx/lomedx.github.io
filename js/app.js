@@ -705,7 +705,31 @@ function createCard(item) {
     ${['doctor', 'pharmacy'].includes(item.type) && item.isopen === true ? '<span class="badge" style="background:#10B981;color:white"><i class="fas fa-door-open ml-1"></i>مفتوح</span>' : ''}
     ${['doctor', 'pharmacy'].includes(item.type) && item.isopen === false ? '<span class="badge" style="background:#EF4444;color:white"><i class="fas fa-door-closed ml-1"></i>مغلق</span>' : ''}
     ${item.night ? '<span class="badge" style="background:rgba(196,150,44,0.9);color:white"><i class="fas fa-moon ml-1"></i>ليلي</span>' : ''}
-     ${todayDutyPharmacyIds.includes(item.id) ? '<span class="badge badge-duty-today"><i class="fas fa-clock ml-1"></i>مناوبة اليوم</span>' : ''}
+
+${(() => {
+    const dutyInfo = window.todayDutyDetails?.[item.id];
+    if (!dutyInfo) return '';
+    
+    if (dutyInfo.status === 'active') {
+        return `<span class="badge badge-duty-active">
+            <span class="duty-pulse-dot"></span>
+            مناوبة الآن · حتى ${dutyInfo.endStr}
+        </span>`;
+    }
+    
+    if (dutyInfo.status === 'upcoming') {
+        return `<span class="badge badge-duty-upcoming">
+            <i class="fas fa-clock ml-1"></i>
+            الليلة ${dutyInfo.startStr}
+        </span>`;
+    }
+    
+    return `<span class="badge badge-duty-ended">
+        <i class="fas fa-check-circle ml-1"></i>
+        مناوبة اليوم
+    </span>`;
+})()}
+    
 </div></div><div class="p-5"><div class="flex items-start gap-3 mb-3"><div class="cat-icon ${t.iconClass}"><i class="fas ${t.icon}"></i></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 justify-between">
     <h3 class="font-bold text-sm mb-1 leading-tight flex-1 min-w-0" style="font-family: 'Noto Kufi Arabic'; color: var(--fg);">
         ${escapeHtml(item.name)}
@@ -10284,9 +10308,14 @@ window.printSchedule = () => {
 // ═══════════════════════════════════════════════════════════════════
 // 8. جلب مناوبات اليوم (مع دعم العبور لمنتصف الليل) — الإصلاح الحرِج
 // ═══════════════════════════════════════════════════════════════════
+ // ═══════════════════════════════════════════════════════════════
+// 🌙 نظام المناوبات — مع تفاصيل الحالة
+// ═══════════════════════════════════════════════════════════════
 window.todayDutyPharmacyIds = [];
+window.todayDutyDetails = {};  // ⭐ جديد: تفاصيل كل صيدلية
 window.todayDutyNextTransition = null;
 let dutyTransitionTimer = null;
+let dutyStartTimer = null;
 let dutyLocalChecker = null;
 let dutyRealtimeSub = null;
 
@@ -10296,88 +10325,126 @@ async function fetchTodayDutiesForBadge() {
         const pad = (n) => String(n).padStart(2, '0');
         const currentHour = now.getHours();
         
-        // ═══════════════════════════════════════════════════════
-        // 📅 تحديد "اليوم المنطقي"
-        // ═══════════════════════════════════════════════════════
-        let targetDate;
-        
+        // 📅 اليوم المنطقي (02:00 → 01:59 فجر الغد)
+        let targetDate = new Date(now);
         if (currentHour < 2) {
-            // 🌙 قبل 02:00 فجراً → ما زلنا منطقياً في "الأمس"
-            targetDate = new Date(now);
             targetDate.setDate(targetDate.getDate() - 1);
-        } else {
-            // ☀️ بعد 02:00 → "اليوم"
-            targetDate = new Date(now);
         }
         
         const targetDateStr = `${targetDate.getFullYear()}-${pad(targetDate.getMonth() + 1)}-${pad(targetDate.getDate())}`;
         
-        console.log('🌙 [Badge] اليوم المنطقي:', targetDateStr, `(الساعة ${currentHour}:${pad(now.getMinutes())})`);
-        
-        // ═══════════════════════════════════════════════════════
-        // 🗄️ جلب مناوبات اليوم المنطقي
-        // ═══════════════════════════════════════════════════════
         const { data, error } = await supabase
             .from('pharmacy_duties')
             .select('pharmacy_id, duty_date, start_time, end_time')
             .eq('duty_date', targetDateStr);
         
         if (error) {
-            console.error('🌙 [Badge] خطأ:', error);
             window.todayDutyPharmacyIds = [];
+            window.todayDutyDetails = {};
             todayDutyPharmacyIds = [];
             if (typeof renderData === 'function') renderData();
             return;
         }
         
-        // ═══════════════════════════════════════════════════════
-        // ✅ عرض كل صيدليات اليوم المنطقي (طوال اليوم)
-        // ═══════════════════════════════════════════════════════
-        const activeIds = (data || []).map(d => d.pharmacy_id);
+        const ids = [];
+        const details = {};
+        let nearestStart = null;
+        let nearestEnd = null;
         
-        console.log('🌙 [Badge] الصيدليات المناوبة:', activeIds.length);
+        (data || []).forEach(d => {
+            const dutyDate = String(d.duty_date).split('T')[0];
+            const sT = String(d.start_time || '21:00').substring(0, 5);
+            const eT = String(d.end_time || '01:00').substring(0, 5);
+            
+            const start = new Date(`${dutyDate}T${sT}:00`);
+            const end = new Date(`${dutyDate}T${eT}:00`);
+            
+            if (isNaN(start) || isNaN(end)) return;
+            
+            // دعم العبور لمنتصف الليل
+            if (end <= start) end.setDate(end.getDate() + 1);
+            
+            // تحديد الحالة
+            let status = 'upcoming';
+            if (now >= start && now <= end) {
+                status = 'active';
+                if (!nearestEnd || end < nearestEnd) nearestEnd = end;
+            } else if (now < start) {
+                status = 'upcoming';
+                if (!nearestStart || start < nearestStart) nearestStart = start;
+            } else {
+                status = 'ended';
+            }
+            
+            ids.push(d.pharmacy_id);
+            details[d.pharmacy_id] = {
+                startTime: sT,
+                endTime: eT,
+                startStr: formatTime12h(sT),
+                endStr: formatTime12h(eT),
+                status: status
+            };
+        });
         
-        window.todayDutyPharmacyIds = activeIds;
-        todayDutyPharmacyIds = activeIds;
-        
-        // ═══════════════════════════════════════════════════════
-        // ⏰ حساب وقت الانتقال القادم (02:00)
-        // ═══════════════════════════════════════════════════════
-        const nextTransition = new Date(now);
-        if (currentHour < 2) {
-            // التالي: 02:00 صباح اليوم (بداية اليوم المنطقي الجديد)
-            nextTransition.setHours(2, 0, 0, 0);
-        } else {
-            // التالي: 02:00 فجر الغد
-            nextTransition.setDate(nextTransition.getDate() + 1);
-            nextTransition.setHours(2, 0, 0, 0);
-        }
-        
-        window.todayDutyNextTransition = nextTransition.getTime();
+        window.todayDutyPharmacyIds = ids;
+        window.todayDutyDetails = details;
+        todayDutyPharmacyIds = ids;
         
         if (typeof renderData === 'function') renderData();
         
-        // جدولة التحديث التالي
+        // ═══════════════════════════════════════════════════════
+        // ⏰ جدولة التحديثات الذكية
+        // ═══════════════════════════════════════════════════════
+        
+        // 1. وقت الانتقال القادم (02:00)
+        const nextTransition = new Date(now);
+        if (currentHour < 2) {
+            nextTransition.setHours(2, 0, 0, 0);
+        } else {
+            nextTransition.setDate(nextTransition.getDate() + 1);
+            nextTransition.setHours(2, 0, 0, 0);
+        }
+        window.todayDutyNextTransition = nextTransition.getTime();
         scheduleNextDutyTransition();
+        
+        // 2. وقت بداية أقرب مناوبة (upcoming → active)
+        if (dutyStartTimer) {
+            clearTimeout(dutyStartTimer);
+            dutyStartTimer = null;
+        }
+        if (nearestStart) {
+            const ms = nearestStart.getTime() - now.getTime();
+            if (ms > 0 && ms < 24 * 60 * 60 * 1000) {
+                console.log(`⏰ [Badge] تحول upcoming→active بعد ${Math.round(ms / 1000 / 60)} دقيقة`);
+                dutyStartTimer = setTimeout(() => fetchTodayDutiesForBadge(), ms + 1000);
+            }
+        }
+        
+        // 3. وقت نهاية أقرب مناوبة (active → ended)
+        if (nearestEnd) {
+            const ms = nearestEnd.getTime() - now.getTime();
+            if (ms > 0 && ms < 24 * 60 * 60 * 1000) {
+                console.log(`⏰ [Badge] تحول active→ended بعد ${Math.round(ms / 1000 / 60)} دقيقة`);
+                setTimeout(() => fetchTodayDutiesForBadge(), ms + 1000);
+            }
+        }
         
     } catch (err) {
         console.error('🌙 [Badge] استثناء:', err);
         window.todayDutyPharmacyIds = [];
+        window.todayDutyDetails = {};
     }
 }
 
 // ═══════════════════════════════════════════════════════════════
-// ⏰ جدولة الانتقال التالي (02:00)
+// ⏰ جدولة الانتقال التالي (محصّن ضد الإلغاء)
 // ═══════════════════════════════════════════════════════════════
 let lastScheduledTransition = null;
 
 function scheduleNextDutyTransition() {
     const targetTime = window.todayDutyNextTransition;
     
-    // 🔒 لا تلمس المؤقت إذا كان الوقت نفسه (حماية من Realtime)
-    if (targetTime === lastScheduledTransition && dutyTransitionTimer) {
-        return;
-    }
+    if (targetTime === lastScheduledTransition && dutyTransitionTimer) return;
     
     if (dutyTransitionTimer) {
         clearTimeout(dutyTransitionTimer);
@@ -10385,22 +10452,16 @@ function scheduleNextDutyTransition() {
     }
     
     lastScheduledTransition = targetTime;
-    
     if (!targetTime) return;
     
     const ms = targetTime - Date.now();
     if (ms <= 0 || ms > 24 * 60 * 60 * 1000) return;
     
-    console.log(`⏰ [Badge] الانتقال القادم بعد ${Math.round(ms / 1000 / 60)} دقيقة`);
-    
-    dutyTransitionTimer = setTimeout(async () => {
-        console.log('⏰ [Badge] وقت الانتقال وصل');
-        await fetchTodayDutiesForBadge();
-    }, ms + 2000);
+    dutyTransitionTimer = setTimeout(() => fetchTodayDutiesForBadge(), ms + 2000);
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 🔄 فحص محلي كل 30 ثانية (بدون شبكة)
+// 🔄 فحص محلي (بدون شبكة)
 // ═══════════════════════════════════════════════════════════════
 function startDutyLocalChecker() {
     if (dutyLocalChecker) clearInterval(dutyLocalChecker);
@@ -10409,16 +10470,14 @@ function startDutyLocalChecker() {
         if (document.hidden) return;
         if (!window.todayDutyNextTransition) return;
         
-        // 🎯 مقارنة أرقام فقط — صفر استهلاك
         if (Date.now() >= window.todayDutyNextTransition + 2000) {
-            console.log('⏰ [Badge] الفحص المحلي: تجاوز الانتقال');
             fetchTodayDutiesForBadge();
         }
     }, 30000);
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 🔄 Supabase Realtime
+// 🔄 Realtime
 // ═══════════════════════════════════════════════════════════════
 function initDutyRealtime() {
     if (dutyRealtimeSub) {
@@ -10430,15 +10489,11 @@ function initDutyRealtime() {
         .channel('duty_badge_changes')
         .on('postgres_changes', 
             { event: '*', schema: 'public', table: 'pharmacy_duties' }, 
-            (payload) => {
-                console.log('🔄 [Badge] DB تغيّر:', payload.eventType);
-                fetchTodayDutiesForBadge();
-            }
+            () => fetchTodayDutiesForBadge()
         )
         .subscribe();
 }
 
-// ─── استدعاء أولي ───
 window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         fetchTodayDutiesForBadge();
@@ -10447,9 +10502,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 2000);
 });
 
-// ─── عند العودة للصفحة ───
 document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-        fetchTodayDutiesForBadge();
-    }
+    if (!document.hidden) fetchTodayDutiesForBadge();
 });
