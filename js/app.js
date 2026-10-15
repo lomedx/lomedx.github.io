@@ -726,7 +726,7 @@ ${(() => {
     
     return `<span class="badge badge-duty-ended">
         <i class="fas fa-check-circle ml-1"></i>
-        مناوبة اليوم
+        انتهت مناوبة اليوم
     </span>`;
 })()}
     
