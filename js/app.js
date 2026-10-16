@@ -2018,11 +2018,13 @@ const allBtn = document.querySelector('[data-filter="all"]');
 if(allBtn) { allBtn.style.background = 'var(--accent)'; allBtn.style.color = 'white'; allBtn.style.borderColor = 'var(--accent)'; }
 
 window.openCtrlPanel = (title, contentHtml, headerColor = '#073D2E', preventClose = false) => { 
+    // ✅ [جديد] احفظ موضع التمرير الحالي قبل فتح النافذة
+    const savedScrollY = window.scrollY;
+    
     document.getElementById('ctrlTitle').textContent = title; 
     document.getElementById('ctrlContent').innerHTML = contentHtml; 
     const overlay = document.getElementById('ctrlOverlay');
     
-    // ✅ تحديث لون الهيدر دائماً (حتى لو كانت اللوحة مفتوحة)
     const headerEl = document.querySelector('#ctrlOverlay .p-5');
     if (headerEl) headerEl.style.background = headerColor;
     
@@ -2031,6 +2033,13 @@ window.openCtrlPanel = (title, contentHtml, headerColor = '#073D2E', preventClos
         lockScroll(); 
     }
     overlay.dataset.preventClose = preventClose ? 'true' : 'false';
+    
+    // ✅ [جديد] استعد موضع التمرير فوراً بعد الفتح لمنع أي قفزة
+    if (savedScrollY > 0) {
+        requestAnimationFrame(() => {
+            window.scrollTo(0, savedScrollY);
+        });
+    }
 }
 window.switchHealthTab = (tab) => {
     const loginForm = document.getElementById('loginForm');
@@ -2087,12 +2096,17 @@ window.closeCtrlPanel = (event) => {
     unlockScroll(); 
     document.getElementById('ctrlContent').innerHTML = ''; 
     
-    // === تنظيف الرابط وإعادة الـ SEO ===
-    resetMetaTags();
-    if (window.location.pathname !== '/' && window.location.pathname !== '/index.html' || window.location.hash) {
-        history.pushState({}, '', '/');
-        window.scrollTo({top: 0, behavior: 'smooth'});
-    }
+// === تنظيف الرابط وإعادة الـ SEO ===
+resetMetaTags();
+if (window.location.pathname !== '/' && window.location.pathname !== '/index.html' || window.location.hash) {
+    // ✅ [جديد] احفظ موضع التمرير قبل تغيير الرابط
+    const currentScrollY = window.scrollY;
+    history.pushState({}, '', '/');
+    // ✅ [جديد] لا تقفز للأعلى — استعد موضع التمرير بدل ذلك
+    requestAnimationFrame(() => {
+        window.scrollTo(0, currentScrollY);
+    });
+}
     
     if (doctorDashboardInterval) { 
         clearInterval(doctorDashboardInterval); 
@@ -7821,7 +7835,19 @@ const routesConfig = {
     '/food-interactions': { title: 'تعارضات الأدوية والطعام | LomedX', desc: 'جدول الصيدلية.', keywords: 'تعارض الأدوية, الأدوية والطعام, Lomedx', handler: 'openFoodInteractions' },
     '/patient-reminder': { title: 'دفتر التذكير الذاتي | LomedX', desc: 'مواعيد الأدوية والزيارات.', keywords: 'تذكير الأدوية, مواعيد الدواء, Lomedx', handler: 'openPatientReminder' },
     '/seasonal-diseases': { title: 'الأمراض الموسمية الشائعة في منطقة القلمون | LomedX', desc: 'دليل توعوي بأبرز الأمراض المنتشرة في منطقة القلمون موسمياً.', keywords: 'الأمراض الموسمية, الرحيبة, القلمون, Lomedx', handler: 'openSeasonalDiseases' },
-    
+
+'/privacy': { 
+    title: 'سياسة الخصوصية | LomedX', 
+    desc: 'كيف نحمي بياناتك الطبية ونحفظ خصوصيتك.', 
+    keywords: 'سياسة الخصوصية, حماية البيانات, LomedX', 
+    handler: 'openPrivacyPolicy' 
+},
+'/disclaimer': { 
+    title: 'إخلاء المسؤولية الطبية | LomedX', 
+    desc: 'تنبيه طبي مهم حول محتوى المنصة.', 
+    keywords: 'إخلاء مسؤولية, تحذير طبي, LomedX', 
+    handler: 'openDisclaimer' 
+},
     '/contact': { 
         title: 'تواصل معنا | LomedX', 
         desc: 'تواصل مع فريق LomedX لأي استفسار، شكوى، أو اقتراح.', 
@@ -7840,9 +7866,11 @@ function handleRouteChange() {
     const path = window.location.pathname;
     if (path === '/' || path === '/index.html') { resetMetaTags(); return; }
 
+    // ✅ [جديد] فحص بطاقات المنشآت أولاً — الأهم!
+    if (handleItemRouteFromURL()) return;
+
     const route = routesConfig[path];
     if (route && typeof window[route.handler] === 'function') {
-        // تمرير الكلمات المفتاحية إلى دالة تحديث الوسوم
         updateMetaTags(route.title, route.desc, DEFAULT_SEO.image, route.keywords);
         
         const mobileMenu = document.getElementById('mobileMenu');
