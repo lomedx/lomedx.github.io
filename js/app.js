@@ -7836,7 +7836,7 @@ const routesConfig = {
     '/patient-reminder': { title: 'دفتر التذكير الذاتي | LomedX', desc: 'مواعيد الأدوية والزيارات.', keywords: 'تذكير الأدوية, مواعيد الدواء, Lomedx', handler: 'openPatientReminder' },
     '/seasonal-diseases': { title: 'الأمراض الموسمية الشائعة في منطقة القلمون | LomedX', desc: 'دليل توعوي بأبرز الأمراض المنتشرة في منطقة القلمون موسمياً.', keywords: 'الأمراض الموسمية, الرحيبة, القلمون, Lomedx', handler: 'openSeasonalDiseases' },
 
-'/privacy': { 
+'/privacy-policy': { 
     title: 'سياسة الخصوصية | LomedX', 
     desc: 'كيف نحمي بياناتك الطبية ونحفظ خصوصيتك.', 
     keywords: 'سياسة الخصوصية, حماية البيانات, LomedX', 
@@ -7915,6 +7915,125 @@ if (window.location.pathname !== '/' && window.location.pathname !== '/index.htm
         }, 1200);
     }
 }
+// ═══════════════════════════════════════════════════════════
+// 📜 سياسة الخصوصية
+// ═══════════════════════════════════════════════════════════
+window.openPrivacyPolicy = () => {
+    openCtrlPanel('🔒 سياسة الخصوصية وأمن البيانات', `
+        <div class="flex flex-col gap-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm flex items-start gap-3">
+                <i class="fas fa-shield-halved text-xl mt-0.5"></i>
+                <div>
+                    <b>خصوصيتك أمانة.</b><br>
+                    نلتزم في منصة LomedX بحماية بياناتك الطبية والشخصية وفق أعلى المعايير العالمية.
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border);">
+                <h4 class="font-bold text-sm mb-3 flex items-center gap-2"><i class="fas fa-database text-emerald-600"></i> 1. البيانات التي نجمعها</h4>
+                <ul class="list-disc pr-5 space-y-2 text-sm text-gray-700 leading-relaxed">
+                    <li>البيانات الطبية التي تدخلها بنفسك (الوزن، فصيلة الدم، الحساسية، الروشتات).</li>
+                    <li>معلومات الاتصال اللازمة للحجز (الاسم، رقم الهاتف).</li>
+                    <li>بيانات تقنية أساسية (نوع المتصفح، المدينة التقريبية).</li>
+                </ul>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border);">
+                <h4 class="font-bold text-sm mb-3 flex items-center gap-2"><i class="fas fa-lock text-emerald-600"></i> 2. كيف نحمي بياناتك</h4>
+                <ul class="list-disc pr-5 space-y-2 text-sm text-gray-700 leading-relaxed">
+                    <li><b>اتصال مشفر وآمن (TLS 1.3):</b> نستخدم أحدث بروتوكولات الأمان.</li>
+                    <li><b>تشفير البيانات الحساسة (AES-128-GCM):</b> يتم تخزين وحفظ بياناتك باستخدام تقنيات تشفير متطورة.</li>
+                    <li><b>الملف الصحي:</b> محمي بكلمة مرور ولا يمكن الوصول إليه إلا عبر رمز QR.</li>
+                    <li><b>لا نشارك بياناتك</b> مع أي طرف ثالث لأغراض تجارية.</li>
+                </ul>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border);">
+                <h4 class="font-bold text-sm mb-3 flex items-center gap-2"><i class="fas fa-user-check text-emerald-600"></i> 3. حقوقك</h4>
+                <ul class="list-disc pr-5 space-y-2 text-sm text-gray-700 leading-relaxed">
+                    <li>الحق في الوصول لبياناتك وتعديلها في أي وقت.</li>
+                    <li>الحق في حذف حسابك وبياناتك نهائياً.</li>
+                    <li>الحق في تغيير رمز QR متى شئت.</li>
+                </ul>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border);">
+                <h4 class="font-bold text-sm mb-3 flex items-center gap-2"><i class="fas fa-cookie-bite text-emerald-600"></i> 4. ملفات تعريف الارتباط (Cookies)</h4>
+                <p class="text-sm text-gray-700 leading-relaxed">نستخدم الكوكيز لتحسين تجربتك وتحليل حركة المرور عبر أدوات مثل Google Analytics، ولا نستخدمها لتخزين بياناتك الحساسة. يمكنك تعطيلها من إعدادات متصفحك.</p>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-xl border text-xs text-gray-600" style="border-color: var(--border);">
+                <i class="fas fa-envelope ml-1"></i> لأي استفسار: 
+                <a href="/contact" class="text-emerald-600 font-bold">تواصل معنا</a>
+                <br><br>
+                <i class="fas fa-clock ml-1"></i> آخر تحديث: يوليو 2026
+            </div>
+        </div>
+    `, '#0E7C5F');
+};
+
+// ═══════════════════════════════════════════════════════════
+// ⚠️ إخلاء المسؤولية الطبية
+// ═══════════════════════════════════════════════════════════
+window.openDisclaimer = () => {
+    openCtrlPanel('⚠️ إخلاء المسؤولية وشروط الاستخدام', `
+        <div class="flex flex-col gap-4">
+            <div class="bg-red-50 border-2 border-red-300 rounded-xl p-5 text-red-900 text-sm flex items-start gap-3">
+                <i class="fas fa-triangle-exclamation text-2xl mt-0.5"></i>
+                <div>
+                    <b style="font-size: 1rem;">تنبيه طبي هام</b><br>
+                    المعلومات في هذه المنصة هي لأغراض <b>التوعية والتثقيف الصحي فقط</b>، ولا تُغني أبداً عن الاستشارة الطبية المباشرة.
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border);">
+                <h4 class="font-bold text-sm mb-3 text-gray-800">1. طبيعة المنصة</h4>
+                <p class="text-sm text-gray-700 leading-relaxed">
+                    LomedX هي منصة <b>تجميع وربط</b> بين المرضى ومقدمي الخدمات الطبية (أطباء، صيدليات، مشافي، مخابر). نحن لا نقدم تشخيصاً طبياً مباشراً.
+                </p>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border);">
+                <h4 class="font-bold text-sm mb-3 text-gray-800">2. حدود مسؤوليتنا</h4>
+                <ul class="list-disc pr-5 space-y-2 text-sm text-gray-700 leading-relaxed">
+                    <li>الأدوات التفاعلية (حاسبات الجرعات، الإسعافات، الرادار الصحي) هي أدوات <b>استرشادية</b> فقط.</li>
+                    <li>الأطباء والصيدليات مسؤولون بأنفسهم عن دقة بياناتهم وخدماتهم.</li>
+                    <li>لا نتحمل مسؤولية أي قرار طبي يُتخذ بناءً على محتوى المنصة دون استشارة مختص.</li>
+                    <li>الروشتات الإلكترونية تصدر من الطبيب المعالج، وموثقة بكود تحقق، لكنها <b>لا تُغني عن المراجعة السريرية</b>.</li>
+                </ul>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border);">
+                <h4 class="font-bold text-sm mb-3 text-gray-800">3. البيانات والمحتوى</h4>
+                <p class="text-sm text-gray-700 leading-relaxed mb-3">
+                    المعلومات الواردة في الموقع تم جمعها من مصادر عامة أو أرسلها أصحاب الفعاليات أنفسهم. لا يتحمل الموقع أي مسؤولية عن صحة البيانات أو جودة الخدمات.
+                </p>
+                <p class="text-sm text-gray-700 leading-relaxed">
+                    للتبليغ عن أي خطأ أو لطلب حذف بياناتك، يرجى التواصل معنا فوراً عبر <a href="/contact" class="text-emerald-600 font-bold">صفحة اتصل بنا</a>.
+                </p>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border);">
+                <h4 class="font-bold text-sm mb-3 text-gray-800">4. متى يجب عليك الاتصال بالطوارئ فوراً؟</h4>
+                <ul class="list-disc pr-5 space-y-2 text-sm text-gray-700 leading-relaxed">
+                    <li>ألم صدري شديد، أو ضيق تنفس مفاجئ.</li>
+                    <li>إغماء، فقدان وعي، أو تشنجات.</li>
+                    <li>نزيف لا يتوقف، أو إصابة بالرأس.</li>
+                    <li>حرارة مرتفعة جداً مع قيء مستمر (خاصة لدى الأطفال والرضع).</li>
+                </ul>
+                <div class="mt-4 p-3 bg-red-50 rounded-lg text-sm text-red-800 font-bold flex items-center gap-2">
+                    <i class="fas fa-phone-volume"></i>
+                    اطلب الإسعاف فوراً (110) أو توجه لأقرب مشفى.
+                </div>
+            </div>
+
+            <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 text-xs text-amber-800">
+                <i class="fas fa-check-circle ml-1"></i>
+                باستخدامك للمنصة، أنت توافق على هذه الشروط. إن لم تكن موافقاً، يُرجى عدم استخدام الخدمات.
+            </div>
+        </div>
+    `, '#DC2626');
+};
 // نهاية ملف
 // ═══════════════════════════════════════════════════════════
 // Modal Management
