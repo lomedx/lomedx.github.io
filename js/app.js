@@ -7908,7 +7908,11 @@ if (window.location.pathname !== '/' && window.location.pathname !== '/index.htm
         if (navEntries.length > 0 && navEntries[0].type === 'reload') isPageReload = true;
     }
     if (!isPageReload) {
-        setTimeout(handleRouteChange, 1200); 
+        setTimeout(() => {
+            if (!handleItemRouteFromURL()) {
+                handleRouteChange();
+            }
+        }, 1200);
     }
 }
 // نهاية ملف
