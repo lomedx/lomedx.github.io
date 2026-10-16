@@ -3913,36 +3913,3 @@ html.dark .badge-duty-ended {
 
 
 
-
-
-
-/* ═══════════════════════════════════════════════════════════ */
-/* 🔗 غلاف الرابط للبطاقات                                  */
-/* ═══════════════════════════════════════════════════════════ */
-
-a.card-link-wrapper {
-    display: block !important;
-    text-decoration: none !important;
-    color: inherit !important;
-    height: 100% !important;
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
-}
-
-a.card-link-wrapper:focus,
-a.card-link-wrapper:active {
-    outline: none;
-    text-decoration: none;
-    color: inherit;
-}
-
-a.card-link-wrapper .card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-/* منع أي وميض أزرق */
-a.card-link-wrapper * {
-    -webkit-tap-highlight-color: transparent;
-}
