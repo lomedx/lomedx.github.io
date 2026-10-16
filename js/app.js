@@ -3538,7 +3538,7 @@ window.printPrescription = () => {
             <title>روشتة طبية - ${data.patientName}</title>
             <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Outfit:wght@600;800&display=swap" rel="stylesheet">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-            <link rel="stylesheet" href="css/style.css?v=4">
+            <link rel="stylesheet" href="/css/style.css?v=4">
         </head>
         <body>
             <div id="rxPrintWindow">
