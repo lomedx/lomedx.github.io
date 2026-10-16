@@ -150,21 +150,46 @@ function escapeHtml(text) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
-// دالة قفل التمرير مع إيقاف الحركات في الخلفية لتقليل حرارة الهاتف
+// ═══════════════════════════════════════════════════════════════
+// 🔒 lockScroll / unlockScroll — مع الحفاظ على موضع التمرير
+// ═══════════════════════════════════════════════════════════════
+let savedScrollY = 0;
+
 function lockScroll() { 
     scrollLockCount++; 
-    document.body.style.overflow = 'hidden'; 
-    // إيقاف جميع حركات الـ CSS لتبريد المعالج أثناء فتح النوافذ
+    
+    // ✅ نحفظ الموضع الحالي مرة واحدة فقط
+    if (scrollLockCount === 1) {
+        savedScrollY = window.scrollY || window.pageYOffset || 0;
+        
+        // ✅ استخدام position: fixed مع top سالب — الحل الأمثل
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${savedScrollY}px`;
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // إيقاف الحركات لتقليل الحرارة
     document.body.classList.add('stop-animations'); 
 }
 
-
-// دالة فتح التمرير مع إعادة الحركات
 function unlockScroll() { 
     scrollLockCount = Math.max(0, scrollLockCount - 1); 
+    
     if (scrollLockCount === 0) { 
+        // ✅ إزالة القيود
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
         document.body.style.overflow = ''; 
-        // إعادة تشغيل الحركات عند إغلاق كل النوافذ
+        
+        // ✅ استعادة الموضع المحفوظ
+        window.scrollTo(0, savedScrollY);
+        
         document.body.classList.remove('stop-animations'); 
     } 
 }
