@@ -1915,21 +1915,8 @@ window.togglePlatformInfo = () => {
 window.toggleFooterBox = (contentId, iconId) => {
     const content = document.getElementById(contentId);
     const icon = document.getElementById(iconId);
-    
-    if (content.classList.contains('hidden')) { 
-        content.classList.remove('hidden'); 
-        icon.style.transform = 'rotate(180deg)'; 
-    } else { 
-        content.classList.add('hidden'); 
-        icon.style.transform = 'rotate(0deg)'; 
-        
-        // ✅ إذا أغلق المستخدم الصندوق → أرجع URL للصفحة الرئيسية
-        const path = window.location.pathname;
-        if (path === '/privacy-policy' || path === '/disclaimer') {
-            history.pushState({}, '', '/');
-            resetMetaTags();
-        }
-    }
+    if (content.classList.contains('hidden')) { content.classList.remove('hidden'); icon.style.transform = 'rotate(180deg)'; } 
+    else { content.classList.add('hidden'); icon.style.transform = 'rotate(0deg)'; }
 }
 // دالة فتح نافذة "اتصل بنا"
 window.openContactModal = () => {
