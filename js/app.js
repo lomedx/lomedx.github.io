@@ -1443,7 +1443,18 @@ function getDutyStatusHtml(item) {
     return '';
 }
 
-window.openModal = (id) => { 
+    window.openModal = (id) => {
+    // ✅ إغلاق أي قائمة مفتوحة قبل فتح المودال
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+    if (mobileMenu) mobileMenu.classList.remove('open');
+    if (menuOverlay) menuOverlay.classList.add('hidden');
+    
+    // تحرير التمرير
+    if (typeof unlockScroll === 'function') {
+        try { unlockScroll(); } catch(e) {}
+    }
+    
     const item = allData.find(d => d.id === id);
     if (!item) return;
     
@@ -1782,8 +1793,14 @@ ${getDutyStatusHtml(item)}${extraHTML}</div>${doctorsListHtml}${mapEmbed}${item.
     document.getElementById('modalOverlay').classList.add('active'); 
     lockScroll(); 
 }
-window.closeModal = (event) => { 
-    if (event && event.target !== document.getElementById('modalOverlay')) return; 
+window.closeModal = (event) => {
+    if (event && event.target !== document.getElementById('modalOverlay')) return;
+    
+    // ✅ إذا كان الرابط مسار بطاقة → أرجعه للصفحة الرئيسية
+    const path = window.location.pathname;
+    if (/^\/(pharmacy|doctor|hospital|center|lab)\//.test(path)) {
+        history.pushState({}, '', '/');
+    }
     if ('speechSynthesis' in window) window.speechSynthesis.cancel(); // إيقاف الصوت
     document.getElementById('modalOverlay').classList.remove('active'); 
     unlockScroll();
@@ -7714,18 +7731,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. اعتراض دالة إغلاق لوحة التحكم (CtrlPanel) لإعادة فتح القائمة
     const originalCloseCtrl = window.closeCtrlPanel;
     window.closeCtrlPanel = (event) => {
-        originalCloseCtrl(event); // تنفيذ الإغلاق العادي للميزة
-        
-        // إذا كانت الميزة قد فُتحت من قائمة الجوال، أعد فتح القائمة!
-        if (openedFromMenu) {
-            openedFromMenu = false;
-            setTimeout(() => {
-                mobileMenu.classList.add('open');
-                menuOverlay.classList.remove('hidden');
-                lockScroll();
-            }, 150); // تأخير بسيط جداً (0.15 ثانية) لضمان سلاسة الانتقال
-        }
-    };
+    const wasOpenedFromMenu = openedFromMenu;
+    openedFromMenu = false;
+    
+    originalCloseCtrl(event);
+    
+    // ✅ لا تفتح القائمة إذا كنا في مسار بطاقة
+    const isItemRoute = /^\/(pharmacy|doctor|hospital|center|lab)\//.test(window.location.pathname);
+    
+    if (wasOpenedFromMenu && !isItemRoute) {
+        setTimeout(() => {
+            mobileMenu.classList.add('open');
+            menuOverlay.classList.remove('hidden');
+            lockScroll();
+        }, 150);
+    }
+};
 
     // 3. اعتراض دالة إغلاق النافذة المنبثقة (Modal) لإعادة فتح القائمة
     const originalCloseModal = window.closeModal;
