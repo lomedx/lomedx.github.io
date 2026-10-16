@@ -7900,13 +7900,7 @@ document.addEventListener('click', (e) => {
         // ✅ لا تمرر للأعلى للصفحات التي تفتح نوافذ منبثقة
         const modalRoutes = ['/add-facility', '/contact', '/ask-doctor', '/blood-bank', '/first-aid', '/burn-calculator', '/raheba-radar', '/medicine-finder', '/medicine-donation', '/medical-map', '/events-first-aid', '/blog'];
         
-        // ✅ مسارات لا يجب أن تُحرّك الصفحة للأعلى
-const noScrollRoutes = [
-    '/privacy-policy',
-    '/disclaimer'
-];
-
-if (!modalRoutes.includes(path) && !noScrollRoutes.includes(path)) {
+ if (!modalRoutes.includes(path)) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
     }
