@@ -738,38 +738,71 @@ window.shareItem = (id) => {
     }
 };
 
-function handleItemRouteFromURL() {
+async function handleItemRouteFromURL() {
+    // 1. التحقق من المسار باستخدام regex
     const match = window.location.pathname.match(/^\/(pharmacy|doctor|hospital|center|lab)\/([a-zA-Z0-9-]+)$/);
     if (!match) return false;
-    
+
     const id = match[2];
-    let attempts = 0;
-    
-    const tryOpen = () => {
-        attempts++;
+
+    // 2. إظهار رسالة تحميل للمستخدم
+    // (اختياري) يمكنك استبدال هذا برسالة "جاري فتح البطاقة..."
+    // showToast('جاري فتح البطاقة...', 'info');
+
+    try {
+        // 3. في حال كانت allData فارغة، قم بجلب البيانات مباشرة
+        if (!allData || allData.length === 0) {
+            const { data: freshData, error } = await supabase
+                .from('public_listings')
+                .select('*');
+            
+            if (error) throw error;
+            
+            if (freshData && freshData.length > 0) {
+                allData = freshData;
+                // تحديث الكاش المحلي
+                try {
+                    localStorage.setItem('cached_listings', JSON.stringify(allData));
+                    localStorage.removeItem('force_listings_update');
+                } catch (e) { /* تجاهل أخطاء التخزين */ }
+                
+                // إعادة رسم الواجهة بالبيانات الجديدة
+                renderData();
+                updateStats();
+            }
+        }
+
+        // 4. البحث عن العنصر باستخدام المعرف
         const item = allData.find(d => d.id === id);
-        
+
         if (item) {
+            // 5. فتح نافذة التفاصيل (المودال)
+            // نستخدم setTimeout بسيط لضمان أن الواجهة الرئيسية جاهزة
             setTimeout(() => {
                 openModal(id);
+                // تحديث وسوم الميتا للصفحة
                 updateMetaTags(
                     `${item.name} | LomedX`,
                     `${item.name} في ${item.address || 'سوريا'}`,
                     item.image || DEFAULT_SEO.image
                 );
-            }, 300);
-            return;
-        }
-        
-        if (attempts < 20) setTimeout(tryOpen, 500);
-        else {
-            showToast('لم يتم العثور على البطاقة', 'error');
+            }, 100); // تأخير بسيط جداً يكفي لضمان جاهزية الـ DOM
+            return true; // تم التعامل مع الرابط بنجاح
+        } else {
+            // 6. في حال لم يتم العثور على العنصر في البيانات
+            showToast('لم يتم العثور على البطاقة المطلوبة', 'error');
+            // العودة إلى الصفحة الرئيسية
             history.replaceState({}, '', '/');
+            return true; // لا يزال مساراً تم التعامل معه (رغم أنه غير موجود)
         }
-    };
-    
-    tryOpen();
-    return true;
+
+    } catch (err) {
+        // 7. في حال حدوث أي خطأ (شبكة، قاعدة بيانات، إلخ)
+        console.error('خطأ في فتح البطاقة:', err);
+        showToast('حدث خطأ أثناء محاولة فتح البطاقة', 'error');
+        history.replaceState({}, '', '/');
+        return true; // تم التعامل مع الخطأ
+    }
 }
 
 // زر الرجوع
