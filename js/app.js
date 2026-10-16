@@ -176,7 +176,9 @@ function lockScroll() {
 }
 
 function unlockScroll() { 
-    scrollLockCount = Math.max(0, scrollLockCount - 1); 
+    if (scrollLockCount <= 0) return;  // ⭐ الحماية الجديدة
+    
+    scrollLockCount--; 
     
     if (scrollLockCount === 0) { 
         // ✅ إزالة القيود
@@ -1475,12 +1477,12 @@ function getDutyStatusHtml(item) {
     if (mobileMenu) mobileMenu.classList.remove('open');
     if (menuOverlay) menuOverlay.classList.add('hidden');
     
-    // تحرير التمرير
-    if (typeof unlockScroll === 'function') {
-        try { unlockScroll(); } catch(e) {}
-    }
-    
-    const item = allData.find(d => d.id === id);
+// تحرير التمرير فقط إذا كانت القائمة مفتوحة
+if (mobileMenu && mobileMenu.classList.contains('open')) {
+    unlockScroll();
+}
+
+const item = allData.find(d => d.id === id);
     if (!item) return;
     
     if (['doctor', 'pharmacy'].includes(item.type)) {
@@ -2129,12 +2131,17 @@ window.closeCtrlPanel = (event) => {
     unlockScroll(); 
     document.getElementById('ctrlContent').innerHTML = ''; 
     
+
     // === تنظيف الرابط وإعادة الـ SEO ===
-    resetMetaTags();
-    if (window.location.pathname !== '/' && window.location.pathname !== '/index.html' || window.location.hash) {
-        history.pushState({}, '', '/');
-        window.scrollTo({top: 0, behavior: 'smooth'});
-    }
+resetMetaTags();
+const currentPath = window.location.pathname;
+const isItemRoute = /^\/(pharmacy|doctor|hospital|center|lab)\//.test(currentPath);
+const isHomePage = (currentPath === '/' || currentPath === '/index.html');
+
+if ((!isHomePage && !isItemRoute) || window.location.hash) {
+    history.pushState({}, '', '/');
+    
+}
     
     if (doctorDashboardInterval) { 
         clearInterval(doctorDashboardInterval); 
