@@ -150,48 +150,21 @@ function escapeHtml(text) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
-// ═══════════════════════════════════════════════════════════════
-// 🔒 lockScroll / unlockScroll — مع الحفاظ على موضع التمرير
-// ═══════════════════════════════════════════════════════════════
-let savedScrollY = 0;
-
+// دالة قفل التمرير مع إيقاف الحركات في الخلفية لتقليل حرارة الهاتف
 function lockScroll() { 
     scrollLockCount++; 
-    
-    // ✅ نحفظ الموضع الحالي مرة واحدة فقط
-    if (scrollLockCount === 1) {
-        savedScrollY = window.scrollY || window.pageYOffset || 0;
-        
-        // ✅ استخدام position: fixed مع top سالب — الحل الأمثل
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${savedScrollY}px`;
-        document.body.style.left = '0';
-        document.body.style.right = '0';
-        document.body.style.width = '100%';
-        document.body.style.overflow = 'hidden';
-    }
-    
-    // إيقاف الحركات لتقليل الحرارة
+    document.body.style.overflow = 'hidden'; 
+    // إيقاف جميع حركات الـ CSS لتبريد المعالج أثناء فتح النوافذ
     document.body.classList.add('stop-animations'); 
 }
 
+
+// دالة فتح التمرير مع إعادة الحركات
 function unlockScroll() { 
-    if (scrollLockCount <= 0) return;  // ⭐ الحماية الجديدة
-    
-    scrollLockCount--; 
-    
+    scrollLockCount = Math.max(0, scrollLockCount - 1); 
     if (scrollLockCount === 0) { 
-        // ✅ إزالة القيود
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.left = '';
-        document.body.style.right = '';
-        document.body.style.width = '';
         document.body.style.overflow = ''; 
-        
-        // ✅ استعادة الموضع المحفوظ
-        window.scrollTo(0, savedScrollY);
-        
+        // إعادة تشغيل الحركات عند إغلاق كل النوافذ
         document.body.classList.remove('stop-animations'); 
     } 
 }
@@ -1470,19 +1443,8 @@ function getDutyStatusHtml(item) {
     return '';
 }
 
-    window.openModal = (id) => {
-    // ✅ إغلاق أي قائمة مفتوحة قبل فتح المودال
-    const mobileMenu = document.getElementById('mobileMenu');
-    const menuOverlay = document.getElementById('menuOverlay');
-    if (mobileMenu) mobileMenu.classList.remove('open');
-    if (menuOverlay) menuOverlay.classList.add('hidden');
-    
-// تحرير التمرير فقط إذا كانت القائمة مفتوحة
-if (mobileMenu && mobileMenu.classList.contains('open')) {
-    unlockScroll();
-}
-
-const item = allData.find(d => d.id === id);
+window.openModal = (id) => { 
+    const item = allData.find(d => d.id === id);
     if (!item) return;
     
     if (['doctor', 'pharmacy'].includes(item.type)) {
@@ -1820,14 +1782,8 @@ ${getDutyStatusHtml(item)}${extraHTML}</div>${doctorsListHtml}${mapEmbed}${item.
     document.getElementById('modalOverlay').classList.add('active'); 
     lockScroll(); 
 }
-window.closeModal = (event) => {
-    if (event && event.target !== document.getElementById('modalOverlay')) return;
-    
-    // ✅ إذا كان الرابط مسار بطاقة → أرجعه للصفحة الرئيسية
-    const path = window.location.pathname;
-    if (/^\/(pharmacy|doctor|hospital|center|lab)\//.test(path)) {
-        history.pushState({}, '', '/');
-    }
+window.closeModal = (event) => { 
+    if (event && event.target !== document.getElementById('modalOverlay')) return; 
     if ('speechSynthesis' in window) window.speechSynthesis.cancel(); // إيقاف الصوت
     document.getElementById('modalOverlay').classList.remove('active'); 
     unlockScroll();
@@ -2131,17 +2087,12 @@ window.closeCtrlPanel = (event) => {
     unlockScroll(); 
     document.getElementById('ctrlContent').innerHTML = ''; 
     
-
     // === تنظيف الرابط وإعادة الـ SEO ===
-resetMetaTags();
-const currentPath = window.location.pathname;
-const isItemRoute = /^\/(pharmacy|doctor|hospital|center|lab)\//.test(currentPath);
-const isHomePage = (currentPath === '/' || currentPath === '/index.html');
-
-if ((!isHomePage && !isItemRoute) || window.location.hash) {
-    history.pushState({}, '', '/');
-    
-}
+    resetMetaTags();
+    if (window.location.pathname !== '/' && window.location.pathname !== '/index.html' || window.location.hash) {
+        history.pushState({}, '', '/');
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
     
     if (doctorDashboardInterval) { 
         clearInterval(doctorDashboardInterval); 
@@ -7763,22 +7714,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. اعتراض دالة إغلاق لوحة التحكم (CtrlPanel) لإعادة فتح القائمة
     const originalCloseCtrl = window.closeCtrlPanel;
     window.closeCtrlPanel = (event) => {
-    const wasOpenedFromMenu = openedFromMenu;
-    openedFromMenu = false;
-    
-    originalCloseCtrl(event);
-    
-    // ✅ لا تفتح القائمة إذا كنا في مسار بطاقة
-    const isItemRoute = /^\/(pharmacy|doctor|hospital|center|lab)\//.test(window.location.pathname);
-    
-    if (wasOpenedFromMenu && !isItemRoute) {
-        setTimeout(() => {
-            mobileMenu.classList.add('open');
-            menuOverlay.classList.remove('hidden');
-            lockScroll();
-        }, 150);
-    }
-};
+        originalCloseCtrl(event); // تنفيذ الإغلاق العادي للميزة
+        
+        // إذا كانت الميزة قد فُتحت من قائمة الجوال، أعد فتح القائمة!
+        if (openedFromMenu) {
+            openedFromMenu = false;
+            setTimeout(() => {
+                mobileMenu.classList.add('open');
+                menuOverlay.classList.remove('hidden');
+                lockScroll();
+            }, 150); // تأخير بسيط جداً (0.15 ثانية) لضمان سلاسة الانتقال
+        }
+    };
 
     // 3. اعتراض دالة إغلاق النافذة المنبثقة (Modal) لإعادة فتح القائمة
     const originalCloseModal = window.closeModal;
@@ -7875,18 +7822,6 @@ const routesConfig = {
     '/patient-reminder': { title: 'دفتر التذكير الذاتي | LomedX', desc: 'مواعيد الأدوية والزيارات.', keywords: 'تذكير الأدوية, مواعيد الدواء, Lomedx', handler: 'openPatientReminder' },
     '/seasonal-diseases': { title: 'الأمراض الموسمية الشائعة في منطقة القلمون | LomedX', desc: 'دليل توعوي بأبرز الأمراض المنتشرة في منطقة القلمون موسمياً.', keywords: 'الأمراض الموسمية, الرحيبة, القلمون, Lomedx', handler: 'openSeasonalDiseases' },
     
-    '/privacy-policy': { 
-    title: 'سياسة الخصوصية وأمن البيانات | LomedX', 
-    desc: 'تعرف على سياسة الخصوصية وكيفية حماية بياناتك في منصة LomedX.', 
-    keywords: 'سياسة الخصوصية, أمن البيانات, حماية البيانات, Lomedx', 
-    handler: 'openPrivacyPolicyRoute' 
-},
-'/disclaimer': { 
-    title: 'إخلاء المسؤولية وشروط الاستخدام | LomedX', 
-    desc: 'إخلاء المسؤولية وشروط استخدام منصة LomedX الطبية.', 
-    keywords: 'إخلاء المسؤولية, شروط الاستخدام, Lomedx', 
-    handler: 'openDisclaimerRoute' 
-},
     '/contact': { 
         title: 'تواصل معنا | LomedX', 
         desc: 'تواصل مع فريق LomedX لأي استفسار، شكوى، أو اقتراح.', 
@@ -7932,9 +7867,9 @@ document.addEventListener('click', (e) => {
         // ✅ لا تمرر للأعلى للصفحات التي تفتح نوافذ منبثقة
         const modalRoutes = ['/add-facility', '/contact', '/ask-doctor', '/blood-bank', '/first-aid', '/burn-calculator', '/raheba-radar', '/medicine-finder', '/medicine-donation', '/medical-map', '/events-first-aid', '/blog'];
         
- if (!modalRoutes.includes(path)) {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+        if (!modalRoutes.includes(path)) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     }
 });
 
@@ -10816,94 +10751,3 @@ window.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) fetchTodayDutiesForBadge();
 });
-
-
-
-
-
-// ═══════════════════════════════════════════════════════════════
-// 📄 روابط الفوتر — التمرير التلقائي إلى الصندوق المطلوب
-// ═══════════════════════════════════════════════════════════════
-
-// ─── دالة مساعدة: التمرير والفتح ───
-function scrollAndOpenFooterBox(contentId, iconId, headerText) {
-    // 1. إغلاق أي نافذة/قائمة مفتوحة
-    const mobileMenu = document.getElementById('mobileMenu');
-    const menuOverlay = document.getElementById('menuOverlay');
-    if (mobileMenu) mobileMenu.classList.remove('open');
-    if (menuOverlay) menuOverlay.classList.add('hidden');
-    
-    const modalOverlay = document.getElementById('modalOverlay');
-    if (modalOverlay) modalOverlay.classList.remove('active');
-    
-    const ctrlOverlay = document.getElementById('ctrlOverlay');
-    if (ctrlOverlay) ctrlOverlay.classList.remove('active');
-    
-    // تحرير التمرير
-    if (typeof unlockScroll === 'function') {
-        try { unlockScroll(); } catch(e) {}
-    }
-    
-    // 2. انتظار قصير ثم التمرير
-    setTimeout(() => {
-        const content = document.getElementById(contentId);
-        const icon = document.getElementById(iconId);
-        
-        if (!content) {
-            console.warn('⚠️ العنصر غير موجود:', contentId);
-            return;
-        }
-        
-        // 3. فتح الصندوق إذا كان مغلقاً
-        if (content.classList.contains('hidden')) {
-            content.classList.remove('hidden');
-        }
-        
-        // 4. تدوير الأيقونة
-        if (icon) {
-            icon.style.transform = 'rotate(180deg)';
-        }
-        
-        // 5. التمرير السلس إلى الرابط
-        const linkElement = content.previousElementSibling; // الرابط الذي قبل الصندوق
-        const targetElement = linkElement || content;
-        
-        setTimeout(() => {
-            targetElement.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center' 
-            });
-            
-            // تأثير إبراز خفيف
-            content.style.transition = 'background-color 0.5s';
-            content.style.backgroundColor = 'rgba(196, 150, 44, 0.05)';
-            setTimeout(() => {
-                content.style.backgroundColor = '';
-            }, 2000);
-            
-            // إشعار للمستخدم
-            if (typeof showToast === 'function') {
-                showToast(`تم الانتقال إلى ${headerText}`, 'info', 2000);
-            }
-        }, 150);
-        
-    }, 300);
-}
-
-// ─── فتح سياسة الخصوصية ───
-window.openPrivacyPolicyRoute = () => {
-    scrollAndOpenFooterBox(
-        'privacyContentFooter', 
-        'privacyIconFooter',
-        'سياسة الخصوصية'
-    );
-};
-
-// ─── فتح إخلاء المسؤولية ───
-window.openDisclaimerRoute = () => {
-    scrollAndOpenFooterBox(
-        'disclaimerContentFooter', 
-        'disclaimerIconFooter',
-        'إخلاء المسؤولية'
-    );
-};
