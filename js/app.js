@@ -737,7 +737,10 @@ window.shareItem = (id) => {
             .catch(() => window.open(`https://wa.me/?text=${encodeURIComponent(text + '\n' + url)}`, '_blank'));
     }
 };
-
+// ✅ دالة متزامنة تحقق فقط: هل الرابط بطاقة منشأة؟
+function isItemRoute() {
+    return /^\/(pharmacy|doctor|hospital|center|lab)\/([a-zA-Z0-9-]+)$/.test(window.location.pathname);
+}
 async function handleItemRouteFromURL() {
     // 1. التحقق من المسار باستخدام regex
     const match = window.location.pathname.match(/^\/(pharmacy|doctor|hospital|center|lab)\/([a-zA-Z0-9-]+)$/);
@@ -7899,8 +7902,11 @@ function handleRouteChange() {
     const path = window.location.pathname;
     if (path === '/' || path === '/index.html') { resetMetaTags(); return; }
 
-    // ✅ [جديد] فحص بطاقات المنشآت أولاً — الأهم!
-    if (handleItemRouteFromURL()) return;
+    // ✅ فحص متزامن: هل الرابط بطاقة منشأة؟ (بدون await)
+    if (isItemRoute()) {
+        handleItemRouteFromURL();  // fire and forget — لا ننتظر
+        return;
+    }
 
     const route = routesConfig[path];
     if (route && typeof window[route.handler] === 'function') {
@@ -7942,7 +7948,9 @@ if (window.location.pathname !== '/' && window.location.pathname !== '/index.htm
     }
     if (!isPageReload) {
         setTimeout(() => {
-            if (!handleItemRouteFromURL()) {
+            if (isItemRoute()) {
+                handleItemRouteFromURL();
+            } else {
                 handleRouteChange();
             }
         }, 1200);
