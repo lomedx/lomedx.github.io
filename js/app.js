@@ -7843,6 +7843,18 @@ const routesConfig = {
     '/patient-reminder': { title: 'دفتر التذكير الذاتي | LomedX', desc: 'مواعيد الأدوية والزيارات.', keywords: 'تذكير الأدوية, مواعيد الدواء, Lomedx', handler: 'openPatientReminder' },
     '/seasonal-diseases': { title: 'الأمراض الموسمية الشائعة في منطقة القلمون | LomedX', desc: 'دليل توعوي بأبرز الأمراض المنتشرة في منطقة القلمون موسمياً.', keywords: 'الأمراض الموسمية, الرحيبة, القلمون, Lomedx', handler: 'openSeasonalDiseases' },
     
+    '/privacy-policy': { 
+    title: 'سياسة الخصوصية وأمن البيانات | LomedX', 
+    desc: 'تعرف على سياسة الخصوصية وكيفية حماية بياناتك في منصة LomedX.', 
+    keywords: 'سياسة الخصوصية, أمن البيانات, حماية البيانات, Lomedx', 
+    handler: 'openPrivacyPolicyRoute' 
+},
+'/disclaimer': { 
+    title: 'إخلاء المسؤولية وشروط الاستخدام | LomedX', 
+    desc: 'إخلاء المسؤولية وشروط استخدام منصة LomedX الطبية.', 
+    keywords: 'إخلاء المسؤولية, شروط الاستخدام, Lomedx', 
+    handler: 'openDisclaimerRoute' 
+},
     '/contact': { 
         title: 'تواصل معنا | LomedX', 
         desc: 'تواصل مع فريق LomedX لأي استفسار، شكوى، أو اقتراح.', 
@@ -10772,3 +10784,94 @@ window.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) fetchTodayDutiesForBadge();
 });
+
+
+
+
+
+// ═══════════════════════════════════════════════════════════════
+// 📄 روابط الفوتر — التمرير التلقائي إلى الصندوق المطلوب
+// ═══════════════════════════════════════════════════════════════
+
+// ─── دالة مساعدة: التمرير والفتح ───
+function scrollAndOpenFooterBox(contentId, iconId, headerText) {
+    // 1. إغلاق أي نافذة/قائمة مفتوحة
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+    if (mobileMenu) mobileMenu.classList.remove('open');
+    if (menuOverlay) menuOverlay.classList.add('hidden');
+    
+    const modalOverlay = document.getElementById('modalOverlay');
+    if (modalOverlay) modalOverlay.classList.remove('active');
+    
+    const ctrlOverlay = document.getElementById('ctrlOverlay');
+    if (ctrlOverlay) ctrlOverlay.classList.remove('active');
+    
+    // تحرير التمرير
+    if (typeof unlockScroll === 'function') {
+        try { unlockScroll(); } catch(e) {}
+    }
+    
+    // 2. انتظار قصير ثم التمرير
+    setTimeout(() => {
+        const content = document.getElementById(contentId);
+        const icon = document.getElementById(iconId);
+        
+        if (!content) {
+            console.warn('⚠️ العنصر غير موجود:', contentId);
+            return;
+        }
+        
+        // 3. فتح الصندوق إذا كان مغلقاً
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+        }
+        
+        // 4. تدوير الأيقونة
+        if (icon) {
+            icon.style.transform = 'rotate(180deg)';
+        }
+        
+        // 5. التمرير السلس إلى الرابط
+        const linkElement = content.previousElementSibling; // الرابط الذي قبل الصندوق
+        const targetElement = linkElement || content;
+        
+        setTimeout(() => {
+            targetElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+            
+            // تأثير إبراز خفيف
+            content.style.transition = 'background-color 0.5s';
+            content.style.backgroundColor = 'rgba(196, 150, 44, 0.05)';
+            setTimeout(() => {
+                content.style.backgroundColor = '';
+            }, 2000);
+            
+            // إشعار للمستخدم
+            if (typeof showToast === 'function') {
+                showToast(`تم الانتقال إلى ${headerText}`, 'info', 2000);
+            }
+        }, 150);
+        
+    }, 300);
+}
+
+// ─── فتح سياسة الخصوصية ───
+window.openPrivacyPolicyRoute = () => {
+    scrollAndOpenFooterBox(
+        'privacyContentFooter', 
+        'privacyIconFooter',
+        'سياسة الخصوصية'
+    );
+};
+
+// ─── فتح إخلاء المسؤولية ───
+window.openDisclaimerRoute = () => {
+    scrollAndOpenFooterBox(
+        'disclaimerContentFooter', 
+        'disclaimerIconFooter',
+        'إخلاء المسؤولية'
+    );
+};
