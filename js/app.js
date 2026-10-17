@@ -6640,24 +6640,30 @@ window.submitAnswer = async (qId) => {
 // === Payment Modal ===
 window.openPaymentModal = (type, name) => {
     let featuresHtml = '';
-    if (type === 'طبيب') {
-        featuresHtml = `
-        <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إحصائيات متقدمة (عدد زيارات ملفك وعدد الحجوزات).</span></div>
-        <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إدارة الحجوزات والمواعيد واستقبال الطلبات مباشرة.</span></div>
-        <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">ظهور اسمك في <b>قمة نتائج البحث</b> قبل باقي الأطباء.</span></div>
-        <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إمكانية <b>الحجز الإلكتروني</b> للمرضى من خلال موقعك.</span></div>
-        <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">غرفة محادثة <b>(دردشة مباشرة)</b> مع المريض داخل المنصة.</span></div>
-        <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إصدار <b>روشتات طبية إلكترونية موثقة</b> تُحفظ في ملف المريض.</span></div>
-        <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">الوصول السريع للملف الصحي للمريض عبر <b>مسح رمز QR</b>.</span></div>
-        `;
-    } else { 
-        featuresHtml = `
-        <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">ظهور اسم صيدليتك في <b>قمة نتائج البحث</b> قبل باقي الصيدليات.</span></div>
-        <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">استقبال <b>طلبات الأدوية العاجلة</b> من المرضى مباشرة في لوحة التحكم.</span></div>
-        <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">التحكم بإظهار حالة <b>(مفتوح / مغلق / مناوبة ليلية)</b> للمرضى.</span></div>
-        <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إحصائيات متقدمة (عدد الأدوية التي قمت بتوفيرها للمرضى).</span></div>
-        `;
-    }
+if (type === 'طبيب') {
+    featuresHtml = `
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">ظهور اسمك في <b>قمة نتائج البحث</b> مع شارة التوثيق الذهبية.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إمكانية <b>الحجز الإلكتروني</b> للمرضى مباشرة من المنصة.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">غرفة محادثة <b>(دردشة مباشرة)</b> وتلقي طلبات الحجز.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إصدار <b>روشتات طبية إلكترونية موثقة</b> برمز QR.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">مؤشر <b>الازدحام المباشر</b> للعيادة لتنظيم دور المرضى.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">مكتبة أدوية خاصة بك لإصدار الروشتات بسرعة.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">نظام <b>ملفات المرضى</b> الداخلي (سجل طبي متكامل لكل مريض).</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">الوصول السريع للملف الصحي للمريض عبر <b>مسح رمز QR</b>.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">الإجابة على أسئلة المرضى في قسم <b>"اسأل طبيب"</b>.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إحصائيات دقيقة (عدد الزيارات، نقرات الهاتف، والحجوزات).</span></div>
+    `;
+} else { 
+    featuresHtml = `
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">ظهور اسم صيدليتك في <b>قمة نتائج البحث</b> مع شارة التوثيق الذهبية.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">استقبال <b>طلبات الأدوية العاجلة</b> من المرضى في مدينتك.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">الظهور التلقائي في نظام <b>مناوبات الصيدليات</b> وإرسال إشعارات للمرضى.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إشعارات فورية لصيدليتك عند وجود <b>طلب دواء في مدينتك</b>.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">قارئ الروشتات الإلكترونية (QR) والتحقق من صحتها.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">التحكم بإظهار حالة <b>(مفتوح / مغلق / مناوبة ليلية)</b> للمرضى.</span></div>
+    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إحصائيات متقدمة (عدد الأدوية التي وفرتها، ونقرات الهاتف).</span></div>
+    `;
+}
 
     // Using encodeURIComponent for URL safety
     const safeType = encodeURIComponent(type);
