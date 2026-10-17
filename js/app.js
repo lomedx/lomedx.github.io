@@ -11074,8 +11074,10 @@ window.saveUserCity = () => {
 window.sendTodayDutyNotifications = async () => {
     if (!window.checkOnlineStatus()) return;
     
-    // 1. جلب تاريخ اليوم
-    const today = new Date().toISOString().split('T')[0];
+    // ✅ الحل: جلب التاريخ المحلي للجهاز بدلاً من توقيت غرينتش
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
     
     // 2. جلب مناوبات اليوم من قاعدة البيانات
     const { data: duties, error } = await supabase
