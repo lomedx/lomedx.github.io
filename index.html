@@ -396,7 +396,22 @@
                     </div>
                 </div>
             </div>
-
+<!-- ✅ بطاقة مدينتي الحالية (الجديدة) -->
+<div class="premium-card rounded-2xl p-4 mb-4 flex items-center justify-between relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-1.5 h-full bg-gradient-to-b from-[var(--gold)] to-transparent"></div>
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(196, 150, 44, 0.15);">
+            <i class="fas fa-map-location-dot text-lg icon-gold-gradient"></i>
+        </div>
+        <div>
+            <div class="text-[10px] text-white/50 font-bold mb-0.5">مدينتي الحالية</div>
+            <div id="menuCurrentCityText" class="text-sm font-bold text-white" style="font-family: 'Noto Kufi Arabic';">كل المدن</div>
+        </div>
+    </div>
+    <button onclick="openCitySelector()" class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 hover:border-[var(--gold)] hover:bg-white/10 flex items-center justify-center transition-all" title="تعديل المدينة">
+        <i class="fas fa-pen text-xs text-[var(--gold)]"></i>
+    </button>
+</div>
  <!-- بطاقة الخدمات الأساسية -->
 <div class="premium-card rounded-3xl p-4 mb-6">
   <div class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
