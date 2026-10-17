@@ -1364,14 +1364,20 @@ window.closeCitySelector = () => {
 window.selectCity = (city) => {
     renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; 
     currentCity = city;
+    
+    // تحديث الزر في الصفحة الرئيسية
     document.getElementById('currentCityText').innerText = city;
+    
+    // ✅ تحديث الاسم في قائمة الجوال الجديدة
+    const menuCityEl = document.getElementById('menuCurrentCityText');
+    if (menuCityEl) menuCityEl.innerText = city;
+
     closeCitySelector();
     renderData();
 
-    // ✅ إذا اختار مدينة محددة (وليس "كل المدن")، احفظها للأبد وحدّث الوسم
+    // حفظ وسم المدينة في OneSignal
     if (city !== 'all' && city !== 'كل المدن') {
         localStorage.setItem('lomedx_user_city', city);
-        
         if (window.OneSignalDeferred) {
             OneSignalDeferred.push(function(OneSignal) {
                 OneSignal.User.addTag("city", city);
@@ -10987,12 +10993,15 @@ document.addEventListener('visibilitychange', () => {
 // 🌍 نظام تحديد مدينة المستخدم الدائم (يُحفظ للأبد)
 // ═══════════════════════════════════════════════════════════
 window.askForUserCity = () => {
-    // إذا كان المستخدم قد اختار مدينته سابقاً، لا تسأله مرة أخرى
     const savedCity = localStorage.getItem('lomedx_user_city');
     if (savedCity) {
-        // تطبيق المدينة المحفوظة فوراً
         currentCity = savedCity;
         document.getElementById('currentCityText').innerText = savedCity;
+        
+        // ✅ تحديث الاسم في قائمة الجوال إذا كان محفوظاً مسبقاً
+        const menuCityEl = document.getElementById('menuCurrentCityText');
+        if (menuCityEl) menuCityEl.innerText = savedCity;
+
         if (typeof renderData === 'function') renderData();
         return; 
     }
@@ -11028,22 +11037,23 @@ window.saveUserCity = () => {
     const city = document.getElementById('initialCitySelect').value;
     if (!city) return;
 
-    // 1. حفظ في ذاكرة المتصفح للأبد
     localStorage.setItem('lomedx_user_city', city);
-    
-    // 2. تطبيق المدينة وتحديث الواجهة
     currentCity = city;
+    
     document.getElementById('currentCityText').innerText = city;
+    
+    // ✅ تحديث الاسم في قائمة الجوال
+    const menuCityEl = document.getElementById('menuCurrentCityText');
+    if (menuCityEl) menuCityEl.innerText = city;
+
     if (typeof renderData === 'function') renderData();
 
-    // 3. وسم الجهاز في OneSignal
     if (window.OneSignalDeferred) {
         OneSignalDeferred.push(function(OneSignal) {
             OneSignal.User.addTag("city", city);
         });
     }
 
-    // 4. إغلاق النافذة
     document.getElementById('userCityOverlay').remove();
     if (typeof showToast === 'function') showToast('تم حفظ مدينتك بنجاح ✅', 'success');
 };
