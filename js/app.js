@@ -1342,11 +1342,13 @@ window.selectSearchResult = (id) => {
     openModal(id);
 };
         
-window.openCitySelector = () => {
+window.openCitySelector = (mode = 'search') => {
     const overlay = document.getElementById('citySelectorOverlay');
     const listContainer = document.getElementById('cityListContainer');
+    
+    // هنا نمرر "الوضع" (mode) لزر الاختيار ليعرف هل هو بحث أم حفظ دائم
     listContainer.innerHTML = allCities.map(city => `
-        <div class="city-option ${currentCity === city ? 'selected' : ''}" onclick="selectCity('${escapeHtml(city)}')">
+        <div class="city-option ${currentCity === city ? 'selected' : ''}" onclick="selectCity('${escapeHtml(city)}', '${mode}')">
             <div class="flex items-center gap-3">
                 <i class="fas ${city === 'كل المدن' ? 'fa-globe' : 'fa-city'}" style="color: var(--accent)"></i>
                 <span class="font-bold text-sm">${escapeHtml(city)}</span>
@@ -1354,6 +1356,7 @@ window.openCitySelector = () => {
             ${currentCity === city ? '<i class="fas fa-check-circle text-white"></i>' : ''}
         </div>
     `).join('');
+    
     overlay.classList.add('active');
 };
 
@@ -1361,27 +1364,28 @@ window.closeCitySelector = () => {
     document.getElementById('citySelectorOverlay').classList.remove('active');
 };
 
-window.selectCity = (city) => {
+window.selectCity = (city, mode = 'search') => {
     renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; 
     currentCity = city;
     
-    // تحديث الزر في الصفحة الرئيسية
+    // تحديث زر البحث دائماً
     document.getElementById('currentCityText').innerText = city;
     
-    // ✅ تحديث الاسم في قائمة الجوال الجديدة
-    const menuCityEl = document.getElementById('menuCurrentCityText');
-    if (menuCityEl) menuCityEl.innerText = city;
-
     closeCitySelector();
     renderData();
 
-    // حفظ وسم المدينة في OneSignal
-    if (city !== 'all' && city !== 'كل المدن') {
-        localStorage.setItem('lomedx_user_city', city);
-        if (window.OneSignalDeferred) {
-            OneSignalDeferred.push(function(OneSignal) {
-                OneSignal.User.addTag("city", city);
-            });
+    // ✅ إذا كان الوضع "دائم" (من قائمة الجوال)، نقوم بالحفظ والوسم
+    if (mode === 'permanent') {
+        const menuCityEl = document.getElementById('menuCurrentCityText');
+        if (menuCityEl) menuCityEl.innerText = city;
+
+        if (city !== 'all' && city !== 'كل المدن') {
+            localStorage.setItem('lomedx_user_city', city);
+            if (window.OneSignalDeferred) {
+                OneSignalDeferred.push(function(OneSignal) {
+                    OneSignal.User.addTag("city", city);
+                });
+            }
         }
     }
 };
