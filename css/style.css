@@ -3922,3 +3922,20 @@ html.dark .badge-duty-ended {
 
 
 
+/* ✅ تأثير إخفاء الشريط العلوي بأناقة */
+.navbar {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease, background-color 0.4s ease;
+}
+
+/* عندما نضيف كلاس 'hide-nav' للشريط، سيختفي للأعلى ويتلاشى */
+.navbar.hide-nav {
+    transform: translateY(-100%); /* يتحرك للأعلى خارج الشاشة */
+    opacity: 0; /* يتلاشى تدريجياً */
+    pointer-events: none; /* يمنع النقر عليه أثناء اختفائه */
+}
+
+/* ✅ إضافة تأثير انزلاقي ناعم جداً للقائمة الجانبية */
+.mobile-menu-premium {
+    transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1) !important; /* حركة مرنة وجميلة */
+    will-change: transform;
+}
