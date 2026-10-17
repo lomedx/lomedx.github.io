@@ -9931,14 +9931,9 @@ window.updatePatientsCard = (doctorId) => {
 
 
 // ═══════════════════════════════════════════════════════════════════
-// 🌙 نظام إدارة المناوبات الرسمية — النسخة الاحترافية المُحسّنة
+// نظام إدارة المناوبات الرسمية 
 // ═══════════════════════════════════════════════════════════════════
-// الميزات:
-//  ✓ دعم المناوبات العابرة لمنتصف الليل (21:00 → 01:00)
-//  ✓ حفظ آخر مدينة مختارة
-//  ✓ تحقق دقيق من التواريخ (شهر 30/31/28 يوم)
-//  ✓ معالجة كاملة للأخطاء
-// ═══════════════════════════════════════════════════════════════════
+
 
 // ─── الحالة العامة ───
 let dutyFilters = {
@@ -9962,8 +9957,11 @@ const DUTY_DEFAULTS = {
 window.openDutyAdminLogin = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
+        // ✅ التحقق من صلاحية المناوبات (أو الأدمن العام)
+        const { data: isDutyAdmin } = await supabase.rpc('is_duty_admin');
         const { data: isAdmin } = await supabase.rpc('is_admin');
-        if (isAdmin) { 
+        
+        if (isDutyAdmin || isAdmin) { 
             renderDutyDashboard(); 
             return; 
         }
@@ -9975,7 +9973,7 @@ window.openDutyAdminLogin = async () => {
                     <i class="fas fa-calendar-check text-2xl text-[#1E3A5F]"></i>
                 </div>
                 <h3 class="font-bold text-lg" style="font-family: 'Noto Kufi Arabic';">دخول إدارة المناوبات</h3>
-                <p class="text-xs text-gray-500 mt-1">مخصص للمسؤولين فقط</p>
+                <p class="text-xs text-gray-500 mt-1">مخصص لمسؤولي جدول المناوبات</p>
             </div>
             <form onsubmit="handleDutyAdminLogin(event)" class="flex flex-col gap-4">
                 <input type="email" id="dutyAdminEmail" class="ctrl-input text-center" 
@@ -9998,19 +9996,22 @@ window.handleDutyAdminLogin = async (e) => {
     
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) { 
-        showToast('الإيميل أو كلمة المرور غير صحيحة!', 'error'); 
+        showToast('البريد أو كلمة المرور غير صحيحة!', 'error'); 
         return; 
     }
     
+    // ✅ التحقق من صلاحية المناوبات (أو الأدمن العام)
+    const { data: isDutyAdmin } = await supabase.rpc('is_duty_admin');
     const { data: isAdmin } = await supabase.rpc('is_admin');
-    if (!isAdmin) {
+    
+    if (!isDutyAdmin && !isAdmin) {
         await supabase.auth.signOut();
-        showToast('تم رفض الوصول: هذا الحساب لا يملك صلاحيات إدارية!', 'error');
+        showToast('تم رفض الوصول: هذا الحساب لا يملك صلاحية إدارة المناوبات!', 'error');
         return;
     }
+    
     renderDutyDashboard();
 };
-
 // ═══════════════════════════════════════════════════════════════════
 // 2. الواجهة الرئيسية للوحة
 // ═══════════════════════════════════════════════════════════════════
