@@ -477,6 +477,10 @@ window.addEventListener('DOMContentLoaded', () => {
     // استدعاء دالة تحديد الموقع
     detectUserLocation();
     window.updateFavBadge();
+    // ✅ استدعاء نافذة تحديد المدينة (إذا لم يكن قد حددها سابقاً)
+setTimeout(() => {
+    window.askForUserCity();
+}, 1500); // تأخير بسيط حتى تظهر شاشة التحميل وتختفي
 }); // نهاية DOMContentLoaded
 
 async function fetchListings() {
@@ -10965,3 +10969,70 @@ window.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) fetchTodayDutiesForBadge();
 });
+
+
+
+// ═══════════════════════════════════════════════════════════
+// 🌍 نظام تحديد مدينة المستخدم الدائم (يُحفظ للأبد)
+// ═══════════════════════════════════════════════════════════
+window.askForUserCity = () => {
+    // إذا كان المستخدم قد اختار مدينته سابقاً، لا تسأله مرة أخرى
+    const savedCity = localStorage.getItem('lomedx_user_city');
+    if (savedCity) {
+        // تطبيق المدينة المحفوظة فوراً
+        currentCity = savedCity;
+        document.getElementById('currentCityText').innerText = savedCity;
+        if (typeof renderData === 'function') renderData();
+        return; 
+    }
+
+    // إنشاء النافذة
+    const cities = allCities.filter(c => c !== 'كل المدن');
+    const overlay = document.createElement('div');
+    overlay.id = 'userCityOverlay';
+    overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;';
+    
+    overlay.innerHTML = `
+        <div style="background:var(--card); border-radius:24px; padding:30px 24px; max-width:400px; width:100%; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.3);">
+            <div style="width:70px; height:70px; background:#E0F2FE; color:#0284C7; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:28px;">
+                <i class="fas fa-map-location-dot"></i>
+            </div>
+            <h2 style="font-family:'Noto Kufi Arabic'; font-size:1.3rem; font-weight:800; margin-bottom:8px; color:var(--fg);">من أي مدينة أنت؟</h2>
+            <p style="font-size:0.85rem; color:var(--muted); margin-bottom:24px; line-height:1.6;">حدد مدينتك لنعرض لك الأطباء والصيدليات القريبة منك، ولنرسل لك تنبيهات المناوبات الخاصة بمدينتك.</p>
+            
+            <select id="initialCitySelect" class="ctrl-input" style="margin-bottom:20px; font-size:1rem; font-weight:bold; text-align:center;">
+                ${cities.map(c => `<option value="${c}">${c}</option>`).join('')}
+            </select>
+            
+            <button onclick="saveUserCity()" style="width:100%; padding:14px; border-radius:14px; background:var(--accent); color:white; font-weight:bold; border:none; font-size:0.95rem; cursor:pointer; font-family:inherit; transition:0.3s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                تأكيد وحفظ
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+};
+
+window.saveUserCity = () => {
+    const city = document.getElementById('initialCitySelect').value;
+    if (!city) return;
+
+    // 1. حفظ في ذاكرة المتصفح للأبد
+    localStorage.setItem('lomedx_user_city', city);
+    
+    // 2. تطبيق المدينة وتحديث الواجهة
+    currentCity = city;
+    document.getElementById('currentCityText').innerText = city;
+    if (typeof renderData === 'function') renderData();
+
+    // 3. وسم الجهاز في OneSignal
+    if (window.OneSignalDeferred) {
+        OneSignalDeferred.push(function(OneSignal) {
+            OneSignal.User.addTag("city", city);
+        });
+    }
+
+    // 4. إغلاق النافذة
+    document.getElementById('userCityOverlay').remove();
+    if (typeof showToast === 'function') showToast('تم حفظ مدينتك بنجاح ✅', 'success');
+};
