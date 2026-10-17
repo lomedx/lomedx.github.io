@@ -11133,3 +11133,15 @@ window.sendTodayDutyNotifications = async () => {
     btn.innerHTML = originalText;
     btn.disabled = false;
 };
+
+
+
+
+window.openJoinSubscription = (type) => {
+    // نفتح صفحة الدفع مباشرة للطبيب أو الصيدلي الجديد
+    if (type === 'doctor') {
+        openPaymentModal('طبيب', 'طبيب جديد');
+    } else if (type === 'pharmacy') {
+        openPaymentModal('صيدلية', 'صيدلية جديدة');
+    }
+};
