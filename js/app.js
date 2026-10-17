@@ -5437,38 +5437,49 @@ window.logoutHealthFile = async () => {
     showToast('تم تسجيل الخروج بنجاح', 'success'); 
 }
 async function trackAndDisplayVisitors() {
-    const cachedVisitors = localStorage.getItem('cached_visitors') || '0';
-    const cachedViews = localStorage.getItem('cached_views') || '0';
-    const lastFetch = parseInt(localStorage.getItem('stats_last_fetch') || '0');
-    const oneHour = 60 * 60 * 1000;
-    animateCounter(parseInt(cachedVisitors), 'visitorCount');
-    animateCounter(parseInt(cachedViews), 'viewsCount');
+    // 1. عرض الأرقام المخزنة فوراً (لتجربة مستخدم سريعة)
+    const cachedVisitors = parseInt(localStorage.getItem('cached_visitors') || '0');
+    const cachedViews = parseInt(localStorage.getItem('cached_views') || '0');
+    
+    animateCounter(cachedVisitors, 'visitorCount');
+    animateCounter(cachedViews, 'viewsCount');
 
     try {
-        const { data: vData } = await supabase.from('site_stats').select('count').eq('id', 'views_metrics').single();
-        const newViews = (vData?.count || 0) + 1;
-        await supabase.from('site_stats').upsert({ id: 'views_metrics', count: newViews });
+        // ═══════════════════════════════════════════════════════
+        // 2. زيادة عداد المشاهدات (Views) عبر دالة RPC
+        // ═══════════════════════════════════════════════════════
+        const { data: newViewsCount, error: viewsError } = await supabase.rpc(
+            'increment_site_stat', 
+            { stat_id: 'views_metrics' }
+        );
 
+        if (!viewsError && newViewsCount) {
+            // تحديث الكاش وعرض الرقم الجديد فوراً
+            localStorage.setItem('cached_views', newViewsCount.toString());
+            animateCounter(newViewsCount, 'viewsCount');
+        }
+
+        // ═══════════════════════════════════════════════════════
+        // 3. زيادة عداد الزوار (Visitors) عبر دالة RPC
+        // ═══════════════════════════════════════════════════════
         const isNewSession = !sessionStorage.getItem('hasVisitedRaheba');
+        
         if (isNewSession) {
-            const { data: visData } = await supabase.from('site_stats').select('count').eq('id', 'visitor_metrics').single();
-            const newVisitors = (visData?.count || 0) + 1;
-            await supabase.from('site_stats').upsert({ id: 'visitor_metrics', count: newVisitors });
-            sessionStorage.setItem('hasVisitedRaheba', 'true');
+            const { data: newVisitorsCount, error: visError } = await supabase.rpc(
+                'increment_site_stat', 
+                { stat_id: 'visitor_metrics' }
+            );
+
+            if (!visError && newVisitorsCount) {
+                // تحديث الكاش، وضع علامة الجلسة، وعرض الرقم الجديد
+                localStorage.setItem('cached_visitors', newVisitorsCount.toString());
+                sessionStorage.setItem('hasVisitedRaheba', 'true');
+                animateCounter(newVisitorsCount, 'visitorCount');
+            }
         }
 
-        if (Date.now() - lastFetch > oneHour) {
-            const { data: visSnap } = await supabase.from('site_stats').select('count').eq('id', 'visitor_metrics').single();
-            const { data: viewsSnap } = await supabase.from('site_stats').select('count').eq('id', 'views_metrics').single();
-            const realVisitors = visSnap?.count || 0;
-            const realViews = viewsSnap?.count || 0;
-            localStorage.setItem('cached_visitors', realVisitors.toString());
-            localStorage.setItem('cached_views', realViews.toString());
-            localStorage.setItem('stats_last_fetch', Date.now().toString());
-            animateCounter(realVisitors, 'visitorCount');
-            animateCounter(realViews, 'viewsCount');
-        }
     } catch (error) {
+        // في حال حدوث أي خطأ مفاجئ، يتجاهله الكود بصمت حتى لا يتعطل الموقع
     }
 }
 function animateCounter(target, elementId) {
