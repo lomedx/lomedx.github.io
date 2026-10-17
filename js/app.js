@@ -10099,6 +10099,11 @@ function renderDutyDashboard() {
                     <i class="fas fa-print"></i>
                     <span>طباعة</span>
                 </button>
+                <!-- ✅ زر إرسال إشعارات المناوبات -->
+<button onclick="sendTodayDutyNotifications()" id="sendNotifBtn" class="action-btn" style="color: #E11D48; grid-column: span 2; border-color: #FECDD3; background-color: #FFF1F2;">
+    <i class="fas fa-bell"></i>
+    <span>إرسال إشعارات مناوبات اليوم (لكل المدن)</span>
+</button>
             </div>
 
             <!-- قائمة المناوبات -->
@@ -11064,4 +11069,64 @@ window.saveUserCity = () => {
 
     document.getElementById('userCityOverlay').remove();
     if (typeof showToast === 'function') showToast('تم حفظ مدينتك بنجاح ✅', 'success');
+};
+
+window.sendTodayDutyNotifications = async () => {
+    if (!window.checkOnlineStatus()) return;
+    
+    // 1. جلب تاريخ اليوم
+    const today = new Date().toISOString().split('T')[0];
+    
+    // 2. جلب مناوبات اليوم من قاعدة البيانات
+    const { data: duties, error } = await supabase
+        .from('pharmacy_duties')
+        .select('city, pharmacy_id')
+        .eq('duty_date', today);
+
+    if (error || !duties || duties.length === 0) {
+        showToast('لا توجد مناوبات مسجلة لليوم لإرسال إشعارات لها.', 'error');
+        return;
+    }
+
+    // حالة الزر (جاري الإرسال)
+    const btn = document.getElementById('sendNotifBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+    btn.disabled = true;
+
+    // 3. تجميع الصيدليات حسب المدينة
+    const cityGroups = {};
+    duties.forEach(d => {
+        const ph = allData.find(p => p.id === d.pharmacy_id);
+        if (ph) {
+            if (!cityGroups[d.city]) cityGroups[d.city] = [];
+            cityGroups[d.city].push(ph.name);
+        }
+    });
+
+    let successCount = 0;
+
+    // 4. إرسال إشعار لكل مدينة على حدة (باستخدام الدالة المركزية الخاصة بك)
+    for (const [city, pharmacyNames] of Object.entries(cityGroups)) {
+        const namesText = pharmacyNames.join(' و ');
+        
+        try {
+            // ✅ نستدعي دالتك الجاهزة، ونمرر target='city' لكي يرسل لسكان هذه المدينة فقط
+            await sendPushNotification(
+                null, 
+                `🌙 مناوبات الليلة في ${city}`, 
+                `صيدلية ${namesText} مناوبة اليوم. تفقد المنصة لمعرفة التفاصيل.`, 
+                'city',  
+                null, 
+                city     
+            );
+            successCount++;
+        } catch (e) {
+            console.error('Error sending to city:', city, e);
+        }
+    }
+
+    showToast(`✅ تم إرسال الإشعارات بنجاح لـ ${successCount} مدينة`, 'success');
+    btn.innerHTML = originalText;
+    btn.disabled = false;
 };
