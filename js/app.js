@@ -10099,10 +10099,10 @@ function renderDutyDashboard() {
                     <i class="fas fa-print"></i>
                     <span>طباعة</span>
                 </button>
-                <!-- ✅ زر إرسال إشعارات المناوبات -->
+            
 <button onclick="sendTodayDutyNotifications()" id="sendNotifBtn" class="action-btn" style="color: #E11D48; grid-column: span 2; border-color: #FECDD3; background-color: #FFF1F2;">
     <i class="fas fa-bell"></i>
-    <span>إرسال إشعارات مناوبات اليوم (لكل المدن)</span>
+    <span>إرسال إشعارات اليوم (لكل مدينة إشعارها الخاص)</span>
 </button>
             </div>
 
@@ -10131,7 +10131,7 @@ window.onDutyCityChange = () => {
 // ═══════════════════════════════════════════════════════════════════
 // 3. تحميل المناوبات من Supabase
 // ═══════════════════════════════════════════════════════════════════
-async function loadDuties() {
+window.loadDuties = async function() {
     dutyFilters.city = document.getElementById('cityFilter').value;
     dutyFilters.month = document.getElementById('monthFilter').value;
     
@@ -10294,7 +10294,7 @@ window.openAddDutyForm = () => {
                 </select>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px;">
                 <div class="form-group">
                     <label class="form-label">تاريخ المناوبة *</label>
                     <input type="date" id="newDutyDate" class="form-input" value="${today}">
@@ -11117,7 +11117,7 @@ window.sendTodayDutyNotifications = async () => {
             await sendPushNotification(
                 null, 
                 `🌙 مناوبات الليلة في ${city}`, 
-                `صيدلية ${namesText} مناوبة اليوم. تفقد المنصة لمعرفة التفاصيل.`, 
+                ` ${namesText} مناوبة اليوم. تفقد المنصة لمعرفة التفاصيل.`, 
                 'city',  
                 null, 
                 city     
