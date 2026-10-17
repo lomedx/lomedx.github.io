@@ -6639,87 +6639,256 @@ window.submitAnswer = async (qId) => {
 };
 // === Payment Modal ===
 window.openPaymentModal = (type, name) => {
-    let featuresHtml = '';
-if (type === 'طبيب') {
-    featuresHtml = `
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">ظهور اسمك في <b>قمة نتائج البحث</b> مع شارة التوثيق الذهبية.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إمكانية <b>الحجز الإلكتروني</b> للمرضى مباشرة من المنصة.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">غرفة محادثة <b>(دردشة مباشرة)</b> وتلقي طلبات الحجز.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إصدار <b>روشتات طبية إلكترونية موثقة</b> برمز QR.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">مؤشر <b>الازدحام المباشر</b> للعيادة لتنظيم دور المرضى.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">مكتبة أدوية خاصة بك لإصدار الروشتات بسرعة.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">نظام <b>ملفات المرضى</b> الداخلي (سجل طبي متكامل لكل مريض).</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">الوصول السريع للملف الصحي للمريض عبر <b>مسح رمز QR</b>.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">الإجابة على أسئلة المرضى في قسم <b>"اسأل طبيب"</b>.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إحصائيات دقيقة (عدد الزيارات، نقرات الهاتف، والحجوزات).</span></div>
-    `;
-} else { 
-    featuresHtml = `
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">ظهور اسم صيدليتك في <b>قمة نتائج البحث</b> مع شارة التوثيق الذهبية.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">استقبال <b>طلبات الأدوية العاجلة</b> من المرضى في مدينتك.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">الظهور التلقائي في نظام <b>مناوبات الصيدليات</b> وإرسال إشعارات للمرضى.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إشعارات فورية لصيدليتك عند وجود <b>طلب دواء في مدينتك</b>.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">قارئ الروشتات الإلكترونية (QR) والتحقق من صحتها.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">التحكم بإظهار حالة <b>(مفتوح / مغلق / مناوبة ليلية)</b> للمرضى.</span></div>
-    <div class="flex items-center gap-3"><i class="fas fa-circle-check text-emerald-600 text-lg"></i><span class="text-sm font-semibold text-gray-700">إحصائيات متقدمة (عدد الأدوية التي وفرتها، ونقرات الهاتف).</span></div>
-    `;
-}
-
-    // Using encodeURIComponent for URL safety
-    const safeType = encodeURIComponent(type);
-    const safeName = encodeURIComponent(name);
+    const isDoctor = type === 'طبيب';
     const htmlSafeType = escapeHtml(type);
     const htmlSafeName = escapeHtml(name);
 
+    // 1. تحديد الأيقونة والعنوان والنصوص حسب النوع
+    const headerTitle = isDoctor ? 'اشتراك الطبيب الاحترافي' : 'اشتراك الصيدلية الاحترافي';
+    const headerSubtitle = isDoctor ? 'أدوات متقدمة لإدارة عيادتك بذكاء' : 'نظام ذكي لاستقبال الطلبات وإدارة صيدليتك';
+    const featureCountText = isDoctor ? '+15 ميزة متكاملة' : '+12 ميزة متكاملة';
+    const submitBtnText = isDoctor ? 'تأكيد الدفع وتفعيل العيادة' : 'تأكيد الدفع وتفعيل الصيدلية';
+
+    // 2. بناء المميزات (الطبيب أو الصيدلية)
+    let featuresHtml = '';
+    if (isDoctor) {
+        featuresHtml = `
+            <div class="feature-section">
+                <div class="fs-header">
+                    <div class="fs-icon" style="background: #ECFDF5; color: #10B981;"><i class="fas fa-hospital-user"></i></div>
+                    <div class="fs-title-group"><h4>نظام إدارة العيادة</h4><p>لتنظيم وقتك واستقبال المرضى</p></div>
+                </div>
+                <ul class="fs-list">
+                    <li><i class="fas fa-check-circle"></i> حجز إلكتروني ذكي</li>
+                    <li><i class="fas fa-check-circle"></i> طلبات الحجز الفورية</li>
+                    <li><i class="fas fa-check-circle"></i> دردشة مباشرة مع المريض</li>
+                    <li><i class="fas fa-check-circle"></i> مؤشر ازدحام العيادة LIVE</li>
+                    <li><i class="fas fa-check-circle"></i> إدارة أيام وأوقات العمل</li>
+                    <li><i class="fas fa-check-circle"></i> نظام مواعيد دقيق (Slots)</li>
+                </ul>
+            </div>
+            <div class="feature-section">
+                <div class="fs-header">
+                    <div class="fs-icon" style="background: #EFF6FF; color: #3B82F6;"><i class="fas fa-notes-medical"></i></div>
+                    <div class="fs-title-group"><h4>الملف الطبي الرقمي</h4><p>لتقديم رعاية صحية متطورة</p></div>
+                </div>
+                <ul class="fs-list">
+                    <li><i class="fas fa-check-circle"></i> إصدار روشتات إلكترونية</li>
+                    <li><i class="fas fa-check-circle"></i> توثيق برمز QR فريد</li>
+                    <li><i class="fas fa-check-circle"></i> سجل مرضى داخلي متكامل</li>
+                    <li><i class="fas fa-check-circle"></i> مسح ملف المريض الصحي</li>
+                    <li><i class="fas fa-check-circle"></i> مكتبة أدويتك الخاصة</li>
+                    <li><i class="fas fa-check-circle"></i> طباعة وتصدير الروشتات</li>
+                </ul>
+            </div>
+            <div class="feature-section">
+                <div class="fs-header">
+                    <div class="fs-icon" style="background: #FFFBEB; color: #F59E0B;"><i class="fas fa-chart-pie"></i></div>
+                    <div class="fs-title-group"><h4>الظهور والنمو</h4><p>لتوسيع قاعدة مرضاك وزيادة الأرباح</p></div>
+                </div>
+                <ul class="fs-list">
+                    <li><i class="fas fa-check-circle"></i> أولوية في نتائج البحث</li>
+                    <li><i class="fas fa-check-circle"></i> شارة التوثيق الذهبية</li>
+                    <li><i class="fas fa-check-circle"></i> إحصائيات الزيارات</li>
+                    <li><i class="fas fa-check-circle"></i> تحليلات نقرات الهاتف</li>
+                    <li><i class="fas fa-check-circle"></i> الإجابة في "اسأل طبيب"</li>
+                    <li><i class="fas fa-check-circle"></i> دعم فني بأولوية</li>
+                </ul>
+            </div>
+        `;
+    } else {
+        featuresHtml = `
+            <div class="feature-section">
+                <div class="fs-header">
+                    <div class="fs-icon" style="background: #ECFDF5; color: #10B981;"><i class="fas fa-prescription-bottle-medical"></i></div>
+                    <div class="fs-title-group"><h4>استقبال طلبات المرضى</h4><p>لزيادة مبيعاتك وتوفير الأدوية</p></div>
+                </div>
+                <ul class="fs-list">
+                    <li><i class="fas fa-check-circle"></i> استقبال طلبات الأدوية العاجلة</li>
+                    <li><i class="fas fa-check-circle"></i> إشعارات فورية للطلبات</li>
+                    <li><i class="fas fa-check-circle"></i> قارئ الروشتات (QR)</li>
+                    <li><i class="fas fa-check-circle"></i> التحقق من صحة الروشتة</li>
+                    <li><i class="fas fa-check-circle"></i> إدارة أدويتك المتوفرة</li>
+                    <li><i class="fas fa-check-circle"></i> التواصل المباشر مع المريض</li>
+                </ul>
+            </div>
+            <div class="feature-section">
+                <div class="fs-header">
+                    <div class="fs-icon" style="background: #EFF6FF; color: #3B82F6;"><i class="fas fa-moon"></i></div>
+                    <div class="fs-title-group"><h4>نظام المناوبات والإشعارات</h4><p>لتسويق صيدليتك تلقائياً</p></div>
+                </div>
+                <ul class="fs-list">
+                    <li><i class="fas fa-check-circle"></i> الظهور في جدول المناوبات</li>
+                    <li><i class="fas fa-check-circle"></i> إشعار صباحي للمرضى</li>
+                    <li><i class="fas fa-check-circle"></i> تحكم بالحالة (مفتوح/مغلق)</li>
+                    <li><i class="fas fa-check-circle"></i> تفعيل المناوبة الليلية</li>
+                    <li><i class="fas fa-check-circle"></i> استهداف المرضى بمدينتك</li>
+                    <li><i class="fas fa-check-circle"></i> إدارة أيام العمل</li>
+                </ul>
+            </div>
+            <div class="feature-section">
+                <div class="fs-header">
+                    <div class="fs-icon" style="background: #FFFBEB; color: #F59E0B;"><i class="fas fa-chart-line"></i></div>
+                    <div class="fs-title-group"><h4>الظهور والنمو</h4><p>لتكون الخيار الأول للمرضى</p></div>
+                </div>
+                <ul class="fs-list">
+                    <li><i class="fas fa-check-circle"></i> أولوية في نتائج البحث</li>
+                    <li><i class="fas fa-check-circle"></i> شارة التوثيق الذهبية</li>
+                    <li><i class="fas fa-check-circle"></i> إحصائيات زيارات صفحتك</li>
+                    <li><i class="fas fa-check-circle"></i> تحليلات نقرات الاتصال</li>
+                    <li><i class="fas fa-check-circle"></i> إحصائية الأدوية الموفرة</li>
+                    <li><i class="fas fa-check-circle"></i> دعم فني بأولوية</li>
+                </ul>
+            </div>
+        `;
+    }
+
+    // 3. حقن التصميم بالكامل داخل النافذة
     document.getElementById('modalContent').innerHTML = `
-        <div class="p-6 text-center">
-            <div class="w-16 h-16 mx-auto rounded-full bg-gradient-to-tr from-yellow-400 to-orange-500 flex items-center justify-center mb-4 shadow-lg shadow-orange/30">
-                <i class="fas fa-crown text-3xl text-white"></i>
+        <style>
+            /* أنماط خاصة بصفحة الدفع لعزلها عن باقي الموقع */
+            .premium-pay-modal { font-family: 'IBM Plex Sans Arabic', sans-serif; padding: 0; background: #F8FAFC; }
+            .ppm-header { background: linear-gradient(145deg, #0F172A 0%, #1E293B 100%); padding: 35px 25px 30px; text-align: center; position: relative; overflow: hidden; border-radius: 20px 20px 0 0; }
+            .ppm-header::before { content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%; pointer-events: none; }
+            .ppm-crown { width: 72px; height: 72px; background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 32px; color: #B45309; box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.5); transform: rotate(-3deg); transition: 0.3s; }
+            .ppm-header:hover .ppm-crown { transform: rotate(0deg) scale(1.05); }
+            .ppm-header h2 { font-family: 'Noto Kufi Arabic'; margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px; }
+            .ppm-header p { margin: 0; font-size: 13px; color: #94A3B8; font-weight: 500; }
+            
+            .ppm-content { padding: 25px; background: #FFFFFF; }
+            .ppm-badge-wrap { text-align: center; margin-bottom: 20px; }
+            .ppm-badge { display: inline-flex; align-items: center; gap: 6px; background: #EFF6FF; color: #2563EB; padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 700; border: 1px solid #BFDBFE; }
+            
+            .ppm-features { display: flex; flex-direction: column; gap: 16px; margin-bottom: 30px; }
+            .feature-section { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 20px; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); transition: all 0.3s; }
+            .feature-section:hover { transform: translateY(-3px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border-color: #CBD5E1; }
+            .fs-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px dashed #E2E8F0; }
+            .fs-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+            .fs-title-group h4 { font-family: 'Noto Kufi Arabic'; font-weight: 800; font-size: 15px; color: #0F172A; margin: 0 0 2px; }
+            .fs-title-group p { font-size: 11px; color: #64748B; margin: 0; font-weight: 500; }
+            
+            .fs-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 8px; margin: 0; padding: 0; list-style: none; }
+            .fs-list li { font-size: 11.5px; color: #334155; font-weight: 600; display: flex; align-items: flex-start; gap: 6px; line-height: 1.4; }
+            .fs-list li i { color: #10B981; font-size: 12px; margin-top: 2px; flex-shrink: 0; }
+
+            .ppm-section-title { font-family: 'Noto Kufi Arabic'; font-weight: 800; font-size: 16px; margin: 0 0 15px; text-align: center; color: #0F172A; }
+            
+            .compare-box { border: 1px solid #E2E8F0; border-radius: 18px; overflow: hidden; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); margin-bottom: 30px; background: #FFFFFF; }
+            .compare-box table { width: 100%; border-collapse: collapse; text-align: center; }
+            .compare-box th { padding: 14px 10px; font-size: 12px; font-weight: 700; color: #64748B; background: #F8FAFC; }
+            .compare-box th:first-child { text-align: right; padding-right: 16px; }
+            .compare-box th.pro-col { color: #2563EB; background: #EFF6FF; position: relative; }
+            .compare-box th.pro-col::after { content: '👑'; position: absolute; top: 2px; right: 8px; font-size: 10px; }
+            .compare-box td { padding: 12px 10px; font-size: 13px; color: #0F172A; border-bottom: 1px solid #E2E8F0; }
+            .compare-box td:first-child { text-align: right; padding-right: 16px; font-weight: 600; }
+            .compare-box tr:last-child td { border-bottom: none; }
+            .compare-box .pro-cell { background: #F0F9FF; font-weight: 700; }
+            .icon-check { color: #10B981; font-size: 16px; }
+            .icon-cross { color: #CBD5E1; font-size: 16px; }
+
+            .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+            .pay-card { border: 2px solid #E2E8F0; background: #FFFFFF; border-radius: 16px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
+            .pay-card.active { border-color: #2563EB; background: #EFF6FF; }
+            .pay-badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #2563EB; color: white; font-size: 9px; font-weight: 800; padding: 3px 12px; border-radius: 20px; white-space: nowrap; box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+            .pay-card i { font-size: 24px; color: #64748B; margin-bottom: 8px; display: block; transition: 0.2s; }
+            .pay-card.active i { color: #2563EB; transform: scale(1.1); }
+            .pay-card .title { font-weight: 800; font-size: 14px; color: #0F172A; }
+            .pay-card.active .title { color: #2563EB; }
+            .pay-card .sub { font-size: 10px; color: #64748B; margin-top: 4px; font-weight: 500; }
+
+            .ppm-submit { width: 100%; padding: 16px; border-radius: 16px; border: none; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; font-weight: 800; font-size: 15px; font-family: 'Noto Kufi Arabic'; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 20px -6px rgba(16,185,129,0.5); cursor: pointer; transition: all 0.3s; text-decoration: none; }
+            .ppm-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 25px -6px rgba(16,185,129,0.6); }
+        </style>
+
+        <div class="premium-pay-modal">
+            <div class="ppm-header">
+                <div class="ppm-crown"><i class="fas fa-crown"></i></div>
+                <h2>${headerTitle}</h2>
+                <p>${headerSubtitle}</p>
             </div>
-            <h3 class="text-xl font-black mb-1" style="font-family: 'Noto Kufi Arabic'">اشتراك ${htmlSafeType} الاحترافي</h3>
-            <p class="text-xs text-gray-500 mb-5">أهلا دكتور/ة <b>${htmlSafeName}</b>، انضم لنخبة ${htmlSafeType === 'طبيب' ? 'الأطباء' : 'الصيدليات'} وأفتح أقساماً متقدمة في موقعك .</p>
-            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-right mb-6 space-y-3">
-                <div class="flex items-center gap-3"><i class="fas fa-star text-yellow-500 text-lg"></i><span class="text-sm font-bold text-gray-800">الحصول على <b>شارة التوثيق الذهبية</b> لزيادة ثقة المرضى.</span></div>
-                ${featuresHtml}
+
+            <div class="ppm-content">
+                <div class="ppm-badge-wrap">
+                    <div class="ppm-badge">
+                        <i class="fas fa-sparkles"></i> ${featureCountText}
+                    </div>
+                </div>
+
+                <div class="ppm-features">
+                    ${featuresHtml}
+                </div>
+
+                <h4 class="ppm-section-title">ما الفرق بين الحساب المجاني والمميز؟</h4>
+                <div class="compare-box">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الميزة</th>
+                                <th>مجاني</th>
+                                <th class="pro-col">مميز</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>إدراج في دليل المنشآت</td>
+                                <td><i class="fas fa-check-circle icon-check"></i></td>
+                                <td class="pro-cell"><i class="fas fa-check-circle icon-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td>${isDoctor ? 'نظام الحجز والمواعيد' : 'استقبال طلبات الأدوية'}</td>
+                                <td><i class="fas fa-minus icon-cross"></i></td>
+                                <td class="pro-cell"><i class="fas fa-check-circle icon-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td>${isDoctor ? 'الروشتات والملفات الطبية' : 'نظام المناوبات والإشعارات'}</td>
+                                <td><i class="fas fa-minus icon-cross"></i></td>
+                                <td class="pro-cell"><i class="fas fa-check-circle icon-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td>الظهور والتحليلات المتقدمة</td>
+                                <td><i class="fas fa-minus icon-cross"></i></td>
+                                <td class="pro-cell"><i class="fas fa-check-circle icon-check"></i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="ppm-section-title">اختر طريقة الدفع</h4>
+                <div class="payment-grid">
+                    <div class="pay-card active" id="btn-shamcash" onclick="togglePaymentMethod('shamcash')">
+                        <div class="pay-badge">الأكثر استخداماً</div>
+                        <i class="fas fa-mobile-screen"></i>
+                        <div class="title">شام كاش</div>
+                        <div class="sub">تفعيل فوري</div>
+                    </div>
+                    <div class="pay-card" id="btn-cash" onclick="togglePaymentMethod('cash')">
+                        <i class="fas fa-hand-holding-dollar"></i>
+                        <div class="title">دفع نقدي</div>
+                        <div class="sub">عبر الواتساب</div>
+                    </div>
+                </div>
+
+                <div id="shamcash-details" style="text-align: center; margin-bottom: 20px;">
+                    <div style="background: white; padding: 5px; border-radius: 16px; border: 4px solid #EFF6FF; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); width: 160px; height: 160px; margin: 0 auto 15px;">
+                        <img src="https://z-cdn-media.chatglm.cn/files/533bb04c-b262-4f21-826a-71b187260747.png?auth_key=1886692436-f4137efd272049179bd92d56b0081347-0-fdecf35d303f970d7d8aac45cca966ba" alt="شام كاش" style="width: 100%; height: 100%; border-radius: 10px; object-fit: contain;">
+                    </div>
+                    <p style="font-size: 11px; color: #64748B; font-weight: 600;">امسح الرمز عبر تطبيق شام كاش، ثم أرسل صورة الإشعار عبر الزر أدناه.</p>
+                </div>
+
+                <div id="cash-details" style="text-align: center; margin-bottom: 20px; display: none;">
+                    <p style="font-size: 12px; color: #64748B; font-weight: 600; line-height: 1.6;">اضغط على الزر أدناه لتنسيق موعد الدفع النقدي مع الإدارة عبر الواتساب.</p>
+                </div>
+
+                <a id="dynamicWpBtn" data-type="${htmlSafeType}" data-name="${htmlSafeName}" href="https://wa.me/963980390813?text=مرحباً، أريد تأكيد دفع اشتراك ${encodeURIComponent(type)}: ${encodeURIComponent(name)}" target="_blank" class="ppm-submit">
+                    <i class="fab fa-whatsapp text-xl"></i> <span id="dynamicWpBtnText">${submitBtnText}</span>
+                </a>
             </div>
-            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5 mb-5 relative overflow-hidden shadow-inner">
-                <div class="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-[10px] font-bold py-1 px-3 rounded-bl-xl flex items-center gap-1 shadow-sm"><i class="fas fa-bolt"></i> دفع سريع ومباشر</div>
-                <h4 class="font-bold text-gray-800 text-base mb-4 mt-3" style="font-family: 'Noto Kufi Arabic'">اختر طريقة الدفع المناسبة لك:</h4>
-                <div class="grid grid-cols-2 gap-3 mb-5">
-                    <button id="btn-shamcash" onclick="togglePaymentMethod('shamcash')" class="py-3 rounded-xl border-2 border-blue-500 bg-blue-50 text-blue-700 font-bold text-sm flex flex-col items-center justify-center gap-1 transition-all">
-                        <i class="fas fa-mobile-screen text-xl"></i><span>شام كاش</span>
-                    </button>
-                    <button id="btn-cash" onclick="togglePaymentMethod('cash')" class="py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-600 font-bold text-sm flex flex-col items-center justify-center gap-1 transition-all">
-                        <i class="fas fa-hand-holding-dollar text-xl"></i><span>دفع النقدي(المباشر)</span>
-                    </button>
-                </div>
-                <div id="shamcash-details" class="text-right">
-                    <div class="bg-white p-2 rounded-2xl border-4 border-white shadow-lg w-44 h-44 mx-auto mb-5">
-                        <img src="https://z-cdn-media.chatglm.cn/files/533bb04c-b262-4f21-826a-71b187260747.png?auth_key=1886692436-f4137efd272049179bd92d56b0081347-0-fdecf35d303f970d7d8aac45cca966ba" alt="رمز الدفع شام كاش" class="w-full h-full rounded-lg object-contain">
-                    </div>
-                    <div class="space-y-3 mb-5">
-                        <div class="flex items-start gap-3"><div class="bg-green-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-md">1</div><div class="text-sm text-gray-700 leading-relaxed pt-0.5">افتح تطبيق <b>شام كاش</b> وامسح الرمز أعلاه لتتم عملية التحويل بكل سهولة.</div></div>
-                        <div class="flex items-start gap-3"><div class="bg-green-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-md">2</div><div class="text-sm text-gray-700 leading-relaxed pt-0.5">احفظ صورة (Screenshot) لإشعار الدفع الناجح.</div></div>
-                        <div class="flex items-start gap-3"><div class="bg-green-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-md">3</div><div class="text-sm text-gray-700 leading-relaxed pt-0.5">اضغط على زر الواتساب أدناه وأرسل الصورة لتقوم الإدارة بتفعيل حسابك فوراً.</div></div>
-                    </div>
-                </div>
-                <div id="cash-details" class="text-right hidden">
-                    <div class="space-y-3 mb-5">
-                        <div class="flex items-start gap-3"><div class="bg-green-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-md">1</div><div class="text-sm text-gray-700 leading-relaxed pt-0.5">اضغط على زر الواتساب أدناه لمراسلة الإدارة .</div></div>
-                        <div class="flex items-start gap-3"><div class="bg-green-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-md">2</div><div class="text-sm text-gray-700 leading-relaxed pt-0.5">قم بالدفع نقدياً (مباشر) .</div></div>
-                        <div class="flex items-start gap-3"><div class="bg-green-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-md">3</div><div class="text-sm text-gray-700 leading-relaxed pt-0.5">سيتم تفعيل حسابك فوراً بعد تأكيد الدفع.</div></div>
-                    </div>
-                </div>
-            </div>
-            <a id="dynamicWpBtn" data-type="${htmlSafeType}" data-name="${htmlSafeName}" href="https://wa.me/963980390813?text=مرحباً، أريد تأكيد دفع اشتراك ${safeType}: ${safeName}" target="_blank" class="w-full py-3.5 rounded-xl bg-green-500 text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-md hover:shadow-lg">
-                <i class="fas fa-whatsapp text-lg"></i> <span id="dynamicWpBtnText">تأكيد الدفع عبر الواتساب</span>
-            </a>
-            <button onclick="closeModal()" class="w-full py-2 mt-2 rounded-xl border font-bold text-sm transition-colors hover:bg-gray-50" style="border-color: var(--border); color: var(--muted)">إغلاق</button>
         </div>
     `;
+    
     document.getElementById('modalOverlay').classList.add('active');
     lockScroll();
-}
+};
 
 window.togglePaymentMethod = (method) => {
     const shamcashDetails = document.getElementById('shamcash-details');
