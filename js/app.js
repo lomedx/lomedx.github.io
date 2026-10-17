@@ -6708,8 +6708,8 @@ window.openPaymentModal = (type, name) => {
                     <li><i class="fas fa-check-circle"></i> إشعارات فورية للطلبات</li>
                     <li><i class="fas fa-check-circle"></i> قارئ الروشتات (QR)</li>
                     <li><i class="fas fa-check-circle"></i> التحقق من صحة الروشتة</li>
-                    <li><i class="fas fa-check-circle"></i> إدارة أدويتك المتوفرة</li>
                     <li><i class="fas fa-check-circle"></i> التواصل المباشر مع المريض</li>
+                    <li><i class="fas fa-check-circle"></i> التحكم بحالة الصيدلية (مفتوح/مغلق)</li>
                 </ul>
             </div>
             <div class="feature-section">
@@ -6747,7 +6747,12 @@ window.openPaymentModal = (type, name) => {
     document.getElementById('modalContent').innerHTML = `
         <style>
             /* أنماط خاصة بصفحة الدفع لعزلها عن باقي الموقع */
-            .premium-pay-modal { font-family: 'IBM Plex Sans Arabic', sans-serif; padding: 0; background: #F8FAFC; }
+            .premium-pay-modal { font-family: 'IBM Plex Sans Arabic', sans-serif; padding: 0; background: #F8FAFC; position: relative; }
+            
+            /* ✅ زر الإغلاق */
+            .ppm-close-btn { position: absolute; top: 15px; left: 15px; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.1); border: none; color: #94A3B8; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10; }
+            .ppm-close-btn:hover { background: #EF4444; color: white; }
+
             .ppm-header { background: linear-gradient(145deg, #0F172A 0%, #1E293B 100%); padding: 35px 25px 30px; text-align: center; position: relative; overflow: hidden; border-radius: 20px 20px 0 0; }
             .ppm-header::before { content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%; pointer-events: none; }
             .ppm-crown { width: 72px; height: 72px; background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 32px; color: #B45309; box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.5); transform: rotate(-3deg); transition: 0.3s; }
@@ -6786,7 +6791,7 @@ window.openPaymentModal = (type, name) => {
             .icon-check { color: #10B981; font-size: 16px; }
             .icon-cross { color: #CBD5E1; font-size: 16px; }
 
-            .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+            .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
             .pay-card { border: 2px solid #E2E8F0; background: #FFFFFF; border-radius: 16px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
             .pay-card.active { border-color: #2563EB; background: #EFF6FF; }
             .pay-badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #2563EB; color: white; font-size: 9px; font-weight: 800; padding: 3px 12px; border-radius: 20px; white-space: nowrap; box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
@@ -6798,9 +6803,17 @@ window.openPaymentModal = (type, name) => {
 
             .ppm-submit { width: 100%; padding: 16px; border-radius: 16px; border: none; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; font-weight: 800; font-size: 15px; font-family: 'Noto Kufi Arabic'; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 20px -6px rgba(16,185,129,0.5); cursor: pointer; transition: all 0.3s; text-decoration: none; }
             .ppm-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 25px -6px rgba(16,185,129,0.6); }
+
+            /* ✅ تنسيق خطوات الدفع */
+            .step-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; text-align: right; }
+            .step-num { width: 24px; height: 24px; border-radius: 50%; background: #10B981; color: white; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+            .step-text { font-size: 12px; color: #475569; line-height: 1.5; font-weight: 600; padding-top: 2px; }
         </style>
 
         <div class="premium-pay-modal">
+            <!-- ✅ زر الإغلاق -->
+            <button onclick="closeModal()" class="ppm-close-btn"><i class="fas fa-times"></i></button>
+            
             <div class="ppm-header">
                 <div class="ppm-crown"><i class="fas fa-crown"></i></div>
                 <h2>${headerTitle}</h2>
@@ -6868,15 +6881,21 @@ window.openPaymentModal = (type, name) => {
                     </div>
                 </div>
 
+                <!-- تفاصيل شام كاش -->
                 <div id="shamcash-details" style="text-align: center; margin-bottom: 20px;">
                     <div style="background: white; padding: 5px; border-radius: 16px; border: 4px solid #EFF6FF; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); width: 160px; height: 160px; margin: 0 auto 15px;">
                         <img src="https://z-cdn-media.chatglm.cn/files/533bb04c-b262-4f21-826a-71b187260747.png?auth_key=1886692436-f4137efd272049179bd92d56b0081347-0-fdecf35d303f970d7d8aac45cca966ba" alt="شام كاش" style="width: 100%; height: 100%; border-radius: 10px; object-fit: contain;">
                     </div>
-                    <p style="font-size: 11px; color: #64748B; font-weight: 600;">امسح الرمز عبر تطبيق شام كاش، ثم أرسل صورة الإشعار عبر الزر أدناه.</p>
+                    <div class="step-row"><div class="step-num">1</div><div class="step-text">افتح تطبيق شام كاش وامسح الرمز أعلاه.</div></div>
+                    <div class="step-row"><div class="step-num">2</div><div class="step-text">احفظ صورة إشعار الدفع الناجح (Screenshot).</div></div>
+                    <div class="step-row"><div class="step-num">3</div><div class="step-text">اضغط على زر الواتساب أدناه وأرسل الصورة.</div></div>
                 </div>
 
+                <!-- تفاصيل الدفع النقدي -->
                 <div id="cash-details" style="text-align: center; margin-bottom: 20px; display: none;">
-                    <p style="font-size: 12px; color: #64748B; font-weight: 600; line-height: 1.6;">اضغط على الزر أدناه لتنسيق موعد الدفع النقدي مع الإدارة عبر الواتساب.</p>
+                    <div class="step-row"><div class="step-num">1</div><div class="step-text">اضغط على زر الواتساب أدناه لمراسلة الإدارة.</div></div>
+                    <div class="step-row"><div class="step-num">2</div><div class="step-text">قم بالدفع نقدياً (مباشر) في الموعد المتفق عليه.</div></div>
+                    <div class="step-row"><div class="step-num">3</div><div class="step-text">سيتم تفعيل حسابك فوراً بعد تأكيد الدفع.</div></div>
                 </div>
 
                 <a id="dynamicWpBtn" data-type="${htmlSafeType}" data-name="${htmlSafeName}" href="https://wa.me/963980390813?text=مرحباً، أريد تأكيد دفع اشتراك ${encodeURIComponent(type)}: ${encodeURIComponent(name)}" target="_blank" class="ppm-submit">
