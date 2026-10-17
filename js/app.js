@@ -1362,12 +1362,23 @@ window.closeCitySelector = () => {
 };
 
 window.selectCity = (city) => {
-    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; // إعادة التصفير
+    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; 
     currentCity = city;
     document.getElementById('currentCityText').innerText = city;
     closeCitySelector();
     renderData();
-};  
+
+    // ✅ إذا اختار مدينة محددة (وليس "كل المدن")، احفظها للأبد وحدّث الوسم
+    if (city !== 'all' && city !== 'كل المدن') {
+        localStorage.setItem('lomedx_user_city', city);
+        
+        if (window.OneSignalDeferred) {
+            OneSignalDeferred.push(function(OneSignal) {
+                OneSignal.User.addTag("city", city);
+            });
+        }
+    }
+};
 window.resetSearch = () => { searchQuery = ''; currentFilter = 'all'; const heroSearch = document.getElementById('heroSearch'); if(heroSearch) heroSearch.value = ''; document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active'); b.style.background = ''; b.style.color = ''; b.style.borderColor = ''; }); const allBtn = document.querySelector('[data-filter="all"]'); allBtn.classList.add('active'); allBtn.style.background = 'var(--accent)'; allBtn.style.color = 'white'; allBtn.style.borderColor = 'var(--accent)'; renderData(); }
 
 // ═══════════════════════════════════════════════════════════════
