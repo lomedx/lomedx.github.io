@@ -3473,7 +3473,16 @@ html.dark .lomedx-brand-hero {
 #dutyRosterPanel .action-btn-excel { color: #059669; }
 #dutyRosterPanel .action-btn-export { color: #2563EB; }
 #dutyRosterPanel .action-btn-print { color: var(--muted); }
-#dutyRosterPanel .duty-table-wrapper { background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+#dutyRosterPanel .duty-table-wrapper { 
+    background: var(--card); 
+    border-radius: 12px; 
+    border: 1px solid var(--border); 
+    overflow-x: auto; /* ✅ يسمح بالتمرير الأفقي */
+    -webkit-overflow-scrolling: touch; /* ✅ تمرير سلس على الآيفون */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04); 
+    /* إضافة شريط تمرير رفيع وجميل */
+    scrollbar-width: thin; 
+}
 #dutyRosterPanel .duty-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 #dutyRosterPanel .duty-table thead { background: #1E3A5F; color: white; }
 #dutyRosterPanel .duty-table th { padding: 12px 14px; text-align: right; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
