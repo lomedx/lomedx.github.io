@@ -1932,17 +1932,12 @@ window.toggleMobileMenu = () => {
     const menu = document.getElementById('mobileMenu'); 
     const overlay = document.getElementById('menuOverlay'); 
     const icon = document.getElementById('menuIcon'); 
-    const navbar = document.getElementById('navbar'); // ✅ جلب الشريط العلوي
-    
     const isOpen = menu.classList.contains('open'); 
     
     if (isOpen) { 
         menu.classList.remove('open'); 
         overlay.classList.add('hidden'); 
-        
-        // ✅ إعادة الشريط العلوي لمكانه
-        if (navbar) navbar.classList.remove('hide-nav');
-
+        // ✅ للـ SVG، نستخدم classList
         if (icon) {
             icon.style.transform = 'rotate(0deg)';
             icon.style.transition = 'transform 0.3s ease';
@@ -1951,10 +1946,7 @@ window.toggleMobileMenu = () => {
     } else { 
         menu.classList.add('open'); 
         overlay.classList.remove('hidden'); 
-        
-        // ✅ إخفاء الشريط العلوي بتأثير المسح
-        if (navbar) navbar.classList.add('hide-nav');
-
+        // ✅ للـ SVG، نستخدم style
         if (icon) {
             icon.style.transform = 'rotate(90deg)';
             icon.style.transition = 'transform 0.3s ease';
@@ -1962,6 +1954,7 @@ window.toggleMobileMenu = () => {
         lockScroll(); 
     } 
 }
+
 window.togglePlatformInfo = () => {
     const infoDiv = document.getElementById('platformInfo');
     const icon = document.getElementById('platformInfoIcon');
