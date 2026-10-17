@@ -6894,7 +6894,7 @@ window.openPaymentModal = (type, name) => {
                 <!-- تفاصيل الدفع النقدي -->
                 <div id="cash-details" style="text-align: center; margin-bottom: 20px; display: none;">
                     <div class="step-row"><div class="step-num">1</div><div class="step-text">اضغط على زر الواتساب أدناه لمراسلة الإدارة.</div></div>
-                    <div class="step-row"><div class="step-num">2</div><div class="step-text">قم بالدفع نقدياً (مباشر) في الموعد المتفق عليه.</div></div>
+                    <div class="step-row"><div class="step-num">2</div><div class="step-text">قم بالدفع نقدياً (مباشر) </div></div>
                     <div class="step-row"><div class="step-num">3</div><div class="step-text">سيتم تفعيل حسابك فوراً بعد تأكيد الدفع.</div></div>
                 </div>
 
@@ -6917,26 +6917,34 @@ window.togglePaymentMethod = (method) => {
     const dynamicBtn = document.getElementById('dynamicWpBtn');
     const dynamicBtnText = document.getElementById('dynamicWpBtnText');
     
+    if (!shamcashDetails || !cashDetails || !btnShamcash || !btnCash) return;
+
     // Secure extraction for URL
     const type = encodeURIComponent(dynamicBtn.dataset.type);
     const name = encodeURIComponent(dynamicBtn.dataset.name);
 
     if (method === 'shamcash') {
-        shamcashDetails.classList.remove('hidden');
-        cashDetails.classList.add('hidden');
-        btnShamcash.classList.remove('border-gray-300', 'bg-white', 'text-gray-600');
-        btnShamcash.classList.add('border-blue-500', 'bg-blue-50', 'text-blue-700');
-        btnCash.classList.remove('border-blue-500', 'bg-blue-50', 'text-blue-700');
-        btnCash.classList.add('border-gray-300', 'bg-white', 'text-gray-600');
+        // إظهار شام كاش وإخفاء النقدي
+        shamcashDetails.style.display = 'block';
+        cashDetails.style.display = 'none';
+        
+        // تغيير شكل البطاقات (شام كاش نشط)
+        btnShamcash.classList.add('active');
+        btnCash.classList.remove('active');
+        
+        // تغيير نص الزر
         dynamicBtnText.innerText = "تأكيد الدفع عبر الواتساب";
         dynamicBtn.href = `https://wa.me/963980390813?text=مرحباً، أريد تأكيد دفع اشتراك ${type}: ${name}`;
     } else {
-        shamcashDetails.classList.add('hidden');
-        cashDetails.classList.remove('hidden');
-        btnCash.classList.remove('border-gray-300', 'bg-white', 'text-gray-600');
-        btnCash.classList.add('border-blue-500', 'bg-blue-50', 'text-blue-700');
-        btnShamcash.classList.remove('border-blue-500', 'bg-blue-50', 'text-blue-700');
-        btnShamcash.classList.add('border-gray-300', 'bg-white', 'text-gray-600');
+        // إظهار النقدي وإخفاء شام كاش
+        shamcashDetails.style.display = 'none';
+        cashDetails.style.display = 'block';
+        
+        // تغيير شكل البطاقات (النقدي نشط)
+        btnCash.classList.add('active');
+        btnShamcash.classList.remove('active');
+        
+        // تغيير نص الزر
         dynamicBtnText.innerText = "تنسيق موعد الدفع عبر الواتساب";
         dynamicBtn.href = `https://wa.me/963980390813?text=مرحباً، أريد تنسيق موعد دفع (نقدي مباشر) لاشتراك ${type}: ${name}`;
     }
