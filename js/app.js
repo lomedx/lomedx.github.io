@@ -10012,6 +10012,11 @@ window.handleDutyAdminLogin = async (e) => {
     
     renderDutyDashboard();
 };
+window.logoutDutyAdmin = async () => {
+    await supabase.auth.signOut();
+    closeCtrlPanel();
+    showToast('تم تسجيل الخروج من لوحة المناوبات بنجاح', 'success');
+};
 // ═══════════════════════════════════════════════════════════════════
 // 2. الواجهة الرئيسية للوحة
 // ═══════════════════════════════════════════════════════════════════
@@ -10027,7 +10032,8 @@ function renderDutyDashboard() {
                     <div class="duty-header-icon"><i class="fas fa-filter"></i></div>
                     <h3>اختر المدينة لعرض المناوبات</h3>
                 </div>
-                <div class="filter-grid" style="grid-template-columns: 1fr 1fr auto;">
+                
+                <div class="filter-grid" style="grid-template-columns: 1fr 1fr;">
                     <div class="form-group">
                         <label class="form-label">المدينة</label>
                         <select id="cityFilter" class="form-select" onchange="onDutyCityChange()">
@@ -10043,9 +10049,6 @@ function renderDutyDashboard() {
                         <input type="month" id="monthFilter" class="form-input" 
                                value="${dutyFilters.month}" onchange="loadDuties()">
                     </div>
-                    <button onclick="loadDuties()" class="btn btn-primary" style="height: 42px;">
-                        <i class="fas fa-sync-alt"></i> تحديث
-                    </button>
                 </div>
             </div>
 
@@ -10071,6 +10074,13 @@ function renderDutyDashboard() {
 
             <!-- قائمة المناوبات -->
             <div id="dutiesList"></div>
+
+            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--border);">
+                <button onclick="logoutDutyAdmin()" class="btn btn-outline" style="width: 100%; color: #DC2626; border-color: #FECACA; background: #FEF2F2; hover:background: #FEE2E2;">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج من لوحة المناوبات
+                </button>
+            </div>
+
         </div>
     `, '#1E3A5F', true);
     
