@@ -1356,7 +1356,11 @@ window.openCitySelector = (mode = 'search') => {
             ${currentCity === city ? '<i class="fas fa-check-circle text-white"></i>' : ''}
         </div>
     `).join('');
-    
+    // تغيير العنوان حسب نوع الفتح
+const titleEl = overlay.querySelector('h3');
+if (titleEl) {
+    titleEl.innerText = mode === 'permanent' ? 'اختر مدينتك الأساسية (للإشعارات)' : 'اختر مدينة للبحث';
+}
     overlay.classList.add('active');
 };
 
