@@ -8197,10 +8197,12 @@ window.submitFacilityRequest = (e) => {
 
     const nameInput = document.getElementById('facName');
     const cityInput = document.getElementById('facCity');
+    const addressInput = document.getElementById('facAddress'); // ✅ الحقل الجديد
     
     const name = nameInput.value.trim();
     const type = document.getElementById('facType').value;
     const city = cityInput.value.trim();
+    const address = addressInput.value.trim(); // ✅ القيمة الجديدة
     const phone = document.getElementById('facPhone').value.trim();
 
     // 1. التحقق من الاسم
@@ -8210,28 +8212,32 @@ window.submitFacilityRequest = (e) => {
         return;
     }
 
-    // 2. فلتر الكلمات المسيئة (تلوين الحقل بالأحمر)
-    let hasBadWords = false;
-    if (containsBadWords(name)) {
-        nameInput.classList.add('input-invalid');
-        hasBadWords = true;
-    } else {
-        nameInput.classList.remove('input-invalid');
+    // 2. التحقق من المدينة
+    if (city.length < 2) {
+        showToast('الرجاء إدخال اسم المدينة', 'error');
+        cityInput.focus();
+        return;
     }
 
-    if (containsBadWords(city)) {
-        cityInput.classList.add('input-invalid');
-        hasBadWords = true;
-    } else {
-        cityInput.classList.remove('input-invalid');
+    // ✅ 3. التحقق من العنوان
+    if (address.length < 5) {
+        showToast('الرجاء إدخال عنوان تفصيلي (الشارع، علامة مميزة)', 'error');
+        addressInput.focus();
+        return;
     }
+
+    // 4. فلتر الكلمات المسيئة
+    let hasBadWords = false;
+    if (containsBadWords(name)) { nameInput.classList.add('input-invalid'); hasBadWords = true; } else { nameInput.classList.remove('input-invalid'); }
+    if (containsBadWords(city)) { cityInput.classList.add('input-invalid'); hasBadWords = true; } else { cityInput.classList.remove('input-invalid'); }
+    if (containsBadWords(address)) { addressInput.classList.add('input-invalid'); hasBadWords = true; } else { addressInput.classList.remove('input-invalid'); }
 
     if (hasBadWords) {
         showToast('تم رفض الطلب لاحتوائه على كلمات غير لائقة.', 'error');
         return;
     }
 
-    // 3. التحقق من رقم الهاتف
+    // 5. التحقق من رقم الهاتف
     const cleanPhone = phone.replace(/[\s\-()]/g, '');
     const phoneRegex = /^(09\d{8}|9\d{8}|\+?9639\d{8})$/;
     if (!phoneRegex.test(cleanPhone)) {
@@ -8240,19 +8246,12 @@ window.submitFacilityRequest = (e) => {
         return;
     }
 
-    // 4. التحقق من المدينة
-    if (city.length < 2) {
-        showToast('الرجاء إدخال اسم المدينة', 'error');
-        cityInput.focus();
-        return;
-    }
-
     // حالة التحميل
     const submitBtn = document.querySelector('.submit-facility-btn');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>جاري التحويل...</span>';
 
-    // بناء رسالة الواتساب
+    // ✅ 6. بناء رسالة الواتساب (مع العنوان الجديد)
     const adminWhatsApp = "963980390813";
     const message = [
         '*📋 طلب تسجيل منشأة طبية جديدة على LomedX*',
@@ -8260,6 +8259,7 @@ window.submitFacilityRequest = (e) => {
         `*🏥 اسم المنشأة/الطبيب:* ${name}`,
         `*📌 النوع:* ${type}`,
         `*📍 المدينة:* ${city}`,
+        `*🏠 العنوان التفصيلي:* ${address}`, // ✅ إضافة العنوان هنا
         `*📞 هاتف التواصل:* ${phone}`,
         '',
         '_تم الإرسال من نموذج LomedX_'
