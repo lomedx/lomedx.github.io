@@ -2587,7 +2587,10 @@ const { count: providedCount } = await supabase
     
     <i class="fas fa-arrow-left text-lg opacity-70"></i>
 </button>
-        </div><div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm">طلبات الأدوية الواردة</h4><div id="requestsContainer" class="flex flex-col gap-3"><p class="text-center py-10" style="color: var(--muted)">جاري تحميل الطلبات...</p></div></div> <button onclick="logoutPharmacy()" class="w-full py-3 rounded-xl border font-bold text-sm mt-3" style="border-color: #EF4444; color: #EF4444;"><i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج</button></div>`, '#0E7C5F', true);
+        </div><div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm">طلبات الأدوية الواردة</h4><div id="requestsContainer" class="flex flex-col gap-3"><p class="text-center py-10" style="color: var(--muted)">جاري تحميل الطلبات...</p></div></div>
+<button onclick="openChangePasswordModal()" class="w-full py-3 rounded-xl border font-bold text-sm mt-3 hover:bg-gray-50 transition-colors" style="border-color: #E2E8F0; color: #334155;">
+    <i class="fas fa-key ml-2 text-amber-500"></i> تغيير كلمة المرور
+</button><button onclick="logoutPharmacy()" class="w-full py-3 rounded-xl border font-bold text-sm mt-3" style="border-color: #EF4444; color: #EF4444;"><i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج</button></div>`, '#0E7C5F', true);
         // إيقاف أي تحديث سابق
     if (unsubscribeMedRequests) { supabase.removeChannel(unsubscribeMedRequests); }
     if (unsubscribeMedRequestsInterval) { clearInterval(unsubscribeMedRequestsInterval); }
@@ -2999,6 +3002,10 @@ window.renderDoctorDashboard = async (doc) => {
         </div>
         
         <!-- 6. تسجيل الخروج -->
+        <!-- زر تغيير كلمة المرور -->
+<button onclick="openChangePasswordModal()" class="w-full py-3 rounded-xl border font-bold text-sm mt-3 hover:bg-gray-50 transition-colors" style="border-color: #E2E8F0; color: #334155;">
+    <i class="fas fa-key ml-2 text-amber-500"></i> تغيير كلمة المرور
+</button>
         <button onclick="logoutHealthFile()" class="w-full py-3 rounded-xl border font-bold text-sm mt-2 hover:bg-red-50 transition-colors" style="border-color: #EF4444; color: #EF4444;">
             <i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج
         </button>
@@ -11345,5 +11352,66 @@ window.openJoinSubscription = (type) => {
         openPaymentModal('طبيب', 'طبيب جديد');
     } else if (type === 'pharmacy') {
         openPaymentModal('صيدلية', 'صيدلية جديدة');
+    }
+};
+
+
+
+window.openChangePasswordModal = () => {
+    // إغلاق لوحة التحكم مؤقتاً وفتح نافذة تغيير كلمة المرور
+    openCtrlPanel('تغيير كلمة المرور', `
+        <div class="flex flex-col gap-4 max-w-sm mx-auto py-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm text-center">
+                <i class="fas fa-shield-alt text-2xl mb-2 text-blue-500"></i>
+                <p>اختر كلمة مرور قوية (6 أحرف على الأقل) لحماية حسابك وبيانات مرضاك.</p>
+            </div>
+            <form onsubmit="submitPasswordChange(event)" class="flex flex-col gap-3">
+                <input type="password" id="newPassword" class="ctrl-input text-center" placeholder="كلمة المرور الجديدة" required minlength="6">
+                <input type="password" id="confirmPassword" class="ctrl-input text-center" placeholder="تأكيد كلمة المرور" required minlength="6">
+                <button type="submit" id="changePassBtn" class="w-full py-3 rounded-xl text-white font-bold text-sm bg-emerald-600 hover:bg-emerald-700">حفظ كلمة المرور</button>
+            </form>
+        </div>
+    `, '#0E7C5F');
+};
+
+window.submitPasswordChange = async (e) => {
+    e.preventDefault();
+    const newPass = document.getElementById('newPassword').value.trim();
+    const confirmPass = document.getElementById('confirmPassword').value.trim();
+    const btn = document.getElementById('changePassBtn');
+
+    if (newPass !== confirmPass) {
+        showToast('كلمتا المرور غير متطابقتين!', 'error');
+        return;
+    }
+
+    if (newPass.length < 6) {
+        showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = 'جاري الحفظ...';
+
+    try {
+        // ✅ هذا هو السطر السحري الذي يغير كلمة المرور في قاعدة البيانات
+        const { data, error } = await supabase.auth.updateUser({
+            password: newPass
+        });
+
+        if (error) throw error;
+
+        showToast('تم تغيير كلمة المرور بنجاح! يرجى حفظها في مكان آمن.', 'success');
+        
+        // العودة إلى لوحة التحكم بعد التغيير
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            // إغلاق النافذة
+            closeCtrlPanel();
+        }
+    } catch (err) {
+        showToast('حدث خطأ: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.innerText = 'حفظ كلمة المرور';
     }
 };
