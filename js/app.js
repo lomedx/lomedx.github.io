@@ -1033,16 +1033,17 @@ window.loadMoreSection = (type) => {
     }, 100);
 };
 function matchItem(item) { 
+    // 1. فلترة النوع
     if (currentFilter !== 'all' && item.type !== currentFilter) return false; 
     
-    if (currentCity !== 'all') {
+    // 2. فلترة المدينة (تم إصلاحها لتقبل "كل المدن" و "all" و "الفارغ")
+    if (currentCity !== 'all' && currentCity !== 'كل المدن' && currentCity !== '') {
         const itemAddress = (item.address || item.clinic || '').toLowerCase();
         if (!itemAddress.includes(currentCity.toLowerCase())) return false;
     }
     
     if (!searchQuery) return true; 
     const q = searchQuery.toLowerCase(); 
-    // ✅ إزالة escapeHtml — لا معنى له في البحث النصي
     return ['name', 'specialty', 'address', 'description', 'services', 'tests', 'departments', 'floors', 'homesample', 'nightdetails', 'consulthours', 'bookingnotes'].some(key => 
         String(item[key] || '').toLowerCase().includes(q)
     ); 
