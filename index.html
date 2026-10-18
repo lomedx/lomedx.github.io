@@ -342,7 +342,7 @@
                     <div class="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center border-2 border-[var(--gold)] flex-shrink-0" style="box-shadow: 0 0 20px rgba(196, 150, 44, 0.3);">
                         <img src="https://lomedx.pages.dev/logo.png" alt="LomedX" class="w-full h-full object-cover">
                     </div>
-                    <div class="lomedx-brand text-2xl font-black leading-none pb-1">LomedX</div>  
+                    <span class="lomedx-brand text-2xl font-black leading-none pb-1">LomedX</span>  
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="setupOneSignal()" class="text-yellow-400 hover:text-yellow-300 text-lg w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-yellow-500/20 hover:border-yellow-500/50 transition-all" title="تفعيل الإشعارات">
@@ -576,23 +576,23 @@
     </div>
 
     <!-- كلمة LomedX -->
-<!-- عنوان H1 الرئيسي: LomedX -->
-<h1 class="lomedx-brand-hero mb-2 flex flex-col items-center justify-center text-center" style="font-size: 2.5rem; line-height: 1.2;">
-    <span style="font-size: 4.5rem;">LomedX</span>
-    <span class="text-xl sm:text-2xl text-white/90 font-bold mt-2" style="font-family: 'Noto Kufi Arabic';">المنصة الطبية الشاملة في سوريا</span>
+<div class="lomedx-brand-hero mb-2">LomedX</div>
+
+<!-- شارة الموقع (أسفل الكلمة) -->
+<div id="userLocationBadge" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 mb-6 text-white/80 text-sm" style="display: none;">
+    <i class="fas fa-map-marker-alt" style="color: var(--gold)"></i>
+    <span id="userLocationText">جاري تحديد موقعك...</span>
+</div>
+               <!-- العنوان الرئيسي -->
+<h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-4" style="font-family: 'Noto Kufi Arabic'">
+    المنصة الموحدة للخدمات الطبية
 </h1>
 
-<!-- شارة الموقع -->
-<div class="text-center mb-6">
-    <div id="userLocationBadge" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white/80 text-sm" style="display: none;">
-        <i class="fas fa-map-marker-alt" style="color: var(--gold)"></i>
-        <span id="userLocationText">جاري تحديد موقعك...</span>
-    </div>
-</div>
 
-<!-- الوصف (يحتوي على الكلمات المفتاحية للسيو) -->
+<!-- الوصف -->
+<!-- الوصف (تم تحسينه لمحركات البحث) -->
 <p class="text-white/70 text-base sm:text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
-    <strong class="text-white">LomedX</strong> هي <strong>المنصة الموحدة للخدمات الطبية</strong> في سوريا. احجز موعدك مع أفضل الأطباء، ابحث عن دوائك، تابع بنك الدم، واستفد من الملف الصحي الذكي.
+    <strong>LomedX</strong> هي <strong>المنصة الطبية الشاملة</strong> في سوريا. نوفر لك <strong>الخدمات الطبية</strong> المتكاملة: احجز موعدك مع أفضل الأطباء، ابحث عن دوائك في الصيدليات، تابع <strong>بنك الدم</strong>، واستفد من <strong>الملف الصحي الذكي</strong> وأدواتنا التفاعلية.
 </p>
 
 <!-- Homepage Media Ads Slider Section -->         
