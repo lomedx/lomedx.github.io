@@ -632,46 +632,65 @@ function getOptimizedImageUrl(url, width = 400, height = 300) {
     return url;
 }
 function updateMetaTags(title, description, image, keywords = '') {
-    document.title = title;
+    // ✅ تنظيف النص من أي تكرار غير مقصود لكلمة LomedX أو الرموز الزائدة
+    let cleanTitle = title.replace(/LomedX\s*\|\s*/gi, '').replace(/\|\s*LomedX/gi, '').trim();
+    let cleanDesc = description.replace(/LomedX\s*\|\s*/gi, '').trim();
     
+    // إذا أصبح النص فارغاً بعد التنظيف، نضع النص الافتراضي
+    if (!cleanTitle || cleanTitle.length < 5) cleanTitle = "المنصة الطبية الشاملة في سوريا";
+    if (!cleanDesc || cleanDesc.length < 5) cleanDesc = "احجز موعدك مع أفضل الأطباء، ابحث عن دواء، وتابع ملفك الصحي.";
+
+    // وضع اسم المنصة في نهاية العنوان فقط (لضمان عدم التكرار)
+    document.title = `${cleanTitle} | LomedX`;
+
     let metaDesc = document.querySelector('meta[name="description"]');
     if (!metaDesc) {
         metaDesc = document.createElement('meta');
         metaDesc.name = "description";
         document.head.appendChild(metaDesc);
     }
-    metaDesc.content = description;
+    metaDesc.content = `${cleanDesc} | LomedX`;
 
-    // === إضافة أو تحديث وسم الكلمات المفتاحية ===
     let metaKeywords = document.querySelector('meta[name="keywords"]');
     if (!metaKeywords) {
         metaKeywords = document.createElement('meta');
         metaKeywords.name = "keywords";
         document.head.appendChild(metaKeywords);
     }
-    metaKeywords.content = keywords;
+    if (keywords) metaKeywords.content = keywords;
 
-    document.querySelector('meta[property="og:title"]').setAttribute('content', title);
-    document.querySelector('meta[property="og:description"]').setAttribute('content', description);
+    // تحديث وسوم التواصل الاجتماعي
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', `${cleanTitle} | LomedX`);
+    
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', cleanDesc);
+    
     if (image) {
-        document.querySelector('meta[property="og:image"]').setAttribute('content', image);
+        const ogImage = document.querySelector('meta[property="og:image"]');
+        if (ogImage) ogImage.setAttribute('content', image);
     }
     
-    document.querySelector('link[rel="canonical"]').setAttribute('href', window.location.href);
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) canonical.setAttribute('href', window.location.href);
 }
 const DEFAULT_SEO = {
-    title: 'LomedX | منصة طبية شاملة: حجز مواعيد، بحث عن دواء، وملف صحي ذكي',
-    description: 'LomedX منصتك الطبية الشاملة في سوريا. احجز موعدك مع أفضل الأطباء، ابحث عن دواء في صيدليات مدينتك، أنشئ ملفك الصحي المشفر، واستفد من أدواتنا الطبية التفاعلية (حاسبات الجرعات، الإسعافات، بنك الدم).',
-    image: 'https://z-cdn-media.chatglm.cn/files/981068e8-ce01-48cb-baf4-b93e843f3df9.jpg'
+    // أزلنا كلمة LomedX من البداية لأن الدالة ستضيفها تلقائياً في النهاية
+    title: 'المنصة الطبية الشاملة: حجز مواعيد، بحث عن دواء، وملف صحي ذكي في سوريا', 
+    
+    // أزلنا كلمة LomedX من البداية لنفس السبب
+    description: 'منصتك الطبية الشاملة في سوريا. احجز موعدك مع أفضل الأطباء، ابحث عن دواء في صيدليات مدينتك، أنشئ ملفك الصحي المشفر، واستفد من أدواتنا الطبية التفاعلية (حاسبات الجرعات، الإسعافات، بنك الدم).',
+    
+    image: 'https://lomedx.pages.dev/logo.png'
 };
 
 // دالة موحدة لإعادة الرابط والوصف للوضع الافتراضي
 function resetMetaTags() {
-    updateMetaTags(DEFAULT_SEO.title, DEFAULT_SEO.description, DEFAULT_SEO.image);
-    // مسح أي هاش (مثل #medicine-finder) لكي يبقى الرابط الأساسي نظيفاً
-    if (window.location.hash && !window.location.hash.includes('article=')) {
-        history.replaceState(null, '', window.location.pathname + window.location.search);
-    }
+    updateMetaTags(
+        'المنصة الطبية الشاملة: حجز مواعيد، بنك دم، وملف صحي ذكي في سوريا', 
+        'منصة طبية متكاملة في سوريا. ابحث عن أطباء، صيدليات، ومشافي. احجز موعدك إلكترونياً، أنشئ ملفك الصحي المشفر، واستفد من أدواتنا الطبية التفاعلية.',
+        DEFAULT_SEO.image
+    );
 }
 
 // ═══════════════════════════════════════════════════════════════
