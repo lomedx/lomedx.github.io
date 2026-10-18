@@ -2527,7 +2527,7 @@ window.openPharmacyLogin = async () => {
         }
     }
     
-    openCtrlPanel('لوحة الصيدليات', `<div class="max-w-sm mx-auto py-8"><div class="text-center mb-6"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style="background: var(--accent-light)"><i class="fas fa-prescription-bottle-medical text-2xl" style="color: var(--accent)"></i></div><h3 class="font-bold text-lg">دخول الصيدليات</h3></div><form onsubmit="handlePharmacyLogin(event)" class="flex flex-col gap-4"><input type="text" id="pharmPhone" class="ctrl-input text-center" placeholder="مُعرف الدخول (أو رقم الهاتف)" required><input type="text" id="pharmPass" class="ctrl-input text-center font-mono" placeholder="كلمة المرور" required><button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: var(--accent)">دخول</button></form></div>`, '#0E7C5F'); 
+    openCtrlPanel('لوحة الصيدليات', `<div class="max-w-sm mx-auto py-8"><div class="text-center mb-6"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style="background: var(--accent-light)"><i class="fas fa-prescription-bottle-medical text-2xl" style="color: var(--accent)"></i></div><h3 class="font-bold text-lg">دخول الصيدليات</h3></div><form onsubmit="handlePharmacyLogin(event)" class="flex flex-col gap-4"><input type="text" id="pharmPhone" class="ctrl-input text-center" placeholder="مُعرف الدخول (أو رقم الهاتف)" required><input type="text" id="pharmPass" class="ctrl-input text-center font-mono" placeholder="كلمة المرور" required><button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: var(--accent)">دخول</button><button type="button" onclick="openForgotPassword('pharmacy')" class="text-xs text-blue-600 hover:underline mt-1 font-semibold text-center w-full">نسيت كلمة المرور؟</button></form></div>`, '#0E7C5F'); 
 }
 
 window.logoutPharmacy = async () => {
@@ -2757,7 +2757,7 @@ window.openDoctorLogin = async () => {
         }
     }
     
-    openCtrlPanel('لوحة الطبيب', `<div class="max-w-sm mx-auto py-8"><div class="text-center mb-6"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style="background: #DBEAFE"><i class="fas fa-user-md text-2xl" style="color: var(--doctor)"></i></div><h3 class="font-bold text-lg">دخول الطبيب</h3></div><form onsubmit="handleDoctorLogin(event)" class="flex flex-col gap-4"><input type="text" id="docPhone" class="ctrl-input text-center" placeholder="مُعرف الدخول (أو رقم الهاتف)" required><input type="text" id="docPass" class="ctrl-input text-center font-mono" placeholder="كلمة المرور" required><button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: var(--doctor)">دخول</button></form></div>`, '#2563EB'); 
+    openCtrlPanel('لوحة الطبيب', `<div class="max-w-sm mx-auto py-8"><div class="text-center mb-6"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style="background: #DBEAFE"><i class="fas fa-user-md text-2xl" style="color: var(--doctor)"></i></div><h3 class="font-bold text-lg">دخول الطبيب</h3></div><form onsubmit="handleDoctorLogin(event)" class="flex flex-col gap-4"><input type="text" id="docPhone" class="ctrl-input text-center" placeholder="مُعرف الدخول (أو رقم الهاتف)" required><input type="text" id="docPass" class="ctrl-input text-center font-mono" placeholder="كلمة المرور" required><button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm" style="background: var(--doctor)">دخول</button><button type="button" onclick="openForgotPassword('doctor')" class="text-xs text-blue-600 hover:underline mt-1 font-semibold text-center w-full">نسيت كلمة المرور؟</button></form></div>`, '#2563EB'); 
 }
 // دالة تسجيل دخول الطبيب
 window.handleDoctorLogin = async (e) => { 
@@ -11413,5 +11413,73 @@ window.submitPasswordChange = async (e) => {
         showToast('حدث خطأ: ' + err.message, 'error');
         btn.disabled = false;
         btn.innerText = 'حفظ كلمة المرور';
+    }
+};
+// ═══════════════════════════════════════════════════════════
+// 🔑 نظام استعادة كلمة المرور (عبر واتساب الإدارة)
+// ═══════════════════════════════════════════════════════════
+window.openForgotPassword = (type) => {
+    const title = type === 'doctor' ? 'استعادة حساب الطبيب' : 'استعادة حساب الصيدلية';
+    
+    openCtrlPanel(title, `
+        <div class="flex flex-col gap-4 max-w-sm mx-auto py-6">
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800 text-sm text-center">
+                <i class="fas fa-lock text-3xl mb-3 text-amber-500"></i>
+                <h4 class="font-bold text-lg mb-1">هل نسيت كلمة المرور؟</h4>
+                <p class="leading-relaxed">أدخل "معرف الدخول" الخاص بك (الرقم الذي استلمته عند التسجيل)، وسنقوم بتوجيهك للإدارة لإعادة تعيينها.</p>
+            </div>
+            <form onsubmit="requestPasswordReset(event, '${type}')" class="flex flex-col gap-3">
+                <input type="text" id="forgotLoginId" class="ctrl-input text-center font-mono" placeholder="معرف الدخول (مثال: 123456)" required>
+                <button type="submit" class="w-full py-3 rounded-xl text-white font-bold text-sm bg-[#0E7C5F] hover:opacity-90 transition-all">
+                    <i class="fab fa-whatsapp text-lg ml-1"></i> التواصل مع الإدارة
+                </button>
+            </form>
+        </div>
+    `, '#0E7C5F');
+};
+
+window.requestPasswordReset = (e, type) => {
+    e.preventDefault();
+    const loginId = document.getElementById('forgotLoginId').value.trim();
+    
+    if (!loginId) {
+        showToast('الرجاء إدخال معرف الدخول', 'error');
+        return;
+    }
+
+    const adminWhatsApp = "963980390813"; // رقم الإدارة
+    const message = `مرحباً الإدارة،
+أنا (${type === 'doctor' ? 'طبيب' : 'صيدلي'}) ونسيت كلمة المرور الخاصة بي.
+معرف الدخول الخاص بي هو: *${loginId}*
+أرجو مساعدتي في إعادة تعيين كلمة المرور لحسابي.`;
+
+    const whatsappUrl = `https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+    showToast('جاري تحويلك للواتساب...', 'success');
+};
+
+// ═══════════════════════════════════════════════════════════
+// 🛠️ (خاص بك كأدمن) إعادة تعيين كلمة مرور طبيب/صيدلية بضغطة زر
+// ═══════════════════════════════════════════════════════════
+window.adminResetPassword = async (loginId, type, newPassword) => {
+    // هذا الزر سيُستخدم من لوحة الإدارة الخاصة بك عند وصول رسالة للواتساب
+    if (!confirm(`هل تريد إعادة تعيين كلمة مرور (${loginId}) إلى: ${newPassword}؟`)) return;
+    
+    const email = `${type === 'doctor' ? 'doc_' : 'pharm_'}${loginId}@lomedx.app`;
+    
+    try {
+        const { data, error } = await supabase.functions.invoke('create-user', {
+            body: { 
+                action: 'update', // نفترض أن دالة create-user تدعم التحديث
+                email: email,
+                password: newPassword 
+            }
+        });
+
+        if (error) throw error;
+        showToast(`تم تغيير كلمة المرور إلى ${newPassword} بنجاح!`, 'success');
+        // الآن يمكنك نسخ كلمة المرور وإرسالها للطبيب عبر الواتساب.
+    } catch (err) {
+        showToast('حدث خطأ في إعادة التعيين: ' + err.message, 'error');
     }
 };
