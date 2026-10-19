@@ -854,10 +854,7 @@ function createCard(item) {
     if (halfStar) starsHTML += '<i class="fas fa-star-half-alt"></i>';
     const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
     for (let i = 0; i < emptyStars; i++) starsHTML += '<i class="far fa-star"></i>';
-   let descriptionHTML = item.description ? `<div class="text-xs leading-relaxed mt-2 mb-2" style="color: var(--muted);">${escapeHtml(item.description)}</div>` : '';
     let detailsHTML = '';
-
-    
     if (item.type === 'hospital') detailsHTML = `<div class="detail-row"><i class="fas fa-map-marker-alt"></i><span>${escapeHtml(item.address || '')}</span></div><div class="detail-row"><i class="fas fa-clock"></i><span>${escapeHtml(item.hours || '24/7 طوارئ')}</span></div>${item.emergencyphone ? '<div class="detail-row"><i class="fas fa-ambulance" style="color: var(--danger)"></i><span style="color: var(--danger); font-weight: 700">طوارئ: ' + escapeHtml(item.emergencyphone) + '</span></div>' : ''}`;
     else if (item.type === 'doctor') detailsHTML = `<div class="detail-row"><i class="fas fa-graduation-cap"></i><span>${escapeHtml(item.specialty || '')}</span></div><div class="detail-row"><i class="fas fa-map-marker-alt"></i><span>${escapeHtml(item.clinic || '')}</span></div><div class="detail-row"><i class="fas fa-clock"></i><span>${escapeHtml(item.consulthours || item.hours || '')}</span></div>`;
     else if (item.type === 'center') detailsHTML = `<div class="detail-row"><i class="fas fa-star-of-life"></i><span>${escapeHtml(item.services || item.specialty || '')}</span></div><div class="detail-row"><i class="fas fa-map-marker-alt"></i><span>${escapeHtml(item.address || '')}</span></div><div class="detail-row"><i class="fas fa-clock"></i><span>${escapeHtml(item.hours || '')}</span></div>`;
@@ -909,7 +906,6 @@ ${(() => {
         ${escapeHtml(item.name)}
         ${(['doctor', 'pharmacy'].includes(item.type) && item.is_subscribed) ? '<span class="verified-badge verified-gold"><i class="fas fa-circle-check"></i> موثق</span>' : ''}
     </h3>
-    ${descriptionHTML} 
     ${item.type === 'doctor' ? `
         <button onclick="event.stopPropagation(); toggleFavorite('${escapeHtml(item.id)}', '${escapeHtml(item.name)}', this)" class="text-xl transition-all ${favoriteDoctors.includes(item.id) ? 'text-red-500' : 'text-gray-300 hover:text-red-400'}" aria-label="إضافة للمفضلة">
             <i class="${favoriteDoctors.includes(item.id) ? 'fas' : 'far'} fa-heart"></i>
