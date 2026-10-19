@@ -1419,21 +1419,42 @@ window.openCitySelector = (mode = 'search') => {
     const overlay = document.getElementById('citySelectorOverlay');
     const listContainer = document.getElementById('cityListContainer');
     
-    // هنا نمرر "الوضع" (mode) لزر الاختيار ليعرف هل هو بحث أم حفظ دائم
-    listContainer.innerHTML = allCities.map(city => `
-        <div class="city-option ${currentCity === city ? 'selected' : ''}" onclick="selectCity('${escapeHtml(city)}', '${mode}')">
-            <div class="flex items-center gap-3">
-                <i class="fas ${city === 'كل المدن' ? 'fa-globe' : 'fa-city'}" style="color: var(--accent)"></i>
-                <span class="font-bold text-sm">${escapeHtml(city)}</span>
-            </div>
-            ${currentCity === city ? '<i class="fas fa-check-circle text-white"></i>' : ''}
-        </div>
-    `).join('');
     // تغيير العنوان حسب نوع الفتح
-const titleEl = overlay.querySelector('h3');
-if (titleEl) {
-    titleEl.innerText = mode === 'permanent' ? 'اختر مدينتك الأساسية (للإشعارات)' : 'اختر مدينة للبحث';
-}
+    const titleEl = overlay.querySelector('h3');
+    if (titleEl) {
+        titleEl.innerText = mode === 'permanent' ? 'اختر مدينتك الأساسية (للإشعارات)' : 'اختر مدينة للبحث';
+    }
+
+    listContainer.innerHTML = allCities.map(city => {
+        // التحقق مما إذا كانت المدينة "قريباً"
+        const isComingSoon = city.includes('(قريباً)');
+        const cleanCityName = city.replace(' (قريباً)', '');
+        
+        if (isComingSoon) {
+            //  تصميم المدن التي ستتوفر قريباً (باهتة وغير قابلة للضغط)
+            return `
+                <div class="city-option" style="opacity: 0.5; cursor: not-allowed; background: var(--bg-deep); border-color: transparent;" onclick="showToast('هذه المدينة ستتوفر على المنصة قريباً جداً!', 'info')">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-clock" style="color: var(--muted)"></i>
+                        <span class="font-bold text-sm text-gray-500">${escapeHtml(cleanCityName)}</span>
+                    </div>
+                    <span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-bold">قريباً</span>
+                </div>
+            `;
+        } else {
+            //  تصميم المدن المتاحة (كما هو معتاد)
+            return `
+                <div class="city-option ${currentCity === city ? 'selected' : ''}" onclick="selectCity('${escapeHtml(city)}', '${mode}')">
+                    <div class="flex items-center gap-3">
+                        <i class="fas ${city === 'كل المدن' ? 'fa-globe' : 'fa-city'}" style="color: var(--accent)"></i>
+                        <span class="font-bold text-sm">${escapeHtml(city)}</span>
+                    </div>
+                    ${currentCity === city ? '<i class="fas fa-check-circle text-white"></i>' : ''}
+                </div>
+            `;
+        }
+    }).join('');
+    
     overlay.classList.add('active');
 };
 
