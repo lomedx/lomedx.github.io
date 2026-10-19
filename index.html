@@ -1106,12 +1106,24 @@
             <!-- الشريط السفلي لحقوق النشر -->
             <div class="pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
                 <p class="text-white/40 text-xs">جميع الحقوق محفوظة © 2026 -  <span class="lomedx-brand text-sm">LomedX</span></p>
-                <div class="alixjori-dev text-center md:text-left">
-    <span class="dev-subtext">صُنع بكل عناية لخدمة مجتمعنا</span>
-    <div class="dev-credit-wrapper" style="flex-direction: column; gap: 4px; padding: 12px 24px; border-radius: 16px;">
-        <span class="dev-label">Designed & Developed by</span>
-        <span class="dev-name">AlixJouria</span>
-    </div>
+                <!-- ✅ بطاقة المطور التفاعلية -->
+<div class="alixjori-dev text-center md:text-left flex flex-col items-center md:items-start gap-2">
+    <span class="dev-subtext text-[10px] text-white/30">صُنع بكل عناية لخدمة مجتمعنا</span>
+    
+    <a href="https://www.facebook.com/share/19qEvP2J1v/" target="_blank" rel="noopener" 
+       class="dev-credit-wrapper group hover:scale-105 transition-all duration-300" 
+       style="display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(196, 150, 44, 0.2); border-radius: 12px; text-decoration: none; position: relative; overflow: hidden;">
+        
+        <!-- تأثير التوهج الخلفي -->
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--gold)]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+        
+        <i class="fas fa-code text-[var(--gold)] text-sm"></i>
+        <div class="flex flex-col text-right">
+            <span class="dev-label text-[9px] text-white/40" style="letter-spacing: 1px;">Designed & Developed by</span>
+            <span class="dev-name text-sm font-black" style="font-family: 'Outfit', sans-serif; background: linear-gradient(90deg, #F0D77B, #C4962C); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AlixJouria</span>
+        </div>
+        <i class="fab fa-facebook text-blue-500 text-xs opacity-0 group-hover:opacity-100 transition-opacity ml-2"></i>
+    </a>
 </div>
             </div>
 
@@ -1190,11 +1202,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-        
-<!-- ✅ علامة مائية (المطور) -->
-<div style="position: fixed; left: 10px; bottom: 50%; transform: translateY(50%); z-index: 100; writing-mode: vertical-rl; text-orientation: mixed; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 4px; color: rgba(255, 255, 255, 0.15); pointer-events: none; user-select: none;">
-    Developed by AlixJouria
-</div>
+
+
+
+
+    
     
 </body>
 </html>
