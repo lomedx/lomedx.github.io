@@ -11482,53 +11482,76 @@ window.adminResetPassword = async (loginId, type, newPassword) => {
 
 
 
-window.openCustomNotificationModal = () => {
-    // جلب الأطباء والصيدليات فقط
-    const targetUsers = allData.filter(d => ['doctor', 'pharmacy'].includes(d.type) && d.user_id);
-    
-    if (targetUsers.length === 0) {
-        showToast('لا يوجد أطباء أو صيدليات مسجلة حالياً', 'error');
-        return;
-    }
-
-    let optionsHtml = targetUsers.map(user => `
-        <option value="${user.user_id}">
-            ${user.type === 'doctor' ? '🩺' : '💊'} ${escapeHtml(user.name)} (${user.type === 'doctor' ? 'طبيب' : 'صيدلية'})
-        </option>
-    `).join('');
-
+window.openCustomNotificationModal = async () => {
     openCtrlPanel('إرسال إشعار مخصص', `
         <div class="flex flex-col gap-4 max-w-md mx-auto py-4">
             <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-indigo-800 text-sm flex items-center gap-3">
                 <i class="fas fa-info-circle text-xl"></i>
                 <span>هذا الإشعار سيصل فقط للجهاز المسجل باسم الطبيب أو الصيدلية المختارة.</span>
             </div>
-            
-            <form onsubmit="sendCustomNotification(event)" class="flex flex-col gap-3">
-                <div>
-                    <label class="block text-sm font-bold mb-1 text-gray-700">اختر المستلم:</label>
-                    <select id="notifTarget" class="ctrl-input text-sm" required>
-                        <option value="">-- اختر طبيباً أو صيدلية --</option>
-                        ${optionsHtml}
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-bold mb-1 text-gray-700">عنوان الإشعار:</label>
-                    <input type="text" id="notifTitle" class="ctrl-input text-sm" placeholder="مثال: تنبيه هام" required>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-bold mb-1 text-gray-700">نص الرسالة:</label>
-                    <textarea id="notifMessage" class="ctrl-input text-sm" rows="3" placeholder="اكتب تفاصيل الإشعار هنا..." required></textarea>
-                </div>
-                
-                <button type="submit" id="sendNotifBtn" class="w-full py-3 rounded-xl text-white font-bold text-sm bg-indigo-600 hover:bg-indigo-700 transition-all flex justify-center items-center gap-2">
-                    <i class="fas fa-paper-plane"></i> إرسال الإشعار
-                </button>
-            </form>
+            <p class="text-center text-gray-500 py-8"><i class="fas fa-spinner fa-spin"></i> جاري تحميل القائمة...</p>
         </div>
     `, '#4F46E5');
+
+    try {
+        // ✅ جلب الأطباء والصيدليات مباشرة من Supabase لضمان وجود user_id
+        const { data: targetUsers, error } = await supabase
+            .from('listings')
+            .select('id, name, type, user_id')
+            .in('type', ['doctor', 'pharmacy'])
+            .not('user_id', 'is', null);
+
+        if (error) throw error;
+
+        if (!targetUsers || targetUsers.length === 0) {
+            closeCtrlPanel();
+            showToast('لا يوجد أطباء أو صيدليات مسجلة حالياً', 'error');
+            return;
+        }
+
+        let optionsHtml = targetUsers.map(user => `
+            <option value="${user.user_id}">
+                ${user.type === 'doctor' ? '🩺' : '💊'} ${escapeHtml(user.name)} (${user.type === 'doctor' ? 'طبيب' : 'صيدلية'})
+            </option>
+        `).join('');
+
+        // ✅ إعادة رسم الواجهة بعد جلب البيانات
+        document.getElementById('ctrlContent').innerHTML = `
+            <div class="flex flex-col gap-4 max-w-md mx-auto py-4">
+                <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-indigo-800 text-sm flex items-center gap-3">
+                    <i class="fas fa-info-circle text-xl"></i>
+                    <span>هذا الإشعار سيصل فقط للجهاز المسجل باسم الطبيب أو الصيدلية المختارة.</span>
+                </div>
+                
+                <form onsubmit="sendCustomNotification(event)" class="flex flex-col gap-3">
+                    <div>
+                        <label class="block text-sm font-bold mb-1 text-gray-700">اختر المستلم:</label>
+                        <select id="notifTarget" class="ctrl-input text-sm" required>
+                            <option value="">-- اختر طبيباً أو صيدلية --</option>
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold mb-1 text-gray-700">عنوان الإشعار:</label>
+                        <input type="text" id="notifTitle" class="ctrl-input text-sm" placeholder="مثال: تنبيه هام" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold mb-1 text-gray-700">نص الرسالة:</label>
+                        <textarea id="notifMessage" class="ctrl-input text-sm" rows="3" placeholder="اكتب تفاصيل الإشعار هنا..." required></textarea>
+                    </div>
+                    
+                    <button type="submit" id="sendNotifBtn" class="w-full py-3 rounded-xl text-white font-bold text-sm bg-indigo-600 hover:bg-indigo-700 transition-all flex justify-center items-center gap-2">
+                        <i class="fas fa-paper-plane"></i> إرسال الإشعار
+                    </button>
+                </form>
+            </div>
+        `;
+    } catch (err) {
+        closeCtrlPanel();
+        showToast('حدث خطأ في جلب البيانات: ' + err.message, 'error');
+    }
 };
 window.sendCustomNotification = async (e) => {
     e.preventDefault();
