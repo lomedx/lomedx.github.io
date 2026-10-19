@@ -1392,24 +1392,28 @@ window.selectCity = (city, mode = 'search') => {
     renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; 
     currentCity = city;
     
-    // تحديث زر البحث دائماً
+    // تحديث زر البحث
     document.getElementById('currentCityText').innerText = city;
     
     closeCitySelector();
     renderData();
 
-    // ✅ إذا كان الوضع "دائم" (من قائمة الجوال)، نقوم بالحفظ والوسم
-    if (mode === 'permanent') {
+    // ✅ إذا اختار "كل المدن" من زر البحث أو القائمة
+    if (city === 'كل المدن' || city === 'all') {
+        localStorage.removeItem('lomedx_user_city'); // مسح المدينة المحفوظة
+        const menuCityEl = document.getElementById('menuCurrentCityText');
+        if (menuCityEl) menuCityEl.innerText = 'كل المدن';
+    } 
+    // ✅ إذا اختار مدينة محددة من (قائمة الجوال)
+    else if (mode === 'permanent') {
         const menuCityEl = document.getElementById('menuCurrentCityText');
         if (menuCityEl) menuCityEl.innerText = city;
 
-        if (city !== 'all' && city !== 'كل المدن') {
-            localStorage.setItem('lomedx_user_city', city);
-            if (window.OneSignalDeferred) {
-                OneSignalDeferred.push(function(OneSignal) {
-                    OneSignal.User.addTag("city", city);
-                });
-            }
+        localStorage.setItem('lomedx_user_city', city);
+        if (window.OneSignalDeferred) {
+            OneSignalDeferred.push(function(OneSignal) {
+                OneSignal.User.addTag("city", city);
+            });
         }
     }
 };
