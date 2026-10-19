@@ -11324,7 +11324,8 @@ window.askForUserCity = () => {
     }
 
     // إنشاء النافذة
-    const cities = allCities.filter(c => c !== 'كل المدن');
+        // إنشاء النافذة
+    const cities = allCities.filter(c => c !== 'كل المدن' && !c.includes('(قريباً)'));
     const overlay = document.createElement('div');
     overlay.id = 'userCityOverlay';
     overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;';
@@ -11341,13 +11342,27 @@ window.askForUserCity = () => {
                 ${cities.map(c => `<option value="${c}">${c}</option>`).join('')}
             </select>
             
-            <button onclick="saveUserCity()" style="width:100%; padding:14px; border-radius:14px; background:var(--accent); color:white; font-weight:bold; border:none; font-size:0.95rem; cursor:pointer; font-family:inherit; transition:0.3s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+            <button onclick="saveUserCity()" style="width:100%; padding:14px; border-radius:14px; background:var(--accent); color:white; font-weight:bold; border:none; font-size:0.95rem; cursor:pointer; font-family:inherit; transition:0.3s; margin-bottom:12px;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                 تأكيد وحفظ
+            </button>
+
+            <!-- ✅ زر التخطي الجديد -->
+            <button onclick="skipUserCity()" style="width:100%; padding:10px; border-radius:14px; background:transparent; color:var(--muted); font-weight:bold; border:none; font-size:0.85rem; cursor:pointer; font-family:inherit; transition:0.3s;">
+                تخطي الآن (تصفح كزائر)
             </button>
         </div>
     `;
     
     document.body.appendChild(overlay);
+};
+
+// ✅ دالة التخطي (جديدة)
+window.skipUserCity = () => {
+    document.getElementById('userCityOverlay').remove();
+    // لا نحفظ أي شيء، وسيبقى الموقع على "كل المدن"
+    const currentCityText = document.getElementById('currentCityText');
+    if (currentCityText) currentCityText.innerText = 'كل المدن';
+    showToast('يمكنك تصفح المنصة بحرية. اختر مدينتك لاحقاً من القائمة الجانبية.', 'info');
 };
 
 window.saveUserCity = () => {
