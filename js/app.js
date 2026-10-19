@@ -45,8 +45,61 @@ let renderLimits = {
     doctor: 8,
     pharmacy: 8
 };
-let allCities = ['كل المدن', 'الرحيبة','القطيفة','جيرود','المعضمية','النبك','ديرعطيه']; // أضف أو عدل المدن كما تريد
+let allCities = [
+    'كل المدن',
+    'الرحيبة',
+    
+    // 🕒 مدن القلمون الغربي (قادمة قريباً)
+    'يبرود (قريباً)',
+    'النبك (قريباً)',
+    'دير عطية (قريباً)',
+    'قارة (قريباً)',
+    'فليطة (قريباً)',
+    'المشرفة (قريباً)',
+    'عسال الورد (قريباً)',
+    'حوش عرب (قريباً)',
+    'الجبة (قريباً)',
+    'رأس المعرة (قريباً)',
+    'السحل (قريباً)',
+    'رنكوس (قريباً)',
+    'بخعة (قريباً)',
+    'القسطل (قريباً)',
+    'حلا (قريباً)',
+    'حفير فوقا (قريباً)',
+    'حفير تحتا (قريباً)',
+    'بدا (قريباً)',
+    'معرونة (قريباً)',
+    'عين التينة (قريباً)',
+    'جبعدين (قريباً)',
+    'معلولا (قريباً)',
+    'صيدنايا (قريباً)',
+    'معربا (قريباً)',
+    'عين منين (قريباً)',
+    'تل منين (قريباً)',
+    'حلبون (قريباً)',
+    'تلفيتا (قريباً)',
+    'الدريج (قريباً)',
+    'البريج (قريباً)',
+    'قلدون (قريباً)',
+    'الطفيل (قريباً)',
+    'ريما (قريباً)',
+    'جراجير (قريباً)',
 
+    // 🕒 مدن القلمون الشرقي (قادمة قريباً)
+    'جيرود (قريباً)',
+    'القطيفة (قريباً)',
+    'الضمير (قريباً)',
+    'معضمية القلمون (قريباً)',
+    'الناصرية (قريباً)',
+    'العطنة (قريباً)',
+    'المنصورة (قريباً)',
+    'القريتين (قريباً)',
+    'مهين (قريباً)',
+    'حوارين (قريباً)',
+    'الحميرة (قريباً)',
+    'البريكة (قريباً)',
+    'خان الجلاجل (قريباً)'
+];
 // === محرك الإشعارات المركزي ===
 // === محرك الإشعارات المركزي ===
 // === محرك الإشعارات المركزي ===
@@ -1392,28 +1445,24 @@ window.selectCity = (city, mode = 'search') => {
     renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; 
     currentCity = city;
     
-    // تحديث زر البحث
+    // تحديث زر البحث دائماً
     document.getElementById('currentCityText').innerText = city;
     
     closeCitySelector();
     renderData();
 
-    // ✅ إذا اختار "كل المدن" من زر البحث أو القائمة
-    if (city === 'كل المدن' || city === 'all') {
-        localStorage.removeItem('lomedx_user_city'); // مسح المدينة المحفوظة
-        const menuCityEl = document.getElementById('menuCurrentCityText');
-        if (menuCityEl) menuCityEl.innerText = 'كل المدن';
-    } 
-    // ✅ إذا اختار مدينة محددة من (قائمة الجوال)
-    else if (mode === 'permanent') {
+    // ✅ إذا كان الوضع "دائم" (من قائمة الجوال)، نقوم بالحفظ والوسم
+    if (mode === 'permanent') {
         const menuCityEl = document.getElementById('menuCurrentCityText');
         if (menuCityEl) menuCityEl.innerText = city;
 
-        localStorage.setItem('lomedx_user_city', city);
-        if (window.OneSignalDeferred) {
-            OneSignalDeferred.push(function(OneSignal) {
-                OneSignal.User.addTag("city", city);
-            });
+        if (city !== 'all' && city !== 'كل المدن') {
+            localStorage.setItem('lomedx_user_city', city);
+            if (window.OneSignalDeferred) {
+                OneSignalDeferred.push(function(OneSignal) {
+                    OneSignal.User.addTag("city", city);
+                });
+            }
         }
     }
 };
