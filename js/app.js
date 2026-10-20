@@ -6868,7 +6868,7 @@ window.openPaymentModal = (type, name) => {
                 <!-- تفاصيل شام كاش -->
                 <div id="shamcash-details" style="text-align: center; margin-bottom: 20px;">
                     <div style="background: white; padding: 5px; border-radius: 16px; border: 4px solid #EFF6FF; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); width: 160px; height: 160px; margin: 0 auto 15px;">
-                        <img src="https://z-cdn-media.chatglm.cn/files/533bb04c-b262-4f21-826a-71b187260747.png?auth_key=1886692436-f4137efd272049179bd92d56b0081347-0-fdecf35d303f970d7d8aac45cca966ba" alt="شام كاش" style="width: 100%; height: 100%; border-radius: 10px; object-fit: contain;">
+                        <img src="https://i.ibb.co/Gv6g7nWc/533bb04c-b262-4f21-826a-71b187260747.webp" alt="شام كاش" style="width: 100%; height: 100%; border-radius: 10px; object-fit: contain;">
                     </div>
                     <div class="step-row"><div class="step-num">1</div><div class="step-text">افتح تطبيق شام كاش وامسح الرمز أعلاه.</div></div>
                     <div class="step-row"><div class="step-num">2</div><div class="step-text">احفظ صورة إشعار الدفع الناجح (Screenshot).</div></div>
