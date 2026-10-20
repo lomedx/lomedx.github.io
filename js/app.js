@@ -4078,7 +4078,13 @@ window.submitBloodRequest = async (e) => {
         }
         if (funcData && funcData.error) throw new Error(funcData.error);
 
-        await sendPushNotification(null, "استغاثة دم طارئة 🩸", `المريض ${name} يحتاج فصيلة ${bloodType} في ${hospital}`, 'all');
+        await supabase.functions.invoke('send-emergency-push', {
+    body: {
+        title: "استغاثة دم طارئة 🩸",
+        message: `المريض ${name} يحتاج فصيلة ${bloodType} في ${hospital}`,
+        type: 'blood'
+    }
+});
         localStorage.setItem('last_blood_request_time', Date.now().toString());
         showToast('تم نشر استغاثتك بنجاح!', 'success');
         e.target.reset();
@@ -4352,9 +4358,16 @@ window.submitMedicineRequest = async (e) => {
         }
         if (reqData && reqData.error) throw new Error(reqData.error);
 
-        // === إرسال الإشعار مستهدفين صيدليات المدينة المحددة فقط ===
-        sendPushNotification(null, "طلب دواء عاجل 💊", `المريض ${name} من ${targetCity} يبحث عن: ${medList}`, 'pharmacies', null, targetCity);
         
+        //  استدعاء دالة الآمنة مع تمرير المدينة
+await supabase.functions.invoke('send-emergency-push', {
+    body: {
+        title: "طلب دواء عاجل 💊",
+        message: `المريض ${name} من ${targetCity} يبحث عن: ${medList}`,
+        type: 'medicine',
+        city: targetCity 
+    }
+});
         document.getElementById('modalContent').innerHTML = `
         <div class="p-8 text-center">
             <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style="background: var(--accent-light)">
