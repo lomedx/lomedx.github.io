@@ -11208,24 +11208,28 @@ document.addEventListener('visibilitychange', () => {
 
 
 // ═══════════════════════════════════════════════════════════
-// 🌍 نظام تحديد مدينة المستخدم الدائم (يُحفظ للأبد)
+//  نظام تحديد مدينة المستخدم الدائم (يُحفظ للأبد)
 // ═══════════════════════════════════════════════════════════
 window.askForUserCity = () => {
+    window.askForUserCity = () => {
+    //  1. التحقق من وجود مدينة محفوظة مسبقاً
     const savedCity = localStorage.getItem('lomedx_user_city');
+    
     if (savedCity) {
+        // إذا كانت موجودة، نطبقها ولا نفتح النافذة
         currentCity = savedCity;
-        document.getElementById('currentCityText').innerText = savedCity;
         
-        // ✅ تحديث الاسم في قائمة الجوال إذا كان محفوظاً مسبقاً
+        const currentCityText = document.getElementById('currentCityText');
+        if (currentCityText) currentCityText.innerText = savedCity;
+        
         const menuCityEl = document.getElementById('menuCurrentCityText');
         if (menuCityEl) menuCityEl.innerText = savedCity;
 
         if (typeof renderData === 'function') renderData();
-        return; 
+        return; //  الخروج من الدالة (لن تظهر النافذة)
     }
 
-    // إنشاء النافذة
-        // إنشاء النافذة
+    //  2. إذا لم توجد مدينة محفوظة، نفتح النافذة
     const cities = allCities.filter(c => c !== 'كل المدن' && !c.includes('(قريباً)'));
     const overlay = document.createElement('div');
     overlay.id = 'userCityOverlay';
@@ -11243,12 +11247,12 @@ window.askForUserCity = () => {
                 ${cities.map(c => `<option value="${c}">${c}</option>`).join('')}
             </select>
             
-            <button onclick="saveUserCity()" style="width:100%; padding:14px; border-radius:14px; background:var(--accent); color:white; font-weight:bold; border:none; font-size:0.95rem; cursor:pointer; font-family:inherit; transition:0.3s; margin-bottom:12px;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+            <button onclick="saveUserCity()" style="width:100%; padding:14px; border-radius:14px; background:var(--accent); color:white; font-weight:bold; border:none; font-size:0.95rem; cursor:pointer; font-family:inherit; transition:0.3s; margin-bottom:12px;">
                 تأكيد وحفظ
             </button>
 
-            <!-- ✅ زر التخطي الجديد -->
-            <button onclick="skipUserCity()" style="width:100%; padding:10px; border-radius:14px; background:transparent; color:var(--muted); font-weight:bold; border:none; font-size:0.85rem; cursor:pointer; font-family:inherit; transition:0.3s;">
+            
+            <button onclick="skipUserCity()" style="width:100%; padding:10px; border-radius:14px; background:transparent; color:var(--muted); font-weight:bold; border:none; font-size:0.85rem; cursor:pointer; font-family:inherit;">
                 تخطي الآن (تصفح كزائر)
             </button>
         </div>
@@ -11257,12 +11261,15 @@ window.askForUserCity = () => {
     document.body.appendChild(overlay);
 };
 
-// ✅ دالة التخطي (جديدة)
+//  دالة التخطي
 window.skipUserCity = () => {
-    document.getElementById('userCityOverlay').remove();
+    const overlay = document.getElementById('userCityOverlay');
+    if (overlay) overlay.remove();
+    
     // لا نحفظ أي شيء، وسيبقى الموقع على "كل المدن"
     const currentCityText = document.getElementById('currentCityText');
     if (currentCityText) currentCityText.innerText = 'كل المدن';
+    
     showToast('يمكنك تصفح المنصة بحرية. اختر مدينتك لاحقاً من القائمة الجانبية.', 'info');
 };
 
