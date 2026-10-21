@@ -11210,7 +11210,7 @@ document.addEventListener('visibilitychange', () => {
 // ═══════════════════════════════════════════════════════════
 //  نظام تحديد مدينة المستخدم الدائم (يُحفظ للأبد)
 // ═══════════════════════════════════════════════════════════
-window.askForUserCity = () => {
+
     window.askForUserCity = () => {
     //  1. التحقق من وجود مدينة محفوظة مسبقاً
     const savedCity = localStorage.getItem('lomedx_user_city');
