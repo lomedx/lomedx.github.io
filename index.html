@@ -632,6 +632,50 @@
         استعلام
     </button>
 </div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     🤖 زر مساعد LomedX الذكي (قيد التطوير)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="mt-6 max-w-2xl mx-auto px-2">
+    <div onclick="showToast('🚧 المساعد الذكي LomedX قيد التطوير وسيكون متاحاً قريباً جداً!', 'info')" 
+         class="w-full p-3 rounded-2xl border flex items-center justify-between cursor-not-allowed transition-all duration-300 group relative overflow-hidden"
+         style="border-color: rgba(196, 150, 44, 0.4); background: linear-gradient(135deg, rgba(14, 124, 95, 0.3) 0%, rgba(5, 46, 34, 0.9) 100%); box-shadow: 0 8px 30px rgba(0,0,0,0.3); backdrop-filter: blur(10px);">
+        
+        <!-- توهج خلفي -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-[var(--gold)]/10 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="flex items-center gap-4 relative z-10">
+            <!-- الأيقونة -->
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center relative overflow-hidden group-hover:scale-105 transition-transform duration-300 flex-shrink-0"
+                 style="box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 1px solid rgba(196, 150, 44, 0.5);">
+                
+                <!-- ⚠️ ضع رابط الأيقونة الجديدة هنا -->
+                <img src="ضع_رابط_الصورة_هنا" alt="LomedX AI" class="w-full h-full object-cover">
+                
+                <!-- نقطة التنبيه -->
+                <span class="absolute top-1 right-1 flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 border-2 border-[#031410]"></span>
+                </span>
+            </div>
+            
+            <!-- النص -->
+            <div class="text-right">
+                <h3 class="font-bold text-sm sm:text-base text-white group-hover:text-[var(--gold-light)] transition-colors" style="font-family: 'Noto Kufi Arabic';">مساعد LomedX الذكي</h3>
+                <p class="text-[10px] sm:text-xs mt-1 font-medium text-white/60">استشارة طبية فورية مدعومة بالذكاء الاصطناعي</p>
+            </div>
+        </div>
+
+        <!-- شارة قيد التطوير -->
+        <div class="relative z-10 text-[9px] sm:text-[10px] font-black px-2 sm:px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all shadow-sm flex-shrink-0 ml-2"
+             style="background: rgba(196, 150, 44, 0.15); color: var(--gold-light); border: 1px solid rgba(196, 150, 44, 0.3);">
+            <i class="fas fa-person-digging text-xs animate-pulse"></i>
+            <span class="hidden sm:inline">قيد التطوير</span>
+        </div>
+    </div>
+</div>
+<!-- ═══════════════════════════════════════════════════════════ -->
+    
                 <div class="mt-8 max-w-2xl mx-auto bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex items-center gap-4 text-right">
                     <div class="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-lightbulb text-yellow-400 text-lg"></i>
