@@ -11610,3 +11610,94 @@ window.sendCustomNotification = async (e) => {
         btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال الإشعار';
     }
 };
+
+
+    // ═══════════════════════════════════════════════════════════
+// 🤖 وظائف مساعد LomedX الذكي
+// ═══════════════════════════════════════════════════════════
+
+window.toggleAIChat = function() {
+    const modal = document.getElementById('ai-chat-modal');
+    if (!modal) return;
+    
+    if (modal.style.display === 'none' || modal.style.display === '') {
+        modal.style.display = 'flex';
+        document.getElementById('ai-user-input').focus();
+    } else {
+        modal.style.display = 'none';
+    }
+}
+
+window.sendAIMessage = async function() {
+    const input = document.getElementById('ai-user-input');
+    const message = input.value.trim();
+    if (!message) return;
+
+    // إضافة رسالة المستخدم
+    window.addAIMessage(message, 'user');
+    input.value = '';
+    
+    // مؤشر الكتابة
+    const typingId = window.addTypingIndicator();
+    const sendBtn = document.getElementById('ai-send-btn');
+    if (sendBtn) sendBtn.disabled = true;
+
+    try {
+        const { data, error } = await supabase.functions.invoke('lomedx-ai-assistant', {
+            body: { 
+                message: message, 
+                sessionId: localStorage.getItem('lomedx_session_id') || 'guest_' + Date.now()
+            }
+        });
+
+        if (error) throw error;
+        window.removeTypingIndicator(typingId);
+        window.addAIMessage(data.answer, 'bot');
+
+    } catch (err) {
+        console.error(err);
+        window.removeTypingIndicator(typingId);
+        window.addAIMessage("عذراً، واجهت مشكلة في الاتصال. يرجى المحاولة لاحقاً.", 'bot');
+    } finally {
+        if (sendBtn) sendBtn.disabled = false;
+    }
+}
+
+window.addAIMessage = function(text, sender) {
+    const container = document.getElementById('ai-chat-messages');
+    if (!container) return;
+    
+    const div = document.createElement('div');
+    if (sender === 'user') {
+        div.className = 'ai-message ai-user';
+    } else {
+        div.className = 'ai-message ai-bot';
+        div.style.cssText = 'align-self: flex-start; background: white; padding: 10px 15px; border-radius: 15px; border-top-right-radius: 4px; font-size: 13px; line-height: 1.6; max-width: 85%; border: 1px solid #DDE3DD; color: #1B2A1B;';
+    }
+    
+    // نستخدم escapeHtml للأمان (موجودة في كودك)
+    // ملاحظة: الردود من الذكاء الاصطناعي تحتوي على HTML (مثل <b>)، لذا نستخدم innerHTML هنا
+    div.innerHTML = text; 
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+window.addTypingIndicator = function() {
+    const container = document.getElementById('ai-chat-messages');
+    if (!container) return null;
+    
+    const id = 'ai-typing-' + Date.now();
+    const div = document.createElement('div');
+    div.id = id;
+    div.className = 'ai-typing';
+    div.innerHTML = '<span></span><span></span><span></span>';
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return id;
+}
+
+window.removeTypingIndicator = function(id) {
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (el) el.remove();
+}
