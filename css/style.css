@@ -3961,7 +3961,6 @@ html.dark .badge-duty-ended {
 }
 .ai-title-typewriter {
     overflow: hidden;
-    border-left: 2px solid #F0D77B; /* مؤشر الكتابة */
     white-space: nowrap;
     animation: typing 3.5s steps(30, end), blink-caret .75s step-end infinite;
     font-weight: 900;
