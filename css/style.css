@@ -3959,3 +3959,21 @@ html.dark .badge-duty-ended {
     0%, 60%, 100% { transform: translateY(0); }
     30% { transform: translateY(-5px); }
 }
+.ai-title-typewriter {
+    overflow: hidden;
+    border-left: 2px solid #F0D77B; /* مؤشر الكتابة */
+    white-space: nowrap;
+    animation: typing 3.5s steps(30, end), blink-caret .75s step-end infinite;
+    font-weight: 900;
+    color: #F0D77B;
+}
+
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #F0D77B }
+}
