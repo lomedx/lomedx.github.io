@@ -11647,34 +11647,35 @@ window.toggleAIChat = function() {
 
 // متغير لحفظ تاريخ المحادثة
 let aiChatHistory = [];
+let isAITyping = false; // قفل لمنع الإرسال المتكرر
 
 window.sendAIMessage = async function() {
+    if (isAITyping) return; // منع الإرسال إذا كان المساعد يكتب حالياً
+    
     const input = document.getElementById('ai-user-input');
     const message = input.value.trim();
     if (!message) return;
 
-    // إضافة رسالة المستخدم وحفظها في التاريخ
     window.addAIMessage(message, 'user');
     aiChatHistory.push({ role: "user", text: message });
     input.value = '';
     
-    const typingId = window.addTypingIndicator();
+    isAITyping = true;
     const sendBtn = document.getElementById('ai-send-btn');
     if (sendBtn) sendBtn.disabled = true;
 
+    // إنشاء رسالة البوت الفارغة
+    const container = document.getElementById('ai-chat-messages');
+    const botDiv = document.createElement('div');
+    botDiv.className = 'ai-message ai-bot';
+    botDiv.style.cssText = 'align-self: flex-start; background: white; padding: 10px 15px; border-radius: 15px; border-top-right-radius: 4px; font-size: 13px; line-height: 1.6; max-width: 85%; border: 1px solid #DDE3DD; color: #1B2A1B; min-height: 40px;';
+    botDiv.innerHTML = '<span class="typing-cursor"></span>';
+    container.appendChild(botDiv);
+    container.scrollTop = container.scrollHeight;
+
+    let fullResponse = '';
+
     try {
-        const container = document.getElementById('ai-chat-messages');
-        window.removeTypingIndicator(typingId); 
-        
-        const botDiv = document.createElement('div');
-        botDiv.className = 'ai-message ai-bot';
-        botDiv.style.cssText = 'align-self: flex-start; background: white; padding: 10px 15px; border-radius: 15px; border-top-right-radius: 4px; font-size: 13px; line-height: 1.6; max-width: 85%; border: 1px solid #DDE3DD; color: #1B2A1B; min-height: 40px;';
-        botDiv.innerHTML = '<span class="typing-cursor"></span>'; 
-        container.appendChild(botDiv);
-        container.scrollTop = container.scrollHeight;
-
-        let fullResponse = '';
-
         const supabaseUrl = 'https://pzwhyoattlravuadbfvk.supabase.co';
         const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6d2h5b2F0dGxyYXZ1YWRiZnZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzMzMyNDIsImV4cCI6MjEwMTkwOTI0Mn0.zBPnp7rVpR5ojidhuUCSQyUhA5VTFSCQosG_XtFXBWo';
 
@@ -11687,16 +11688,11 @@ window.sendAIMessage = async function() {
             },
             body: JSON.stringify({ 
                 message: message, 
-                history: aiChatHistory.slice(-5), // ✅ نرسل آخر 5 رسائل لكي يتذكر المحادثة
-                sessionId: localStorage.getItem('lomedx_session_id') || 'guest_' + Date.now() 
+                history: aiChatHistory.slice(-5)
             })
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Server Error:", errorData.error);
-            throw new Error(errorData.error || 'فشل الاتصال بالخادم');
-        }
+        if (!response.ok) throw new Error('فشل الاتصال');
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
@@ -11725,26 +11721,34 @@ window.sendAIMessage = async function() {
             }
         }
 
-        // حفظ رد البوت في التاريخ
-        aiChatHistory.push({ role: "model", text: fullResponse });
-        window.finalizeAIMessage(botDiv, fullResponse);
+        // إذا انتهى البث بنجاح
+        if (fullResponse) {
+            aiChatHistory.push({ role: "model", text: fullResponse });
+            window.finalizeAIMessage(botDiv, fullResponse);
+        } else {
+            // إذا لم يصل أي نص (فشل صامت)
+            botDiv.remove();
+            window.addAIMessage("عذراً، لم أتمكن من معالجة طلبك. يرجى المحاولة مرة أخرى.", 'bot');
+        }
 
     } catch (err) {
         console.error(err);
-        window.removeTypingIndicator(typingId);
-        window.addAIMessage("عذراً، واجهت مشكلة في الاتصال. يرجى المحاولة لاحقاً.", 'bot');
+        // ✅ إزالة الرسالة الفارغة والمؤشر عند حدوث خطأ
+        botDiv.remove();
+        window.addAIMessage("عذراً، الخدمة مشغولة حالياً. يرجى المحاولة بعد قليل.", 'bot');
     } finally {
+        isAITyping = false;
         if (sendBtn) sendBtn.disabled = false;
     }
 }
-        
 
-// دالة مساعدة لتحديث النص أثناء البث
+// تحديث النص أثناء البث (مع تنسيق Markdown الأساسي)
 window.renderStreamingText = function(element, text) {
-    let safeText = escapeHtml(text).replace(/\n/g, '<br>');
-    // إخفاء الأكواد التفاعلية أثناء الكتابة
-    safeText = safeText.replace(/\[ACTION:.*?\]/g, '');
-    element.innerHTML = safeText + '<span class="typing-cursor">|</span>';
+    // إخفاء الأكواد التفاعلية
+    let cleanText = text.replace(/\[ACTION:.*?\]/g, '');
+    // تنسيق النص العريض
+    cleanText = escapeHtml(cleanText).replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+    element.innerHTML = cleanText + '<span class="typing-cursor"></span>';
 }
 
 // دالة مساعدة لإنهاء الرسالة وإضافة الأزرار التفاعلية في النهاية
