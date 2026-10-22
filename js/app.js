@@ -11654,22 +11654,74 @@ window.sendAIMessage = async function() {
     window.addAIMessage(message, 'user');
     input.value = '';
     
-    // مؤشر الكتابة
     const typingId = window.addTypingIndicator();
     const sendBtn = document.getElementById('ai-send-btn');
     if (sendBtn) sendBtn.disabled = true;
 
     try {
-        const { data, error } = await supabase.functions.invoke('lomedx-ai-assistant', {
-            body: { 
+        // 1. إنشاء رسالة فارغة للبوت سيتم تحديثها أثناء البث
+        const container = document.getElementById('ai-chat-messages');
+        window.removeTypingIndicator(typingId); // إزالة الثلاث نقاط
+        
+        const botDiv = document.createElement('div');
+        botDiv.className = 'ai-message ai-bot';
+        botDiv.style.cssText = 'align-self: flex-start; background: white; padding: 10px 15px; border-radius: 15px; border-top-right-radius: 4px; font-size: 13px; line-height: 1.6; max-width: 85%; border: 1px solid #DDE3DD; color: #1B2A1B; min-height: 40px;';
+        botDiv.innerHTML = '<span class="typing-cursor"></span>'; // مؤشر وامض
+        container.appendChild(botDiv);
+        container.scrollTop = container.scrollHeight;
+
+        let fullResponse = '';
+
+        // 2. الاتصال بالدالة السحابية عبر fetch لدعم البث
+        const supabaseUrl = 'https://pzwhyoattlravuadbfvk.supabase.co'; // رابط مشروعك
+        const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6d2h5b2F0dGxyYXZ1YWRiZnZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUw...'; // مفتاح anon الخاص بك (موجود في ملف supabase.js)
+
+        const response = await fetch(`${supabaseUrl}/functions/v1/lomedx-ai-assistant`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${anonKey}`
+            },
+            body: JSON.stringify({ 
                 message: message, 
-                sessionId: localStorage.getItem('lomedx_session_id') || 'guest_' + Date.now()
-            }
+                sessionId: localStorage.getItem('lomedx_session_id') || 'guest_' + Date.now() 
+            })
         });
 
-        if (error) throw error;
-        window.removeTypingIndicator(typingId);
-        window.addAIMessage(data.answer, 'bot');
+        if (!response.ok) throw new Error('فشل الاتصال');
+
+        // 3. قراءة البث (Stream)
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            
+            // استخراج النص من شظايا SSE القادمة من Google
+            const lines = chunk.split('\n');
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const dataStr = line.replace('data: ', '');
+                    if (dataStr === '[DONE]') continue;
+                    try {
+                        const data = JSON.parse(dataStr);
+                        const textChunk = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                        if (textChunk) {
+                            fullResponse += textChunk;
+                            // تحديث النص مع تحويل الأكواد إلى أزرار
+                            window.renderStreamingText(botDiv, fullResponse);
+                            container.scrollTop = container.scrollHeight;
+                        }
+                    } catch (e) { /* تجاهل الأخطاء في الشظايا الجزئية */ }
+                }
+            }
+        }
+
+        // 4. بعد انتهاء البث، نقوم بتنسيق الأزرار التفاعلية النهائية
+        window.finalizeAIMessage(botDiv, fullResponse);
 
     } catch (err) {
         console.error(err);
@@ -11680,21 +11732,118 @@ window.sendAIMessage = async function() {
     }
 }
 
+// دالة مساعدة لتحديث النص أثناء البث
+window.renderStreamingText = function(element, text) {
+    let safeText = escapeHtml(text).replace(/\n/g, '<br>');
+    // إخفاء الأكواد التفاعلية أثناء الكتابة
+    safeText = safeText.replace(/\[ACTION:.*?\]/g, '');
+    element.innerHTML = safeText + '<span class="typing-cursor">|</span>';
+}
+
+// دالة مساعدة لإنهاء الرسالة وإضافة الأزرار التفاعلية في النهاية
+window.finalizeAIMessage = function(element, fullText) {
+    let processedText = fullText;
+    let buttonsHtml = '';
+
+    const createBtn = (label, icon, onclickAction) => `
+        <button onclick="${onclickAction}" class="mt-2 mr-1 inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0E7C5F] text-white border border-[#0E7C5F] rounded-lg text-xs font-bold hover:bg-[#095E47] transition-colors shadow-sm">
+            <i class="fas ${icon}"></i> ${label}
+        </button>
+    `;
+
+    const actions = {
+        '[ACTION:BOOK_DOCTOR]': { label: 'احجز موعد', icon: 'fa-calendar-check', action: "closeAllOverlays(); redirectToDoctorsSearch()" },
+        '[ACTION:FIND_MEDICINE]': { label: 'ابحث عن دواء', icon: 'fa-pills', action: "closeAllOverlays(); openMedicineFinder()" },
+        '[ACTION:HEALTH_FILE]': { label: 'ملفي الصحي', icon: 'fa-id-card', action: "closeAllOverlays(); openHealthFile()" },
+        '[ACTION:DOSE_CALC]': { label: 'حاسبة الجرعات', icon: 'fa-syringe', action: "closeAllOverlays(); openDoseCalc()" },
+        '[ACTION:PREGNANCY_CALC]': { label: 'حاسبة الحمل', icon: 'fa-baby', action: "closeAllOverlays(); openPregnancyCalc()" },
+        '[ACTION:BLOOD_BANK]': { label: 'بنك الدم', icon: 'fa-tint', action: "closeAllOverlays(); openBloodBank()" },
+        '[ACTION:FIRST_AID]': { label: 'الإسعافات الأولية', icon: 'fa-kit-medical', action: "closeAllOverlays(); openFirstAid()" },
+        '[ACTION:BURN_CALC]': { label: 'مسعف الحروق', icon: 'fa-fire-extinguisher', action: "closeAllOverlays(); openBurnCalculator()" },
+        '[ACTION:RADAR]': { label: 'الرادار الصحي', icon: 'fa-satellite-dish', action: "closeAllOverlays(); openRahebaRadar()" },
+        '[ACTION:BLOG]': { label: 'المدونة الطبية', icon: 'fa-newspaper', action: "closeAllOverlays(); openMedicalBlog()" },
+        '[ACTION:MED_DONATION]': { label: 'الأجهزة الطبية', icon: 'fa-laptop-medical', action: "closeAllOverlays(); openMedicineDonation()" },
+        '[ACTION:WATER_CALC]': { label: 'حاسبة الماء', icon: 'fa-droplet', action: "closeAllOverlays(); openWaterCalc()" },
+        '[ACTION:HEALTH_CALC]': { label: 'حاسبة كتلة الجسم', icon: 'fa-weight-scale', action: "closeAllOverlays(); openHealthCalc()" },
+        '[ACTION:VACCINE]': { label: 'جدول اللقاحات', icon: 'fa-syringe', action: "closeAllOverlays(); openVaccineScheduler()" },
+        '[ACTION:MED_SYMBOLS]': { label: 'رموز التحاليل', icon: 'fa-flask', action: "closeAllOverlays(); openMedSymbols()" },
+        '[ACTION:MEDICAL_MAP]': { label: 'الخريطة الطبية', icon: 'fa-map-marked-alt', action: "closeAllOverlays(); openMedicalMap()" },
+        '[ACTION:EMERGENCY]': { label: 'اتصل بالإسعاف', icon: 'fa-ambulance', action: "window.location.href='tel:110'", color: 'red' }
+    };
+
+    for (const [code, config] of Object.entries(actions)) {
+        if (processedText.includes(code)) {
+            processedText = processedText.replace(code, '');
+            if (code === '[ACTION:EMERGENCY]') {
+                buttonsHtml += `<a href="tel:110" class="mt-2 mr-1 inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 text-white border border-red-600 rounded-lg text-xs font-bold hover:bg-red-700 transition-colors shadow-sm"><i class="fas ${config.icon}"></i> ${config.label}</a>`;
+            } else {
+                buttonsHtml += createBtn(config.label, config.icon, config.action);
+            }
+        }
+    }
+
+    let safeText = escapeHtml(processedText).replace(/\n/g, '<br>');
+    element.innerHTML = safeText + (buttonsHtml ? `<div class="flex flex-wrap mt-3 pt-3 border-t border-gray-100">${buttonsHtml}</div>` : '');
+}
+
 window.addAIMessage = function(text, sender) {
     const container = document.getElementById('ai-chat-messages');
     if (!container) return;
     
     const div = document.createElement('div');
+    
     if (sender === 'user') {
         div.className = 'ai-message ai-user';
+        div.textContent = text;
     } else {
         div.className = 'ai-message ai-bot';
         div.style.cssText = 'align-self: flex-start; background: white; padding: 10px 15px; border-radius: 15px; border-top-right-radius: 4px; font-size: 13px; line-height: 1.6; max-width: 85%; border: 1px solid #DDE3DD; color: #1B2A1B;';
+
+        let processedText = text;
+        let buttonsHtml = '';
+
+        const createBtn = (label, icon, onclickAction) => `
+            <button onclick="${onclickAction}" class="mt-2 mr-1 inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0E7C5F] text-white border border-[#0E7C5F] rounded-lg text-xs font-bold hover:bg-[#095E47] transition-colors shadow-sm">
+                <i class="fas ${icon}"></i> ${label}
+            </button>
+        `;
+
+        // خريطة ربط الأكواد بأزرار المنصة
+        const actions = {
+            '[ACTION:BOOK_DOCTOR]': { label: 'احجز موعد', icon: 'fa-calendar-check', action: "closeAllOverlays(); redirectToDoctorsSearch()" },
+            '[ACTION:FIND_MEDICINE]': { label: 'ابحث عن دواء', icon: 'fa-pills', action: "closeAllOverlays(); openMedicineFinder()" },
+            '[ACTION:HEALTH_FILE]': { label: 'ملفي الصحي', icon: 'fa-id-card', action: "closeAllOverlays(); openHealthFile()" },
+            '[ACTION:DOSE_CALC]': { label: 'حاسبة الجرعات', icon: 'fa-syringe', action: "closeAllOverlays(); openDoseCalc()" },
+            '[ACTION:PREGNANCY_CALC]': { label: 'حاسبة الحمل', icon: 'fa-baby', action: "closeAllOverlays(); openPregnancyCalc()" },
+            '[ACTION:BLOOD_BANK]': { label: 'بنك الدم', icon: 'fa-tint', action: "closeAllOverlays(); openBloodBank()" },
+            '[ACTION:FIRST_AID]': { label: 'الإسعافات الأولية', icon: 'fa-kit-medical', action: "closeAllOverlays(); openFirstAid()" },
+            '[ACTION:BURN_CALC]': { label: 'مسعف الحروق', icon: 'fa-fire-extinguisher', action: "closeAllOverlays(); openBurnCalculator()" },
+            '[ACTION:RADAR]': { label: 'الرادار الصحي', icon: 'fa-satellite-dish', action: "closeAllOverlays(); openRahebaRadar()" },
+            '[ACTION:BLOG]': { label: 'المدونة الطبية', icon: 'fa-newspaper', action: "closeAllOverlays(); openMedicalBlog()" },
+            '[ACTION:MED_DONATION]': { label: 'الأجهزة الطبية', icon: 'fa-laptop-medical', action: "closeAllOverlays(); openMedicineDonation()" },
+            '[ACTION:WATER_CALC]': { label: 'حاسبة الماء', icon: 'fa-droplet', action: "closeAllOverlays(); openWaterCalc()" },
+            '[ACTION:HEALTH_CALC]': { label: 'حاسبة كتلة الجسم', icon: 'fa-weight-scale', action: "closeAllOverlays(); openHealthCalc()" },
+            '[ACTION:VACCINE]': { label: 'جدول اللقاحات', icon: 'fa-syringe', action: "closeAllOverlays(); openVaccineScheduler()" },
+            '[ACTION:MED_SYMBOLS]': { label: 'رموز التحاليل', icon: 'fa-flask', action: "closeAllOverlays(); openMedSymbols()" },
+            '[ACTION:MEDICAL_MAP]': { label: 'الخريطة الطبية', icon: 'fa-map-marked-alt', action: "closeAllOverlays(); openMedicalMap()" },
+            '[ACTION:EMERGENCY]': { label: 'اتصل بالإسعاف', icon: 'fa-ambulance', action: "window.location.href='tel:110'", color: 'red' }
+        };
+
+        for (const [code, config] of Object.entries(actions)) {
+            if (processedText.includes(code)) {
+                processedText = processedText.replace(code, '');
+                if (code === '[ACTION:EMERGENCY]') {
+                    buttonsHtml += `<a href="tel:110" class="mt-2 mr-1 inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 text-white border border-red-600 rounded-lg text-xs font-bold hover:bg-red-700 transition-colors shadow-sm"><i class="fas ${config.icon}"></i> ${config.label}</a>`;
+                } else {
+                    buttonsHtml += createBtn(config.label, config.icon, config.action);
+                }
+            }
+        }
+
+        let safeText = escapeHtml(processedText).replace(/\n/g, '<br>');
+        div.innerHTML = safeText + (buttonsHtml ? `<div class="flex flex-wrap mt-3 pt-3 border-t border-gray-100">${buttonsHtml}</div>` : '');
     }
     
-    // نستخدم escapeHtml للأمان (موجودة في كودك)
-    // ملاحظة: الردود من الذكاء الاصطناعي تحتوي على HTML (مثل <b>)، لذا نستخدم innerHTML هنا
-    div.innerHTML = text; 
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
 }
