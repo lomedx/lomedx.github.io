@@ -3976,3 +3976,18 @@ html.dark .badge-duty-ended {
     from, to { border-color: transparent }
     50% { border-color: #F0D77B }
 }
+
+
+
+.typing-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 14px;
+    background: #0E7C5F;
+    margin-right: 2px;
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+}
+@keyframes blink {
+    50% { opacity: 0; }
+}
