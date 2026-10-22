@@ -11212,13 +11212,25 @@ document.addEventListener('visibilitychange', () => {
 // ═══════════════════════════════════════════════════════════
 
     window.askForUserCity = () => {
-    //  1. التحقق من وجود مدينة محفوظة مسبقاً
+    // 1. التحقق من وجود مدينة محفوظة أو قرار "تخطي"
     const savedCity = localStorage.getItem('lomedx_user_city');
     
+    // إذا كان هناك مدينة محفوظة، أو المستخدم اختار التخطي سابقاً ("skipped")
     if (savedCity) {
-        // إذا كانت موجودة، نطبقها ولا نفتح النافذة
-        currentCity = savedCity;
+        // إذا كان "skipped"، نترك الموقع على "كل المدن" ونخرج
+        if (savedCity === 'skipped') {
+            const currentCityText = document.getElementById('currentCityText');
+            if (currentCityText) currentCityText.innerText = 'كل المدن';
+            
+            const menuCityEl = document.getElementById('menuCurrentCityText');
+            if (menuCityEl) menuCityEl.innerText = 'كل المدن';
+            
+            if (typeof renderData === 'function') renderData();
+            return; // لا تفتح النافذة
+        }
         
+        // إذا كانت مدينة حقيقية، نطبقها
+        currentCity = savedCity;
         const currentCityText = document.getElementById('currentCityText');
         if (currentCityText) currentCityText.innerText = savedCity;
         
@@ -11226,10 +11238,10 @@ document.addEventListener('visibilitychange', () => {
         if (menuCityEl) menuCityEl.innerText = savedCity;
 
         if (typeof renderData === 'function') renderData();
-        return; //  الخروج من الدالة (لن تظهر النافذة)
+        return; // لا تفتح النافذة
     }
 
-    //  2. إذا لم توجد مدينة محفوظة، نفتح النافذة
+    // 2. إذا لم يكن هناك أي شيء محفوظ، نفتح النافذة لأول مرة
     const cities = allCities.filter(c => c !== 'كل المدن' && !c.includes('(قريباً)'));
     const overlay = document.createElement('div');
     overlay.id = 'userCityOverlay';
@@ -11251,7 +11263,6 @@ document.addEventListener('visibilitychange', () => {
                 تأكيد وحفظ
             </button>
 
-            
             <button onclick="skipUserCity()" style="width:100%; padding:10px; border-radius:14px; background:transparent; color:var(--muted); font-weight:bold; border:none; font-size:0.85rem; cursor:pointer; font-family:inherit;">
                 تخطي الآن (تصفح كزائر)
             </button>
@@ -11261,15 +11272,21 @@ document.addEventListener('visibilitychange', () => {
     document.body.appendChild(overlay);
 };
 
-//  دالة التخطي
+// دالة التخطي (محدثة لحفظ القرار)
 window.skipUserCity = () => {
     const overlay = document.getElementById('userCityOverlay');
     if (overlay) overlay.remove();
     
-    // لا نحفظ أي شيء، وسيبقى الموقع على "كل المدن"
+    // ✅ الحفظ: نضع كلمة 'skipped' لنتذكر أنه اختار التخطي
+    localStorage.setItem('lomedx_user_city', 'skipped');
+    
+    // إبقاء الموقع على "كل المدن"
     const currentCityText = document.getElementById('currentCityText');
     if (currentCityText) currentCityText.innerText = 'كل المدن';
     
+    const menuCityEl = document.getElementById('menuCurrentCityText');
+    if (menuCityEl) menuCityEl.innerText = 'كل المدن';
+
     showToast('يمكنك تصفح المنصة بحرية. اختر مدينتك لاحقاً من القائمة الجانبية.', 'info');
 };
 
