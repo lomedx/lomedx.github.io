@@ -11673,9 +11673,11 @@ window.sendAIMessage = async function() {
         let fullResponse = '';
 
         // 2. الاتصال بالدالة السحابية عبر fetch لدعم البث
-        const supabaseUrl = 'https://pzwhyoattlravuadbfvk.supabase.co'; // رابط مشروعك
-        const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6d2h5b2F0dGxyYXZ1YWRiZnZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUw...'; // مفتاح anon الخاص بك (موجود في ملف supabase.js)
+        
+const supabaseUrl = 'https://pzwhyoattlravuadbfvk.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6d2h5b2F0dGxyYXZ1YWRiZnZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzMzMyNDIsImV4cCI6MjEwMTkwOTI0Mn0.zBPnp7rVpR5ojidhuUCSQyUhA5VTFSCQosG_XtFXBWo';
 
+        
         const response = await fetch(`${supabaseUrl}/functions/v1/lomedx-ai-assistant`, {
             method: 'POST',
             headers: {
