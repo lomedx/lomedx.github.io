@@ -11645,13 +11645,17 @@ window.toggleAIChat = function() {
     }
 }
 
+// متغير لحفظ تاريخ المحادثة
+let aiChatHistory = [];
+
 window.sendAIMessage = async function() {
     const input = document.getElementById('ai-user-input');
     const message = input.value.trim();
     if (!message) return;
 
-    // إضافة رسالة المستخدم
+    // إضافة رسالة المستخدم وحفظها في التاريخ
     window.addAIMessage(message, 'user');
+    aiChatHistory.push({ role: "user", text: message });
     input.value = '';
     
     const typingId = window.addTypingIndicator();
@@ -11659,40 +11663,41 @@ window.sendAIMessage = async function() {
     if (sendBtn) sendBtn.disabled = true;
 
     try {
-        // 1. إنشاء رسالة فارغة للبوت سيتم تحديثها أثناء البث
         const container = document.getElementById('ai-chat-messages');
-        window.removeTypingIndicator(typingId); // إزالة الثلاث نقاط
+        window.removeTypingIndicator(typingId); 
         
         const botDiv = document.createElement('div');
         botDiv.className = 'ai-message ai-bot';
         botDiv.style.cssText = 'align-self: flex-start; background: white; padding: 10px 15px; border-radius: 15px; border-top-right-radius: 4px; font-size: 13px; line-height: 1.6; max-width: 85%; border: 1px solid #DDE3DD; color: #1B2A1B; min-height: 40px;';
-        botDiv.innerHTML = '<span class="typing-cursor"></span>'; // مؤشر وامض
+        botDiv.innerHTML = '<span class="typing-cursor"></span>'; 
         container.appendChild(botDiv);
         container.scrollTop = container.scrollHeight;
 
         let fullResponse = '';
 
-        // 2. الاتصال بالدالة السحابية عبر fetch لدعم البث
-        
-const supabaseUrl = 'https://pzwhyoattlravuadbfvk.supabase.co';
-const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6d2h5b2F0dGxyYXZ1YWRiZnZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzMzMyNDIsImV4cCI6MjEwMTkwOTI0Mn0.zBPnp7rVpR5ojidhuUCSQyUhA5VTFSCQosG_XtFXBWo';
+        const supabaseUrl = 'https://pzwhyoattlravuadbfvk.supabase.co';
+        const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6d2h5b2F0dGxyYXZ1YWRiZnZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzMzMyNDIsImV4cCI6MjEwMTkwOTI0Mn0.zBPnp7rVpR5ojidhuUCSQyUhA5VTFSCQosG_XtFXBWo';
 
-        
         const response = await fetch(`${supabaseUrl}/functions/v1/lomedx-ai-assistant`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${anonKey}`
+                'Authorization': `Bearer ${anonKey}`,
+                'apikey': anonKey 
             },
             body: JSON.stringify({ 
                 message: message, 
+                history: aiChatHistory.slice(-5), // ✅ نرسل آخر 5 رسائل لكي يتذكر المحادثة
                 sessionId: localStorage.getItem('lomedx_session_id') || 'guest_' + Date.now() 
             })
         });
 
-        if (!response.ok) throw new Error('فشل الاتصال');
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Server Error:", errorData.error);
+            throw new Error(errorData.error || 'فشل الاتصال بالخادم');
+        }
 
-        // 3. قراءة البث (Stream)
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
 
@@ -11701,9 +11706,8 @@ const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
             if (done) break;
 
             const chunk = decoder.decode(value, { stream: true });
-            
-            // استخراج النص من شظايا SSE القادمة من Google
             const lines = chunk.split('\n');
+            
             for (const line of lines) {
                 if (line.startsWith('data: ')) {
                     const dataStr = line.replace('data: ', '');
@@ -11713,16 +11717,16 @@ const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
                         const textChunk = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
                         if (textChunk) {
                             fullResponse += textChunk;
-                            // تحديث النص مع تحويل الأكواد إلى أزرار
                             window.renderStreamingText(botDiv, fullResponse);
                             container.scrollTop = container.scrollHeight;
                         }
-                    } catch (e) { /* تجاهل الأخطاء في الشظايا الجزئية */ }
+                    } catch (e) { /* تجاهل */ }
                 }
             }
         }
 
-        // 4. بعد انتهاء البث، نقوم بتنسيق الأزرار التفاعلية النهائية
+        // حفظ رد البوت في التاريخ
+        aiChatHistory.push({ role: "model", text: fullResponse });
         window.finalizeAIMessage(botDiv, fullResponse);
 
     } catch (err) {
@@ -11733,6 +11737,7 @@ const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
         if (sendBtn) sendBtn.disabled = false;
     }
 }
+        
 
 // دالة مساعدة لتحديث النص أثناء البث
 window.renderStreamingText = function(element, text) {
