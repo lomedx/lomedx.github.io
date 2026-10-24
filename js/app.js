@@ -930,6 +930,7 @@ function createCard(item) {
     poster="${getOptimizedImageUrl(item.image, 400, 300)}" 
     class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 relative z-0" 
     muted loop playsinline autoplay>
+    title="فيديو ${escapeHtml(item.name)} - LomedX"
 </video>
     <div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm z-10">
         <i class="fas fa-play ml-1"></i> فيديو
@@ -1589,7 +1590,7 @@ function getDutyStatusHtml(item) {
     }
     
     // ═══════════════════════════════════════════════════════
-    // ⚪ منتهية (كانت مناوبة اليوم)
+    //  منتهية (كانت مناوبة اليوم)
     // ═══════════════════════════════════════════════════════
     if (dutyInfo.status === 'ended') {
         return `
@@ -1929,9 +1930,28 @@ window.openModal = (id) => {
         <iframe width="100%" height="220" frameborder="0" style="border:0; display: block;" src="https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=16&output=embed" allowfullscreen loading="lazy"></iframe>
     </div>` : '';
     
-    // لاحظ هنا أننا نضع ${doctorsListHtml} قبل ${mapEmbed} مباشرة
+
+
+
+
+    
     document.getElementById('modalContent').innerHTML = `<div class="relative h-48 overflow-hidden rounded-t-2xl">
-<img src="${getOptimizedImageUrl(item.image, 800, 400)}"  alt="${escapeHtml(item.name)}" class="w-full h-full object-cover cursor-zoom-in" onclick="openLightbox(this.src)"><div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.6), transparent)"></div><button onclick="event.stopPropagation(); shareItem('${escapeHtml(item.id)}')" 
+${item.video_url ? `
+    <!-- عرض الفيديو في النافذة المنبثقة إذا كان موجوداً -->
+    <video 
+        src="${escapeHtml(item.video_url)}" 
+        class="w-full h-full object-cover" 
+        controls 
+        autoplay 
+        muted 
+        loop 
+        playsinline 
+        title="فيديو ${escapeHtml(item.name)}">
+    </video>
+` : `
+    <!-- عرض الصورة العادية إذا لم يوجد فيديو -->
+    <img src="${getOptimizedImageUrl(item.image, 800, 400)}"  alt="${escapeHtml(item.name)}" class="w-full h-full object-cover cursor-zoom-in" onclick="openLightbox(this.src)">
+`}<div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.6), transparent)"></div><button onclick="event.stopPropagation(); shareItem('${escapeHtml(item.id)}')" 
         class="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--accent)] backdrop-blur-sm text-white flex items-center justify-center hover:bg-[var(--accent-dark)] transition-all shadow-lg" 
         title="مشاركة البطاقة">
     <i class="fas fa-share-alt text-sm"></i>
