@@ -825,8 +825,6 @@ async function handleItemRouteFromURL() {
     const id = match[2];
 
     // 2. إظهار رسالة تحميل للمستخدم
-    // (اختياري) يمكنك استبدال هذا برسالة "جاري فتح البطاقة..."
-    // showToast('جاري فتح البطاقة...', 'info');
 
     try {
         // 3. في حال كانت allData فارغة، قم بجلب البيانات مباشرة
@@ -925,7 +923,24 @@ function createCard(item) {
     }
     
     return `<div class="card ${t.cardClass} cursor-pointer" onclick="handleCardClick(event, '${escapeHtml(item.id)}')" data-type="${escapeHtml(item.type)}"><div class="relative h-40 overflow-hidden rounded-t-2xl">
-<img src="${getOptimizedImageUrl(item.image, 400, 300)}" alt="${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} في سوريا | منصة LomedX" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 cursor-zoom-in" loading="lazy" onclick="event.stopPropagation(); openLightbox(this.src, 'صورة ${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} | LomedX')"><div class="absolute top-3 right-3"><span class="badge ${t.badgeClass}">${t.label}</span></div><div class="absolute top-3 left-3 flex flex-col gap-1 items-start">
+  ${item.video_url ? `
+    <!-- عرض الفيديو إذا كان موجوداً -->
+    <video 
+        src="${escapeHtml(item.video_url)}" 
+        poster="${getOptimizedImageUrl(item.image, 400, 300)}" 
+        class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" 
+        muted loop playsinline preload="none">
+    </video>
+    <div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm z-10">
+        <i class="fas fa-play ml-1"></i> فيديو
+    </div>
+` : `
+    <!-- عرض الصورة العادية إذا لم يوجد فيديو -->
+    <img src="${getOptimizedImageUrl(item.image, 400, 300)}" alt="${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} في سوريا | منصة LomedX" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 cursor-zoom-in" loading="lazy" onclick="event.stopPropagation(); openLightbox(this.src, 'صورة ${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} | LomedX')">
+`}<div class="absolute top-3 right-3"><span class="badge ${t.badgeClass}">${t.label}</span></div><div class="absolute top-3 left-3 flex flex-col gap-1 items-start">
+
+
+   
     ${['doctor', 'pharmacy'].includes(item.type) && item.isopen === true ? '<span class="badge" style="background:#10B981;color:white"><i class="fas fa-door-open ml-1"></i>مفتوح</span>' : ''}
     ${['doctor', 'pharmacy'].includes(item.type) && item.isopen === false ? '<span class="badge" style="background:#EF4444;color:white"><i class="fas fa-door-closed ml-1"></i>مغلق</span>' : ''}
     ${item.night ? '<span class="badge" style="background:rgba(196,150,44,0.9);color:white"><i class="fas fa-moon ml-1"></i>ليلي</span>' : ''}
@@ -4748,7 +4763,11 @@ window.renderAdminDashboard = async () => {
 
         ${announcementsHtml} 
         ${homeAdsHtml} 
-        ${radarAdminHtml} ${blogAdminHtml} ${patientsAdminHtml} ${emergencyAdminHtml} <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-tint text-red-600"></i> إدارة استغاثات الدم (${bloodRequests.length})</h4><div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">${bloodHtml}</div></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-hand-holding-medical text-green-600"></i>إدارة المستلزمات الطبية (${medicineDonations.length})</h4><div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">${medDonHtml}</div></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm"><i class="fas fa-plus-circle ml-2" style="color: var(--accent)"></i> <span id="formTitle">إضافة منشأة</span></h4><form onsubmit="saveFacility(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3"><input type="hidden" id="edit_id"><select id="new_type" class="ctrl-input text-sm" required onchange="updateAdminFormFields(this.value)"><option value="hospital">مشفى</option><option value="center">مركز</option><option value="lab">مخبر</option><option value="doctor">طبيب</option><option value="pharmacy">صيدلية</option></select><input type="text" id="new_name" class="ctrl-input text-sm" placeholder="الاسم" required><input type="text" id="new_specialty" class="ctrl-input text-sm" placeholder="التخصص الأساسي" required><input type="text" id="new_address" class="ctrl-input text-sm" placeholder="العنوان / الموقع" required><input type="text" id="new_phone" class="ctrl-input text-sm" placeholder="رقم الهاتف (اختياري)"><input type="text" id="new_hours" class="ctrl-input text-sm" placeholder="أوقات العمل"><input type="text" id="new_image_url" class="ctrl-input text-sm" placeholder="رابط الصورة (URL)"><input type="text" id="new_custom_password" class="ctrl-input text-sm col-span-1 sm:col-span-2" placeholder="كلمة مرور الطبيب/الصيدلية (6 أحرف فأكثر)"><textarea id="new_desc" class="ctrl-input text-sm col-span-2" placeholder="وصف عام (اختياري)" rows="2"></textarea><div id="adminExtraFields" class="contents"></div><button type="submit" class="col-span-1 sm:col-span-2 py-2.5 rounded-xl text-white font-semibold text-sm" style="background: var(--accent)"><i class="fas fa-save ml-1"></i> حفظ</button></form></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm"><i class="fas fa-list ml-2"></i> المنشآت (${allData.length})</h4><div class="flex flex-col gap-2 max-h-96 overflow-y-auto">${listHtml}</div></div> <button onclick="logoutAdmin()" class="w-full py-2.5 rounded-xl border font-semibold text-sm mt-2" style="border-color: #EF4444; color: #EF4444;"><i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج</button> </div>`, '#073D2E'); 
+        ${radarAdminHtml} ${blogAdminHtml} ${patientsAdminHtml} ${emergencyAdminHtml} <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-tint text-red-600"></i> إدارة استغاثات الدم (${bloodRequests.length})</h4><div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">${bloodHtml}</div></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm flex items-center gap-2" style="font-family: 'Noto Kufi Arabic'"><i class="fas fa-hand-holding-medical text-green-600"></i>إدارة المستلزمات الطبية (${medicineDonations.length})</h4><div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">${medDonHtml}</div></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm"><i class="fas fa-plus-circle ml-2" style="color: var(--accent)"></i> <span id="formTitle">إضافة منشأة</span></h4><form onsubmit="saveFacility(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3"><input type="hidden" id="edit_id"><select id="new_type" class="ctrl-input text-sm" required onchange="updateAdminFormFields(this.value)"><option value="hospital">مشفى</option><option value="center">مركز</option><option value="lab">مخبر</option><option value="doctor">طبيب</option><option value="pharmacy">صيدلية</option></select><input type="text" id="new_name" class="ctrl-input text-sm" placeholder="الاسم" required><input type="text" id="new_specialty" class="ctrl-input text-sm" placeholder="التخصص الأساسي" required><input type="text" id="new_address" class="ctrl-input text-sm" placeholder="العنوان / الموقع" required><input type="text" id="new_phone" class="ctrl-input text-sm" placeholder="رقم الهاتف (اختياري)"><input type="text" id="new_hours" class="ctrl-input text-sm" placeholder="أوقات العمل"><input type="text" id="new_image_url" class="ctrl-input text-sm" placeholder="رابط الصورة (URL)">
+        <div class="col-span-1 sm:col-span-2 bg-gray-50 p-3 rounded-xl border border-dashed border-gray-300 mt-2">
+    <label class="block text-xs font-bold text-gray-600 mb-2"><i class="fas fa-video ml-1"></i> رفع فيديو للمنشأة (اختياري - فيديو 10-5 ثوانٍ فقط):</label>
+    <input type="file" id="new_video_file" accept="video/mp4" class="ctrl-input text-sm">
+</div><input type="text" id="new_custom_password" class="ctrl-input text-sm col-span-1 sm:col-span-2" placeholder="كلمة مرور الطبيب/الصيدلية (6 أحرف فأكثر)"><textarea id="new_desc" class="ctrl-input text-sm col-span-2" placeholder="وصف عام (اختياري)" rows="2"></textarea><div id="adminExtraFields" class="contents"></div><button type="submit" class="col-span-1 sm:col-span-2 py-2.5 rounded-xl text-white font-semibold text-sm" style="background: var(--accent)"><i class="fas fa-save ml-1"></i> حفظ</button></form></div> <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)"><h4 class="font-bold mb-4 text-sm"><i class="fas fa-list ml-2"></i> المنشآت (${allData.length})</h4><div class="flex flex-col gap-2 max-h-96 overflow-y-auto">${listHtml}</div></div> <button onclick="logoutAdmin()" class="w-full py-2.5 rounded-xl border font-semibold text-sm mt-2" style="border-color: #EF4444; color: #EF4444;"><i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج</button> </div>`, '#073D2E'); 
     renderAdminEmergencyList();
     fetchAnnouncements();
     fetchHomeAdsForAdmin();
@@ -4982,6 +5001,33 @@ window.deleteFacility = async (id) => {
 }
 window.saveFacility = async (e) => { 
     e.preventDefault(); 
+
+// === 1. رفع الفيديو إذا تم اختياره ===
+const videoFileInput = document.getElementById('new_video_file');
+const videoFile = videoFileInput ? videoFileInput.files[0] : null;
+let uploadedVideoUrl = '';
+
+if (videoFile) {
+    try {
+        const fileExt = videoFile.name.split('.').pop();
+        const fileName = `video_${Date.now()}.${fileExt}`;
+        
+        // رفع الملف إلى Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('videos')
+            .upload(fileName, videoFile);
+
+        if (uploadError) throw uploadError;
+
+        // الحصول على الرابط المباشر
+        const { data: urlData } = supabase.storage.from('videos').getPublicUrl(fileName);
+        uploadedVideoUrl = urlData.publicUrl;
+    } catch (error) {
+        showToast('خطأ في رفع الفيديو: ' + error.message, 'error');
+        return; // إيقاف الحفظ إذا فشل الرفع
+    }
+}
+    
     const id = document.getElementById('edit_id').value; 
     const type = document.getElementById('new_type').value; 
     const name = document.getElementById('new_name').value; 
@@ -4993,6 +5039,7 @@ window.saveFacility = async (e) => {
     const imgURL = document.getElementById('new_image_url').value.trim(); 
     
     let data = { type, name, phone, hours, description: desc, rating: 4.0 }; 
+    if (uploadedVideoUrl) data.video_url = uploadedVideoUrl; 
     if(document.getElementById('new_latlng')) data.latlng = document.getElementById('new_latlng').value.trim();
     if (imgURL) data.image = imgURL; 
     
@@ -11878,3 +11925,36 @@ window.removeTypingIndicator = function(id) {
     const el = document.getElementById(id);
     if (el) el.remove();
 }
+
+
+// === تشغيل الفيديوهات في البطاقات فقط عند ظهورها في الشاشة (لتوفير الإنترنت) ===
+document.addEventListener('DOMContentLoaded', () => {
+    const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const video = entry.target;
+            if (entry.isIntersecting) {
+                video.play().catch(e => console.log("المتصفح منع التشغيل التلقائي"));
+            } else {
+                video.pause();
+            }
+        });
+    }, { threshold: 0.5 });
+
+    const observeVideos = () => {
+        document.querySelectorAll('.card video').forEach(video => {
+            if (!video.dataset.observed) {
+                videoObserver.observe(video);
+                video.dataset.observed = 'true';
+            }
+        });
+    };
+
+    observeVideos();
+    
+    // إعادة المراقبة بعد كل بحث أو تصفية
+    const originalRenderData = window.renderData;
+    window.renderData = () => {
+        originalRenderData();
+        setTimeout(observeVideos, 100);
+    };
+});
