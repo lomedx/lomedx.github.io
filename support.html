@@ -1919,7 +1919,13 @@ body {
       </button>
     </div>
   </div>
-
+<div style="margin-top: 40px; text-align: center;">
+    <a href="https://lomedx.pages.dev" 
+       style="display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #A0A7B5; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 14px;">
+        <i class="fas fa-arrow-right"></i>
+        <span>العودة إلى المنصة الرئيسية</span>
+    </a>
+</div>
   <footer class="page-footer">
     <div class="page-footer-divider"></div>
     <p>
@@ -2100,7 +2106,7 @@ body {
   var FAQ_DATA = [
     { id: 'accounts', icon: 'fa-user-lock', color: '#3B82F6', title: 'الحسابات وتسجيل الدخول', desc: 'مشاكل الدخول، التسجيل، الدخول بحساب Google، الخروج',
       faqs: [
-        { q: 'لا أستطيع تسجيل الدخول إلى الملف الصحي، ماذا أفعل؟', a: '<ul><li>تأكد من أنك تستخدم الحساب الصحيح.</li><li>إذا كنت تستخدم حساب <code>@lomedx.app</code> فهذا حساب عمل.</li><li>إذا نسيت كلمة المرور، تواصل مع الدعم الفني.</li><li>إذا كان البريد غير مؤكد، افتح رسالة التأكيد.</li></ul>' },
+        { q: 'لا أستطيع تسجيل الدخول إلى الملف الصحي، ماذا أفعل؟', a: '<ul><li>تأكد من أنك تستخدم الحساب الصحيح.</li><li>إذا نسيت كلمة المرور، تواصل مع الدعم الفني.</li><li>إذا كان البريد غير مؤكد، افتح رسالة التأكيد.</li></ul>' },
         { q: 'كيف أنشئ ملفاً صحياً جديداً؟', a: '<ol><li>اضغط على أيقونة <strong>"الملف الصحي"</strong>.</li><li>اختر تبويب <strong>"حساب جديد"</strong>.</li><li>أدخل بياناتك وكلمة مرور قوية.</li><li>اضغط <strong>"إنشاء الملف"</strong>.</li><li>سجّل الدخول وابدأ بتعبئة بياناتك.</li></ol>' },
         { q: 'سجلت الدخول بحساب Google، لكن لم يفتح الملف الصحي؟', a: '<ul><li>تأكد من السماح للنوافذ المنبثقة.</li><li>انتظر لحظات بعد الدخول.</li><li>أغلق المتصفح وأعد المحاولة.</li></ul>' },
         { q: 'كيف أسجّل خروجي من الحساب؟', a: '<ul><li><strong>الملف الصحي:</strong> اضغط "تسجيل الخروج" في الأسفل.</li><li><strong>لوحة الطبيب/الصيدلية/الإدارة:</strong> اضغط "تسجيل الخروج".</li></ul>', tip: 'ضروري إذا كنت تستخدم جهازاً عاماً.' }
@@ -2960,16 +2966,21 @@ body {
     if (action === 'back') { e.preventDefault(); closeTroubleshootModal(); setTimeout(function () { history.back(); }, 200); return; }
     if (action === 'call-emergency') { e.preventDefault(); closeTroubleshootModal(); setTimeout(function () { window.location.href = 'tel:' + CONFIG.emergencyPhone; }, 200); return; }
 
-    // ✅ تواصل مع الدعم → يفتح نافذة التواصل في موقعك
+  
+//  تواصل مع الدعم — فتح WhatsApp مباشرة
 if (action === 'support') {
-  e.preventDefault();
-  closeTroubleshootModal();
-  setTimeout(function () {
-    window.open('https://lomedx.pages.dev/contact', '_blank', 'noopener');
-  }, 300);
-  return;
+    e.preventDefault();
+    closeTroubleshootModal();
+    setTimeout(function () {
+        var msg = encodeURIComponent(
+            'مرحباً LomedX،\n' +
+            'أحتاج مساعدة.\n' +
+            'رقم المرجع: ' + (currentTsErrorId || 'استفسار عام')
+        );
+        window.open('https://wa.me/' + CONFIG.supportPhone + '?text=' + msg, '_blank', 'noopener');
+    }, 300);
+    return;
 }
-
 
 
     if (action === 'copy-id') {
@@ -3018,6 +3029,14 @@ if (action === 'support') {
       });
       return;
     }
+    //  فتح الموقع الرئيسي
+if (action === 'go-to-site') {
+    e.preventDefault();
+    closeTroubleshootModal();
+    setTimeout(function () { window.location.href = CONFIG.mainSiteUrl; }, 300);
+    return;
+}
+
 });
     
 
