@@ -2986,8 +2986,8 @@ if (action === 'support') {
             hour: '2-digit', minute: '2-digit'
         });
         
-        var message = 'السلام عليكم فريق LomedX 👋\n\n';
-        message += 'أحتاج إلى مساعدة في المنصة.\n';
+        var message = 'السلام عليكم LomedX 👋\n\n';
+        message += 'أحتاج إلى مساعدة.\n';
         
         //  اسم المشكلة والأداة (إن وُجدت)
         if (lastIssueTitle) {
@@ -3005,8 +3005,8 @@ if (action === 'support') {
         
         message += '\n🔖 رقم الجلسة: ' + sessionRef;
         message += '\n🕐 التوقيت: ' + localTime;
-        message += '\n🌐 الصفحة: ' + (window.location.pathname || '/');
-        message += '\n\nسأرسل لكم تفاصيل المشكلة الآن...';
+        message += '\n🌐 الصفحة: مركز الدعم';
+        message += '\n\nالتفاصيل:';
         
         var encoded = encodeURIComponent(message);
         window.open('https://wa.me/' + CONFIG.supportPhone + '?text=' + encoded, '_blank', 'noopener');
