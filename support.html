@@ -2757,6 +2757,8 @@ body {
     var errorId = generateErrorId();
     currentTsErrorId = errorId;
 
+window.__lastIssueTool = toolName;
+window.__lastIssueTitle = issue.title;
     var overlay = document.getElementById('tsModalOverlay');
     if (!overlay) return;
 
@@ -2970,14 +2972,44 @@ body {
 //  تواصل مع الدعم — فتح WhatsApp مباشرة
 if (action === 'support') {
     e.preventDefault();
+    
+    var errorRef = currentTsErrorId;
+    var sessionRef = SESSION_REF;
+    var lastIssueTitle = window.__lastIssueTitle;
+    var lastIssueTool = window.__lastIssueTool;
+    
     closeTroubleshootModal();
+    
     setTimeout(function () {
-        var msg = encodeURIComponent(
-            'مرحباً LomedX،\n' +
-            'أحتاج مساعدة.\n' +
-            'رقم المرجع: ' + (currentTsErrorId || 'استفسار عام')
-        );
-        window.open('https://wa.me/' + CONFIG.supportPhone + '?text=' + msg, '_blank', 'noopener');
+        var localTime = new Date().toLocaleString('ar-SY', {
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit'
+        });
+        
+        var message = 'السلام عليكم فريق LomedX 👋\n\n';
+        message += 'أحتاج إلى مساعدة في المنصة.\n';
+        
+        //  اسم المشكلة والأداة (إن وُجدت)
+        if (lastIssueTitle) {
+            message += '\n📍 *المشكلة:* ' + lastIssueTitle;
+            message += '\n🛠️ *الأداة:* ' + (lastIssueTool || 'غير محددة');
+        }
+        
+        //  رقم المرجع (إن وُجد)
+        if (errorRef) {
+            message += '\n━━━━━━━━━━━━━━━━━\n';
+            message += '📋 *رقم المرجع:*\n';
+            message += errorRef + '\n';
+            message += '━━━━━━━━━━━━━━━━━\n';
+        }
+        
+        message += '\n🔖 رقم الجلسة: ' + sessionRef;
+        message += '\n🕐 التوقيت: ' + localTime;
+        message += '\n🌐 الصفحة: ' + (window.location.pathname || '/');
+        message += '\n\nسأرسل لكم تفاصيل المشكلة الآن...';
+        
+        var encoded = encodeURIComponent(message);
+        window.open('https://wa.me/' + CONFIG.supportPhone + '?text=' + encoded, '_blank', 'noopener');
     }, 300);
     return;
 }
