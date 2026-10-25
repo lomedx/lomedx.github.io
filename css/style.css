@@ -3991,3 +3991,112 @@ html.dark .badge-duty-ended {
 @keyframes blink {
     50% { opacity: 0; }
 }
+
+
+
+
+
+/* ═══════════════════════════════════════════════════════════ */
+/* 🎬 LIVE CARD AD — إعلان البطاقة الحية (بدون حركات)         */
+/* ═══════════════════════════════════════════════════════════ */
+
+.live-card-ad-wrapper {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 16px;
+}
+
+.live-card-ad {
+    background: linear-gradient(135deg, #021410 0%, #052E22 100%);
+    border: 2px solid #C4962C;
+    border-radius: 16px;
+    padding: 18px 20px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 10px 30px rgba(196, 150, 44, 0.15), 
+        inset 0 0 20px rgba(196, 150, 44, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.lc-ad-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    z-index: 2;
+}
+
+.lc-ad-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #F0D77B 0%, #C4962C 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #021410;
+    box-shadow: 0 8px 20px rgba(196, 150, 44, 0.4);
+    flex-shrink: 0;
+}
+
+.lc-ad-title {
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    margin: 0 0 5px 0;
+    color: #F0D77B;
+    line-height: 1.4;
+}
+
+.lc-ad-desc {
+    font-size: 12px;
+    color: #8EA8A1;
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.lc-ad-tag {
+    background: rgba(196, 150, 44, 0.15);
+    border: 1px solid rgba(196, 150, 44, 0.4);
+    color: #F0D77B;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 12px;
+    border-radius: 8px;
+    position: relative;
+    z-index: 2;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+/* استجابة الجوال */
+@media (max-width: 500px) {
+    .live-card-ad-wrapper {
+        margin: 30px auto;
+    }
+    .live-card-ad {
+        flex-direction: column;
+        text-align: center;
+        padding: 18px 16px;
+    }
+    .lc-ad-left {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .lc-ad-title {
+        font-size: 15px;
+    }
+    .lc-ad-desc {
+        font-size: 11px;
+    }
+}
