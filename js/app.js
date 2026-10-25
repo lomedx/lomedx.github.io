@@ -1144,6 +1144,7 @@ window.toggleVideoFilter = (btn) => {
     renderData(); // إعادة رسم البطاقات 
 };
 window.setFilter = (filter, btn) => { 
+    hasVideoFilter = false;
     renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; // إعادة التصفير
     currentFilter = filter; 
     document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active'); b.style.background = ''; b.style.color = ''; b.style.borderColor = ''; }); 
@@ -11970,12 +11971,17 @@ window.removeTypingIndicator = function(id) {
 
 
 // === تشغيل الفيديوهات في البطاقات فقط عند ظهورها في الشاشة (لتوفير الإنترنت) ===
+
 document.addEventListener('DOMContentLoaded', () => {
     const videoObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             const video = entry.target;
             if (entry.isIntersecting) {
-                video.play().catch(e => console.log("المتصفح منع التشغيل التلقائي"));
+                // إيقاف أي فيديو آخر يعمل حالياً
+                document.querySelectorAll('video').forEach(v => {
+                    if (v !== video && !v.paused) v.pause();
+                });
+                video.play().catch(e => console.log("منع التشغيل التلقائي"));
             } else {
                 video.pause();
             }
@@ -11990,13 +11996,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     };
-
     observeVideos();
-    
-    // إعادة المراقبة بعد كل بحث أو تصفية
     const originalRenderData = window.renderData;
-    window.renderData = () => {
-        originalRenderData();
-        setTimeout(observeVideos, 100);
-    };
+    window.renderData = () => { originalRenderData(); setTimeout(observeVideos, 100); };
 });
