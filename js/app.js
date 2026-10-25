@@ -1529,11 +1529,9 @@ window.selectCity = (city, mode = 'search') => {
         }
     }
 };
-window.resetSearch = () => { searchQuery = ''; currentFilter = 'all'; const heroSearch = document.getElementById('heroSearch'); if(heroSearch) heroSearch.value = ''; document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active'); b.style.background = ''; b.style.color = ''; b.style.borderColor = ''; }); const allBtn = document.querySelector('[data-filter="all"]'); allBtn.classList.add('active'); allBtn.style.background = 'var(--accent)'; allBtn.style.color = 'white'; allBtn.style.borderColor = 'var(--accent)'; renderData(); }
+window.resetSearch = () => { hasVideoFilter = false;
+    searchQuery = ''; currentFilter = 'all'; const heroSearch = document.getElementById('heroSearch'); if(heroSearch) heroSearch.value = ''; document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active'); b.style.background = ''; b.style.color = ''; b.style.borderColor = ''; }); const allBtn = document.querySelector('[data-filter="all"]'); allBtn.classList.add('active'); allBtn.style.background = 'var(--accent)'; allBtn.style.color = 'white'; allBtn.style.borderColor = 'var(--accent)'; renderData(); }
 
-// ═══════════════════════════════════════════════════════════════
-// 🌙 دالة توليد HTML لحالة المناوبة داخل بطاقة الصيدلية
-// ═══════════════════════════════════════════════════════════════
 function getDutyStatusHtml(item) {
     // تعمل فقط للصيدليات
     if (item.type !== 'pharmacy') return '';
