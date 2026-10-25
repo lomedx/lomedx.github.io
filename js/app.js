@@ -1937,11 +1937,10 @@ window.openModal = (id) => {
     
     document.getElementById('modalContent').innerHTML = `<div class="relative h-48 overflow-hidden rounded-t-2xl">
 ${item.video_url ? `
-    <!-- عرض الفيديو في النافذة المنبثقة إذا كان موجوداً -->
+    
     <video 
         src="${escapeHtml(item.video_url)}" 
         class="w-full h-full object-cover" 
-        controls 
         autoplay 
         muted 
         loop 
@@ -1949,7 +1948,7 @@ ${item.video_url ? `
         title="فيديو ${escapeHtml(item.name)}">
     </video>
 ` : `
-    <!-- عرض الصورة العادية إذا لم يوجد فيديو -->
+    
     <img src="${getOptimizedImageUrl(item.image, 800, 400)}"  alt="${escapeHtml(item.name)}" class="w-full h-full object-cover cursor-zoom-in" onclick="openLightbox(this.src)">
 `}<div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.6), transparent)"></div><button onclick="event.stopPropagation(); shareItem('${escapeHtml(item.id)}')" 
         class="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--accent)] backdrop-blur-sm text-white flex items-center justify-center hover:bg-[var(--accent-dark)] transition-all shadow-lg" 
@@ -1987,7 +1986,6 @@ window.closeModal = (event) => {
     document.getElementById('modalOverlay').classList.remove('active'); 
     unlockScroll();
     
-    // === تنظيف الـ SEO وحذف Schema القديم ===
     resetMetaTags();
     const articleSchema = document.getElementById('dynamicArticleSchema');
     if (articleSchema) articleSchema.remove();
@@ -2010,11 +2008,11 @@ window.trackPhoneClick = async (event, id, phoneNumber) => {
     }
 
     try {
-        // 2. إرسال طلب زيادة العداد للخادم والانتظار حتى يكتمل
+        // إرسال طلب زيادة العداد للخادم والانتظارحتى يكتمل
         const { error } = await supabase.rpc('increment_phone_click', { p_listing_id: id });
         if (error) throw error;
 
-        // 3. تحديث الرقم في الذاكرة وفي الواجهة فوراً
+        
         const item = allData.find(d => d.id === id);
         if (item) {
             item.phone_clicks = (item.phone_clicks || 0) + 1;
@@ -2032,7 +2030,7 @@ window.trackPhoneClick = async (event, id, phoneNumber) => {
     } catch (err) {
         console.error('Phone click RPC error:', err.message);
     } finally {
-        // 4. الآن، بعد أن تأكدنا من إرسال الطلب، افتح واجهة الاتصال
+    
         if (phoneNumber) {
             window.location.href = `tel:${phoneNumber}`;
         }
@@ -2053,7 +2051,6 @@ function showToast(message, type = 'info', duration = 4000) {
     toast.style.backgroundColor = bgColor;
     toast.classList.add('show'); 
     
-    // ✅ مسح أي مؤقت سابق لمنع التعارض
     if (window._toastTimer) clearTimeout(window._toastTimer);
     window._toastTimer = setTimeout(() => {
         toast.classList.remove('show');
