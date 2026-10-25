@@ -3993,19 +3993,6 @@ html.dark .badge-duty-ended {
 }
 
 
-
-
-
-/* ═══════════════════════════════════════════════════════════ */
-/* 🎬 LIVE CARD AD — إعلان البطاقة الحية (بدون حركات)         */
-/* ═══════════════════════════════════════════════════════════ */
-
-.live-card-ad-wrapper {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 0 16px;
-}
-
 .live-card-ad {
     background: linear-gradient(135deg, #021410 0%, #052E22 100%);
     border: 2px solid #C4962C;
@@ -4014,9 +4001,7 @@ html.dark .badge-duty-ended {
     width: 100%;
     position: relative;
     overflow: hidden;
-    box-shadow: 
-        0 10px 30px rgba(196, 150, 44, 0.15), 
-        inset 0 0 20px rgba(196, 150, 44, 0.05);
+    box-shadow: 0 10px 30px rgba(196, 150, 44, 0.15), inset 0 0 20px rgba(196, 150, 44, 0.05);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -4070,8 +4055,6 @@ html.dark .badge-duty-ended {
     font-weight: 800;
     padding: 6px 12px;
     border-radius: 8px;
-    position: relative;
-    z-index: 2;
     white-space: nowrap;
     display: flex;
     align-items: center;
@@ -4079,11 +4062,7 @@ html.dark .badge-duty-ended {
     flex-shrink: 0;
 }
 
-/* استجابة الجوال */
 @media (max-width: 500px) {
-    .live-card-ad-wrapper {
-        margin: 30px auto;
-    }
     .live-card-ad {
         flex-direction: column;
         text-align: center;
@@ -4093,10 +4072,6 @@ html.dark .badge-duty-ended {
         flex-direction: column;
         gap: 12px;
     }
-    .lc-ad-title {
-        font-size: 15px;
-    }
-    .lc-ad-desc {
-        font-size: 11px;
-    }
+    .lc-ad-title { font-size: 15px; }
+    .lc-ad-desc { font-size: 11px; }
 }
