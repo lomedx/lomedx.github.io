@@ -102,8 +102,6 @@ let allCities = [
     'خان الجلاجل (قريباً)'
 ];
 // === محرك الإشعارات المركزي ===
-// === محرك الإشعارات المركزي ===
-// === محرك الإشعارات المركزي ===
 async function sendPushNotification(userId, title, message, target = 'user', playerId = null, city = null) {
     try {
         const bodyData = { title, message, target };
@@ -121,11 +119,11 @@ async function sendPushNotification(userId, title, message, target = 'user', pla
     }   
 }
 
-// 2. دالة التفعيل (سليمة تماماً ومعدلة لتتوافق hمع الإصدار الجديد)
+// 2
 window.setupOneSignal = async () => {
     
     
-    // تأكد أن المكتبة قيد التحميل
+    
     if (!window.OneSignalDeferred) {
         showToast('جاري تهيئة النظام، انتظر لحظة...');
         return;
@@ -864,29 +862,31 @@ async function handleItemRouteFromURL() {
                     `${item.name} في ${item.address || 'سوريا'}`,
                     item.image || DEFAULT_SEO.image
                 );
-            }, 100); // تأخير بسيط جداً يكفي لضمان جاهزية الـ DOM
-            return true; // تم التعامل مع الرابط بنجاح
+            }, 100); 
+            return true; 
         } else {
-            // 6. في حال لم يتم العثور على العنصر في البيانات
+            
             showToast('لم يتم العثور على البطاقة المطلوبة', 'error');
-            // العودة إلى الصفحة الرئيسية
+            
             history.replaceState({}, '', '/');
-            return true; // لا يزال مساراً تم التعامل معه (رغم أنه غير موجود)
+            return true; 
         }
 
     } catch (err) {
-        // 7. في حال حدوث أي خطأ (شبكة، قاعدة بيانات، إلخ)
+        
         console.error('خطأ في فتح البطاقة:', err);
         showToast('حدث خطأ أثناء محاولة فتح البطاقة', 'error');
         history.replaceState({}, '', '/');
-        return true; // تم التعامل مع الخطأ
+        return true; 
     }
 }
 
 // زر الرجوع
 window.addEventListener('popstate', () => {
-    const match = window.location.pathname.match(/^\/(pharmacy|doctor|hospital|center|lab)\//);
-    if (!match) {
+
+    if (isItemRoute()) {
+        handleItemRouteFromURL();
+    } else {
         closeModal();
         resetMetaTags();
     }
@@ -2006,13 +2006,16 @@ ${getDutyStatusHtml(item)}${extraHTML}</div>${doctorsListHtml}${mapEmbed}${item.
 }
 window.closeModal = (event) => { 
     if (event && event.target !== document.getElementById('modalOverlay')) return; 
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel(); // إيقاف الصوت
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     document.getElementById('modalOverlay').classList.remove('active'); 
     unlockScroll();
     
     resetMetaTags();
     const articleSchema = document.getElementById('dynamicArticleSchema');
     if (articleSchema) articleSchema.remove();
+    if (isItemRoute()) {
+        history.pushState({}, '', '/');
+    }
 };
 window.openLightbox = (src, imgAlt = 'صورة منشأة طبية من منصة LomedX') => { 
     const lightbox = document.getElementById('lightbox'); 
@@ -8273,25 +8276,19 @@ document.addEventListener('click', (e) => {
     }
 });
 
+//  دائماً افتح البطاقة/الصفحة عند التحميل — حتى عند التحديث (F5)
 if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
-    let isPageReload = false;
-    if (window.performance && window.performance.getEntriesByType) {
-        const navEntries = window.performance.getEntriesByType('navigation');
-        if (navEntries.length > 0 && navEntries[0].type === 'reload') isPageReload = true;
-    }
-    if (!isPageReload) {
-        setTimeout(() => {
-            if (isItemRoute()) {
-                handleItemRouteFromURL();
-            } else {
-                handleRouteChange();
-            }
-        }, 1200);
-    }
+    setTimeout(() => {
+        if (isItemRoute()) {
+            handleItemRouteFromURL();
+        } else {
+            handleRouteChange();
+        }
+    }, 1200);
 }
-// ═══════════════════════════════════════════════════════════
-// 📜 سياسة الخصوصية
-// ═══════════════════════════════════════════════════════════
+// ═════════════
+//  سياسة الخصوصية
+// ══════
 window.openPrivacyPolicy = () => {
     openCtrlPanel('🔒 سياسة الخصوصية وأمن البيانات', `
         <div class="flex flex-col gap-4">
