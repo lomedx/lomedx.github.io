@@ -29,6 +29,7 @@ const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 let currentRadarTab = 'summer';
 let doctorDashboardInterval = null;
 let radarSettings = { defaultSeason: 'summer', lastReset: 0 };
+let hasVideoFilter = false;
 
 let latestRadarReports = [];
 let activeAds = [];
@@ -1103,9 +1104,8 @@ window.loadMoreSection = (type) => {
 };
 function matchItem(item) { 
     // 1. فلترة النوع
+    if (hasVideoFilter && !item.video_url) return false;
     if (currentFilter !== 'all' && item.type !== currentFilter) return false; 
-    
-    // 2. فلترة المدينة (تم إصلاحها لتقبل "كل المدن" و "all" و "الفارغ")
     if (currentCity !== 'all' && currentCity !== 'كل المدن' && currentCity !== '') {
         const itemAddress = (item.address || item.clinic || '').toLowerCase();
         if (!itemAddress.includes(currentCity.toLowerCase())) return false;
@@ -1117,7 +1117,22 @@ function matchItem(item) {
         String(item[key] || '').toLowerCase().includes(q)
     ); 
 }
-
+window.toggleVideoFilter = (btn) => {
+    hasVideoFilter = !hasVideoFilter; // تبديل الحالة (تشغيل/إطفاء)
+    
+    
+    if (hasVideoFilter) {
+        btn.style.background = '#EF4444'; // أحمر
+        btn.style.color = 'white';
+        btn.style.borderColor = '#EF4444';
+    } else {
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+    }
+    
+    renderData(); // إعادة رسم البطاقات
+};
 window.setFilter = (filter, btn) => { 
     renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; // إعادة التصفير
     currentFilter = filter; 
