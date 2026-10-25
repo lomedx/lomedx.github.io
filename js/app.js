@@ -1118,20 +1118,30 @@ function matchItem(item) {
     ); 
 }
 window.toggleVideoFilter = (btn) => {
-    hasVideoFilter = !hasVideoFilter; // تبديل الحالة (تشغيل/إطفاء)
-    
-    
+    hasVideoFilter = !hasVideoFilter; 
+    const icon = btn.querySelector('i');
+    const text = btn.querySelector('span'); 
     if (hasVideoFilter) {
-        btn.style.background = '#EF4444'; // أحمر
-        btn.style.color = 'white';
+        // تشغيل
+        btn.style.background = '#EF4444'; 
         btn.style.borderColor = '#EF4444';
+        
+        if (icon) icon.style.color = 'white'; 
+        if (text) {
+            text.style.color = 'white';
+            text.classList.remove('text-gray-700', 'dark:text-white');
+        }
     } else {
         btn.style.background = '';
-        btn.style.color = '';
         btn.style.borderColor = '';
+        if (icon) icon.style.color = '#EF4444'; 
+        if (text) {
+            text.style.color = '';
+            text.classList.add('text-gray-700', 'dark:text-white');
+        }
     }
     
-    renderData(); // إعادة رسم البطاقات
+    renderData(); // إعادة رسم البطاقات 
 };
 window.setFilter = (filter, btn) => { 
     renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; // إعادة التصفير
