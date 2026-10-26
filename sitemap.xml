@@ -1,1 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset 
+    xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+    xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 🏠 الصفحة الرئيسية                                        -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <url>
+        <loc>https://lomedx.pages.dev/</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+        <image:image>
+            <image:loc>https://lomedx.pages.dev/logo-lomedx.png</image:loc>
+            <image:title>LomedX - المنصة الطبية الشاملة في سوريا</image:title>
+        </image:image>
+    </url>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 🩺 الخدمات الأساسية — 4 صفحات                             -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <url>
+        <loc>https://lomedx.pages.dev/ask-doctor</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/blood-bank</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/medicine-finder</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/health-file</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 📚 المدونة                                                -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <url>
+        <loc>https://lomedx.pages.dev/blog</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 🚨 الإسعافات والطوارئ — 3 صفحات                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <url>
+        <loc>https://lomedx.pages.dev/first-aid</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/burn-calculator</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/events-first-aid</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 🧮 الحاسبات الطبية — 7 صفحات                              -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <url>
+        <loc>https://lomedx.pages.dev/pregnancy-calc</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/dose-calc</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/vaccine-scheduler</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/health-calc</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/water-calc</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/med-renewal-calc</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/med-symbols</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 📖 الأدلة والإرشادات — 6 صفحات                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <url>
+        <loc>https://lomedx.pages.dev/chronic-nutrition</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/pre-visit-guide</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/pre-test-guide</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/food-interactions</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/patient-reminder</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/seasonal-diseases</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 🌍 الخدمات التفاعلية — 3 صفحات                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <url>
+        <loc>https://lomedx.pages.dev/raheba-radar</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/medical-map</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/medicine-donation</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 🏢 التسجيل والتواصل — 3 صفحات                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <url>
+        <loc>https://lomedx.pages.dev/add-facility</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/contact</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/support.html</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- ⚖️ الصفحات القانونية — 2 صفحات                             -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <url>
+        <loc>https://lomedx.pages.dev/privacy-policy</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.4</priority>
+    </url>
+    <url>
+        <loc>https://lomedx.pages.dev/disclaimer</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.4</priority>
+    </url>
+
+</urlset>
