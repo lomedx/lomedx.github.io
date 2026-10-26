@@ -1,9 +1,7 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-// ✅ [مهم] رفعنا الإصدار - سيظهر تنبيه التحديث لكل المستخدمين تلقائياً
-const CACHE_NAME = 'lomedx-v27';
+const CACHE_NAME = 'lomedx-v28';
 
-// ✅ [مهم] مسارات مطلقة بدل نسبية
 const CORE_ASSETS = [
   '/',
   '/index.html',
@@ -20,14 +18,14 @@ const CORE_ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // ✅ نستخدم allSettled بدل addAll حتى لا يفشل كل شيء بسبب ملف واحد مفقود
+      
       return Promise.allSettled(
         CORE_ASSETS.map(url => 
           cache.add(url).catch(err => console.warn('SW cache failed:', url, err))
         )
       );
     }).then(() => {
-      // إرسال رقم الإصدار للمتصفح عند التثبيت (للمستخدمين المتصلين حالياً)
+      
       self.clients.matchAll({ type: 'window' }).then(clients => {
         clients.forEach(client => {
           client.postMessage({ type: 'SW_VERSION_REPLY', version: CACHE_NAME });
@@ -54,9 +52,6 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// ═══════════════════════════════════════════════════════════
-// 3. استراتيجية الجلب - مع دعم SPA Routes ← التعديل الأهم
-// ═══════════════════════════════════════════════════════════
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -79,8 +74,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // ✅ [مهم جداً] معالجة SPA Navigation - أي طلب تنقّل يُخدَم من الشبكة أولاً
-  // لا نستخدم الكاش هنا إطلاقاً للـ navigation لأن URL متغير
+  
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req).catch(() => {
@@ -91,7 +85,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // ✅ استراتيجية الشبكة أولاً للملفات الثابتة (CSS، JS، صور)
+  //  استراتيجية الشبكة أولاً للملفات الثابتة (CSS، JS، صور)
   event.respondWith(
     fetch(req).then((networkRes) => {
       // تخزين نسخة من الاستجابة عند النجاح
@@ -101,7 +95,7 @@ self.addEventListener('fetch', (event) => {
       }
       return networkRes;
     }).catch(() => {
-      // عند فشل الشبكة، ارجع للكاش
+  
       return caches.match(req);
     })
   );
