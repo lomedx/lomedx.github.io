@@ -1,4 +1,27 @@
+# ═══════════════════════════════════════════════════════════
+# robots.txt — LomedX Medical Platform
+# https://lomedx.pages.dev
+# ═══════════════════════════════════════════════════════════
+
 User-agent: *
 Allow: /
 
-Sitemap: /sitemap.xml
+# 🔒 صفحات حساسة
+Disallow: /verify-rx/
+Disallow: /admin
+Disallow: /dashboard
+
+# 🚫 محتوى مكرر
+Disallow: /*?search=
+Disallow: /*?filter=
+
+# 🤖 حماية من زواحف تحليلية
+User-agent: AhrefsBot
+Disallow: /
+User-agent: SemrushBot
+Disallow: /
+User-agent: MJ12bot
+Disallow: /
+
+# 🔗 خريطة الموقع
+Sitemap: https://lomedx.pages.dev/sitemap.xml
