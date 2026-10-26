@@ -21,8 +21,8 @@
   # ─── [4] Referrer Policy ───
   Referrer-Policy: strict-origin-when-cross-origin
   
-  # ─── [5] Permissions Policy ───
-  Permissions-Policy: camera=(self), microphone=(), geolocation=(self), payment=(self), accelerometer=(), gyroscope=(), magnetometer=(), usb=(), interest-cohort=()
+  # ─── [5] Permissions Policy (تم السماح بجميع المستشعرات) ───
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(self), payment=(self), accelerometer=(*), gyroscope=(*), magnetometer=(*), usb=(*), interest-cohort=()
   
   # ─── [6] HSTS (Force HTTPS) ───
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
@@ -35,7 +35,8 @@
   X-DNS-Prefetch-Control: on
   
   # ─── [9] Content Security Policy (CSP) ───
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://cdn.tailwindcss.com https://cdn.onesignal.com https://*.onesignal.com https://challenges.cloudflare.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https: https://maps.gstatic.com https://maps.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; media-src 'self' https: data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://static.cloudflareinsights.com https://*.onesignal.com https://api.onesignal.com https://challenges.cloudflare.com https://nominatim.openstreetmap.org https://wsrv.nl https://i.ibb.co https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://accounts.google.com https://*.googleapis.com https://api.cloudflare.com; frame-src 'self' https://maps.google.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com https://accounts.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;
+  # تم إضافة https://cloudflareinsights.com لإصلاح خطأ التحليلات
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://cdn.tailwindcss.com https://cdn.onesignal.com https://*.onesignal.com https://challenges.cloudflare.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https: https://maps.gstatic.com https://maps.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; media-src 'self' https: data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://static.cloudflareinsights.com https://cloudflareinsights.com https://*.onesignal.com https://api.onesignal.com https://challenges.cloudflare.com https://nominatim.openstreetmap.org https://wsrv.nl https://i.ibb.co https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://accounts.google.com https://*.googleapis.com https://api.cloudflare.com; frame-src 'self' https://maps.google.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com https://accounts.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -113,7 +114,7 @@
 
 
 # ═══════════════════════════════════════════════════════════════════
-#  SECTION 6: API & FUNCTIONS (بدون تخزين — بيانات حية)
+# 🔌 SECTION 6: API & FUNCTIONS (بدون تخزين — بيانات حية)
 # ═══════════════════════════════════════════════════════════════════
 /functions/*
   Cache-Control: no-store, no-cache, must-revalidate
