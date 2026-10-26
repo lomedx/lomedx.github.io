@@ -1,4 +1,4 @@
-import { supabase } from './supabase.js';
+import { supabase, supabaseUrl, supabaseKey } from './supabase.js';
 
 
 const daysOfWeek = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
@@ -658,11 +658,20 @@ function checkAlertsWrapperVisibility() {
 }
 
 function updateStats() {
-    document.getElementById('stat-hospital').textContent = allData.filter(d => d.type === 'hospital').length;
-    document.getElementById('stat-center').textContent = allData.filter(d => d.type === 'center').length;
-    document.getElementById('stat-lab').textContent = allData.filter(d => d.type === 'lab').length;
-    document.getElementById('stat-doctor').textContent = allData.filter(d => d.type === 'doctor').length;
-    document.getElementById('stat-pharmacy').textContent = allData.filter(d => d.type === 'pharmacy').length;
+    let h = 0, c = 0, l = 0, d = 0, p = 0;
+    for (let i = 0; i < allData.length; i++) {
+        const type = allData[i].type;
+        if (type === 'hospital') h++;
+        else if (type === 'center') c++;
+        else if (type === 'lab') l++;
+        else if (type === 'doctor') d++;
+        else if (type === 'pharmacy') p++;
+    }
+    document.getElementById('stat-hospital').textContent = h;
+    document.getElementById('stat-center').textContent = c;
+    document.getElementById('stat-lab').textContent = l;
+    document.getElementById('stat-doctor').textContent = d;
+    document.getElementById('stat-pharmacy').textContent = p;
 }
 
 function getOptimizedImageUrl(url, width = 400, height = 300) {
@@ -673,26 +682,22 @@ function getOptimizedImageUrl(url, width = 400, height = 300) {
         return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + `?width=${width}&height=${height}&resize=cover&quality=75`;
     }
     
-    // 2. إذا كانت الصورة رابطاً خارجياً (مثل ImgBB أو أي رابط آخر)
+    // 2
     if (url.startsWith('http://') || url.startsWith('https://')) {
-        // استخدام خدمة wsrv.nl المجانية لضغط الصورة وتحويلها لـ WebP
+        
         const cleanUrl = url.replace(/^https?:\/\//, '');
         return `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&w=${width}&h=${height}&fit=cover&output=webp&q=70`;
     }
-    
-    // إرجاع الرابط كما هو إذا لم يتحقق أي شرط
     return url;
 }
 function updateMetaTags(title, description, image, keywords = '') {
-    // ✅ تنظيف النص من أي تكرار غير مقصود لكلمة LomedX أو الرموز الزائدة
+    
     let cleanTitle = title.replace(/LomedX\s*\|\s*/gi, '').replace(/\|\s*LomedX/gi, '').trim();
     let cleanDesc = description.replace(/LomedX\s*\|\s*/gi, '').trim();
     
     // إذا أصبح النص فارغاً بعد التنظيف، نضع النص الافتراضي
     if (!cleanTitle || cleanTitle.length < 5) cleanTitle = "المنصة الطبية الشاملة في سوريا";
     if (!cleanDesc || cleanDesc.length < 5) cleanDesc = "احجز موعدك مع أفضل الأطباء، ابحث عن دواء، وتابع ملفك الصحي.";
-
-    // وضع اسم المنصة في نهاية العنوان فقط (لضمان عدم التكرار)
     document.title = `${cleanTitle} | LomedX`;
 
     let metaDesc = document.querySelector('meta[name="description"]');
@@ -727,16 +732,12 @@ function updateMetaTags(title, description, image, keywords = '') {
     if (canonical) canonical.setAttribute('href', window.location.href);
 }
 const DEFAULT_SEO = {
-    // أزلنا كلمة LomedX من البداية لأن الدالة ستضيفها تلقائياً في النهاية
     title: 'المنصة الطبية الشاملة: حجز مواعيد، بحث عن دواء، وملف صحي ذكي في سوريا', 
-    
-    // أزلنا كلمة LomedX من البداية لنفس السبب
     description: 'منصتك الطبية الشاملة في سوريا. احجز موعدك مع أفضل الأطباء، ابحث عن دواء في صيدليات مدينتك، أنشئ ملفك الصحي المشفر، واستفد من أدواتنا الطبية التفاعلية (حاسبات الجرعات، الإسعافات، بنك الدم).',
     
     image: 'https://lomedx.pages.dev/logo.png'
 };
 
-// دالة موحدة لإعادة الرابط والوصف للوضع الافتراضي
 function resetMetaTags() {
     updateMetaTags(
         'المنصة الطبية الشاملة: حجز مواعيد، بنك دم، وملف صحي ذكي في سوريا', 
@@ -746,7 +747,7 @@ function resetMetaTags() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 🔗 روابط البطاقات + المشاركة
+//  روابط البطاقات + المشاركة
 // ═══════════════════════════════════════════════════════════════
 function getItemLink(item) {
     if (!item || !item.id) return '/';
@@ -803,8 +804,8 @@ window.shareItem = (id) => {
     if (navigator.share) {
         navigator.share({
             title: `${item.name} | LomedX`,
-            text: text,           // ✅ بدون URL
-            url: url              // ✅ URL منفصل → يُضاف تلقائياً
+            text: text,          
+            url: url             
         }).catch(() => {});
     } else {
         navigator.clipboard.writeText(url)
@@ -812,7 +813,7 @@ window.shareItem = (id) => {
             .catch(() => window.open(`https://wa.me/?text=${encodeURIComponent(text + '\n' + url)}`, '_blank'));
     }
 };
-// ✅ دالة متزامنة تحقق فقط: هل الرابط بطاقة منشأة؟
+
 function isItemRoute() {
     return /^\/(pharmacy|doctor|hospital|center|lab)\/([a-zA-Z0-9-]+)$/.test(window.location.pathname);
 }
@@ -852,8 +853,7 @@ async function handleItemRouteFromURL() {
         const item = allData.find(d => d.id === id);
 
         if (item) {
-            // 5. فتح نافذة التفاصيل (المودال)
-            // نستخدم setTimeout بسيط لضمان أن الواجهة الرئيسية جاهزة
+            
             setTimeout(() => {
                 openModal(id);
                 // تحديث وسوم الميتا للصفحة
@@ -1027,12 +1027,19 @@ function generateItemListSchema(items) {
     document.head.appendChild(script);
 }
 function renderData() {
+    const grouped = { hospital: [], center: [], lab: [], doctor: [], pharmacy: [] };
+    for (let i = 0; i < allData.length; i++) {
+        const item = allData[i];
+        if (grouped[item.type]) grouped[item.type].push(item);
+    }
+    grouped.pharmacy.sort((a, b) => (b.night === true) - (a.night === true));
+
     const grids = { 
-        hospital: { el: document.getElementById('hospitalsGrid'), section: document.getElementById('hospitals'), data: allData.filter(d => d.type === 'hospital') }, 
-        center: { el: document.getElementById('centersGrid'), section: document.getElementById('centers'), data: allData.filter(d => d.type === 'center') }, 
-        lab: { el: document.getElementById('labsGrid'), section: document.getElementById('labs'), data: allData.filter(d => d.type === 'lab') }, 
-        doctor: { el: document.getElementById('doctorsGrid'), section: document.getElementById('doctors'), data: allData.filter(d => d.type === 'doctor') }, 
-        pharmacy: { el: document.getElementById('pharmaciesGrid'), section: document.getElementById('pharmacies'), data: allData.filter(d => d.type === 'pharmacy').sort((a,b) => (b.night === true) - (a.night === true)) } 
+        hospital: { el: document.getElementById('hospitalsGrid'), section: document.getElementById('hospitals'), data: grouped.hospital }, 
+        center: { el: document.getElementById('centersGrid'), section: document.getElementById('centers'), data: grouped.center }, 
+        lab: { el: document.getElementById('labsGrid'), section: document.getElementById('labs'), data: grouped.lab }, 
+        doctor: { el: document.getElementById('doctorsGrid'), section: document.getElementById('doctors'), data: grouped.doctor }, 
+        pharmacy: { el: document.getElementById('pharmaciesGrid'), section: document.getElementById('pharmacies'), data: grouped.pharmacy } 
     };
     
     let totalFiltered = 0;
@@ -7147,21 +7154,7 @@ function renderAdminEmergencyList() {
         </div>
     `).join('');
 }
-// دالة إخفاء زر الطوارئ العائم
-window.hideEmergencyFab = () => {
-    const wrapper = document.getElementById('emergencyFabWrapper');
-    if (wrapper) {
-        wrapper.classList.add('hidden-fab');
-    }
-}
-// دالة فتح وإغلاق نافذة الطوارئ المنبثقة
-window.toggleEmergencyPopup = () => {
-    const popup = document.getElementById('emergencyPopup');
-    if (popup) {
-        popup.classList.toggle('show');
-    }
-};
-// === دوال التحكم في نافذة الطوارئ المنبثقة ===
+// دالة إخفاء زر الطوارئ 
 window.toggleEmergencyPopup = function() {
     var popup = document.getElementById('emergencyPopup');
     if (popup) {
@@ -7185,9 +7178,7 @@ let currentBlogCategory = 'all';
 let savedArticleIds = JSON.parse(localStorage.getItem('lomedx_saved_articles') || '[]');
 let ratedArticleIds = JSON.parse(localStorage.getItem('lomedx_rated_articles') || '[]');
 // 1. فتح لوحة المدونة
-// 1. فتح لوحة المدونة
 window.openMedicalBlog = () => {
-    // إنشاء هيكل التحميل الوهمي (Skeleton)
     const skeletonHtml = `
         <div class="flex flex-col gap-4">
             <div class="flex flex-col sm:flex-row-reverse bg-white border rounded-2xl overflow-hidden" style="border-color: var(--border);">
@@ -11714,8 +11705,8 @@ window.sendCustomNotification = async (e) => {
 };
 
 
-    // ═══════════════════════════════════════════════════════════
-// 🤖 وظائف مساعد LomedX الذكي
+// ═══════════════════════════════════════════════════════════
+//  وظائف مساعد LomedX الذكي
 // ═══════════════════════════════════════════════════════════
 
 window.toggleAIChat = function() {
@@ -11761,21 +11752,19 @@ window.sendAIMessage = async function() {
     let fullResponse = '';
 
     try {
-        const supabaseUrl = 'https://pzwhyoattlravuadbfvk.supabase.co';
-        const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6d2h5b2F0dGxyYXZ1YWRiZnZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzMzMyNDIsImV4cCI6MjEwMTkwOTI0Mn0.zBPnp7rVpR5ojidhuUCSQyUhA5VTFSCQosG_XtFXBWo';
-
+        
         const response = await fetch(`${supabaseUrl}/functions/v1/lomedx-ai-assistant`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${anonKey}`,
-                'apikey': anonKey 
-            },
-            body: JSON.stringify({ 
-                message: message, 
-                history: aiChatHistory.slice(-5)
-            })
-        });
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseKey}`,
+        'apikey': supabaseKey
+    },
+    body: JSON.stringify({
+        message: message,
+        history: aiChatHistory.slice(-5)
+    })
+});
 
         if (!response.ok) throw new Error('فشل الاتصال');
 
@@ -11818,7 +11807,7 @@ window.sendAIMessage = async function() {
 
     } catch (err) {
         console.error(err);
-        // ✅ إزالة الرسالة الفارغة والمؤشر عند حدوث خطأ
+        //  إزالة الرسالة الفارغة والمؤشر عند حدوث خطأ
         botDiv.remove();
         window.addAIMessage("عذراً، الخدمة مشغولة حالياً. يرجى المحاولة بعد قليل.", 'bot');
     } finally {
