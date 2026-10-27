@@ -11704,6 +11704,258 @@ window.sendCustomNotification = async (e) => {
     }
 };
 
+
+// ═══════════════════════════════════════════════════════════
+//  وظائف مساعد LomedX الذكي
+// ═══════════════════════════════════════════════════════════
+
+window.toggleAIChat = function() {
+    const modal = document.getElementById('ai-chat-modal');
+    if (!modal) return;
+    
+    if (modal.style.display === 'none' || modal.style.display === '') {
+        modal.style.display = 'flex';
+        document.getElementById('ai-user-input').focus();
+    } else {
+        modal.style.display = 'none';
+    }
+}
+
+// متغير لحفظ تاريخ المحادثة
+let aiChatHistory = [];
+let isAITyping = false; // قفل لمنع الإرسال المتكرر
+
+window.sendAIMessage = async function() {
+    if (isAITyping) return; // منع الإرسال إذا كان المساعد يكتب حالياً
+    
+    const input = document.getElementById('ai-user-input');
+    const message = input.value.trim();
+    if (!message) return;
+
+    window.addAIMessage(message, 'user');
+    aiChatHistory.push({ role: "user", text: message });
+    input.value = '';
+    
+    isAITyping = true;
+    const sendBtn = document.getElementById('ai-send-btn');
+    if (sendBtn) sendBtn.disabled = true;
+
+    // إنشاء رسالة البوت الفارغة
+    const container = document.getElementById('ai-chat-messages');
+    const botDiv = document.createElement('div');
+    botDiv.className = 'ai-message ai-bot';
+    botDiv.style.cssText = 'align-self: flex-start; background: white; padding: 10px 15px; border-radius: 15px; border-top-right-radius: 4px; font-size: 13px; line-height: 1.6; max-width: 85%; border: 1px solid #DDE3DD; color: #1B2A1B; min-height: 40px;';
+    botDiv.innerHTML = '<span class="typing-cursor"></span>';
+    container.appendChild(botDiv);
+    container.scrollTop = container.scrollHeight;
+
+    let fullResponse = '';
+
+    try {
+        
+        const response = await fetch(`${supabaseUrl}/functions/v1/lomedx-ai-assistant`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseKey}`,
+        'apikey': supabaseKey
+    },
+    body: JSON.stringify({
+        message: message,
+        history: aiChatHistory.slice(-5)
+    })
+});
+
+        if (!response.ok) throw new Error('فشل الاتصال');
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+            
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const dataStr = line.replace('data: ', '');
+                    if (dataStr === '[DONE]') continue;
+                    try {
+                        const data = JSON.parse(dataStr);
+                        const textChunk = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                        if (textChunk) {
+                            fullResponse += textChunk;
+                            window.renderStreamingText(botDiv, fullResponse);
+                            container.scrollTop = container.scrollHeight;
+                        }
+                    } catch (e) { /* تجاهل */ }
+                }
+            }
+        }
+
+        // إذا انتهى البث بنجاح
+        if (fullResponse) {
+            aiChatHistory.push({ role: "model", text: fullResponse });
+            window.finalizeAIMessage(botDiv, fullResponse);
+        } else {
+            // إذا لم يصل أي نص (فشل صامت)
+            botDiv.remove();
+            window.addAIMessage("عذراً، لم أتمكن من معالجة طلبك. يرجى المحاولة مرة أخرى.", 'bot');
+        }
+
+    } catch (err) {
+        console.error(err);
+        //  إزالة الرسالة الفارغة والمؤشر عند حدوث خطأ
+        botDiv.remove();
+        window.addAIMessage("عذراً، الخدمة مشغولة حالياً. يرجى المحاولة بعد قليل.", 'bot');
+    } finally {
+        isAITyping = false;
+        if (sendBtn) sendBtn.disabled = false;
+    }
+}
+
+// تحديث النص أثناء البث (مع تنسيق Markdown الأساسي)
+window.renderStreamingText = function(element, text) {
+    // إخفاء الأكواد التفاعلية
+    let cleanText = text.replace(/\[ACTION:.*?\]/g, '');
+    // تنسيق النص العريض
+    cleanText = escapeHtml(cleanText).replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+    element.innerHTML = cleanText + '<span class="typing-cursor"></span>';
+}
+
+// دالة مساعدة لإنهاء الرسالة وإضافة الأزرار التفاعلية في النهاية
+window.finalizeAIMessage = function(element, fullText) {
+    let processedText = fullText;
+    let buttonsHtml = '';
+
+    const createBtn = (label, icon, onclickAction) => `
+        <button onclick="${onclickAction}" class="mt-2 mr-1 inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0E7C5F] text-white border border-[#0E7C5F] rounded-lg text-xs font-bold hover:bg-[#095E47] transition-colors shadow-sm">
+            <i class="fas ${icon}"></i> ${label}
+        </button>
+    `;
+
+    const actions = {
+        '[ACTION:BOOK_DOCTOR]': { label: 'احجز موعد', icon: 'fa-calendar-check', action: "closeAllOverlays(); redirectToDoctorsSearch()" },
+        '[ACTION:FIND_MEDICINE]': { label: 'ابحث عن دواء', icon: 'fa-pills', action: "closeAllOverlays(); openMedicineFinder()" },
+        '[ACTION:HEALTH_FILE]': { label: 'ملفي الصحي', icon: 'fa-id-card', action: "closeAllOverlays(); openHealthFile()" },
+        '[ACTION:DOSE_CALC]': { label: 'حاسبة الجرعات', icon: 'fa-syringe', action: "closeAllOverlays(); openDoseCalc()" },
+        '[ACTION:PREGNANCY_CALC]': { label: 'حاسبة الحمل', icon: 'fa-baby', action: "closeAllOverlays(); openPregnancyCalc()" },
+        '[ACTION:BLOOD_BANK]': { label: 'بنك الدم', icon: 'fa-tint', action: "closeAllOverlays(); openBloodBank()" },
+        '[ACTION:FIRST_AID]': { label: 'الإسعافات الأولية', icon: 'fa-kit-medical', action: "closeAllOverlays(); openFirstAid()" },
+        '[ACTION:BURN_CALC]': { label: 'مسعف الحروق', icon: 'fa-fire-extinguisher', action: "closeAllOverlays(); openBurnCalculator()" },
+        '[ACTION:RADAR]': { label: 'الرادار الصحي', icon: 'fa-satellite-dish', action: "closeAllOverlays(); openRahebaRadar()" },
+        '[ACTION:BLOG]': { label: 'المدونة الطبية', icon: 'fa-newspaper', action: "closeAllOverlays(); openMedicalBlog()" },
+        '[ACTION:MED_DONATION]': { label: 'الأجهزة الطبية', icon: 'fa-laptop-medical', action: "closeAllOverlays(); openMedicineDonation()" },
+        '[ACTION:WATER_CALC]': { label: 'حاسبة الماء', icon: 'fa-droplet', action: "closeAllOverlays(); openWaterCalc()" },
+        '[ACTION:HEALTH_CALC]': { label: 'حاسبة كتلة الجسم', icon: 'fa-weight-scale', action: "closeAllOverlays(); openHealthCalc()" },
+        '[ACTION:VACCINE]': { label: 'جدول اللقاحات', icon: 'fa-syringe', action: "closeAllOverlays(); openVaccineScheduler()" },
+        '[ACTION:MED_SYMBOLS]': { label: 'رموز التحاليل', icon: 'fa-flask', action: "closeAllOverlays(); openMedSymbols()" },
+        '[ACTION:MEDICAL_MAP]': { label: 'الخريطة الطبية', icon: 'fa-map-marked-alt', action: "closeAllOverlays(); openMedicalMap()" },
+        '[ACTION:EMERGENCY]': { label: 'اتصل بالإسعاف', icon: 'fa-ambulance', action: "window.location.href='tel:110'", color: 'red' }
+    };
+
+    for (const [code, config] of Object.entries(actions)) {
+        if (processedText.includes(code)) {
+            processedText = processedText.replace(code, '');
+            if (code === '[ACTION:EMERGENCY]') {
+                buttonsHtml += `<a href="tel:110" class="mt-2 mr-1 inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 text-white border border-red-600 rounded-lg text-xs font-bold hover:bg-red-700 transition-colors shadow-sm"><i class="fas ${config.icon}"></i> ${config.label}</a>`;
+            } else {
+                buttonsHtml += createBtn(config.label, config.icon, config.action);
+            }
+        }
+    }
+
+    let safeText = escapeHtml(processedText).replace(/\n/g, '<br>');
+    element.innerHTML = safeText + (buttonsHtml ? `<div class="flex flex-wrap mt-3 pt-3 border-t border-gray-100">${buttonsHtml}</div>` : '');
+}
+
+window.addAIMessage = function(text, sender) {
+    const container = document.getElementById('ai-chat-messages');
+    if (!container) return;
+    
+    const div = document.createElement('div');
+    
+    if (sender === 'user') {
+        div.className = 'ai-message ai-user';
+        div.textContent = text;
+    } else {
+        div.className = 'ai-message ai-bot';
+        div.style.cssText = 'align-self: flex-start; background: white; padding: 10px 15px; border-radius: 15px; border-top-right-radius: 4px; font-size: 13px; line-height: 1.6; max-width: 85%; border: 1px solid #DDE3DD; color: #1B2A1B;';
+
+        let processedText = text;
+        let buttonsHtml = '';
+
+        const createBtn = (label, icon, onclickAction) => `
+            <button onclick="${onclickAction}" class="mt-2 mr-1 inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0E7C5F] text-white border border-[#0E7C5F] rounded-lg text-xs font-bold hover:bg-[#095E47] transition-colors shadow-sm">
+                <i class="fas ${icon}"></i> ${label}
+            </button>
+        `;
+
+        // خريطة ربط الأكواد بأزرار المنصة
+        const actions = {
+            '[ACTION:BOOK_DOCTOR]': { label: 'احجز موعد', icon: 'fa-calendar-check', action: "closeAllOverlays(); redirectToDoctorsSearch()" },
+            '[ACTION:FIND_MEDICINE]': { label: 'ابحث عن دواء', icon: 'fa-pills', action: "closeAllOverlays(); openMedicineFinder()" },
+            '[ACTION:HEALTH_FILE]': { label: 'ملفي الصحي', icon: 'fa-id-card', action: "closeAllOverlays(); openHealthFile()" },
+            '[ACTION:DOSE_CALC]': { label: 'حاسبة الجرعات', icon: 'fa-syringe', action: "closeAllOverlays(); openDoseCalc()" },
+            '[ACTION:PREGNANCY_CALC]': { label: 'حاسبة الحمل', icon: 'fa-baby', action: "closeAllOverlays(); openPregnancyCalc()" },
+            '[ACTION:BLOOD_BANK]': { label: 'بنك الدم', icon: 'fa-tint', action: "closeAllOverlays(); openBloodBank()" },
+            '[ACTION:FIRST_AID]': { label: 'الإسعافات الأولية', icon: 'fa-kit-medical', action: "closeAllOverlays(); openFirstAid()" },
+            '[ACTION:BURN_CALC]': { label: 'مسعف الحروق', icon: 'fa-fire-extinguisher', action: "closeAllOverlays(); openBurnCalculator()" },
+            '[ACTION:RADAR]': { label: 'الرادار الصحي', icon: 'fa-satellite-dish', action: "closeAllOverlays(); openRahebaRadar()" },
+            '[ACTION:BLOG]': { label: 'المدونة الطبية', icon: 'fa-newspaper', action: "closeAllOverlays(); openMedicalBlog()" },
+            '[ACTION:MED_DONATION]': { label: 'الأجهزة الطبية', icon: 'fa-laptop-medical', action: "closeAllOverlays(); openMedicineDonation()" },
+            '[ACTION:WATER_CALC]': { label: 'حاسبة الماء', icon: 'fa-droplet', action: "closeAllOverlays(); openWaterCalc()" },
+            '[ACTION:HEALTH_CALC]': { label: 'حاسبة كتلة الجسم', icon: 'fa-weight-scale', action: "closeAllOverlays(); openHealthCalc()" },
+            '[ACTION:VACCINE]': { label: 'جدول اللقاحات', icon: 'fa-syringe', action: "closeAllOverlays(); openVaccineScheduler()" },
+            '[ACTION:MED_SYMBOLS]': { label: 'رموز التحاليل', icon: 'fa-flask', action: "closeAllOverlays(); openMedSymbols()" },
+            '[ACTION:MEDICAL_MAP]': { label: 'الخريطة الطبية', icon: 'fa-map-marked-alt', action: "closeAllOverlays(); openMedicalMap()" },
+            '[ACTION:EMERGENCY]': { label: 'اتصل بالإسعاف', icon: 'fa-ambulance', action: "window.location.href='tel:110'", color: 'red' }
+        };
+
+        for (const [code, config] of Object.entries(actions)) {
+            if (processedText.includes(code)) {
+                processedText = processedText.replace(code, '');
+                if (code === '[ACTION:EMERGENCY]') {
+                    buttonsHtml += `<a href="tel:110" class="mt-2 mr-1 inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 text-white border border-red-600 rounded-lg text-xs font-bold hover:bg-red-700 transition-colors shadow-sm"><i class="fas ${config.icon}"></i> ${config.label}</a>`;
+                } else {
+                    buttonsHtml += createBtn(config.label, config.icon, config.action);
+                }
+            }
+        }
+
+        let safeText = escapeHtml(processedText).replace(/\n/g, '<br>');
+        div.innerHTML = safeText + (buttonsHtml ? `<div class="flex flex-wrap mt-3 pt-3 border-t border-gray-100">${buttonsHtml}</div>` : '');
+    }
+    
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+window.addTypingIndicator = function() {
+    const container = document.getElementById('ai-chat-messages');
+    if (!container) return null;
+    
+    const id = 'ai-typing-' + Date.now();
+    const div = document.createElement('div');
+    div.id = id;
+    div.className = 'ai-typing';
+    div.innerHTML = '<span></span><span></span><span></span>';
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return id;
+}
+
+window.removeTypingIndicator = function(id) {
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (el) el.remove();
+}
+
+
+// === تشغيل الفيديوهات في البطاقات فقط عند ظهورها في الشاشة (لتوفير الإنترنت) ===
+
 document.addEventListener('DOMContentLoaded', () => {
     const videoObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -11731,421 +11983,4 @@ document.addEventListener('DOMContentLoaded', () => {
     observeVideos();
     const originalRenderData = window.renderData;
     window.renderData = () => { originalRenderData(); setTimeout(observeVideos, 100); };
-});
-
-
-
-
-
-// ═══════════════════════════════════════════════════════════
-// 🤖 AI CHAT — المنطق الكامل (نسخة احترافية)
-// ═══════════════════════════════════════════════════════════
-
-const AI_CONFIG = {
-    sessionToken: localStorage.getItem('lomedx_ai_session') || generateSessionToken(),
-    isTyping: false,
-    lastUserMessage: '',
-    recognizedMessages: [],
-};
-
-// توليد session token جديد
-function generateSessionToken() {
-    const token = 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 15);
-    localStorage.setItem('lomedx_ai_session', token);
-    return token;
-}
-
-// فتح/إغلاق الدردشة
-window.toggleAIChat = function() {
-    const modal = document.getElementById('ai-chat-modal');
-    if (!modal) return;
-    
-    const isOpen = modal.classList.contains('active');
-    modal.classList.toggle('active', !isOpen);
-    
-    if (!isOpen) {
-        // تحميل المحادثة السابقة
-        loadAIChatHistory();
-        setTimeout(() => {
-            const input = document.getElementById('ai-user-input');
-            if (input) input.focus();
-        }, 300);
-    }
-};
-
-// تحميل سجل المحادثة من Supabase
-async function loadAIChatHistory() {
-    try {
-        const { data: conv } = await supabase
-            .from('ai_conversations')
-            .select('id')
-            .eq('session_token', AI_CONFIG.sessionToken)
-            .maybeSingle();
-        
-        if (!conv) return; // محادثة جديدة
-        
-        const { data: messages } = await supabase
-            .from('ai_messages')
-            .select('role, content, created_at')
-            .eq('conversation_id', conv.id)
-            .order('created_at', { ascending: true })
-            .limit(50);
-        
-        if (!messages || messages.length === 0) return;
-        
-        const container = document.getElementById('ai-chat-messages');
-        container.innerHTML = '';
-        
-        messages.forEach(msg => {
-            renderMessage(msg.role === 'assistant' ? 'assistant' : 'user', msg.content, false);
-        });
-        
-        container.scrollTop = container.scrollHeight;
-    } catch (e) {
-        console.error('History load failed:', e);
-    }
-}
-
-// بدء محادثة جديدة
-window.clearAIChat = function() {
-    if (!confirm('هل تريد بدء محادثة جديدة؟ سيتم حذف السجل الحالي من الواجهة.')) return;
-    
-    // جلسة جديدة
-    localStorage.removeItem('lomedx_ai_session');
-    AI_CONFIG.sessionToken = generateSessionToken();
-    
-    const container = document.getElementById('ai-chat-messages');
-    container.innerHTML = `
-        <div class="ai-welcome">
-            <div class="ai-welcome-icon">👋</div>
-            <h4>أهلاً بك مجدداً في LomedX</h4>
-            <p>محادثة جديدة. كيف يمكنني مساعدتك؟</p>
-            <div class="ai-suggestions">
-                <button class="ai-suggestion" onclick="sendAISuggestion('كيف أحجز موعد مع طبيب؟')">
-                    <i class="fas fa-calendar-check"></i> حجز موعد
-                </button>
-                <button class="ai-suggestion" onclick="sendAISuggestion('أين أجد دواء معين؟')">
-                    <i class="fas fa-pills"></i> البحث عن دواء
-                </button>
-                <button class="ai-suggestion" onclick="sendAISuggestion('ما هي جرعة السيتامول لطفل 10 كيلو؟')">
-                    <i class="fas fa-syringe"></i> جرعة دواء
-                </button>
-                <button class="ai-suggestion" onclick="sendAISuggestion('ما هي أعراض الأنفلونزا؟')">
-                    <i class="fas fa-virus"></i> أعراض مرض
-                </button>
-            </div>
-        </div>`;
-    
-    showToast('تم بدء محادثة جديدة', 'success');
-};
-
-// إرسال اقتراح
-window.sendAISuggestion = function(text) {
-    const input = document.getElementById('ai-user-input');
-    if (input) input.value = text;
-    sendAIMessage();
-};
-
-// إرسال رسالة
-window.sendAIMessage = async function() {
-    if (AI_CONFIG.isTyping) return;
-    
-    const input = document.getElementById('ai-user-input');
-    const message = input.value.trim();
-    if (!message) return;
-    if (message.length > 1000) {
-        showToast('الرسالة طويلة جداً (الحد 1000 حرف)', 'error');
-        return;
-    }
-    
-    AI_CONFIG.lastUserMessage = message;
-    
-    // إزالة شاشة الترحيب عند أول رسالة
-    const welcome = document.querySelector('.ai-welcome');
-    if (welcome) welcome.remove();
-    
-    // عرض رسالة المستخدم
-    renderMessage('user', message);
-    input.value = '';
-    input.style.height = 'auto';
-    
-    AI_CONFIG.isTyping = true;
-    const sendBtn = document.getElementById('ai-send-btn');
-    if (sendBtn) sendBtn.disabled = true;
-    
-    // عرض مؤشر الكتابة
-    const typingId = showTypingIndicator();
-    
-    try {
-        const response = await fetch(`${supabaseUrl}/functions/v1/lomedx-ai-assistant`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${supabaseKey}`,
-                'apikey': supabaseKey,
-            },
-            body: JSON.stringify({
-                message: message,
-                session_token: AI_CONFIG.sessionToken,
-            }),
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `HTTP ${response.status}`);
-        }
-        
-        removeTypingIndicator(typingId);
-        
-        // إنشاء رسالة المساعد
-        const messageEl = renderMessage('assistant', '');
-        const bubble = messageEl.querySelector('.ai-bubble');
-        
-        // قراءة البث
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-        let fullText = '';
-        
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            
-            const chunk = decoder.decode(value, { stream: true });
-            for (const line of chunk.split('\n')) {
-                if (!line.startsWith('data: ')) continue;
-                const dataStr = line.slice(6).trim();
-                if (dataStr === '[DONE]') continue;
-                try {
-                    const data = JSON.parse(dataStr);
-                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (text) {
-                        fullText += text;
-                        bubble.innerHTML = formatMarkdown(fullText) + '<span class="ai-cursor"></span>';
-                        const container = document.getElementById('ai-chat-messages');
-                        container.scrollTop = container.scrollHeight;
-                    }
-                } catch {}
-            }
-        }
-        
-        // إزالة المؤشر وعرض الأزرار التفاعلية
-        finalizeAIMessage(bubble, fullText);
-        
-        // إضافة أزرار النسخ للرسالة
-        addMessageActions(messageEl, fullText);
-        
-    } catch (error) {
-        removeTypingIndicator(typingId);
-        console.error('AI Error:', error);
-        showToast('حدث خطأ: ' + error.message, 'error');
-        
-        renderMessage('assistant', 'عذراً، حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.', true);
-    } finally {
-        AI_CONFIG.isTyping = false;
-        if (sendBtn) sendBtn.disabled = false;
-        input.focus();
-    }
-};
-
-// عرض رسالة
-function renderMessage(role, text, animate = true) {
-    const container = document.getElementById('ai-chat-messages');
-    const div = document.createElement('div');
-    div.className = `ai-message ${role}`;
-    
-    const time = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-    
-    const bubbleContent = role === 'assistant' ? formatMarkdown(text) : escapeHtml(text);
-    
-    div.innerHTML = `
-        <div class="ai-bubble">${bubbleContent}</div>
-        <div class="ai-meta">${time}</div>
-    `;
-    
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-    return div;
-}
-
-// تنسيق Markdown أساسي
-function formatMarkdown(text) {
-    let html = escapeHtml(text);
-    // Bold
-    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    // Lists
-    html = html.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
-    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-    // Line breaks
-    html = html.replace(/\n/g, '<br>');
-    return html;
-}
-
-// إضافة أزرار النسخ والإجراءات
-function addMessageActions(messageEl, fullText) {
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'ai-message actions';
-    actionsDiv.style.cssText = 'display:flex; gap:4px;';
-    
-    actionsDiv.innerHTML = `
-        <button class="ai-action-btn" onclick="copyAIMessage(this)" data-text="${escapeHtml(fullText)}" title="نسخ">
-            <i class="fas fa-copy"></i>
-        </button>
-        <button class="ai-action-btn" onclick="regenerateAIResponse()" title="إعادة">
-            <i class="fas fa-redo"></i>
-        </button>
-    `;
-    
-    messageEl.appendChild(actionsDiv);
-}
-
-// نسخ رسالة
-window.copyAIMessage = function(btn) {
-    const text = btn.dataset.text;
-    navigator.clipboard.writeText(text).then(() => {
-        showToast('تم النسخ', 'success');
-    }).catch(() => showToast('فشل النسخ', 'error'));
-};
-
-// إعادة توليد الرد
-window.regenerateAIResponse = async function() {
-    if (!AI_CONFIG.lastUserMessage) return;
-    const input = document.getElementById('ai-user-input');
-    input.value = AI_CONFIG.lastUserMessage;
-    sendAIMessage();
-};
-
-// مؤشر الكتابة
-function showTypingIndicator() {
-    const container = document.getElementById('ai-chat-messages');
-    const id = 'typing_' + Date.now();
-    const div = document.createElement('div');
-    div.id = id;
-    div.className = 'ai-message assistant';
-    div.innerHTML = '<div class="ai-typing"><span></span><span></span><span></span></div>';
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-    return id;
-}
-
-function removeTypingIndicator(id) {
-    const el = document.getElementById(id);
-    if (el) el.remove();
-}
-
-// إضافة الأزرار التفاعلية في النهاية
-function finalizeAIMessage(bubble, fullText) {
-    const actions = {
-        '[ACTION:BOOK_DOCTOR]': { label: 'احجز موعد', icon: 'fa-calendar-check', action: "closeAllOverlays(); redirectToDoctorsSearch()" },
-        '[ACTION:FIND_MEDICINE]': { label: 'ابحث عن دواء', icon: 'fa-pills', action: "closeAllOverlays(); openMedicineFinder()" },
-        '[ACTION:HEALTH_FILE]': { label: 'ملفي الصحي', icon: 'fa-id-card', action: "closeAllOverlays(); openHealthFile()" },
-        '[ACTION:DOSE_CALC]': { label: 'حاسبة الجرعات', icon: 'fa-syringe', action: "closeAllOverlays(); openDoseCalc()" },
-        '[ACTION:PREGNANCY_CALC]': { label: 'حاسبة الحمل', icon: 'fa-baby', action: "closeAllOverlays(); openPregnancyCalc()" },
-        '[ACTION:BLOOD_BANK]': { label: 'بنك الدم', icon: 'fa-tint', action: "closeAllOverlays(); openBloodBank()" },
-        '[ACTION:FIRST_AID]': { label: 'الإسعافات الأولية', icon: 'fa-kit-medical', action: "closeAllOverlays(); openFirstAid()" },
-        '[ACTION:BURN_CALC]': { label: 'مسعف الحروق', icon: 'fa-fire-extinguisher', action: "closeAllOverlays(); openBurnCalculator()" },
-        '[ACTION:RADAR]': { label: 'الرادار الصحي', icon: 'fa-satellite-dish', action: "closeAllOverlays(); openRahebaRadar()" },
-        '[ACTION:BLOG]': { label: 'المدونة الطبية', icon: 'fa-newspaper', action: "closeAllOverlays(); openMedicalBlog()" },
-        '[ACTION:EMERGENCY]': { label: 'اتصل بالإسعاف', icon: 'fa-ambulance', action: "window.location.href='tel:110'", special: 'emergency' },
-    };
-    
-    let cleanText = fullText;
-    let buttonsHtml = '';
-    
-    for (const [code, config] of Object.entries(actions)) {
-        if (cleanText.includes(code)) {
-            cleanText = cleanText.replace(code, '');
-            const cls = config.special === 'emergency' ? 'ai-bubble-action emergency' : 'ai-bubble-action';
-            const style = config.special === 'emergency' ? 'background:#DC2626;' : '';
-            buttonsHtml += `<button class="${cls}" style="${style}" onclick="${config.action}"><i class="fas ${config.icon}"></i> ${config.label}</button>`;
-        }
-    }
-    
-    bubble.innerHTML = formatMarkdown(cleanText);
-    
-    if (buttonsHtml) {
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'ai-bubble-actions';
-        actionsDiv.innerHTML = buttonsHtml;
-        bubble.appendChild(actionsDiv);
-    }
-}
-
-// Textarea auto-resize
-window.autoResizeTextarea = function(el) {
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-};
-
-// معالجة Enter
-window.handleAIKeyDown = function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendAIMessage();
-    }
-};
-
-// إدخال صوتي (Web Speech API)
-let recognition = null;
-let isRecording = false;
-
-window.toggleVoiceInput = function() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        showToast('الإدخال الصوتي غير مدعوم في متصفحك', 'error');
-        return;
-    }
-    
-    const btn = document.getElementById('ai-voice-btn');
-    const input = document.getElementById('ai-user-input');
-    
-    if (isRecording) {
-        recognition.stop();
-        isRecording = false;
-        btn.classList.remove('recording');
-        return;
-    }
-    
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
-    recognition.lang = 'ar-SA';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    
-    recognition.onstart = () => {
-        isRecording = true;
-        btn.classList.add('recording');
-        showToast('جاري الاستماع...', 'info');
-    };
-    
-    recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        input.value = transcript;
-        autoResizeTextarea(input);
-    };
-    
-    recognition.onerror = () => {
-        showToast('فشل في الاستماع', 'error');
-        isRecording = false;
-        btn.classList.remove('recording');
-    };
-    
-    recognition.onend = () => {
-        isRecording = false;
-        btn.classList.remove('recording');
-    };
-    
-    recognition.start();
-};
-
-// إغلاق عند الضغط على الخلفية
-document.addEventListener('click', (e) => {
-    const modal = document.getElementById('ai-chat-modal');
-    if (e.target === modal) toggleAIChat();
-});
-
-// ESC لإغلاق
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        const modal = document.getElementById('ai-chat-modal');
-        if (modal?.classList.contains('active')) toggleAIChat();
-    }
 });
