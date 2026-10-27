@@ -405,12 +405,6 @@
     </div>
 </div>
 
-
-<button onclick="toggleAIChat()" class="bg-[#0E7C5F] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#052E22] transition-all flex items-center gap-2 shadow-lg">
-    <i class="fas fa-robot"></i> مساعد LomedX الذكي
-</button>
-
-
             
             <!-- زر المدونة الطبية -->
             <a href="/blog" class="btn-dark-gold w-full rounded-2xl py-3 mb-6 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] relative cursor-pointer" style="text-decoration:none;">
@@ -1262,33 +1256,24 @@
 
 
 
-    <!-- ═══════════════════════════════════════════════════════════
-     🤖 مساعد LomedX الذكي — النسخة الاحترافية
+
+<!-- ═══════════════════════════════════════════════════════════
+     🤖 مساعد LomedX الذكي — هيكل نظيف 100%
      ═══════════════════════════════════════════════════════════ -->
 <div id="ai-chat-modal" class="ai-modal">
   <div class="ai-container">
-    
     <!-- Header -->
     <div class="ai-header">
       <div class="ai-header-info">
-        <div class="ai-avatar">
-          <i class="fas fa-robot"></i>
-        </div>
+        <div class="ai-avatar"><i class="fas fa-robot"></i></div>
         <div>
           <h3 class="ai-title">مساعد LomedX</h3>
-          <div class="ai-status">
-            <span class="ai-status-dot"></span>
-            <span id="ai-status-text">متصل الآن</span>
-          </div>
+          <div class="ai-status"><span class="ai-status-dot"></span><span>متصل الآن</span></div>
         </div>
       </div>
       <div class="ai-header-actions">
-        <button class="ai-icon-btn" onclick="clearAIChat()" title="محادثة جديدة">
-          <i class="fas fa-plus"></i>
-        </button>
-        <button class="ai-icon-btn ai-close-btn" onclick="toggleAIChat()" title="إغلاق">
-          <i class="fas fa-times"></i>
-        </button>
+        <button class="ai-icon-btn" onclick="clearAIChat()" title="محادثة جديدة"><i class="fas fa-plus"></i></button>
+        <button class="ai-icon-btn ai-close-btn" onclick="toggleAIChat()" title="إغلاق"><i class="fas fa-times"></i></button>
       </div>
     </div>
 
@@ -1299,18 +1284,10 @@
         <h4>أهلاً بك في LomedX</h4>
         <p>أنا مساعدك الطبي الذكي. اسألني عن أي شيء صحي، أو استخدم الاقتراحات بالأسفل.</p>
         <div class="ai-suggestions">
-          <button class="ai-suggestion" onclick="sendAISuggestion('كيف أحجز موعد مع طبيب؟')">
-            <i class="fas fa-calendar-check"></i> حجز موعد
-          </button>
-          <button class="ai-suggestion" onclick="sendAISuggestion('أين أجد دواء معين؟')">
-            <i class="fas fa-pills"></i> البحث عن دواء
-          </button>
-          <button class="ai-suggestion" onclick="sendAISuggestion('ما هي جرعة السيتامول لطفل 10 كيلو؟')">
-            <i class="fas fa-syringe"></i> جرعة دواء
-          </button>
-          <button class="ai-suggestion" onclick="sendAISuggestion('ما هي أعراض الأنفلونزا؟')">
-            <i class="fas fa-virus"></i> أعراض مرض
-          </button>
+          <button class="ai-suggestion" onclick="sendAISuggestion('كيف أحجز موعد مع طبيب؟')"><i class="fas fa-calendar-check"></i> حجز موعد</button>
+          <button class="ai-suggestion" onclick="sendAISuggestion('أين أجد دواء معين؟')"><i class="fas fa-pills"></i> البحث عن دواء</button>
+          <button class="ai-suggestion" onclick="sendAISuggestion('ما هي جرعة السيتامول لطفل 10 كيلو؟')"><i class="fas fa-syringe"></i> جرعة دواء</button>
+          <button class="ai-suggestion" onclick="sendAISuggestion('ما هي أعراض الأنفلونزا؟')"><i class="fas fa-virus"></i> أعراض مرض</button>
         </div>
       </div>
     </div>
@@ -1318,30 +1295,15 @@
     <!-- Input -->
     <div class="ai-input-area">
       <div class="ai-input-wrapper">
-        <button class="ai-voice-btn" id="ai-voice-btn" onclick="toggleVoiceInput()" title="إدخال صوتي">
-          <i class="fas fa-microphone"></i>
-        </button>
-        <textarea 
-          id="ai-user-input" 
-          class="ai-textarea" 
-          placeholder="اكتب سؤالك الطبي..." 
-          rows="1"
-          maxlength="1000"
-          onkeydown="handleAIKeyDown(event)"
-          oninput="autoResizeTextarea(this)"
-        ></textarea>
-        <button class="ai-send-btn" id="ai-send-btn" onclick="sendAIMessage()" title="إرسال">
-          <i class="fas fa-paper-plane"></i>
-        </button>
+        <button class="ai-voice-btn" id="ai-voice-btn" onclick="toggleVoiceInput()" title="إدخال صوتي"><i class="fas fa-microphone"></i></button>
+        <textarea id="ai-user-input" class="ai-textarea" placeholder="اكتب سؤالك الطبي..." rows="1" maxlength="1000" onkeydown="handleAIKeyDown(event)" oninput="autoResizeTextarea(this)"></textarea>
+        <button class="ai-send-btn" id="ai-send-btn" onclick="sendAIMessage()" title="إرسال"><i class="fas fa-paper-plane"></i></button>
       </div>
-      <div class="ai-footer-note">
-        <i class="fas fa-shield-halved"></i>
-        <span>المعلومات للاسترشاد فقط — لا تُغني عن استشارة الطبيب</span>
-      </div>
+      <div class="ai-footer-note"><i class="fas fa-shield-halved"></i><span>المعلومات للاسترشاد فقط — لا تُغني عن استشارة الطبيب</span></div>
     </div>
-
   </div>
 </div>
+    
 <!-- ========================================== -->
 <!-- المكتبات الثقيلة المنقولة للأسفل لتحسين السرعة -->
 <!-- ========================================== -->
