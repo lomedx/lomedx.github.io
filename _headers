@@ -1,11 +1,7 @@
 # ═══════════════════════════════════════════════════════════════════
 # 🏥 LomedX Platform — Cloudflare Pages Headers
-# Comprehensive Security + Performance Configuration
 # ═══════════════════════════════════════════════════════════════════
 
-# ═══════════════════════════════════════════════════════════════════
-# 🛡️ SECTION 1: SECURITY HEADERS (جميع الروابط)
-# ═══════════════════════════════════════════════════════════════════
 /*
   # ─── [1] Frame Protection ───
   X-Frame-Options: DENY
@@ -21,7 +17,7 @@
   # ─── [4] Referrer Policy ───
   Referrer-Policy: strict-origin-when-cross-origin
   
-  # ─── [5] Permissions Policy (تم السماح بجميع المستشعرات) ───
+  # ─── [5] Permissions Policy ───
   Permissions-Policy: camera=(self), microphone=(), geolocation=(self), payment=(self), accelerometer=(*), gyroscope=(*), magnetometer=(*), usb=(*), interest-cohort=()
   
   # ─── [6] HSTS (Force HTTPS) ───
@@ -35,12 +31,11 @@
   X-DNS-Prefetch-Control: on
   
   # ─── [9] Content Security Policy (CSP) ───
-  # تم إضافة https://cloudflareinsights.com لإصلاح خطأ التحليلات
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://cdn.tailwindcss.com https://cdn.onesignal.com https://*.onesignal.com https://challenges.cloudflare.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https: https://maps.gstatic.com https://maps.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; media-src 'self' https: data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://static.cloudflareinsights.com https://cloudflareinsights.com https://*.onesignal.com https://api.onesignal.com https://challenges.cloudflare.com https://nominatim.openstreetmap.org https://wsrv.nl https://i.ibb.co https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://accounts.google.com https://*.googleapis.com https://api.cloudflare.com; frame-src 'self' https://maps.google.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com https://accounts.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;
-
+  # ✅ تم إضافة data: blob: في connect-src لكي يعمل Cloudflare Turnstile
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://cdn.tailwindcss.com https://cdn.onesignal.com https://*.onesignal.com https://challenges.cloudflare.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https: https://maps.gstatic.com https://maps.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; media-src 'self' https: data: blob:; connect-src 'self' data: blob: https://*.supabase.co wss://*.supabase.co https://static.cloudflareinsights.com https://cloudflareinsights.com https://*.onesignal.com https://api.onesignal.com https://challenges.cloudflare.com https://nominatim.openstreetmap.org https://wsrv.nl https://i.ibb.co https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://accounts.google.com https://*.googleapis.com https://api.cloudflare.com; frame-src 'self' https://maps.google.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com https://accounts.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;
 
 # ═══════════════════════════════════════════════════════════════════
-# 📄 SECTION 2: HTML PAGES (بدون تخزين مؤقت — محتوى ديناميكي)
+# 📄 SECTION 2: HTML PAGES
 # ═══════════════════════════════════════════════════════════════════
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
@@ -48,9 +43,8 @@
 /
   Cache-Control: public, max-age=0, must-revalidate
 
-
 # ═══════════════════════════════════════════════════════════════════
-# ⚙️ SECTION 3: SERVICE WORKER (لا تخزين — يجب التحديث دائماً)
+# ⚙️ SECTION 3: SERVICE WORKER
 # ═══════════════════════════════════════════════════════════════════
 /OneSignalSDKWorker.js
   Cache-Control: no-cache, no-store, must-revalidate
@@ -58,20 +52,15 @@
 /sw.js
   Cache-Control: no-cache, no-store, must-revalidate
 
-
 # ═══════════════════════════════════════════════════════════════════
-# 🚀 SECTION 4: STATIC ASSETS (تخزين طويل — أداء أقصى)
+# 🚀 SECTION 4: STATIC ASSETS
 # ═══════════════════════════════════════════════════════════════════
-
-# ─── JavaScript ───
 /js/*
   Cache-Control: public, max-age=31536000, immutable
 
-# ─── CSS ───
 /css/*
   Cache-Control: public, max-age=31536000, immutable
 
-# ─── Images ───
 /*.png
   Cache-Control: public, max-age=31536000, immutable
 /*.jpg
@@ -87,7 +76,6 @@
 /*.ico
   Cache-Control: public, max-age=31536000, immutable
 
-# ─── Fonts ───
 /*.woff
   Cache-Control: public, max-age=31536000, immutable
 /*.woff2
@@ -95,30 +83,23 @@
 /*.ttf
   Cache-Control: public, max-age=31536000, immutable
 
-
 # ═══════════════════════════════════════════════════════════════════
 # 🔍 SECTION 5: SEO FILES
 # ═══════════════════════════════════════════════════════════════════
-
-# ─── robots.txt (تخزين يومي) ───
 /robots.txt
   Cache-Control: public, max-age=86400
 
-# ─── sitemap.xml (ساعة واحدة - ديناميكي) ───
 /sitemap.xml
   Cache-Control: public, max-age=3600
 
-# ─── manifest.json ───
 /manifest.json
   Cache-Control: public, max-age=86400
 
-
 # ═══════════════════════════════════════════════════════════════════
-# 🔌 SECTION 6: API & FUNCTIONS (بدون تخزين — بيانات حية)
+# 🔌 SECTION 6: API & FUNCTIONS
 # ═══════════════════════════════════════════════════════════════════
 /functions/*
   Cache-Control: no-store, no-cache, must-revalidate
-
 
 # ═══════════════════════════════════════════════════════════════════
 # 🛡️ SECTION 7: VERIFICATION & WELL-KNOWN
