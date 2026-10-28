@@ -925,14 +925,11 @@ function createCard(item) {
     
     return `<div class="card ${t.cardClass} cursor-pointer" onclick="handleCardClick(event, '${escapeHtml(item.id)}')" data-type="${escapeHtml(item.type)}"><div class="relative h-40 overflow-hidden rounded-t-2xl">
   ${item.video_url ? `
-    <!-- عرض الفيديو إذا كان موجوداً -->
-    <video 
-    src="${escapeHtml(item.video_url)}" 
-    poster="${getOptimizedImageUrl(item.image, 400, 300)}" 
-    class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 relative z-0" 
-    muted loop playsinline autoplay>
+    
+    <video src="${escapeHtml(item.video_url)}" poster="${getOptimizedImageUrl(item.image, 400, 300)}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 relative z-0" muted loop playsinline preload="metadata">
     title="فيديو ${escapeHtml(item.name)} - LomedX"
 </video>
+
     <div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm z-10">
         <i class="fas fa-play ml-1"></i> فيديو
     </div>
