@@ -5640,7 +5640,9 @@ window.renderAdSlide = (index) => {
         const endedAttr = isSingleAd ? '' : 'onended="nextAdSlide()"';
         mediaHTML = `
         <div class="relative w-full h-full bg-black">
-            <video id="homeAdVideo" preload="metadata" muted playsinline ${loopAttr} ${endedAttr} onerror="nextAdSlide()" class="w-full h-full object-cover" poster="https://lomedx.pages.dev/logo.png">
+                <video id="homeAdVideo" autoplay muted playsinline ${loopAttr} ${endedAttr} onerror="nextAdSlide()" class="w-full h-full object-cover">
+                <source src="${escapeHtml(ad.content)}" type="video/mp4">
+            </video>
             <button onclick="toggleAdVideoSound()" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-sm z-30 transition-all">
                 <i class="fas fa-volume-xmark" id="adVideoSoundIcon"></i>
             </button>
