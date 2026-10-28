@@ -1,4 +1,4 @@
-import { supabase, supabaseUrl, supabaseKey } from './supabase.js';
+عرضimport { supabase, supabaseUrl, supabaseKey } from './supabase.js';
 
 
 const daysOfWeek = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
@@ -11156,7 +11156,7 @@ window.printSchedule = () => {
 // 8. جلب مناوبات اليوم (مع دعم العبور لمنتصف الليل) — الإصلاح الحرِج
 // ═══════════════════════════════════════════════════════════════════
  // ═══════════════════════════════════════════════════════════════
-// 🌙 نظام المناوبات — مع تفاصيل الحالة
+//  نظام المناوبات — مع تفاصيل الحالة
 // ═══════════════════════════════════════════════════════════════
 window.todayDutyPharmacyIds = [];
 window.todayDutyDetails = {};  // ⭐ جديد: تفاصيل كل صيدلية
@@ -11172,7 +11172,7 @@ async function fetchTodayDutiesForBadge() {
         const pad = (n) => String(n).padStart(2, '0');
         const currentHour = now.getHours();
         
-        // 📅 اليوم المنطقي (02:00 → 01:59 فجر الغد)
+        
         let targetDate = new Date(now);
         if (currentHour < 2) {
             targetDate.setDate(targetDate.getDate() - 1);
@@ -11359,10 +11359,6 @@ document.addEventListener('visibilitychange', () => {
 //  نظام تحديد مدينة المستخدم الدائم (يُحفظ للأبد)
 // ═══════════════════════════════════════════════════════════
 
-    // ═══════════════════════════════════════════════════════════
-// 🏙️ نظام تحديد المدينة (شريط سفلي هادئ)
-// ═══════════════════════════════════════════════════════════
-
 window.askForUserCity = () => {
     const savedCity = localStorage.getItem('lomedx_user_city');
     
@@ -11423,12 +11419,12 @@ function showCityBanner() {
     
     document.body.appendChild(banner);
     
-    // ✅ اختفاء تلقائي بعد 20 ثانية (إذا لم يتفاعل)
+    
     window._cityBannerTimer = setTimeout(() => {
         if (document.getElementById('cityBanner')) {
             dismissCityBanner();
         }
-    }, 20000);
+    }, 30000);
 }
 
 window.confirmBannerCity = () => {
@@ -11460,7 +11456,7 @@ window.confirmBannerCity = () => {
     
     // إغلاق الشريط
     closeCityBanner();
-    showToast(`✅ تم حفظ مدينتك: ${city}`, 'success');
+    showToast(` تم حفظ مدينتك: ${city}`, 'success');
 };
 
 window.dismissCityBanner = () => {
@@ -11488,47 +11484,6 @@ function closeCityBanner() {
     setTimeout(() => banner.remove(), 400);
 }
 
-// دالة التخطي (محدثة لحفظ القرار)
-window.skipUserCity = () => {
-    const overlay = document.getElementById('userCityOverlay');
-    if (overlay) overlay.remove();
-    
-    localStorage.setItem('lomedx_user_city', 'skipped');
-    
-    // إبقاء الموقع على "كل المدن"
-    const currentCityText = document.getElementById('currentCityText');
-    if (currentCityText) currentCityText.innerText = 'كل المدن';
-    
-    const menuCityEl = document.getElementById('menuCurrentCityText');
-    if (menuCityEl) menuCityEl.innerText = 'كل المدن';
-
-    showToast('يمكنك تصفح المنصة بحرية. اختر مدينتك لاحقاً من القائمة الجانبية.', 'info');
-};
-
-window.saveUserCity = () => {
-    const city = document.getElementById('initialCitySelect').value;
-    if (!city) return;
-
-    localStorage.setItem('lomedx_user_city', city);
-    currentCity = city;
-    
-    document.getElementById('currentCityText').innerText = city;
-    
-    // تحديث الاسم في قائمة الجوال
-    const menuCityEl = document.getElementById('menuCurrentCityText');
-    if (menuCityEl) menuCityEl.innerText = city;
-
-    if (typeof renderData === 'function') renderData();
-
-    if (window.OneSignalDeferred) {
-        OneSignalDeferred.push(function(OneSignal) {
-            OneSignal.User.addTag("city", city);
-        });
-    }
-
-    document.getElementById('userCityOverlay').remove();
-    if (typeof showToast === 'function') showToast('تم حفظ مدينتك بنجاح ✅', 'success');
-};
 
 window.sendTodayDutyNotifications = async () => {
     if (!window.checkOnlineStatus()) return;
