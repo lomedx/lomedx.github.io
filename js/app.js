@@ -2827,16 +2827,16 @@ async function fetchMedRequests(pharmName, pharmCity = null) {
         }
 
         html += `<div class="bg-white border rounded-xl p-4 flex flex-col gap-3" style="border-color: var(--border)"><div class="flex flex-col sm:flex-row gap-3 items-center">
-        ${req.image_url ? `
-    <div class="flex flex-col gap-1 items-center">
-        <div onclick="window.open('${escapeHtml(req.image_url)}', '_blank')" class="w-full sm:w-24 h-24 bg-gray-100 rounded-lg flex flex-col items-center justify-center cursor-pointer border border-gray-300 hover:bg-gray-200 transition-all">
-            <i class="fas fa-image text-gray-400 text-2xl mb-1"></i>
-            <span class="text-[10px] text-gray-600 font-bold">عرض الصورة</span>
-        </div>
-        <button onclick="reportBadImage('${req.id}', '${escapeHtml(phone)}', '${escapeHtml(req.ip_address || '')}')" class="text-[10px] text-red-600 font-bold hover:underline mt-1">
-         إبلاغ عن صورة
-        </button>
+                    ${req.image_url ? `
+<div style="display:flex; flex-direction:column; align-items:center; gap:5px;">
+    <div onclick="openLightbox('${escapeHtml(req.image_url)}')" style="width:96px; height:96px; background:#f3f4f6; border:1px solid #d1d5db; border-radius:8px; display:flex; flex-direction:column; justify-content:center; align-items:center; cursor:pointer;">
+        <i class="fas fa-image" style="color:#9ca3af; font-size:24px; margin-bottom:5px;"></i>
+        <span style="font-size:10px; color:#4b5563; font-weight:bold;">عرض الصورة</span>
     </div>
+    <button onclick="reportBadImage('${req.id}', '${escapeHtml(phone)}', '${escapeHtml(req.ip_address || '')}')" style="font-size:10px; color:#dc2626; font-weight:bold; background:none; border:none; cursor:pointer; text-decoration:underline;">
+        🚩 إبلاغ عن صورة
+    </button>
+</div>
 ` : ''}<div class="flex-1 text-center sm:text-right"><h4 class="font-bold">${escapeHtml(req.patient_name)} <span class="text-xs text-yellow-600 font-mono">#${escapeHtml(req.med_ref || '')}</span></h4><p class="text-sm text-gray-700 font-semibold">${escapeHtml(req.med_list || '')}</p><p class="text-xs mt-1 text-red-500">الإلحاح: ${escapeHtml(req.urgency || 'عادي')}</p><p class="text-xs" style="color: var(--muted)"><i class="fas fa-clock"></i> ${escapeHtml(date)}</p>${requestStatus}</div></div><div class="flex flex-col gap-2 mt-2 border-t pt-3" style="border-color: var(--border)">${interactionArea}</div></div>`; 
     }); 
     container.innerHTML = html; 
