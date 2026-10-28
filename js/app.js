@@ -1,4 +1,4 @@
-عرضimport { supabase, supabaseUrl, supabaseKey } from './supabase.js';
+import { supabase, supabaseUrl, supabaseKey } from './supabase.js';
 
 
 const daysOfWeek = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
