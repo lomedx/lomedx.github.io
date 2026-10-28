@@ -11352,73 +11352,140 @@ document.addEventListener('visibilitychange', () => {
 //  نظام تحديد مدينة المستخدم الدائم (يُحفظ للأبد)
 // ═══════════════════════════════════════════════════════════
 
-    window.askForUserCity = () => {
-    // 1. التحقق من وجود مدينة محفوظة أو قرار "تخطي"
+    // ═══════════════════════════════════════════════════════════
+// 🏙️ نظام تحديد المدينة (شريط سفلي هادئ)
+// ═══════════════════════════════════════════════════════════
+
+window.askForUserCity = () => {
     const savedCity = localStorage.getItem('lomedx_user_city');
     
-    // إذا كان هناك مدينة محفوظة، أو المستخدم اختار التخطي سابقاً ("skipped")
-    if (savedCity) {
-        // إذا كان "skipped"، نترك الموقع على "كل المدن" ونخرج
-        if (savedCity === 'skipped') {
-            const currentCityText = document.getElementById('currentCityText');
-            if (currentCityText) currentCityText.innerText = 'كل المدن';
-            
-            const menuCityEl = document.getElementById('menuCurrentCityText');
-            if (menuCityEl) menuCityEl.innerText = 'كل المدن';
-            
-            if (typeof renderData === 'function') renderData();
-            return; // لا تفتح النافذة
-        }
-        
-        // إذا كانت مدينة حقيقية، نطبقها
+    // 1. مستخدم عائد - طبّق المدينة
+    if (savedCity && savedCity !== 'skipped') {
         currentCity = savedCity;
         const currentCityText = document.getElementById('currentCityText');
         if (currentCityText) currentCityText.innerText = savedCity;
         
         const menuCityEl = document.getElementById('menuCurrentCityText');
         if (menuCityEl) menuCityEl.innerText = savedCity;
-
+        
         if (typeof renderData === 'function') renderData();
-        return; // لا تفتح النافذة
+        return;
     }
-
-    // 2. إذا لم يكن هناك أي شيء محفوظ، نفتح النافذة لأول مرة
-    const cities = allCities.filter(c => c !== 'كل المدن' && !c.includes('(قريباً)'));
-    const overlay = document.createElement('div');
-    overlay.id = 'userCityOverlay';
-    overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;';
     
-    overlay.innerHTML = `
-        <div style="background:var(--card); border-radius:24px; padding:30px 24px; max-width:400px; width:100%; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.3);">
-            <div style="width:70px; height:70px; background:#E0F2FE; color:#0284C7; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:28px;">
+    // 2. اختار التخطي سابقاً - لا شيء
+    if (savedCity === 'skipped') {
+        const currentCityText = document.getElementById('currentCityText');
+        if (currentCityText) currentCityText.innerText = 'كل المدن';
+        return;
+    }
+    
+    // 3. زائر جديد - عرض الشريط السفلي
+    showCityBanner();
+};
+
+function showCityBanner() {
+    // لا تكرر الشريط
+    if (document.getElementById('cityBanner')) return;
+    
+    const cities = allCities.filter(c => c !== 'كل المدن' && !c.includes('(قريباً)'));
+    
+    const banner = document.createElement('div');
+    banner.id = 'cityBanner';
+    banner.innerHTML = `
+        <div class="city-banner-content">
+            <div class="city-banner-icon">
                 <i class="fas fa-map-location-dot"></i>
             </div>
-            <h2 style="font-family:'Noto Kufi Arabic'; font-size:1.3rem; font-weight:800; margin-bottom:8px; color:var(--fg);">من أي مدينة أنت؟</h2>
-            <p style="font-size:0.85rem; color:var(--muted); margin-bottom:24px; line-height:1.6;">حدد مدينتك لنعرض لك الأطباء والصيدليات القريبة منك، ولنرسل لك تنبيهات المناوبات الخاصة بمدينتك.</p>
-            
-            <select id="initialCitySelect" class="ctrl-input" style="margin-bottom:20px; font-size:1rem; font-weight:bold; text-align:center;">
+            <div class="city-banner-text">
+                <div class="city-banner-title">من أي مدينة أنت؟</div>
+                <div class="city-banner-sub">سنعرض لك المحتوى المحلي المناسب</div>
+            </div>
+        </div>
+        <div class="city-banner-actions">
+            <select id="bannerCitySelect" class="city-banner-select">
                 ${cities.map(c => `<option value="${c}">${c}</option>`).join('')}
             </select>
-            
-            <button onclick="saveUserCity()" style="width:100%; padding:14px; border-radius:14px; background:var(--accent); color:white; font-weight:bold; border:none; font-size:0.95rem; cursor:pointer; font-family:inherit; transition:0.3s; margin-bottom:12px;">
-                تأكيد وحفظ
+            <button onclick="confirmBannerCity()" class="city-banner-confirm">
+                تأكيد
             </button>
-
-            <button onclick="skipUserCity()" style="width:100%; padding:10px; border-radius:14px; background:transparent; color:var(--muted); font-weight:bold; border:none; font-size:0.85rem; cursor:pointer; font-family:inherit;">
-                تخطي الآن (تصفح كزائر)
+            <button onclick="dismissCityBanner()" class="city-banner-close" title="تخطي">
+                <i class="fas fa-times"></i>
             </button>
         </div>
     `;
     
-    document.body.appendChild(overlay);
+    document.body.appendChild(banner);
+    
+    // ✅ اختفاء تلقائي بعد 20 ثانية (إذا لم يتفاعل)
+    window._cityBannerTimer = setTimeout(() => {
+        if (document.getElementById('cityBanner')) {
+            dismissCityBanner();
+        }
+    }, 20000);
+}
+
+window.confirmBannerCity = () => {
+    const select = document.getElementById('bannerCitySelect');
+    if (!select) return;
+    
+    const city = select.value;
+    if (!city) return;
+    
+    // حفظ المدينة
+    localStorage.setItem('lomedx_user_city', city);
+    currentCity = city;
+    
+    // تحديث الواجهة
+    const currentCityText = document.getElementById('currentCityText');
+    if (currentCityText) currentCityText.innerText = city;
+    
+    const menuCityEl = document.getElementById('menuCurrentCityText');
+    if (menuCityEl) menuCityEl.innerText = city;
+    
+    if (typeof renderData === 'function') renderData();
+    
+    // إرسال المدينة لـ OneSignal
+    if (window.OneSignalDeferred) {
+        OneSignalDeferred.push(function(OneSignal) {
+            OneSignal.User.addTag("city", city);
+        });
+    }
+    
+    // إغلاق الشريط
+    closeCityBanner();
+    showToast(`✅ تم حفظ مدينتك: ${city}`, 'success');
 };
+
+window.dismissCityBanner = () => {
+    // حفظ قرار التخطي
+    localStorage.setItem('lomedx_user_city', 'skipped');
+    
+    // إبقاء "كل المدن"
+    const currentCityText = document.getElementById('currentCityText');
+    if (currentCityText) currentCityText.innerText = 'كل المدن';
+    
+    closeCityBanner();
+    showToast('يمكنك اختيار مدينتك لاحقاً من القائمة الجانبية', 'info', 3000);
+};
+
+function closeCityBanner() {
+    if (window._cityBannerTimer) {
+        clearTimeout(window._cityBannerTimer);
+        window._cityBannerTimer = null;
+    }
+    
+    const banner = document.getElementById('cityBanner');
+    if (!banner) return;
+    
+    banner.classList.add('hiding');
+    setTimeout(() => banner.remove(), 400);
+}
 
 // دالة التخطي (محدثة لحفظ القرار)
 window.skipUserCity = () => {
     const overlay = document.getElementById('userCityOverlay');
     if (overlay) overlay.remove();
     
-    // ✅ الحفظ: نضع كلمة 'skipped' لنتذكر أنه اختار التخطي
     localStorage.setItem('lomedx_user_city', 'skipped');
     
     // إبقاء الموقع على "كل المدن"
@@ -11440,7 +11507,7 @@ window.saveUserCity = () => {
     
     document.getElementById('currentCityText').innerText = city;
     
-    // ✅ تحديث الاسم في قائمة الجوال
+    // تحديث الاسم في قائمة الجوال
     const menuCityEl = document.getElementById('menuCurrentCityText');
     if (menuCityEl) menuCityEl.innerText = city;
 
@@ -11459,7 +11526,6 @@ window.saveUserCity = () => {
 window.sendTodayDutyNotifications = async () => {
     if (!window.checkOnlineStatus()) return;
     
-    // ✅ الحل: جلب التاريخ المحلي للجهاز بدلاً من توقيت غرينتش
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
@@ -11498,7 +11564,7 @@ window.sendTodayDutyNotifications = async () => {
         const namesText = pharmacyNames.join(' و ');
         
         try {
-            // ✅ نستدعي دالتك الجاهزة، ونمرر target='city' لكي يرسل لسكان هذه المدينة فقط
+            
             await sendPushNotification(
                 null, 
                 `🌙 مناوبات الليلة في ${city}`, 
