@@ -873,8 +873,6 @@ async function handleItemRouteFromURL() {
         }
 
     } catch (err) {
-        
-        console.error('خطأ في فتح البطاقة:', err);
         showToast('حدث خطأ أثناء محاولة فتح البطاقة', 'error');
         history.replaceState({}, '', '/');
         return true; 
@@ -2059,7 +2057,6 @@ window.trackPhoneClick = async (event, id, phoneNumber) => {
             }
         }
     } catch (err) {
-        console.error('Phone click RPC error:', err.message);
     } finally {
     
         if (phoneNumber) {
@@ -10936,8 +10933,7 @@ window.confirmImport = async () => {
     if (skippedCount > 0) {
         msg += ` (تم تجاهل ${skippedCount})`;
         if (skippedReasons.length > 0) {
-            console.log('أسباب التجاهل:', skippedReasons);
-        }
+            
     }
     showToast(msg, 'success');
     pendingExcelRows = null;
@@ -11277,7 +11273,6 @@ async function fetchTodayDutiesForBadge() {
         }
         
     } catch (err) {
-        console.error('🌙 [Badge] استثناء:', err);
         window.todayDutyPharmacyIds = [];
         window.todayDutyDetails = {};
     }
@@ -11537,7 +11532,6 @@ window.sendTodayDutyNotifications = async () => {
             );
             successCount++;
         } catch (e) {
-            console.error('Error sending to city:', city, e);
         }
     }
 
@@ -12058,7 +12052,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('video').forEach(v => {
                     if (v !== video && !v.paused) v.pause();
                 });
-                video.play().catch(e => console.log("منع التشغيل التلقائي"));
+                video.play().catch(() => {});
             } else {
                 video.pause();
             }
