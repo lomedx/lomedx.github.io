@@ -2829,10 +2829,10 @@ async function fetchMedRequests(pharmName, pharmCity = null) {
         html += `<div class="bg-white border rounded-xl p-4 flex flex-col gap-3" style="border-color: var(--border)"><div class="flex flex-col sm:flex-row gap-3 items-center">
                     ${req.image_url ? `
 <div style="display:flex; flex-direction:column; align-items:center; gap:5px;">
-    <div onclick="openPharmacyImage('${escapeHtml(req.image_url)}')" class="w-full sm:w-24 h-24 bg-gray-100 rounded-lg flex flex-col items-center justify-center cursor-pointer border border-gray-300 hover:bg-gray-200 transition-all">
-    <i class="fas fa-image text-gray-400 text-2xl mb-1"></i>
-    <span class="text-[10px] text-gray-600 font-bold">عرض الصورة</span>
-</div>
+    <div onclick="openPharmacyImage(this)" data-src="${escapeHtml(req.image_url)}" style="width:96px; height:96px; background:#f3f4f6; border:1px solid #d1d5db; border-radius:8px; display:flex; flex-direction:column; justify-content:center; align-items:center; cursor:pointer;">
+        <i class="fas fa-image" style="color:#9ca3af; font-size:24px; margin-bottom:5px;"></i>
+        <span style="font-size:10px; color:#4b5563; font-weight:bold;">عرض الصورة</span>
+    </div>
     <button onclick="reportBadImage('${req.id}', '${escapeHtml(phone)}', '${escapeHtml(req.ip_address || '')}')" style="font-size:10px; color:#dc2626; font-weight:bold; background:none; border:none; cursor:pointer; text-decoration:underline;">
         🚩 إبلاغ عن صورة
     </button>
@@ -12017,7 +12017,11 @@ window.reportBadImage = async (reqId, phone, ip) => {
         showToast('حدث خطأ أثناء الحظر: ' + err.message, 'error');
     }
 };
-window.openPharmacyImage = (url) => {
+window.openPharmacyImage = (element) => {
+    // جلب رابط الصورة من العنصر الذي تم الضغط عليه
+    const url = element.getAttribute('data-src');
+    if (!url) return;
+
     // إنشاء طبقة سوداء تغطي الشاشة بالكامل
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;padding:15px;backdrop-filter:blur(5px);';
@@ -12030,10 +12034,10 @@ window.openPharmacyImage = (url) => {
     img.src = url;
     img.style.cssText = 'max-width:100%;max-height:90vh;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5);object-fit:contain;';
     
-    // زر إغلاق (X) في الأعلى لسهولة الاستخدام
+    // زر إغلاق (X)
     const closeBtn = document.createElement('button');
-    closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-    closeBtn.style.cssText = 'position:absolute;top:20px;right:20px;background:white;color:black;border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,0.3);';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.style.cssText = 'position:absolute;top:20px;right:20px;background:white;color:black;border:none;border-radius:50%;width:40px;height:40px;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,0.3);font-weight:bold;';
     closeBtn.onclick = (e) => { e.stopPropagation(); overlay.remove(); };
 
     overlay.appendChild(img);
