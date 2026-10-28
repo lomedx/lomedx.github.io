@@ -11865,4 +11865,4 @@ window.openPharmacyImage = (element) => {
     overlay.appendChild(img);
     overlay.appendChild(closeBtn);
     document.body.appendChild(overlay);
-};
+}
