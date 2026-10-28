@@ -7890,17 +7890,19 @@ if ('serviceWorker' in navigator) {
       
       // 1. الاستماع لردود الـ Service Worker
       navigator.serviceWorker.addEventListener('message', event => {
-        if (event.data && event.data.type === 'SW_VERSION_REPLY') {
-          const newVersion = event.data.version;
-          const savedVersion = localStorage.getItem('lomedx_sw_version');
-          
-          // 2. مقارنة الإصدار الجديد بالإصدار المحفوظ سابقاً
-          if (newVersion !== savedVersion) {
-            // الإصدار اختلف! اعرض رسالة التحديث
-            showUpdateToast(newVersion);
-          }
-        }
-      });
+  if (event.data && event.data.type === 'SW_VERSION_REPLY') {
+    const newVersion = event.data.version;
+    const savedVersion = localStorage.getItem('lomedx_sw_version');
+    
+    if (!savedVersion) {
+        
+        localStorage.setItem('lomedx_sw_version', newVersion);
+    } else if (newVersion !== savedVersion) {
+    
+        showUpdateToast(newVersion);
+    }
+  }
+});
 
       // 3. عند فتح الموقع، اسأل الـ SW النشط حالياً عن رقم إصداره
       if (navigator.serviceWorker.controller) {
@@ -8035,11 +8037,8 @@ const PwaInstaller = (() => {
 })();
 
 window.installPwaApp = () => PwaInstaller.install();
-
-// === نظام القائمة الذكية: إبقاء القائمة مفتوحة بعد إغلاق الميزة ===
 document.addEventListener('DOMContentLoaded', () => {
-                // الاستماع للتحديثات اللحظية لعداد الأطباء
-        // الاستماع للتحديثات اللحظية لعداد الأطباء والنقرات والزيارات
+            
     supabase
       .channel('public:listings_updates')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'listings' }, payload => {
@@ -8080,13 +8079,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!mobileMenu) return;
 
     let openedFromMenu = false;
-    // دالة موحدة لإغلاق كل النوافذ والقوائم ومنع القائمة الذكية من العودة
+    
     window.closeAllOverlays = () => {
-        openedFromMenu = false; // إيقاف السلوك الذكي الذي يعيد فتح القائمة
+        openedFromMenu = false; 
         closeModal(); 
         closeCtrlPanel();
         
-        // إغلاق قائمة الجوال إذا كانت مفتوحة
         const mobileMenu = document.getElementById('mobileMenu');
         const menuOverlay = document.getElementById('menuOverlay');
         if (mobileMenu && mobileMenu.classList.contains('open')) {
@@ -8099,11 +8097,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const onclickVal = btn.getAttribute('onclick');
         const hrefVal = btn.getAttribute('href');
         
-        // نستهدف أي زر له onclick يفتح نافذة، أو أي رابط يبدأ بـ / (نظام التوجيه الجديد)
+        
         const isOpeningLink = (hrefVal && hrefVal.startsWith('/') && !hrefVal.startsWith('//')) || (onclickVal && (onclickVal.includes('open') || onclickVal.includes('show') || onclickVal.includes('toggleEmergency')));
         
         if (isOpeningLink) {
-            // إزالة دالة الإغلاق القديمة إذا كانت موجودة لمنع التضارب
+            
             if (onclickVal && onclickVal.includes('toggleMobileMenu()')) {
                 btn.setAttribute('onclick', onclickVal.replace(/toggleMobileMenu\(\);?\s*/g, ''));
             }
@@ -8118,28 +8116,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 2. اعتراض دالة إغلاق لوحة التحكم (CtrlPanel) لإعادة فتح القائمة
+    
     const originalCloseCtrl = window.closeCtrlPanel;
     window.closeCtrlPanel = (event) => {
-        originalCloseCtrl(event); // تنفيذ الإغلاق العادي للميزة
+        originalCloseCtrl(event); 
         
-        // إذا كانت الميزة قد فُتحت من قائمة الجوال، أعد فتح القائمة!
         if (openedFromMenu) {
             openedFromMenu = false;
             setTimeout(() => {
                 mobileMenu.classList.add('open');
                 menuOverlay.classList.remove('hidden');
                 lockScroll();
-            }, 150); // تأخير بسيط جداً (0.15 ثانية) لضمان سلاسة الانتقال
+            }, 150); 
         }
     };
 
-    // 3. اعتراض دالة إغلاق النافذة المنبثقة (Modal) لإعادة فتح القائمة
+    
     const originalCloseModal = window.closeModal;
     window.closeModal = (event) => {
-        originalCloseModal(event); // تنفيذ الإغلاق العادي للميزة
+        originalCloseModal(event); 
         
-        // التأكد أنه لا توجد لوحة تحكم مفتوحة في الخلفية
         const isCtrlActive = document.getElementById('ctrlOverlay')?.classList.contains('active');
         
         if (openedFromMenu && !isCtrlActive) {
@@ -8152,7 +8148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 });
-// === إدارة الموارد في الخلفية (لتقليل الحرارة واستهلاك البطارية) ===
+
 let pageVisibilityTimers = {};
 
 document.addEventListener('visibilitychange', () => {
@@ -8179,8 +8175,7 @@ document.addEventListener('visibilitychange', () => {
         document.body.classList.remove('tab-hidden');
         
         if (pageVisibilityTimers.followup || pageVisibilityTimers.tips) {
-            // المستخدم عاد للصفحة: حدث البيانات فوراً ثم أعد المؤقتات
-            
+        
             // 1. تحديث الدردشة فوراً بدون انتظار
             if (pageVisibilityTimers.followup) {
                 supabase.rpc('get_booking_by_id', { p_booking_id: pageVisibilityTimers.followup }).then(({ data }) => {
@@ -8222,7 +8217,7 @@ if (heroSection && heroBg) {
     }, { threshold: 0.1 });
     heroObserver.observe(heroSection);
 }
-    // === محرك التوجيه الجديد (History API - بدون علامة #) ===
+    
 const routesConfig = {
     '/blog': { title: 'المدونة والمقالات الطبية | LomedX', desc: 'مكتبة طبية شاملة.', keywords: 'مقالات طبية, مدونة صحة, نصائح طبية, Lomedx', handler: 'openMedicalBlog' },
     '/blood-bank': { title: 'بنك التبرع بالدم الرقمي | LomedX', desc: 'ربط المرضى بالدم بالمتبرعين.', keywords: 'بنك الدم, تبرع بالدم, استغاثة دم, سوريا, Lomedx', handler: 'openBloodBank' },
