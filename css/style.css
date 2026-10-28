@@ -3002,7 +3002,7 @@ html.dark .theme-compact-dark:hover {
     display: inline-block;
     position: relative;
     
-    /* ✅ نفس تدرج القائمة الجانبية بالضبط */
+    /* نفس تدرج القائمة الجانبية بالضبط */
     background: linear-gradient(
         135deg,
         #F0D77B 0%,
@@ -3014,11 +3014,7 @@ html.dark .theme-compact-dark:hover {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
-    
-    /* ✨ تأثير اللمعان المتحرك */
     animation: shimmerGoldHero 4s linear infinite;
-    
-    /* توهج خارجي ذهبي */
     filter: drop-shadow(0 0 15px rgba(196, 150, 44, 0.35))
             drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
 }
@@ -3122,7 +3118,7 @@ html.dark .lomedx-brand-hero {
 
 
 /* ═══════════════════════════════════════════════ */
-/* 🌟 واجهة الازدحام الجديدة — Queue Widget     */
+/*  واجهة الازدحام الجديدة — Queue Widget     */
 /* ═══════════════════════════════════════════════ */
 
 .new-queue-widget {
@@ -3477,10 +3473,10 @@ html.dark .lomedx-brand-hero {
     background: var(--card); 
     border-radius: 12px; 
     border: 1px solid var(--border); 
-    overflow-x: auto; /* ✅ يسمح بالتمرير الأفقي */
-    -webkit-overflow-scrolling: touch; /* ✅ تمرير سلس على الآيفون */
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch; 
     box-shadow: 0 1px 3px rgba(0,0,0,0.04); 
-    /* إضافة شريط تمرير رفيع وجميل */
+    
     scrollbar-width: thin; 
 }
 #dutyRosterPanel .duty-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
@@ -3522,7 +3518,7 @@ html.dark .lomedx-brand-hero {
 
 
 /* ═══════════════════════════════════════════════════════════ */
-/* 🌙 شارات فترة المناوبة                                     */
+/*  شارات فترة المناوبة                                     */
 /* ═══════════════════════════════════════════════════════════ */
 
 #dutyRosterPanel .badge-midnight {
@@ -3550,7 +3546,7 @@ html.dark .lomedx-brand-hero {
 }
 
 /* ═══════════════════════════════════════════════════════════ */
-/* 🌙 دعم الوضع المظلم                                         */
+/*  دعم الوضع المظلم                                         */
 /* ═══════════════════════════════════════════════════════════ */
 
 html.dark #dutyRosterPanel .duty-card {
@@ -3620,7 +3616,7 @@ html.dark #dutyRosterPanel .empty-state-icon {
 }
 
 /* ═══════════════════════════════════════════════════════════ */
-/* 🌙 شارات الوقت في الوضع المظلم                              */
+/*  شارات الوقت في الوضع المظلم                              */
 /* ═══════════════════════════════════════════════════════════ */
 
 html.dark #dutyRosterPanel .badge-midnight {
@@ -3636,7 +3632,7 @@ html.dark #dutyRosterPanel .badge-normal {
 }
 
 /* ═══════════════════════════════════════════════════════════ */
-/* 🌙 badge-duty-today — تحسين للوضع المظلم                    */
+/*  badge-duty-today — تحسين للوضع المظلم                    */
 /* ═══════════════════════════════════════════════════════════ */
 
 html.dark .badge-duty-today {
@@ -3651,10 +3647,10 @@ html.dark .badge-duty-today {
 
 
 /* ═══════════════════════════════════════════════════════════ */
-/* 🌙 شارات حالة المناوبة                                      */
+/*  شارات حالة المناوبة                                      */
 /* ═══════════════════════════════════════════════════════════ */
 
-/* 🟢 نشطة الآن */
+/*  نشطة الآن */
 .badge-duty-active {
     display: inline-flex !important;
     align-items: center !important;
@@ -3698,7 +3694,7 @@ html.dark .badge-duty-today {
     50% { opacity: 0.4; transform: scale(0.7); }
 }
 
-/* 🟡 قادمة (upcoming) */
+/*  قادمة (upcoming) */
 .badge-duty-upcoming {
     display: inline-flex !important;
     align-items: center !important;
@@ -3714,7 +3710,7 @@ html.dark .badge-duty-today {
     white-space: nowrap !important;
 }
 
-/* ⚪ منتهية (ended) */
+/*  منتهية (ended) */
 .badge-duty-ended {
     display: inline-flex !important;
     align-items: center !important;
@@ -3760,7 +3756,7 @@ html.dark .badge-duty-ended {
     width: 100%;
     padding: 12px 14px;
     
-    /* ✅ نفس تصميم البوابات */
+    /*  نفس تصميم البوابات */
     background: linear-gradient(180deg, 
         rgba(196, 150, 44, 0.05) 0%, 
         rgba(196, 150, 44, 0.15) 100%);
@@ -3844,7 +3840,7 @@ html.dark .badge-duty-ended {
     border: 1px solid rgba(240, 215, 123, 0.4);
     border-radius: 10px;
     
-    /* ✅ نفس لون الأيقونات الذهبية */
+    /*  نفس لون الأيقونات الذهبية */
     font-size: 1rem;
     transition: all 0.3s ease;
     box-shadow: inset 0 1px 0 rgba(240, 215, 123, 0.3);
@@ -4076,7 +4072,6 @@ html.dark .badge-duty-ended {
     .lc-ad-desc { font-size: 11px; }
 }
 /* ═══════════════════════════════════════════════════════════ */
-/* 🔋 PERFORMANCE FIX — إيقاف حركات الهيرو الثقيلة          */
 /* ═══════════════════════════════════════════════════════════ */
 
 /* 1. إيقاف الشبكة ثلاثية الأبعاد (Grid Move) */
@@ -4107,4 +4102,194 @@ html.dark .badge-duty-ended {
 .hero-medical-logo::before, 
 .hero-medical-logo::after {
     display: none !important;
+}
+
+
+
+
+
+
+
+
+
+
+/* ═══════════════════════════════════════════════════════════ */
+/*  CITY BANNER — شريط تحديد المدينة السفلي                */
+/* ═══════════════════════════════════════════════════════════ */
+
+#cityBanner {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    max-width: 560px;
+    margin: 0 auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 14px 18px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
+    z-index: 9997;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: cityBannerSlideUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    direction: rtl;
+    backdrop-filter: blur(12px);
+}
+
+#cityBanner.hiding {
+    animation: cityBannerSlideDown 0.35s ease forwards;
+}
+
+@keyframes cityBannerSlideUp {
+    from { transform: translateY(120%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes cityBannerSlideDown {
+    to { transform: translateY(120%); opacity: 0; }
+}
+
+.city-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.city-banner-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(14, 124, 95, 0.3);
+}
+
+.city-banner-text { min-width: 0; }
+
+.city-banner-title {
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--fg);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.city-banner-sub {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.city-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.city-banner-select {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    min-width: 100px;
+    transition: border-color 0.2s;
+}
+
+.city-banner-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(14, 124, 95, 0.12);
+}
+
+.city-banner-confirm {
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: white;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.city-banner-confirm:hover {
+    background: var(--accent-dark);
+    transform: translateY(-1px);
+}
+
+.city-banner-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.city-banner-close:hover {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--danger);
+}
+
+/*  الجوال */
+@media (max-width: 640px) {
+    #cityBanner {
+        bottom: 16px;
+        left: 12px;
+        right: 12px;
+        padding: 12px 14px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .city-banner-actions {
+        justify-content: space-between;
+    }
+    
+    .city-banner-select {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .city-banner-title { white-space: normal; }
+}
+
+/*  الوضع الليلي */
+html.dark #cityBanner {
+    background: var(--card);
+    border-color: var(--border);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .city-banner-select {
+    background: var(--bg-deep);
 }
