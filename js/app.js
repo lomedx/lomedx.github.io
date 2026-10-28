@@ -2826,7 +2826,18 @@ async function fetchMedRequests(pharmName, pharmCity = null) {
             interactionArea = `<input type="text" id="medNotes_${req.id}" placeholder="ملاحظة للمواطن" value="${escapeHtml(req.notes || '')}" onblur="updateMedNotes('${req.id}', this.value)" class="ctrl-input text-sm py-1"><div class="flex gap-2 mt-2"><button onclick="setMedAvailable('${req.id}', '${escapeHtml(pharmName)}', '${escapeHtml(req.patient_push_id || '')}')" class="flex-1 bg-green-500 text-white px-3 py-2 rounded-lg text-sm font-semibold">توفّر الدواء</button><button onclick="updateMedStatus('${req.id}', 'unavailable')" class="flex-1 bg-gray-500 text-white px-3 py-2 rounded-lg text-sm font-semibold">غير متوفر</button></div><div class="flex gap-2 mt-2"><a href="tel:${escapeHtml(phone)}" class="flex-1 bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2"><i class="fas fa-phone"></i> اتصال</a></div>`;
         }
 
-        html += `<div class="bg-white border rounded-xl p-4 flex flex-col gap-3" style="border-color: var(--border)"><div class="flex flex-col sm:flex-row gap-3 items-center">${req.image_url ? `<img src="${escapeHtml(req.image_url)}" class="w-full sm:w-24 h-24 object-cover rounded-lg cursor-zoom-in" onclick="openLightbox('${escapeHtml(req.image_url)}')">` : ''}<div class="flex-1 text-center sm:text-right"><h4 class="font-bold">${escapeHtml(req.patient_name)} <span class="text-xs text-yellow-600 font-mono">#${escapeHtml(req.med_ref || '')}</span></h4><p class="text-sm text-gray-700 font-semibold">${escapeHtml(req.med_list || '')}</p><p class="text-xs mt-1 text-red-500">الإلحاح: ${escapeHtml(req.urgency || 'عادي')}</p><p class="text-xs" style="color: var(--muted)"><i class="fas fa-clock"></i> ${escapeHtml(date)}</p>${requestStatus}</div></div><div class="flex flex-col gap-2 mt-2 border-t pt-3" style="border-color: var(--border)">${interactionArea}</div></div>`; 
+        html += `<div class="bg-white border rounded-xl p-4 flex flex-col gap-3" style="border-color: var(--border)"><div class="flex flex-col sm:flex-row gap-3 items-center">
+        ${req.image_url ? `
+    <div class="flex flex-col gap-1 items-center">
+        <div onclick="window.open('${escapeHtml(req.image_url)}', '_blank')" class="w-full sm:w-24 h-24 bg-gray-100 rounded-lg flex flex-col items-center justify-center cursor-pointer border border-gray-300 hover:bg-gray-200 transition-all">
+            <i class="fas fa-image text-gray-400 text-2xl mb-1"></i>
+            <span class="text-[10px] text-gray-600 font-bold">عرض الصورة</span>
+        </div>
+        <button onclick="reportBadImage('${req.id}', '${escapeHtml(phone)}', '${escapeHtml(req.ip_address || '')}')" class="text-[10px] text-red-600 font-bold hover:underline mt-1">
+         إبلاغ عن صورة
+        </button>
+    </div>
+` : ''}<div class="flex-1 text-center sm:text-right"><h4 class="font-bold">${escapeHtml(req.patient_name)} <span class="text-xs text-yellow-600 font-mono">#${escapeHtml(req.med_ref || '')}</span></h4><p class="text-sm text-gray-700 font-semibold">${escapeHtml(req.med_list || '')}</p><p class="text-xs mt-1 text-red-500">الإلحاح: ${escapeHtml(req.urgency || 'عادي')}</p><p class="text-xs" style="color: var(--muted)"><i class="fas fa-clock"></i> ${escapeHtml(date)}</p>${requestStatus}</div></div><div class="flex flex-col gap-2 mt-2 border-t pt-3" style="border-color: var(--border)">${interactionArea}</div></div>`; 
     }); 
     container.innerHTML = html; 
 }
@@ -11984,3 +11995,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalRenderData = window.renderData;
     window.renderData = () => { originalRenderData(); setTimeout(observeVideos, 100); };
 });
+window.reportBadImage = async (reqId, phone, ip) => {
+    if (!confirm('هل أنت متأكد؟ سيتم حظر المريض نهائياً وحذف الطلب.')) return;
+    
+    try {
+        // 1. إخفاء الطلب وحذف رابط الصورة
+        await supabase.from('medicine_requests').update({ status: 'blocked', image_url: '' }).eq('id', reqId);
+        
+        // 2. إضافة الهاتف والـ IP لقائمة الحظر
+        await supabase.from('blocked_users').insert([
+            { phone: phone, ip_address: ip, reason: 'رفع محتوى غير لائق' }
+        ]);
+        
+        showToast('تم حظر المستخدم نهائياً وإزالة الصورة.', 'success');
+        
+        // 3. تحديث الشاشة
+        if (window.currentDashboardData) {
+            fetchMedRequests(window.currentDashboardData.name);
+        }
+    } catch (err) {
+        showToast('حدث خطأ أثناء الحظر: ' + err.message, 'error');
+    }
+};
