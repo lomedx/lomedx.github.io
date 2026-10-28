@@ -8157,42 +8157,54 @@ let pageVisibilityTimers = {};
 
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-        //  إضافة الكلاس الذي يوقف كل الحركات
+    
         document.body.classList.add('tab-hidden');
         document.querySelectorAll('video').forEach(v => {
             if (!v.paused) { v.pause(); v.dataset.wasPlaying = '1'; }
         });
-        // المستخدم خرج من الصفحة: أوقف كل شيء لتبريد الهاتف
-        if (window.activeFollowupInterval) { clearInterval(window.activeFollowupInterval); pageVisibilityTimers.followup = currentFollowupBookingId; }
-        if (tipInterval) { clearInterval(tipInterval); pageVisibilityTimers.tips = true; }
-        if (window.activeHealthFileSub) { supabase.removeChannel(window.activeHealthFileSub); }
-        } else {
-    // ✅ إزالة الكلاس عند العودة
-    document.body.classList.remove('tab-hidden');
-    }
-    } else if (pageVisibilityTimers.followup || pageVisibilityTimers.tips) {
-        // المستخدم عاد للصفحة: حدث البيانات فوراً ثم أعد المؤقتات
         
-        // 1. تحديث الدردشة فوراً بدون انتظار
-        if (pageVisibilityTimers.followup) {
-            supabase.rpc('get_booking_by_id', { p_booking_id: pageVisibilityTimers.followup }).then(({ data }) => {
-                if (data) renderFollowupChat(pageVisibilityTimers.followup);
-            });
-            // إعادة تشغيل المؤقت
-            window.activeFollowupInterval = setInterval(async () => {
-                if (!document.getElementById('followupContent')) { clearInterval(window.activeFollowupInterval); return; }
-                const { data: freshBooking } = await supabase.rpc('get_booking_by_id', { p_booking_id: currentFollowupBookingId }).maybeSingle();
-                if (freshBooking) renderFollowupChat(currentFollowupBookingId);
-            }, 3000);
+        if (window.activeFollowupInterval) { 
+            clearInterval(window.activeFollowupInterval); 
+            pageVisibilityTimers.followup = currentFollowupBookingId; 
         }
-        
-        // 2. إعادة مؤقت النصائح
-        if (pageVisibilityTimers.tips) {
-            updateTipDisplay();
-            tipInterval = setInterval(updateTipDisplay, 12000);
+        if (tipInterval) { 
+            clearInterval(tipInterval); 
+            pageVisibilityTimers.tips = true; 
         }
+        if (window.activeHealthFileSub) { 
+            supabase.removeChannel(window.activeHealthFileSub); 
+        }
+    } else {
         
-        pageVisibilityTimers = {};
+        document.body.classList.remove('tab-hidden');
+        
+        if (pageVisibilityTimers.followup || pageVisibilityTimers.tips) {
+            // المستخدم عاد للصفحة: حدث البيانات فوراً ثم أعد المؤقتات
+            
+            // 1. تحديث الدردشة فوراً بدون انتظار
+            if (pageVisibilityTimers.followup) {
+                supabase.rpc('get_booking_by_id', { p_booking_id: pageVisibilityTimers.followup }).then(({ data }) => {
+                    if (data) renderFollowupChat(pageVisibilityTimers.followup);
+                });
+                // إعادة تشغيل المؤقت
+                window.activeFollowupInterval = setInterval(async () => {
+                    if (!document.getElementById('followupContent')) { 
+                        clearInterval(window.activeFollowupInterval); 
+                        return; 
+                    }
+                    const { data: freshBooking } = await supabase.rpc('get_booking_by_id', { p_booking_id: currentFollowupBookingId }).maybeSingle();
+                    if (freshBooking) renderFollowupChat(currentFollowupBookingId);
+                }, 3000);
+            }
+            
+            // 2. إعادة مؤقت النصائح
+            if (pageVisibilityTimers.tips) {
+                updateTipDisplay();
+                tipInterval = setInterval(updateTipDisplay, 12000);
+            }
+            
+            pageVisibilityTimers = {};
+        }
     }
 });
 // === إيقاف أنيميشن الهيرو عند التمرير لأسفل ===
