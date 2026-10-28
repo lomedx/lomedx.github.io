@@ -7435,8 +7435,8 @@ window.openArticleReader = async (id) => {
                 ${related.map(r => `
                     <div onclick="closeModal(); setTimeout(() => openArticleReader('${r.id}'), 300)" class="bg-gray-50 rounded-xl p-3 cursor-pointer hover:shadow-md transition-all group">
                         <div class="w-full h-20 rounded-lg overflow-hidden bg-gray-200 mb-2">
-                            ${r.image_url ? <img src="${escapeHtml(article.image_url)}" alt="${escapeHtml(article.title)}" title="${escapeHtml(article.title)}" class="w-full h-full object-cover">
-                       
+                        
+                           ${r.image_url ? `<img src="${escapeHtml(r.image_url)}" alt="${escapeHtml(r.title)}" title="${escapeHtml(r.title)}" class="w-full h-full object-cover">` : ''}
                     
                         </div>
                         <h5 class="text-xs font-bold text-gray-700 line-clamp-2 group-hover:text-emerald-600">${escapeHtml(r.title)}</h5>
