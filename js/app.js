@@ -10933,7 +10933,7 @@ window.confirmImport = async () => {
     if (skippedCount > 0) {
         msg += ` (تم تجاهل ${skippedCount})`;
         if (skippedReasons.length > 0) {
-            
+        }
     }
     showToast(msg, 'success');
     pendingExcelRows = null;
@@ -11865,4 +11865,4 @@ window.openPharmacyImage = (element) => {
     overlay.appendChild(img);
     overlay.appendChild(closeBtn);
     document.body.appendChild(overlay);
-}
+};
