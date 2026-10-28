@@ -7274,7 +7274,7 @@ async function fetchTrendingArticles() {
     container.innerHTML = data.map(art => `
         <div onclick="openArticleReader('${art.id}')" class="flex-shrink-0 w-40 cursor-pointer group">
             <div class="w-full h-24 rounded-xl overflow-hidden bg-gray-100 mb-2">
-                ${art.image_url ? `<img src="${escapeHtml(art.image_url)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform">` : `<div class="w-full h-full flex items-center justify-center"><i class="fas fa-notes-medical text-2xl text-gray-200"></i></div>`}
+                ${art.image_url ? `<img src="${escapeHtml(art.image_url)}" alt="${escapeHtml(art.title)}" title="${escapeHtml(art.title)}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">` : `<div class="w-full h-full flex items-center justify-center"><i class="fas fa-notes-medical text-2xl text-gray-200"></i></div>`}
             </div>
             <h5 class="text-xs font-bold text-gray-700 line-clamp-2 group-hover:text-amber-600">${escapeHtml(art.title)}</h5>
         </div>
@@ -7347,7 +7347,7 @@ function renderArticlesList(articles) {
         return `
         <div onclick="openArticleReader('${art.id}')" class="flex flex-col sm:flex-row-reverse bg-white border rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group" style="border-color: var(--border);">
             <div class="w-full sm:w-44 h-40 sm:h-auto flex-shrink-0 overflow-hidden bg-gray-100 relative">
-                ${art.image_url ? `<img src="${escapeHtml(art.image_url)}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">` : `<div class="w-full h-full flex items-center justify-center"><i class="fas fa-notes-medical text-5xl text-gray-200"></i></div>`}
+                ${art.image_url ? `<img src="${escapeHtml(art.image_url)}" alt="${escapeHtml(art.title)}" title="${escapeHtml(art.title)}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">` : `<div class="w-full h-full flex items-center justify-center"><i class="fas fa-notes-medical text-5xl text-gray-200"></i></div>`}
                 <span class="absolute top-2 right-2 text-[10px] bg-emerald-600 text-white px-2 py-1 rounded-full font-bold shadow-md">${escapeHtml(art.category || 'طب عام')}</span>
             </div>
             <div class="p-4 flex flex-col flex-1 justify-center">
@@ -7435,7 +7435,9 @@ window.openArticleReader = async (id) => {
                 ${related.map(r => `
                     <div onclick="closeModal(); setTimeout(() => openArticleReader('${r.id}'), 300)" class="bg-gray-50 rounded-xl p-3 cursor-pointer hover:shadow-md transition-all group">
                         <div class="w-full h-20 rounded-lg overflow-hidden bg-gray-200 mb-2">
-                            ${r.image_url ? `<img src="${r.image_url}" class="w-full h-full object-cover">` : ''}
+                            ${r.image_url ? <img src="${escapeHtml(article.image_url)}" alt="${escapeHtml(article.title)}" title="${escapeHtml(article.title)}" class="w-full h-full object-cover">
+                       
+                    
                         </div>
                         <h5 class="text-xs font-bold text-gray-700 line-clamp-2 group-hover:text-emerald-600">${escapeHtml(r.title)}</h5>
                     </div>
