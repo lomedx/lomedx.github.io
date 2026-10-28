@@ -4308,7 +4308,17 @@ window.toggleQueueStatus = async (id, enable) => {
         showToast('حدث خطأ', 'error'); 
     }
 };
-window.openMedicineFinder = () => { 
+window.openMedicineFinder = async () => { 
+    try {
+        await loadDynamicScript(
+            'https://challenges.cloudflare.com/turnstile/v0/api.js',
+            'turnstile'
+        );
+    } catch (e) {
+        showToast('تعذر تحميل نظام الحماية، تحقق من الإنترنت', 'error');
+        return;
+    }
+    
     history.replaceState(null, '', window.location.pathname + '#medicine-finder');
     updateMetaTags(
         'ابحث عن دوائك | LomedX', 
@@ -5408,7 +5418,17 @@ window.handleHealthLogin = async (e) => {
     // عرض البيانات مباشرة (بدون أي فك تشفير في الواجهة)
     renderHealthDashboard(fileData);
 };
- window.renderHealthDashboard = (data) => {
+ window.renderHealthDashboard = async (data) => {
+    try {
+        await loadDynamicScript(
+            'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
+            'QRCode'
+        );
+    } catch (e) {
+        showToast('تعذر تحميل مكتبة QR', 'error');
+        return;
+    }
+    
     // دالة تنظيف البيانات: تمنع ظهور null, undefined، أو النصوص الفارغة ككلمات غريبة
     const safe = (val) => {
         if (val === null || val === undefined || val === 'null' || val === 'undefined' || val === '') return '';
@@ -8137,11 +8157,19 @@ let pageVisibilityTimers = {};
 
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
+        //  إضافة الكلاس الذي يوقف كل الحركات
+        document.body.classList.add('tab-hidden');
+        document.querySelectorAll('video').forEach(v => {
+            if (!v.paused) { v.pause(); v.dataset.wasPlaying = '1'; }
+        });
         // المستخدم خرج من الصفحة: أوقف كل شيء لتبريد الهاتف
         if (window.activeFollowupInterval) { clearInterval(window.activeFollowupInterval); pageVisibilityTimers.followup = currentFollowupBookingId; }
         if (tipInterval) { clearInterval(tipInterval); pageVisibilityTimers.tips = true; }
         if (window.activeHealthFileSub) { supabase.removeChannel(window.activeHealthFileSub); }
-        
+        } else {
+    // ✅ إزالة الكلاس عند العودة
+    document.body.classList.remove('tab-hidden');
+    }
     } else if (pageVisibilityTimers.followup || pageVisibilityTimers.tips) {
         // المستخدم عاد للصفحة: حدث البيانات فوراً ثم أعد المؤقتات
         
@@ -10722,16 +10750,34 @@ window.openExcelImporter = () => {
         </div>`;
 };
 
-window.handleExcelUpload = (event) => {
+window.handleExcelUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
     
     const preview = document.getElementById('excelPreview');
     preview.innerHTML = `
         <p style="text-align: center; padding: 20px; color: var(--muted);">
-            <i class="fas fa-spinner fa-spin"></i> جاري قراءة الملف...
+            <i class="fas fa-spinner fa-spin"></i> جاري تحميل المكتبة...
         </p>`;
     
+
+    try {
+        await loadDynamicScript(
+            'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+            'XLSX'
+        );
+    } catch (e) {
+        preview.innerHTML = `
+            <p style="text-align: center; color: var(--danger);">
+                <i class="fas fa-exclamation-triangle"></i> تعذر تحميل المكتبة، تحقق من الإنترنت
+            </p>`;
+        return;
+    }
+    preview.innerHTML = `
+    <p style="text-align: center; padding: 20px; color: var(--muted);">
+        <i class="fas fa-spinner fa-spin"></i> جاري قراءة الملف...
+    </p>`;
+
     const reader = new FileReader();
     reader.onload = (e) => {
         try {
@@ -10895,10 +10941,19 @@ window.confirmImport = async () => {
 // ═══════════════════════════════════════════════════════════════════
 // 6. تصدير Excel
 // ═══════════════════════════════════════════════════════════════════
-window.exportToExcel = () => {
+window.exportToExcel = async () => {
     if (currentDuties.length === 0) { 
         showToast('لا توجد بيانات للتصدير', 'error'); 
         return; 
+    }
+    try {
+        await loadDynamicScript(
+            'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+            'XLSX'
+        );
+    } catch (e) {
+        showToast('تعذر تحميل مكتبة Excel', 'error');
+        return;
     }
     
     try {
