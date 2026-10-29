@@ -8150,7 +8150,6 @@ let pageVisibilityTimers = {};
 
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-    
         document.body.classList.add('tab-hidden');
         document.querySelectorAll('video').forEach(v => {
             if (!v.paused) { v.pause(); v.dataset.wasPlaying = '1'; }
@@ -8168,11 +8167,22 @@ document.addEventListener('visibilitychange', () => {
             supabase.removeChannel(window.activeHealthFileSub); 
         }
     } else {
-        
         document.body.classList.remove('tab-hidden');
         
+        //  إعادة تشغيل الفيديوهات (بما فيها إعلان الفيديو)
+        document.querySelectorAll('video').forEach(v => {
+            if (v.dataset.wasPlaying === '1') {
+                v.play().catch(() => {}); // التشغيل التلقائي
+                v.dataset.wasPlaying = '0'; // تصفير الحالة
+            }
+        });
+
+        //  إعادة تشغيل سلايدر الإعلانات (إذا كان إعلاناً صورياً)
+        if (typeof activeAds !== 'undefined' && activeAds.length > 1 && typeof renderAdSlide === 'function') {
+            renderAdSlide(currentAdIndex);
+        }
+
         if (pageVisibilityTimers.followup || pageVisibilityTimers.tips) {
-        
             // 1. تحديث الدردشة فوراً بدون انتظار
             if (pageVisibilityTimers.followup) {
                 supabase.rpc('get_booking_by_id', { p_booking_id: pageVisibilityTimers.followup }).then(({ data }) => {
@@ -8199,6 +8209,7 @@ document.addEventListener('visibilitychange', () => {
         }
     }
 });
+    
 // === إيقاف أنيميشن الهيرو عند التمرير لأسفل ===
 const heroSection = document.getElementById('home');
 const heroBg = document.querySelector('.hero-bg');
