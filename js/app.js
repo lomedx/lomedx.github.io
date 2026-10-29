@@ -8150,66 +8150,265 @@ let pageVisibilityTimers = {};
 
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
+        // ===== [1] عند الخروج (وضع السبات العميق) =====
         document.body.classList.add('tab-hidden');
+        
+        // 1. إيقاف الفيديوهات
         document.querySelectorAll('video').forEach(v => {
             if (!v.paused) { v.pause(); v.dataset.wasPlaying = '1'; }
         });
+
+        // 2. إيقاف القارئ الصوتي
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const ttsBtn = document.getElementById('ttsBtn');
+            if (ttsBtn) {
+                ttsBtn.innerHTML = '<i class="fas fa-headphones text-sm"></i>';
+                ttsBtn.classList.remove('text-red-600');
+                isSpeaking = false;
+            }
+        }
         
+        // 3. إيقاف مؤقتات الدردشة والنصائح
         if (window.activeFollowupInterval) { 
             clearInterval(window.activeFollowupInterval); 
+            window.activeFollowupInterval = null;
             pageVisibilityTimers.followup = currentFollowupBookingId; 
         }
         if (tipInterval) { 
             clearInterval(tipInterval); 
+            tipInterval = null;
             pageVisibilityTimers.tips = true; 
         }
+        
+        // 4. إغلاق الملف الصحي
         if (window.activeHealthFileSub) { 
             supabase.removeChannel(window.activeHealthFileSub); 
+            window.activeHealthFileSub = null;
         }
+
+        // 5. إيقاف مؤقتات لوحة الصيدلية والطبيب
+        if (unsubscribeMedRequestsInterval) {
+            clearInterval(unsubscribeMedRequestsInterval);
+            unsubscribeMedRequestsInterval = null;
+        }
+        if (window.doctorDashboardInterval) {
+            clearInterval(window.doctorDashboardInterval);
+            window.doctorDashboardInterval = null;
+        }
+
+        // 6. إيقاف مؤقتات المناوبات والرسوم المتحركة
+        if (typeof dutyLocalChecker !== 'undefined' && dutyLocalChecker) {
+            clearInterval(dutyLocalChecker);
+            dutyLocalChecker = null;
+        }
+        if (typeof dutyTransitionTimer !== 'undefined' && dutyTransitionTimer) {
+            clearTimeout(dutyTransitionTimer);
+        }
+        if (typeof dutyStartTimer !== 'undefined' && dutyStartTimer) {
+            clearTimeout(dutyStartTimer);
+        }
+        if (typeof animFrame !== 'undefined' && animFrame) {
+            cancelAnimationFrame(animFrame);
+            animFrame = null;
+        }
+
+        // 7. إيقاف مؤقت التبرع بالدم
+        if (window.bloodUndoTimeout) {
+            clearTimeout(window.bloodUndoTimeout);
+            window.bloodUndoTimeout = null;
+            if (window.activeDonateBtn) {
+                window.activeDonateBtn.disabled = false; 
+                window.activeDonateBtn.innerText = 'سأتبرع'; 
+                window.activeDonateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                window.activeDonateBtn = null;
+            }
+            document.getElementById('toast').classList.remove('show');
+        }
+
+        // 8. [جديد] تنظيف مؤقتات الواجهة (الإشعارات وشريط المدينة)
+        if (window._toastTimer) clearTimeout(window._toastTimer);
+        if (window._cityBannerTimer) {
+            clearTimeout(window._cityBannerTimer);
+            window._cityBannerTimer = null;
+        }
+
+        // 9. إغلاق قنوات الاتصال اللحظي (WebSockets)
+        if (unsubscribeMedRequests) { 
+            supabase.removeChannel(unsubscribeMedRequests); 
+            unsubscribeMedRequests = null; 
+        }
+        if (unsubscribeDocBookings) { 
+            supabase.removeChannel(unsubscribeDocBookings); 
+            unsubscribeDocBookings = null; 
+        }
+        if (window.listingsUpdatesChannel) {
+            supabase.removeChannel(window.listingsUpdatesChannel);
+            window.listingsUpdatesChannel = null;
+        }
+
     } else {
+        // ===== [2] عند العودة (وضع الاستيقاظ الكامل) =====
         document.body.classList.remove('tab-hidden');
         
-        //  إعادة تشغيل الفيديوهات (بما فيها إعلان الفيديو)
+        // 1. إعادة تشغيل الفيديوهات والإعلانات
         document.querySelectorAll('video').forEach(v => {
             if (v.dataset.wasPlaying === '1') {
-                v.play().catch(() => {}); // التشغيل التلقائي
-                v.dataset.wasPlaying = '0'; // تصفير الحالة
+                v.play().catch(() => {}); 
+                v.dataset.wasPlaying = '0'; 
             }
         });
-
-        //  إعادة تشغيل سلايدر الإعلانات (إذا كان إعلاناً صورياً)
         if (typeof activeAds !== 'undefined' && activeAds.length > 1 && typeof renderAdSlide === 'function') {
             renderAdSlide(currentAdIndex);
         }
 
+        // 2. تحديث البيانات الأساسية
+        if (typeof fetchTodayDutiesForBadge === 'function') fetchTodayDutiesForBadge();
+        if (typeof fetchListings === 'function') fetchListings(); 
+        if (typeof fetchBookings === 'function') fetchBookings();
+        
+        // إعادة تهيئة اتصال المناوبات وبدء الفحص المحلي
+        if (typeof initDutyRealtime === 'function') initDutyRealtime();
+        if (typeof startDutyLocalChecker === 'function') startDutyLocalChecker();
+
+        // 3. [جديد] فك قفل المساعد الذكي (إذا كان قد علق أثناء البث)
+        if (typeof isAITyping !== 'undefined' && isAITyping) {
+            isAITyping = false;
+            const sendBtn = document.getElementById('ai-send-btn');
+            if (sendBtn) sendBtn.disabled = false;
+        }
+
+        // 4. إعادة تشغيل مؤقتات الدردشة والنصائح
         if (pageVisibilityTimers.followup || pageVisibilityTimers.tips) {
-            // 1. تحديث الدردشة فوراً بدون انتظار
             if (pageVisibilityTimers.followup) {
                 supabase.rpc('get_booking_by_id', { p_booking_id: pageVisibilityTimers.followup }).then(({ data }) => {
                     if (data) renderFollowupChat(pageVisibilityTimers.followup);
                 });
-                // إعادة تشغيل المؤقت
+                
+                if (window.activeFollowupInterval) clearInterval(window.activeFollowupInterval);
                 window.activeFollowupInterval = setInterval(async () => {
                     if (!document.getElementById('followupContent')) { 
                         clearInterval(window.activeFollowupInterval); 
+                        window.activeFollowupInterval = null;
                         return; 
                     }
                     const { data: freshBooking } = await supabase.rpc('get_booking_by_id', { p_booking_id: currentFollowupBookingId }).maybeSingle();
                     if (freshBooking) renderFollowupChat(currentFollowupBookingId);
                 }, 3000);
             }
-            
-            // 2. إعادة مؤقت النصائح
             if (pageVisibilityTimers.tips) {
                 updateTipDisplay();
+                if (tipInterval) clearInterval(tipInterval);
                 tipInterval = setInterval(updateTipDisplay, 12000);
             }
-            
             pageVisibilityTimers = {};
         }
+
+        // 5. تحديث الملف الصحي إذا كان مفتوحاً
+        const ctrlContent = document.getElementById('ctrlContent');
+        if (ctrlContent && ctrlContent.innerHTML.includes('رمز الطوارئ الطبي')) {
+            if (window.currentHealthFileId) {
+                if (window.activeHealthFileSub) supabase.removeChannel(window.activeHealthFileSub);
+                window.activeHealthFileSub = supabase
+                  .channel(`health_files_${window.currentHealthFileId}`)
+                  .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'health_files', filter: `id=eq.${window.currentHealthFileId}` }, payload => {
+                      supabase.functions.invoke('manage-health-file', { body: { action: 'get' } }).then(({ data: freshData }) => {
+                          if (freshData) renderHealthDashboard(freshData);
+                      });
+                  })
+                  .subscribe();
+            }
+        }
+
+        // 6. تحديث وإعادة اتصال لوحات التحكم (طبيب أو صيدلية)
+        if (window.currentDashboardData) {
+            if (window.currentDashboardData.type === 'doctor' && typeof fetchDocBookings === 'function') {
+                fetchDocBookings(window.currentDashboardData.id);
+                if (unsubscribeDocBookings) supabase.removeChannel(unsubscribeDocBookings);
+                unsubscribeDocBookings = supabase
+                  .channel('doctor_bookings_changes')
+                  .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings', filter: `itemid=eq.${window.currentDashboardData.id}` }, payload => {
+                      fetchDocBookings(window.currentDashboardData.id);
+                  })
+                  .subscribe();
+            }
+            
+            if (window.currentDashboardData.type === 'pharmacy' && typeof fetchMedRequests === 'function') {
+                let pharmCity = null;
+                if (window.currentDashboardData.address && typeof allCities !== 'undefined') {
+                    const foundCity = allCities.find(c => c !== 'كل المدن' && window.currentDashboardData.address.includes(c));
+                    if (foundCity) pharmCity = foundCity;
+                }
+                fetchMedRequests(window.currentDashboardData.name, pharmCity);
+                
+                if (unsubscribeMedRequests) supabase.removeChannel(unsubscribeMedRequests);
+                unsubscribeMedRequests = supabase
+                  .channel('medicine_requests_changes')
+                  .on('postgres_changes', { event: '*', schema: 'public', table: 'medicine_requests' }, payload => {
+                      fetchMedRequests(window.currentDashboardData.name, pharmCity);
+                  })
+                  .subscribe();
+
+                if (unsubscribeMedRequestsInterval) clearInterval(unsubscribeMedRequestsInterval);
+                unsubscribeMedRequestsInterval = setInterval(() => fetchMedRequests(window.currentDashboardData.name, pharmCity), 60000);
+            }
+        }
+
+        // 7. معالجة كاميرا الـ QR
+        if (typeof activeQrScanner !== 'undefined' && activeQrScanner) {
+            activeQrScanner.stop().then(() => {
+                activeQrScanner = null;
+                showToast('تم إيقاف الكاميرا مؤقتاً بسبب خروجك من التطبيق. يرجى إعادة فتح الماسح.', 'info');
+            }).catch(() => { activeQrScanner = null; });
+        }
+
+        // 8. تحديث جلسة الدخول بصمت
+        if (typeof supabase !== 'undefined' && supabase.auth) {
+            supabase.auth.getSession();
+        }
+
+        // 9. إصلاح القائمة المنسدلة للبحث
+        if (typeof searchDropdown !== 'undefined' && searchDropdown && !searchDropdown.classList.contains('hidden')) {
+            if (window.updateSmartSearchPosition) window.updateSmartSearchPosition();
+        }
+
+        // 10. تحديث موضع مؤشر الـ Canvas
+        if (typeof compactCanvas !== 'undefined' && compactCanvas && window.devicePixelRatio) {
+            const event = new Event('resize');
+            window.dispatchEvent(event);
+        }
+
+        // 11. إعادة تشغيل قناة التحديثات العامة (حالة الصيدلية والازدحام)
+        if (window.listingsUpdatesChannel) supabase.removeChannel(window.listingsUpdatesChannel);
+        window.listingsUpdatesChannel = supabase
+          .channel('public:listings_updates')
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'listings' }, payload => {
+              const updatedItem = allData.find(d => d.id === payload.new.id);
+              if (updatedItem) {
+                  updatedItem.current_queue = payload.new.current_queue;
+                  updatedItem.phone_clicks = payload.new.phone_clicks;
+                  updatedItem.view_count = payload.new.view_count;
+                  
+                  const docQueueCountEl = document.getElementById('docQueueCount');
+                  if (docQueueCountEl) docQueueCountEl.innerText = updatedItem.current_queue || 0;
+                  const docViewCountEl = document.getElementById('docViewCount');
+                  if (docViewCountEl) docViewCountEl.innerText = updatedItem.view_count || 0;
+                  const docPhoneClicksEl = document.getElementById('docPhoneClicks');
+                  if (docPhoneClicksEl) docPhoneClicksEl.innerText = updatedItem.phone_clicks || 0;
+              }
+          })
+          .subscribe();
     }
 });
-    
+
+
+
+
+
+
+
+
+
 // === إيقاف أنيميشن الهيرو عند التمرير لأسفل ===
 const heroSection = document.getElementById('home');
 const heroBg = document.querySelector('.hero-bg');
