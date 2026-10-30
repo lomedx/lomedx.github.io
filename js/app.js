@@ -1115,13 +1115,20 @@ function matchItem(item) {
     // 1. الفلاتر العادية
     if (hasVideoFilter && !item.video_url) return false;
     if (currentFilter !== 'all' && item.type !== currentFilter) return false; 
+    
     if (currentCity !== 'all' && currentCity !== 'كل المدن' && currentCity !== '') {
         const itemAddress = (item.address || item.clinic || '').toLowerCase();
-    if (!itemAddress.includes(currentCity.toLowerCase())) return false;
+        if (!itemAddress.includes(currentCity.toLowerCase())) return false;
     }
 
+    
+    const isPhysio = (item.specialty || '').includes('فيزيائي') || (item.specialty || '').includes('طبيعي');
+    // إذا كان فيزيائياً، ولم يضغط الزائر على زر "فيزيائي"، ولم يكتب شيئاً في البحث -> أخفِ البطاقة
+    if (isPhysio && currentSpecialtyFilter === '' && searchQuery.trim() === '') {
+        return false; 
+    }
 
-    // قراءة الفلتر المخفي
+    // قراءة الفلتر المخفي (الخاص بزر "فيزيائي")
     if (currentSpecialtyFilter !== '') {
         const itemSpecialty = (item.specialty || '').toLowerCase();
         if (!itemSpecialty.includes(currentSpecialtyFilter.toLowerCase())) {
@@ -1147,12 +1154,10 @@ function matchItem(item) {
     });
     
     if (isDutySearch) {
-    
         if (item.type !== 'pharmacy') return false;
         
         const dutyInfo = window.todayDutyDetails?.[item.id];
         if (!dutyInfo) return false;
-        
         
         if (dutyInfo.status !== 'active' && dutyInfo.status !== 'upcoming') return false;
         if (!extraQuery) return true;
