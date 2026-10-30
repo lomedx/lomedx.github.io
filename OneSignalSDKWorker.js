@@ -1,6 +1,6 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'lomedx-v29';
+const CACHE_NAME = 'lomedx-v7';
 
 const CORE_ASSETS = [
   '/',
