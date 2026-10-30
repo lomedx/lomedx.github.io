@@ -1195,20 +1195,43 @@ window.handleSearch = async (value) => {
     const dutyKeywords = ['مناوبة', 'مناوبات', 'مناوب', 'منوبة', 'ليلي', 'ليلية'];
     const isDutySearch = dutyKeywords.some(kw => searchQuery.includes(kw));
     
+    //  التحويل التلقائي للفلتر إذا كان المستخدم على فلتر آخر
+    if (isDutySearch && currentFilter !== 'all' && currentFilter !== 'pharmacy') {
+        const pharmBtn = document.querySelector('[data-filter="pharmacy"]');
+        if (pharmBtn) {
+            currentFilter = 'pharmacy';
+            
+            // إعادة تصفير أزرار الفلترة
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('active');
+                b.style.background = '';
+                b.style.color = '';
+                b.style.borderColor = '';
+            });
+            
+            // تفعيل زر الصيدليات
+            pharmBtn.classList.add('active');
+            pharmBtn.style.background = 'var(--pharmacy)';
+            pharmBtn.style.color = 'white';
+            pharmBtn.style.borderColor = 'var(--pharmacy)';
+            
+            showToast('🌙 تم تحويل البحث إلى الصيدليات', 'info', 2000);
+        }
+    }
+    
+
     if (isDutySearch && (!window.todayDutyDetails || Object.keys(window.todayDutyDetails).length === 0)) {
-        // حمّل بيانات المناوبات أولاً
         if (typeof fetchTodayDutiesForBadge === 'function') {
             showToast('🌙 جاري تحميل بيانات المناوبات...', 'info', 2000);
             try {
                 await fetchTodayDutiesForBadge();
             } catch(e) {
-                // فشل صامت — نكمل بدون بيانات مناوبات
+                // فشل صامت
             }
         }
     }
     
     const totalResults = renderData(); 
-    
     
     if (totalResults === 0 && searchQuery !== '') {
         if (isDutySearch) {
@@ -1220,7 +1243,6 @@ window.handleSearch = async (value) => {
             showToast('لا توجد نتائج مطابقة لبحثك. جرب كلمة أخرى أو عرض كل المدن');
         }
     } else if (totalResults > 0 && isDutySearch) {
-    
         const activeCount = Object.values(window.todayDutyDetails || {}).filter(d => d.status === 'active').length;
         if (activeCount > 0) {
             showToast(`🌙 وجدنا ${totalResults} صيدلية مناوبة (${activeCount} تعمل الآن)`, 'success', 3000);
@@ -1299,13 +1321,20 @@ function handleSmartSearch(value) {
         let matches;
 
         if (isDutySearch) {
-            
+            //  بحث مخصص في الصيدليات المناوبة
             matches = allData.filter(item => {
                 if (item.type !== 'pharmacy') return false;
                 const dutyInfo = window.todayDutyDetails?.[item.id];
                 if (!dutyInfo) return false;
                 if (dutyInfo.status !== 'active' && dutyInfo.status !== 'upcoming') return false;
                 
+                //  احترام فلتر المدينة
+                if (currentCity && currentCity !== 'all' && currentCity !== 'كل المدن' && currentCity !== '') {
+                    const itemAddress = (item.address || item.clinic || '').toLowerCase();
+                    if (!itemAddress.includes(currentCity.toLowerCase())) return false;
+                }
+                
+            
                 if (!extraQuery) return true;
                 return item.name?.toLowerCase().includes(extraQuery) ||
                        item.address?.toLowerCase().includes(extraQuery);
@@ -1313,6 +1342,12 @@ function handleSmartSearch(value) {
         } else {
         
             matches = allData.filter(item => {
+            
+                if (currentCity && currentCity !== 'all' && currentCity !== 'كل المدن' && currentCity !== '') {
+                    const itemAddress = (item.address || item.clinic || '').toLowerCase();
+                    if (!itemAddress.includes(currentCity.toLowerCase())) return false;
+                }
+                
                 return (item.name?.toLowerCase().includes(q) ||
                         item.specialty?.toLowerCase().includes(q) ||
                         item.address?.toLowerCase().includes(q) ||
