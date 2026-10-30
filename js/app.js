@@ -3,6 +3,7 @@ import { supabase, supabaseUrl, supabaseKey } from './supabase.js';
 
 const daysOfWeek = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
 
+let currentSpecialtyFilter = ''; 
 let currentAnnouncement = null;
 let allAnnouncements = [];
 let currentFilter = 'all';
@@ -1116,7 +1117,16 @@ function matchItem(item) {
     if (currentFilter !== 'all' && item.type !== currentFilter) return false; 
     if (currentCity !== 'all' && currentCity !== 'كل المدن' && currentCity !== '') {
         const itemAddress = (item.address || item.clinic || '').toLowerCase();
-        if (!itemAddress.includes(currentCity.toLowerCase())) return false;
+    if (!itemAddress.includes(currentCity.toLowerCase())) return false;
+    }
+
+
+    // قراءة الفلتر المخفي
+    if (currentSpecialtyFilter !== '') {
+        const itemSpecialty = (item.specialty || '').toLowerCase();
+        if (!itemSpecialty.includes(currentSpecialtyFilter.toLowerCase())) {
+            return false; // استبعاد الأطباء الذين لا يطابقون التخصص
+        }
     }
     
     if (!searchQuery) return true; 
@@ -1183,6 +1193,7 @@ window.toggleVideoFilter = (btn) => {
     renderData(); // إعادة رسم البطاقات 
 };
 window.setFilter = (filter, btn) => { 
+    currentSpecialtyFilter = '';
     hasVideoFilter = false;
     renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; // إعادة التصفير
     currentFilter = filter; 
@@ -1192,30 +1203,33 @@ window.setFilter = (filter, btn) => {
     btn.style.background = colors[filter]; btn.style.color = 'white'; btn.style.borderColor = colors[filter]; 
     renderData(); 
 }
-window.filterSpecialty = (specialtyName, btn) => {
-    // إعادة تصفير الفلاتر الأخرى
+window.filterSpecialty = (specialtyName, btn = null) => {
     hasVideoFilter = false;
     renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 };
-    currentFilter = 'all'; // نجعل الفلتر العام "الكل" لكي يبحث في جميع الأقسام
     
-    // إزالة تفعيل الأزرار الأخرى
+    // 1. تخزين الكلمة في المتغير المخفي (بدون كتابتها في البحث)
+    currentSpecialtyFilter = specialtyName;
+    currentFilter = 'doctor'; 
+
+    // 2. مسح حقل البحث (لضمان أنه فارغ)
+    searchQuery = '';
+    const heroSearch = document.getElementById('heroSearch');
+    if(heroSearch) heroSearch.value = '';
+
+    // 3. تلوين الزر
     document.querySelectorAll('.filter-btn').forEach(b => { 
         b.classList.remove('active'); 
         b.style.background = ''; 
         b.style.color = ''; 
         b.style.borderColor = ''; 
     }); 
-    
-    // تفعيل الزر الحالي
-    btn.classList.add('active');
-    btn.style.background = '#F59E0B';
-    btn.style.color = 'white';
-    btn.style.borderColor = '#F59E0B';
 
-    // وضع كلمة البحث في الحقل الرئيسي
-    searchQuery = specialtyName;
-    const heroSearch = document.getElementById('heroSearch');
-    if(heroSearch) heroSearch.value = specialtyName;
+    if (btn) {
+        btn.classList.add('active');
+        btn.style.background = '#F59E0B';
+        btn.style.color = 'white';
+        btn.style.borderColor = '#F59E0B';
+    }
 
     renderData();
 };
