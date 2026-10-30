@@ -972,7 +972,7 @@ ${(() => {
     ${escapeHtml(item.name)} 
     ${(['doctor', 'pharmacy'].includes(item.type) && item.is_subscribed) ? '<span class="verified-badge verified-gold"><i class="fas fa-circle-check"></i> موثق</span>' : ''}
     ${(item.type === 'doctor' && item.specialty && (item.specialty.includes('فيزيائي') || item.specialty.includes('طبيعي'))) 
-        ? '<span class="badge" style="background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; font-size: 9px; margin-right: 4px;"><i class="fas fa-bone ml-1"></i> علاج طبيعي</span>' 
+        ? '<span class="badge" style="background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; font-size: 9px; margin-right: 4px;"><i class="fas fa-person-walking ml-1"></i> علاج طبيعي</span>'
         : ''}
 </h3>
 
