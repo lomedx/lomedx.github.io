@@ -1285,14 +1285,42 @@ function handleSmartSearch(value) {
             return; 
         }
 
-        const matches = allData.filter(item => {
-            return (item.name?.toLowerCase().includes(q) ||
-                    item.specialty?.toLowerCase().includes(q) ||
-                    item.address?.toLowerCase().includes(q) ||
-                    item.type?.toLowerCase().includes(q));
-        }).slice(0, 6);
+        const dutyKeywords = ['مناوبة', 'مناوبات', 'مناوب', 'منوبة', 'ليلي', 'ليلية'];
+        let extraQuery = q;
+        let isDutySearch = false;
+        
+        dutyKeywords.forEach(kw => {
+            if (extraQuery.includes(kw)) {
+                isDutySearch = true;
+                extraQuery = extraQuery.replace(new RegExp(kw, 'g'), '').trim();
+            }
+        });
 
-        renderSearchDropdown(matches);
+        let matches;
+
+        if (isDutySearch) {
+            
+            matches = allData.filter(item => {
+                if (item.type !== 'pharmacy') return false;
+                const dutyInfo = window.todayDutyDetails?.[item.id];
+                if (!dutyInfo) return false;
+                if (dutyInfo.status !== 'active' && dutyInfo.status !== 'upcoming') return false;
+                
+                if (!extraQuery) return true;
+                return item.name?.toLowerCase().includes(extraQuery) ||
+                       item.address?.toLowerCase().includes(extraQuery);
+            }).slice(0, 6);
+        } else {
+        
+            matches = allData.filter(item => {
+                return (item.name?.toLowerCase().includes(q) ||
+                        item.specialty?.toLowerCase().includes(q) ||
+                        item.address?.toLowerCase().includes(q) ||
+                        item.type?.toLowerCase().includes(q));
+            }).slice(0, 6);
+        }
+
+        renderSearchDropdown(matches, isDutySearch);
     }, 300);
 }
 window.openFavoritesModal = () => {
@@ -1385,7 +1413,7 @@ function renderFavoritesSection() {
     favSection.classList.remove('hidden');
     favGrid.innerHTML = favDoctorsData.map(createCard).join('');
 }
-function renderSearchDropdown(matches) {
+function renderSearchDropdown(matches, isDutySearch = false) {
     if (!searchDropdown) return;
     
     const typeMap = {
@@ -1397,23 +1425,55 @@ function renderSearchDropdown(matches) {
     };
 
     if (matches.length === 0) {
-        searchDropdown.innerHTML = '<div class="smart-empty">لا توجد نتائج مطابقة</div>';
+        // رسالة مخصصة للبحث عن مناوبة
+        if (isDutySearch) {
+            searchDropdown.innerHTML = `
+                <div class="smart-empty" style="padding: 20px 16px;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">🌙</div>
+                    <div style="font-weight: 800; color: #78350F; margin-bottom: 4px;">لا توجد صيدليات مناوبة الآن</div>
+                    <div style="font-size: 11px; color: #92400E;">تحقق لاحقاً أو اتصل بأقرب صيدلية</div>
+                </div>
+            `;
+        } else {
+            searchDropdown.innerHTML = '<div class="smart-empty">لا توجد نتائج مطابقة</div>';
+        }
     } else {
-        searchDropdown.innerHTML = matches.map(item => {
+        //  عنوان إضافي إذا كان بحث المناوبات
+        let headerHtml = '';
+        if (isDutySearch) {
+            const activeCount = matches.filter(m => window.todayDutyDetails?.[m.id]?.status === 'active').length;
+            headerHtml = `
+                <div style="padding: 10px 16px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); border-bottom: 1px solid #FCD34D; font-size: 12px; font-weight: 800; color: #78350F; display: flex; align-items: center; gap: 8px;">
+                    <span>🌙</span>
+                    <span>${matches.length} صيدلية مناوبة${activeCount > 0 ? ` · ${activeCount} تعمل الآن` : ''}</span>
+                </div>
+            `;
+        }
+        
+        const itemsHtml = matches.map(item => {
             const t = typeMap[item.type] || typeMap.doctor;
+            const dutyInfo = window.todayDutyDetails?.[item.id];
+            const dutyBadge = dutyInfo ? 
+                (dutyInfo.status === 'active' 
+                    ? `<span style="background: #10B981; color: white; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-right: 4px;">● مناوبة الآن</span>`
+                    : `<span style="background: #F59E0B; color: white; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-right: 4px;">🌙 الليلة</span>`
+                ) : '';
+            
             return `
                 <div onclick="selectSearchResult('${escapeHtml(item.id)}')" class="smart-result-item">
                     <div class="smart-icon" style="background: ${t.color}15; color: ${t.color};">
                         <i class="fas ${t.icon}"></i>
                     </div>
                     <div class="smart-text">
-                        <div class="smart-name">${escapeHtml(item.name)}</div>
+                        <div class="smart-name">${escapeHtml(item.name)} ${dutyBadge}</div>
                         <div class="smart-desc">${escapeHtml(item.specialty || item.address || t.label)}</div>
                     </div>
                     <i class="fas fa-arrow-left smart-arrow"></i>
                 </div>
             `;
         }).join('');
+        
+        searchDropdown.innerHTML = headerHtml + itemsHtml;
     }
 
     // تحديد الموقع بدقة ثم إظهار القائمة
