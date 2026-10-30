@@ -932,7 +932,7 @@ function createCard(item) {
         <i class="fas fa-play ml-1"></i> فيديو
     </div>
 ` : `
-    <!-- عرض الصورة العادية إذا لم يوجد فيديو -->
+
     <img src="${getOptimizedImageUrl(item.image, 400, 300)}" alt="${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} في سوريا | منصة LomedX" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 cursor-zoom-in" loading="lazy" onclick="event.stopPropagation(); openLightbox(this.src, 'صورة ${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} | LomedX')">
 `}<div class="absolute top-3 right-3"><span class="badge ${t.badgeClass}">${t.label}</span></div><div class="absolute top-3 left-3 flex flex-col gap-1 items-start">
 
@@ -967,10 +967,16 @@ ${(() => {
 })()}
     
 </div></div><div class="p-5"><div class="flex items-start gap-3 mb-3"><div class="cat-icon ${t.iconClass}"><i class="fas ${t.icon}"></i></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 justify-between">
-    <h3 class="font-bold text-sm mb-1 leading-tight flex-1 min-w-0" style="font-family: 'Noto Kufi Arabic'; color: var(--fg);">
-        ${escapeHtml(item.name)}
-        ${(['doctor', 'pharmacy'].includes(item.type) && item.is_subscribed) ? '<span class="verified-badge verified-gold"><i class="fas fa-circle-check"></i> موثق</span>' : ''}
-    </h3>
+<h3 class="font-bold text-sm mb-1 leading-tight flex-1 min-w-0" style="font-family: 'Noto Kufi Arabic'; color: var(--fg);">
+    ${escapeHtml(item.name)} 
+    ${(['doctor', 'pharmacy'].includes(item.type) && item.is_subscribed) ? '<span class="verified-badge verified-gold"><i class="fas fa-circle-check"></i> موثق</span>' : ''}
+    ${(item.type === 'doctor' && item.specialty && (item.specialty.includes('فيزيائي') || item.specialty.includes('طبيعي'))) 
+        ? '<span class="badge" style="background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; font-size: 9px; margin-right: 4px;"><i class="fas fa-bone ml-1"></i> علاج طبيعي</span>' 
+        : ''}
+</h3>
+
+
+    
     ${item.type === 'doctor' ? `
         <button onclick="event.stopPropagation(); toggleFavorite('${escapeHtml(item.id)}', '${escapeHtml(item.name)}', this)" class="text-xl transition-all ${favoriteDoctors.includes(item.id) ? 'text-red-500' : 'text-gray-300 hover:text-red-400'}" aria-label="إضافة للمفضلة">
             <i class="${favoriteDoctors.includes(item.id) ? 'fas' : 'far'} fa-heart"></i>
@@ -1186,6 +1192,33 @@ window.setFilter = (filter, btn) => {
     btn.style.background = colors[filter]; btn.style.color = 'white'; btn.style.borderColor = colors[filter]; 
     renderData(); 
 }
+window.filterSpecialty = (specialtyName, btn) => {
+    // إعادة تصفير الفلاتر الأخرى
+    hasVideoFilter = false;
+    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 };
+    currentFilter = 'all'; // نجعل الفلتر العام "الكل" لكي يبحث في جميع الأقسام
+    
+    // إزالة تفعيل الأزرار الأخرى
+    document.querySelectorAll('.filter-btn').forEach(b => { 
+        b.classList.remove('active'); 
+        b.style.background = ''; 
+        b.style.color = ''; 
+        b.style.borderColor = ''; 
+    }); 
+    
+    // تفعيل الزر الحالي
+    btn.classList.add('active');
+    btn.style.background = '#F59E0B';
+    btn.style.color = 'white';
+    btn.style.borderColor = '#F59E0B';
+
+    // وضع كلمة البحث في الحقل الرئيسي
+    searchQuery = specialtyName;
+    const heroSearch = document.getElementById('heroSearch');
+    if(heroSearch) heroSearch.value = specialtyName;
+
+    renderData();
+};
 window.handleSearch = async (value) => { 
     renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 };
     searchQuery = value.trim(); 
