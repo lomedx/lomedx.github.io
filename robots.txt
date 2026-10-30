@@ -6,16 +6,16 @@
 User-agent: *
 Allow: /
 
-# 🔒 صفحات حساسة
+# صفحات حساسة
 Disallow: /verify-rx/
 Disallow: /admin
 Disallow: /dashboard
 
-# 🚫 محتوى مكرر
+# محتوى مكرر
 Disallow: /*?search=
 Disallow: /*?filter=
 
-# 🤖 حماية من زواحف تحليلية
+# حماية من زواحف تحليلية
 User-agent: AhrefsBot
 Disallow: /
 User-agent: SemrushBot
@@ -23,5 +23,5 @@ Disallow: /
 User-agent: MJ12bot
 Disallow: /
 
-# 🔗 خريطة الموقع
+# خريطة الموقع
 Sitemap: https://lomedx.pages.dev/sitemap.xml
