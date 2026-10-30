@@ -1105,7 +1105,7 @@ window.loadMoreSection = (type) => {
     }, 100);
 };
 function matchItem(item) { 
-    // 1. فلترة النوع
+    // 1. الفلاتر العادية
     if (hasVideoFilter && !item.video_url) return false;
     if (currentFilter !== 'all' && item.type !== currentFilter) return false; 
     if (currentCity !== 'all' && currentCity !== 'كل المدن' && currentCity !== '') {
@@ -1114,7 +1114,38 @@ function matchItem(item) {
     }
     
     if (!searchQuery) return true; 
-    const q = searchQuery.toLowerCase(); 
+    const q = searchQuery.toLowerCase().trim(); 
+    const dutyKeywords = [
+        'مناوبة', 'مناوبات', 'مناوب', 'منوبة', 
+        'ليلي', 'ليلية', 'دوام ليلي', 'المناوبة'
+    ];
+    
+    let extraQuery = q;
+    let isDutySearch = false;
+    
+    dutyKeywords.forEach(kw => {
+        if (extraQuery.includes(kw)) {
+            isDutySearch = true;
+            extraQuery = extraQuery.replace(new RegExp(kw, 'g'), '').trim();
+        }
+    });
+    
+    if (isDutySearch) {
+    
+        if (item.type !== 'pharmacy') return false;
+        
+        const dutyInfo = window.todayDutyDetails?.[item.id];
+        if (!dutyInfo) return false;
+        
+        
+        if (dutyInfo.status !== 'active' && dutyInfo.status !== 'upcoming') return false;
+        if (!extraQuery) return true;
+        
+        return ['name', 'address', 'phone', 'nightdetails', 'description'].some(key => 
+            String(item[key] || '').toLowerCase().includes(extraQuery)
+        );
+    }
+    
     return ['name', 'specialty', 'address', 'description', 'services', 'tests', 'departments', 'floors', 'homesample', 'nightdetails', 'consulthours', 'bookingnotes'].some(key => 
         String(item[key] || '').toLowerCase().includes(q)
     ); 
@@ -1155,16 +1186,47 @@ window.setFilter = (filter, btn) => {
     btn.style.background = colors[filter]; btn.style.color = 'white'; btn.style.borderColor = colors[filter]; 
     renderData(); 
 }
-window.handleSearch = (value) => { 
-    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 }; // إعادة التصفير
+window.handleSearch = async (value) => { 
+    renderLimits = { hospital: 4, center: 4, lab: 4, doctor: 8, pharmacy: 8 };
     searchQuery = value.trim(); 
     const heroSearch = document.getElementById('heroSearch'); 
     if(heroSearch) heroSearch.value = value; 
     
+    const dutyKeywords = ['مناوبة', 'مناوبات', 'مناوب', 'منوبة', 'ليلي', 'ليلية'];
+    const isDutySearch = dutyKeywords.some(kw => searchQuery.includes(kw));
+    
+    if (isDutySearch && (!window.todayDutyDetails || Object.keys(window.todayDutyDetails).length === 0)) {
+        // حمّل بيانات المناوبات أولاً
+        if (typeof fetchTodayDutiesForBadge === 'function') {
+            showToast('🌙 جاري تحميل بيانات المناوبات...', 'info', 2000);
+            try {
+                await fetchTodayDutiesForBadge();
+            } catch(e) {
+                // فشل صامت — نكمل بدون بيانات مناوبات
+            }
+        }
+    }
+    
     const totalResults = renderData(); 
     
+    
     if (totalResults === 0 && searchQuery !== '') {
-        showToast('لا توجد نتائج مطابقة لبحثك. جرب كلمة أخرى أو عرض كل المدن');
+        if (isDutySearch) {
+            const cityText = (currentCity && currentCity !== 'all' && currentCity !== 'كل المدن') 
+                ? ` في ${currentCity}` 
+                : '';
+            showToast(`🌙 لا توجد صيدليات مناوبة حالياً${cityText}. جرّب مدناً أخرى أو تحقق لاحقاً`, 'error', 5000);
+        } else {
+            showToast('لا توجد نتائج مطابقة لبحثك. جرب كلمة أخرى أو عرض كل المدن');
+        }
+    } else if (totalResults > 0 && isDutySearch) {
+    
+        const activeCount = Object.values(window.todayDutyDetails || {}).filter(d => d.status === 'active').length;
+        if (activeCount > 0) {
+            showToast(`🌙 وجدنا ${totalResults} صيدلية مناوبة (${activeCount} تعمل الآن)`, 'success', 3000);
+        } else {
+            showToast(`🌙 وجدنا ${totalResults} صيدلية ستبدأ مناوبتها الليلة`, 'info', 3000);
+        }
     }
 }
 // === نظام البحث الذكي (Autocomplete) المعزول ===
