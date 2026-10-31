@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════
 # robots.txt — LomedX Medical Platform
-# https://lomedx.pages.dev
+# https://lomedx.com
 # ═══════════════════════════════════════════════════════════
 
 User-agent: *
@@ -24,4 +24,4 @@ User-agent: MJ12bot
 Disallow: /
 
 # خريطة الموقع
-Sitemap: https://lomedx.pages.dev/sitemap.xml
+Sitemap: https://lomedx.com/sitemap.xml
