@@ -736,7 +736,7 @@ const DEFAULT_SEO = {
     title: 'المنصة الطبية الشاملة: حجز مواعيد، بحث عن دواء، وملف صحي ذكي في سوريا', 
     description: 'منصتك الطبية الشاملة في سوريا. احجز موعدك مع أفضل الأطباء، ابحث عن دواء في صيدليات مدينتك، أنشئ ملفك الصحي المشفر، واستفد من أدواتنا الطبية التفاعلية (حاسبات الجرعات، الإسعافات، بنك الدم).',
     
-    image: 'https://lomedx.pages.dev/logo.png'
+    image: 'https://lomedx.com/logo.png'
 };
 
 function resetMetaTags() {
@@ -1010,7 +1010,7 @@ function generateItemListSchema(items) {
                     "streetAddress": item.address || item.clinic || "",
                     "addressLocality": "سوريا"
                 },
-                "url": `https://lomedx.pages.dev/#${item.id}` // رابط الصفحة (تعديل الرابط حسب دومينك)
+                "url": `https://lomedx.com/#${item.id}` 
             }
         };
     });
@@ -4035,7 +4035,7 @@ window.printPrescription = () => {
                 const qrContainer = document.getElementById('rxQrCode');
                 if (qrContainer && window.QRCode) {
                     new QRCode(qrContainer, {
-                        text: 'https://lomedx.pages.dev/verify-rx/${data.verCode}',
+                        text: 'https://lomedx.com/verify-rx/${data.verCode}',
                         width: 78, height: 78,
                         colorDark: '#052E22', colorLight: '#ffffff',
                         correctLevel: QRCode.CorrectLevel.M
