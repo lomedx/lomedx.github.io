@@ -7,12 +7,12 @@
     <!-- 🏠 الصفحة الرئيسية                                        -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <url>
-        <loc>https://lomedx.pages.dev/</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/</loc>
+        <lastmod>2026-5-2</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
         <image:image>
-            <image:loc>https://lomedx.pages.dev/logo-lomedx.png</image:loc>
+            <image:loc>https://lomedx.com/logo-lomedx.png</image:loc>
             <image:title>LomedX - المنصة الطبية الشاملة في سوريا</image:title>
         </image:image>
     </url>
@@ -21,26 +21,26 @@
     <!-- 🩺 الخدمات الأساسية — 4 صفحات                             -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <url>
-        <loc>https://lomedx.pages.dev/ask-doctor</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/ask-doctor</loc>
+        <lastmod>2026-9-26</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/blood-bank</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/blood-bank</loc>
+        <lastmod>2026-9-26</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/medicine-finder</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/medicine-finder</loc>
+        <lastmod>2026-9-26</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/health-file</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/health-file</loc>
+        <lastmod>2026-9-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
@@ -49,8 +49,8 @@
     <!-- 📚 المدونة                                                -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <url>
-        <loc>https://lomedx.pages.dev/blog</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/blog</loc>
+        <lastmod>2026-8-8</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
     </url>
@@ -59,20 +59,20 @@
     <!-- 🚨 الإسعافات والطوارئ — 3 صفحات                            -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <url>
-        <loc>https://lomedx.pages.dev/first-aid</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/first-aid</loc>
+        <lastmod>2026-9-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/burn-calculator</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/burn-calculator</loc>
+        <lastmod>2026-9-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/events-first-aid</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/events-first-aid</loc>
+        <lastmod>2026-9-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -81,44 +81,44 @@
     <!-- 🧮 الحاسبات الطبية — 7 صفحات                              -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <url>
-        <loc>https://lomedx.pages.dev/pregnancy-calc</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/pregnancy-calc</loc>
+        <lastmod>2026-6-6</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/dose-calc</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/dose-calc</loc>
+        <lastmod>2026-6-6</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/vaccine-scheduler</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/vaccine-scheduler</loc>
+        <lastmod>2026-6-6</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/health-calc</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/health-calc</loc>
+        <lastmod>2026-6-6</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/water-calc</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/water-calc</loc>
+        <lastmod>2026-6-6</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/med-renewal-calc</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/med-renewal-calc</loc>
+        <lastmod>2026-6-6</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/med-symbols</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/med-symbols</loc>
+        <lastmod>2026-6-6</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -127,7 +127,7 @@
     <!-- 📖 الأدلة والإرشادات — 6 صفحات                            -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <url>
-        <loc>https://lomedx.pages.dev/chronic-nutrition</loc>
+        <loc>https://lomedx.com/chronic-nutrition</loc>
         <lastmod>2026-10-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
@@ -139,25 +139,25 @@
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/pre-test-guide</loc>
+        <loc>https://lomedx.com/pre-test-guide</loc>
         <lastmod>2026-10-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/food-interactions</loc>
+        <loc>https://lomedx.com/food-interactions</loc>
         <lastmod>2026-10-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/patient-reminder</loc>
+        <loc>https://lomedx.com/patient-reminder</loc>
         <lastmod>2026-10-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/seasonal-diseases</loc>
+        <loc>https://lomedx.com/seasonal-diseases</loc>
         <lastmod>2026-10-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
@@ -167,20 +167,20 @@
     <!-- 🌍 الخدمات التفاعلية — 3 صفحات                            -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <url>
-        <loc>https://lomedx.pages.dev/raheba-radar</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/raheba-radar</loc>
+        <lastmod>2026-7-9</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/medical-map</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/medical-map</loc>
+        <lastmod>2026-7-9</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/medicine-donation</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/medicine-donation</loc>
+        <lastmod>2026-7-9</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
@@ -189,20 +189,20 @@
     <!-- 🏢 التسجيل والتواصل — 3 صفحات                            -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <url>
-        <loc>https://lomedx.pages.dev/add-facility</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/add-facility</loc>
+        <lastmod>2026-9-2</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/contact</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/contact</loc>
+        <lastmod>2026-9-2</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/support</loc>
-        <lastmod>2026-10-26</lastmod>
+        <loc>https://lomedx.com/support</loc>
+        <lastmod>2026-8-5</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>
@@ -211,13 +211,13 @@
     <!-- ⚖️ الصفحات القانونية — 2 صفحات                             -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <url>
-        <loc>https://lomedx.pages.dev/privacy-policy</loc>
+        <loc>https://lomedx.com/privacy-policy</loc>
         <lastmod>2026-10-26</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.4</priority>
     </url>
     <url>
-        <loc>https://lomedx.pages.dev/disclaimer</loc>
+        <loc>https://lomedx.com/disclaimer</loc>
         <lastmod>2026-10-26</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.4</priority>
