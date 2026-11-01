@@ -5708,7 +5708,7 @@ window.handleHealthLogin = async (e) => {
                                         <span class="text-[10px] text-gray-400">${new Date(rx.date).toLocaleString('ar-EG', { date: 'short', time: 'short' })}</span>
                                     </div>
                                     <div class="flex flex-col items-center gap-1">
-    ${rx.verCode ? `<div class="rx-qr-code" data-vercode="${escapeHtml(rx.verCode)}" style="width:70px;height:70px;background:#fff;padding:3px;border-radius:8px;border:1px solid #A7F3D0;"></div>` : ''}
+    ${rx.verCode ? `<div class="rx-qr-code" data-vercode="${escapeHtml(rx.verCode)}" style="width:130px;height:130px;background:#fff;padding:4px;border-radius:8px;border:1px solid #A7F3D0;"></div>` : ''}
     <span class="bg-green-100 text-green-700 text-[9px] font-bold px-2 py-1 rounded-full flex items-center gap-1 border border-green-200">
         <i class="fas fa-shield-halved"></i> موثقة إلكترونياً
     </span>
@@ -5741,13 +5741,13 @@ setTimeout(() => {
         if (verCode && window.QRCode) {
             container.innerHTML = '';
             new QRCode(container, {
-                text: `https://lomedx.com/verify-rx/${verCode}`,
-                width: 64,
-                height: 64,
-                colorDark: '#052E22',
-                colorLight: '#ffffff',
-                correctLevel: QRCode.CorrectLevel.M
-            });
+    text: `https://lomedx.com/verify-rx/${verCode}`,
+    width: 120, 
+    height: 120,
+    colorDark: '#052E22',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H 
+         });
         }
     });
 }, 150);
