@@ -8710,6 +8710,45 @@ const routesConfig = {
 
 function handleRouteChange() {
     const path = window.location.pathname;
+    
+    
+    if (path.startsWith('/verify-rx/')) {
+        const verCode = path.split('/')[2]; // استخراج الكود من الرابط
+        if (verCode) {
+            // فتح نافذة التحقق وإرسال الكود تلقائياً
+            openCtrlPanel('التحقق من الروشتة', `
+                <div class="flex flex-col gap-4">
+                    <div id="prescriptionResultContainer" class="mt-2"></div>
+                </div>
+            `, '#0E7C5F');
+            fetchPrescriptionByCode(verCode);
+        }
+        return; // إيقاف التنفيذ هنا لأننا تعاملنا مع الرابط
+    }
+    
+    if (path === '/verify-rx') {
+        // إذا فتح الرابط بدون كود، افتح شاشة إدخال الكود
+        openCtrlPanel('التحقق من الروشتة', `
+            <div class="flex flex-col gap-4">
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm flex items-center gap-3">
+                    <i class="fas fa-search text-xl"></i>
+                    <span>أدخل رمز التحقق الموجود أسفل الروشتة (VRX) للتحقق منها.</span>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="manualVerCode" class="ctrl-input flex-1 font-mono text-center uppercase" placeholder="أدخل الرمز هنا" maxlength="12">
+                    <button onclick="fetchPrescriptionByCode()" class="px-6 py-2 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700">
+                        تحقق
+                    </button>
+                </div>
+                <div id="prescriptionResultContainer"></div>
+            </div>
+        `, '#0E7C5F');
+        return;
+    }
+
+
+    
+    const path = window.location.pathname;
     if (path === '/' || path === '/index.html') { resetMetaTags(); return; }
 
     // ✅ فحص متزامن: هل الرابط بطاقة منشأة؟ (بدون await)
