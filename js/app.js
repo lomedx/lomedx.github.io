@@ -8711,7 +8711,7 @@ const routesConfig = {
 function handleRouteChange() {
     const path = window.location.pathname;
     
-    
+    //التعامل مع روابط التحقق من الروشتة
     if (path.startsWith('/verify-rx/')) {
         const verCode = path.split('/')[2]; // استخراج الكود من الرابط
         if (verCode) {
@@ -8746,12 +8746,9 @@ function handleRouteChange() {
         return;
     }
 
-
-    
-    const path = window.location.pathname;
     if (path === '/' || path === '/index.html') { resetMetaTags(); return; }
 
-    // ✅ فحص متزامن: هل الرابط بطاقة منشأة؟ (بدون await)
+    //  فحص متزامن: هل الرابط بطاقة منشأة؟ (بدون await)
     if (isItemRoute()) {
         handleItemRouteFromURL();  // fire and forget — لا ننتظر
         return;
