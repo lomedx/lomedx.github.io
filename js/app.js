@@ -2533,10 +2533,10 @@ window.closeCtrlPanel = (event) => {
 // === تنظيف الرابط وإعادة الـ SEO ===
 resetMetaTags();
 if (window.location.pathname !== '/' && window.location.pathname !== '/index.html' || window.location.hash) {
-    // ✅ [جديد] احفظ موضع التمرير قبل تغيير الرابط
+    
     const currentScrollY = window.scrollY;
     history.pushState({}, '', '/');
-    // ✅ [جديد] لا تقفز للأعلى — استعد موضع التمرير بدل ذلك
+    
     requestAnimationFrame(() => {
         window.scrollTo(0, currentScrollY);
     });
@@ -2563,13 +2563,13 @@ if (window.location.pathname !== '/' && window.location.pathname !== '/index.htm
         activeFollowupUnsub = null; 
     } 
     
-    // ✅ [جديد] إيقاف مؤقت المتابعة لتجنب استمراره في الخلفية
+    
     if (window.activeFollowupInterval) { 
         clearInterval(window.activeFollowupInterval); 
         window.activeFollowupInterval = null; 
     }
     
-    // ✅ [جديد] تصفير متغير اللوحة النشطة
+    
     window.currentDashboardData = null;
     
     currentFollowupBookingId = null;
@@ -3865,12 +3865,12 @@ window.generatePrescription = async (patientId, patientName) => {
 
     if(meds.length === 0) return showToast('الرجاء إضافة دواء واحد على الأقل', 'error');
 
-    let rxText = `📋 *روشتة طبية إلكترونية*\n_______________________\n`;
-    meds.forEach((m, i) => {
-        rxText += `\n${i + 1}. 💊 ${m.name}\n   الجرعة: ${m.dose || 'حسب الإرشاد'}\n`;
-    });
-    if (notes) rxText += `\n📝 *ملاحظات:* ${notes}\n`;
-    rxText += `_______________________\nيرجى الالتزام بالجرعات ولا تنسَ المراجعة.`;
+    let rxText = `روشتة طبية إلكترونية\n_______________________\n`;
+meds.forEach((m, i) => {
+    rxText += `\n${i + 1}. ${m.name}\n   الجرعة: ${m.dose || 'حسب الإرشاد'}\n`;
+});
+if (notes) rxText += `\nملاحظات: ${notes}\n`;
+rxText += `_______________________\nيرجى الالتزام بالجرعات ولا تنسَ المراجعة.`;
 
     const docInfo = window.currentDoctorInfo || { name: 'طبيب', specialty: 'طبيب عام', id: 'unknown', phone: '' };
     const date = new Date();
@@ -3879,7 +3879,7 @@ window.generatePrescription = async (patientId, patientName) => {
     if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ والتشفير...'; }
 
     try {
-        // ✅ إرسال البيانات الأساسية فقط (Edge Function تستخرج بيانات الطبيب من التوكن تلقائياً)
+        //  إرسال البيانات الأساسية فقط (Edge Function تستخرج بيانات الطبيب من التوكن تلقائياً)
         const { data: funcData, error: funcError } = await supabase.functions.invoke('save-prescription', {
             body: { 
                 patient_qr_token: patientId, 
@@ -3888,7 +3888,7 @@ window.generatePrescription = async (patientId, patientName) => {
             }
         });
 
-        // ✅ معالجة الأخطاء بشكل دقيق
+        //  معالجة الأخطاء بشكل دقيق
         if (funcError) {
             let errMsg = funcError.message;
             if (funcError.context && typeof funcError.context.json === 'function') {
@@ -3899,12 +3899,12 @@ window.generatePrescription = async (patientId, patientName) => {
             throw new Error(errMsg);
         }
 
-        // ✅ التأكد من نجاح الحفظ الفعلي قبل عرض شاشة النجاح
+        //  التأكد من نجاح الحفظ الفعلي قبل عرض شاشة النجاح
         if (!funcData || !funcData.success) {
             throw new Error(funcData?.error || 'لم يتم استلام رد صالح من الخادم');
         }
 
-        // ✅ استخدام البيانات الموثوقة من الخادم (وليس من الواجهة)
+        //  استخدام البيانات الموثوقة من الخادم (وليس من الواجهة)
         const serverVerCode = funcData.verCode;
         const serverDoctorName = funcData.doctor || docInfo.name;
 
@@ -4018,8 +4018,6 @@ window.printPrescription = () => {
                         </div>` : ''}
 
                         <div class="footer">
-                            <div class="signature">
-                                <div class="signature-line">توقيع الطبيب</div>
                             </div>
                             <div class="verification-block">
                                 <div class="qr-container" id="rxQrCode"></div>
@@ -5696,7 +5694,7 @@ window.handleHealthLogin = async (e) => {
                                     <div class="flex items-center gap-2">
                                         <div class="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><i class="fas fa-user-md"></i></div>
                                         <div>
-                                            <div class="font-bold text-blue-800 text-sm">د. ${escapeHtml(rx.doctor || 'طبيب')}</div>
+                                            <div class="font-bold text-blue-800 text-sm">${escapeHtml(rx.doctor || 'طبيب')}</div>
                                             <div class="text-[10px] text-gray-500">${new Date(rx.date).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
                                         </div>
                                     </div>
@@ -5709,12 +5707,13 @@ window.handleHealthLogin = async (e) => {
                                         <span class="text-[10px] text-gray-500">${escapeHtml(rx.specialty || 'طبيب عام')}</span>
                                         <span class="text-[10px] text-gray-400">${new Date(rx.date).toLocaleString('ar-EG', { date: 'short', time: 'short' })}</span>
                                     </div>
-                                    <div class="flex flex-col items-end gap-1">
-                                        <span class="bg-green-100 text-green-700 text-[9px] font-bold px-2 py-1 rounded-full flex items-center gap-1 border border-green-200">
-                                            <i class="fas fa-shield-halved"></i> موثقة إلكترونياً
-                                        </span>
-                                        <span class="text-[9px] text-gray-400 font-mono" dir="ltr">VRX: ${escapeHtml(rx.verCode || 'N/A')}</span>
-                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+    ${rx.verCode ? `<div class="rx-qr-code" data-vercode="${escapeHtml(rx.verCode)}" style="width:70px;height:70px;background:#fff;padding:3px;border-radius:8px;border:1px solid #A7F3D0;"></div>` : ''}
+    <span class="bg-green-100 text-green-700 text-[9px] font-bold px-2 py-1 rounded-full flex items-center gap-1 border border-green-200">
+        <i class="fas fa-shield-halved"></i> موثقة إلكترونياً
+    </span>
+    <span class="text-[9px] text-gray-400 font-mono" dir="ltr">VRX: ${escapeHtml(rx.verCode || 'N/A')}</span>
+</div>
                                 </div>
                             </div> 
                         `).join('') 
@@ -5735,6 +5734,23 @@ window.handleHealthLogin = async (e) => {
         const qrToken = data.qr_token || currentHealthFileId; 
         new QRCode(qrContainer, { text: qrToken, width: 180, height: 180, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
     }
+     //  توليد QR موحد لكل روشتة (نفس رابط التحقق الموجود في الطباعة)
+setTimeout(() => {
+    document.querySelectorAll('.rx-qr-code').forEach(container => {
+        const verCode = container.getAttribute('data-vercode');
+        if (verCode && window.QRCode) {
+            container.innerHTML = '';
+            new QRCode(container, {
+                text: `https://lomedx.com/verify-rx/${verCode}`,
+                width: 64,
+                height: 64,
+                colorDark: '#052E22',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+    });
+}, 150);
          // === التحديث اللحظي للملف الصحي ===
     if (window.activeHealthFileSub) supabase.removeChannel(window.activeHealthFileSub);
     window.activeHealthFileSub = supabase
