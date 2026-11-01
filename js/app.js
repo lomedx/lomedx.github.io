@@ -5684,39 +5684,56 @@ window.handleHealthLogin = async (e) => {
             <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)">
                 <h4 class="font-bold mb-4 text-sm flex items-center gap-2"><i class="fas fa-file-medical text-blue-600"></i> روشتي الطبية السابقة</h4>
                 <div class="flex flex-col gap-4 mt-2">
-                    ${data.prescriptions && data.prescriptions.length > 0 ? 
-                        data.prescriptions.slice().reverse().map(rx => `
-                            <div class="bg-gradient-to-br from-white to-blue-50/40 p-5 rounded-2xl border-2 border-dashed border-blue-300 relative shadow-sm">
-                                <button onclick="deletePrescription('${rx.date}')" class="absolute top-3 left-3 w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center shadow-sm" title="حذف الروشتة">
-                                    <i class="fas fa-trash-alt text-xs"></i>
-                                </button>
-                                <div class="flex justify-between items-center mb-4 pb-3 border-b border-blue-200">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><i class="fas fa-user-md"></i></div>
-                                        <div>
-                                            <div class="font-bold text-blue-800 text-sm">د. ${escapeHtml(rx.doctor || 'طبيب')}</div>
-                                            <div class="text-[10px] text-gray-500">${new Date(rx.date).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                                        </div>
-                                    </div>
-                                    <i class="fas fa-prescription-bottle-medical text-2xl text-blue-200"></i>
-                                </div>
-                                <div class="whitespace-pre-line font-sans text-gray-800 text-sm leading-loose" style="white-space: pre-wrap;">${escapeHtml(rx.text)}</div>
-                                <div class="mt-4 pt-4 border-t-2 border-double border-blue-300 flex justify-between items-end">
-                                    <div class="flex flex-col gap-0.5">
-                                        <span class="font-bold text-sm text-blue-900" style="font-family: 'Noto Kufi Arabic'">${escapeHtml(rx.doctor || 'طبيب')}</span>
-                                        <span class="text-[10px] text-gray-500">${escapeHtml(rx.specialty || 'طبيب عام')}</span>
-                                        <span class="text-[10px] text-gray-400">${new Date(rx.date).toLocaleString('ar-EG', { date: 'short', time: 'short' })}</span>
-                                    </div>
-                                    <div class="flex flex-col items-end gap-1">
-                                        <span class="bg-green-100 text-green-700 text-[9px] font-bold px-2 py-1 rounded-full flex items-center gap-1 border border-green-200">
-                                            <i class="fas fa-shield-halved"></i> موثقة إلكترونياً
-                                        </span>
-                                        <span class="text-[9px] text-gray-400 font-mono" dir="ltr">VRX: ${escapeHtml(rx.verCode || 'N/A')}</span>
-                                    </div>
-                                </div>
-                            </div> 
-                        `).join('') 
-                    : '<div class="text-center py-8 text-gray-400 text-sm flex flex-col items-center gap-2"><i class="fas fa-file-prescription text-4xl text-gray-200 mb-2"></i>لا توجد روشتات طبية محفوظة حالياً.</div>'}
+                  
+${data.prescriptions && data.prescriptions.length > 0 ? 
+    data.prescriptions.slice().reverse().map((rx, index) => `
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden relative mb-4">
+            <!-- الترويسة -->
+            <div class="bg-[#0E7C5F] p-4 text-white flex justify-between items-center">
+                <div>
+                    <h2 class="font-bold text-sm" style="font-family: 'Noto Kufi Arabic';">د. ${escapeHtml(rx.doctor || 'طبيب')}</h2>
+                    <p class="text-[10px] text-emerald-100 mt-1 opacity-90">${escapeHtml(rx.specialty || 'طبيب عام')}</p>
+                </div>
+                <div class="text-left">
+                    <span class="font-black text-lg text-yellow-400" style="font-family: 'Outfit';">LomedX</span>
+                    <p class="text-[9px] text-gray-300 mt-1">${new Date(rx.date).toLocaleDateString('ar-EG')}</p>
+                </div>
+            </div>
+
+            <!-- زر الحذف -->
+            <button onclick="deletePrescription('${rx.date}')" class="absolute top-2 left-2 w-8 h-8 rounded-full bg-white/20 hover:bg-red-500 text-white flex items-center justify-center backdrop-blur-sm transition-all z-10" title="حذف الروشتة">
+                <i class="fas fa-trash-alt text-xs"></i>
+            </button>
+
+            <div class="p-4">
+                <!-- التفاصيل -->
+                <div class="text-sm text-gray-800 leading-relaxed whitespace-pre-line bg-gray-50 p-3 rounded-xl border border-gray-100 mb-4" style="font-family: 'IBM Plex Sans Arabic';">
+                    ${escapeHtml(rx.text)}
+                </div>
+
+                <!-- التذييل: QR + VRX -->
+                <div class="flex justify-between items-end border-t border-dashed border-gray-200 pt-3">
+                    <div class="text-center flex flex-col items-center">
+                        <!-- حاوية الـ QR -->
+                        <div id="rx_qr_${rx.verCode || index}" class="bg-white p-1 rounded-lg border border-gray-200"></div>
+                        <div class="text-[8px] text-gray-400 mt-1">امسح للتحقق</div>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-[9px] text-gray-400">Verification Code</div>
+                        <div class="font-mono text-xs font-bold text-[#0E7C5F] tracking-widest bg-emerald-50 px-2 py-1 rounded">${escapeHtml(rx.verCode || 'N/A')}</div>
+                        <div class="text-[9px] text-green-600 mt-1"><i class="fas fa-check-circle"></i> موثقة إلكترونياً</div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    `).join('') 
+: '<div class="text-center py-8 text-gray-400 text-sm flex flex-col items-center gap-2"><i class="fas fa-file-prescription text-4xl text-gray-200 mb-2"></i>لا توجد روشتات طبية محفوظة حالياً.</div>'}
+
+
+                    
+                    
+        
+                
                 </div>
             </div>
             
@@ -5735,7 +5752,27 @@ window.handleHealthLogin = async (e) => {
     }
          // === التحديث اللحظي للملف الصحي ===
     if (window.activeHealthFileSub) supabase.removeChannel(window.activeHealthFileSub);
-    window.activeHealthFileSub = supabase
+  //  توليد رموز QR لجميع الروشتات المعروضة
+setTimeout(() => {
+    if (data.prescriptions && data.prescriptions.length > 0) {
+        data.prescriptions.forEach((rx, index) => {
+            const qrContainer = document.getElementById(`rx_qr_${rx.verCode || index}`);
+            if (qrContainer && window.QRCode) {
+                qrContainer.innerHTML = ''; // تنظيف الحاوية
+                new QRCode(qrContainer, {
+                    text: `https://lomedx.com/verify-rx/${rx.verCode}`,
+                    width: 50, 
+                    height: 50,
+                    colorDark : "#0E7C5F", 
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.L
+                });
+            }
+        });
+    }
+}, 100);
+     
+     window.activeHealthFileSub = supabase
       .channel(`health_files_${data.id}`)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'health_files', filter: `id=eq.${data.id}` }, payload => {
           // إعادة جلب الملف وفك تشفيره لعرض الروشتة الجديدة فوراً
