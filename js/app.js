@@ -5509,10 +5509,16 @@ window.openHealthFile = async () => {
             body: { action: 'get' }
         });
         
-        if (funcError) { 
-            showToast('خطأ في جلب الملف الصحي', 'error'); 
-            return; 
-        }
+      if (funcError || !fileData) { 
+    await supabase.auth.signOut();
+    localStorage.removeItem('healthFileId');
+    localStorage.removeItem('patient_push_id'); 
+    closeCtrlPanel(); 
+    showToast('انتهت الجلسة أو تم حذف الملف، يرجى تسجيل الدخول أو إنشاء حساب جديد.', 'info');
+    // إعادة فتح شاشة الدخول
+    setTimeout(() => openHealthFile(), 300);
+    return;
+}
         
         renderHealthDashboard(fileData);
         return;
