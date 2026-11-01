@@ -3866,10 +3866,10 @@ window.generatePrescription = async (patientId, patientName) => {
     if(meds.length === 0) return showToast('الرجاء إضافة دواء واحد على الأقل', 'error');
 
     let rxText = `📋 *روشتة طبية إلكترونية*\n_______________________\n`;
-    meds.forEach((m, i) => {
-        rxText += `\n${i + 1}. 💊 ${m.name}\n   الجرعة: ${m.dose || 'حسب الإرشاد'}\n`;
-    });
-    if (notes) rxText += `\n📝 *ملاحظات:* ${notes}\n`;
+meds.forEach((m, i) => {
+    rxText += `\n${i + 1}. 💊 ${m.name}\n   الجرعة: ${m.dose || 'حسب الإرشاد'}\n`;
+});
+if (notes) rxText += `\n📝 *ملاحظات:* ${notes}\n`;
     rxText += `_______________________\nيرجى الالتزام بالجرعات ولا تنسَ المراجعة.`;
 
     const docInfo = window.currentDoctorInfo || { name: 'طبيب', specialty: 'طبيب عام', id: 'unknown', phone: '' };
@@ -3957,74 +3957,78 @@ window.printPrescription = () => {
             <title>روشتة طبية - ${data.patientName}</title>
             <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Outfit:wght@600;800&display=swap" rel="stylesheet">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-            <link rel="stylesheet" href="/css/style.css?v=4">
+            <style>
+                * { box-sizing: border-box; margin: 0; padding: 0; }
+                body { font-family: 'IBM Plex Sans Arabic', sans-serif; background: #F3F4F6; padding: 20px; direction: rtl; }
+                .paper { max-width: 800px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+                .header { background: linear-gradient(to left, #0E7C5F, #052E22); color: white; padding: 25px 30px; display: flex; justify-content: space-between; align-items: center; }
+                .header-info h1 { font-family: 'Noto Kufi Arabic', sans-serif; font-size: 24px; margin-bottom: 5px; }
+                .header-info p { font-size: 14px; color: #A7F3D0; margin-bottom: 3px; display: flex; align-items: center; gap: 8px;}
+                .header-brand { text-align: left; }
+                .header-brand .logo { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800; color: #FCD34D; letter-spacing: 1px;}
+                .header-brand .date { font-size: 12px; color: #D1D5DB; margin-top: 5px; }
+                .patient-bar { background: #F9FAFB; padding: 15px 30px; display: flex; justify-content: space-between; border-bottom: 1px solid #E5E7EB; }
+                .patient-bar div { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #374151; }
+                .patient-bar strong { font-weight: 700; color: #111827; font-family: 'Noto Kufi Arabic'; }
+                .content { padding: 30px; }
+                .med-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; }
+                .med-item { display: flex; align-items: center; gap: 15px; padding: 12px 15px; border: 1px solid #E5E7EB; border-radius: 10px; background: #FFFFFF; }
+                .med-num { width: 28px; height: 28px; background: #0E7C5F; color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+                .med-details { flex: 1; display: flex; justify-content: space-between; align-items: center; }
+                .med-name { font-weight: 700; color: #1F2937; font-size: 16px; }
+                .med-dose { color: #6B7280; font-size: 14px; background: #F3F4F6; padding: 4px 10px; border-radius: 6px; }
+                .footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px; padding-top: 20px; border-top: 2px dashed #E5E7EB; }
+                .vrx-box { background: #F9FAFB; border: 1px solid #E5E7EB; padding: 10px 15px; border-radius: 8px; }
+                .vrx-box span { font-size: 11px; color: #6B7280; display: block; margin-bottom: 3px; }
+                .vrx-box strong { font-family: monospace; color: #0E7C5F; font-size: 16px; letter-spacing: 1px; }
+                .qr-box { text-align: center; }
+                #rxQrCode { width: 90px; height: 90px; }
+                .qr-box p { font-size: 11px; color: #6B7280; margin-top: 5px; }
+                @media print { body { background: white; padding: 0; } .paper { box-shadow: none; border-radius: 0; max-width: 100%; } }
+            </style>
         </head>
         <body>
-            <div id="rxPrintWindow">
-                <div class="toolbar">
-                    <button class="btn btn-primary" onclick="window.print()">
-                        <i class="fas fa-print"></i><span>طباعة الروشتة</span>
-                    </button>
-                    <button class="btn btn-secondary" onclick="window.close()">
-                        <i class="fas fa-times"></i><span>إغلاق</span>
-                    </button>
+            <div class="paper">
+                <div class="header">
+                    <div class="header-info">
+                        <h1>د. ${data.docName}</h1>
+                        <p><i class="fas fa-stethoscope"></i> ${data.docSpec}</p>
+                        ${data.docPhone ? `<p><i class="fas fa-phone"></i> ${data.docPhone}</p>` : ''}
+                    </div>
+                    <div class="header-brand">
+                        <div class="logo">LomedX</div>
+                        <div class="date">${data.dateStr}</div>
+                    </div>
                 </div>
-                
-                <div class="paper">
-                    <div class="header">
-                        <div class="doctor-info">
-                            <div class="doctor-avatar"><i class="fas fa-user-md"></i></div>
-                            <div class="doctor-text">
-                                <h1>د. ${data.docName}</h1>
-                                <p><i class="fas fa-stethoscope"></i> ${data.docSpec}</p>
-                                ${data.docPhone ? `<p><i class="fas fa-phone"></i> ${data.docPhone}</p>` : ''}
-                            </div>
-                        </div>
-                        <div class="header-brand">
-                            <div class="brand-logo">LomedX</div>
-                            <div class="brand-date">${data.dateStr}</div>
-                        </div>
-                    </div>
 
-                    <div class="patient-section">
-                        <div class="patient-field">
-                            <span class="patient-label"><i class="fas fa-user"></i> اسم المريض</span>
-                            <span class="patient-value">${data.patientName}</span>
-                        </div>
-                        <div class="patient-field">
-                            <span class="patient-label"><i class="fas fa-calendar"></i> التاريخ</span>
-                            <span class="patient-value">${data.dateStr}</span>
-                        </div>
-                    </div>
+                <div class="patient-bar">
+                    <div><i class="fas fa-user text-teal-600"></i> اسم المريض: <strong>${data.patientName}</strong></div>
+                    <div><i class="fas fa-calendar-alt text-teal-600"></i> التاريخ: <strong>${data.dateStr}</strong></div>
+                </div>
 
-                    <div class="content">
-                        <ul class="med-list">
-                            ${data.meds.map((m, i) => `
-                                <li>
-                                    <span class="num-circle">${i+1}</span>
+                <div class="content">
+                    <ul class="med-list">
+                        ${data.meds.map((m, i) => `
+                            <li class="med-item">
+                                <div class="med-num">${i+1}</div>
+                                <div class="med-details">
                                     <span class="med-name">${m.name}</span>
                                     <span class="med-dose">الجرعة: ${m.dose || 'حسب الإرشاد'}</span>
-                                </li>
-                            `).join('')}
-                        </ul>
+                                </div>
+                            </li>
+                        `).join('')}
+                    </ul>
 
-                        ${data.notes ? `
-                        <div class="notes-box">
-                            <div class="notes-icon"><i class="fas fa-lightbulb"></i></div>
-                            <div class="notes-content">
-                                <b>ملاحظات الطبيب:</b>
-                                ${data.notes}
-                            </div>
-                        </div>` : ''}
+                    ${data.notes ? `<div style="background:#FFFBEB; border:1px solid #FCD34D; padding:15px; border-radius:10px; margin-bottom:20px; color:#92400E; font-size:14px;"><b>ملاحظات الطبيب:</b><br>${data.notes}</div>` : ''}
 
-                        <div class="footer">
-                            <div class="signature">
-                                <div class="signature-line">توقيع الطبيب</div>
-                            </div>
-                            <div class="verification-block">
-                                <div class="qr-container" id="rxQrCode"></div>
-                                <div class="ver-code">VRX: ${data.verCode}</div>
-                            </div>
+                    <div class="footer">
+                        <div class="qr-box">
+                            <div id="rxQrCode"></div>
+                            <p>امسح للتحقق</p>
+                        </div>
+                        <div class="vrx-box" dir="ltr">
+                            <span>Verification Code</span>
+                            <strong>VRX: ${data.verCode}</strong>
                         </div>
                     </div>
                 </div>
@@ -4032,18 +4036,15 @@ window.printPrescription = () => {
 
             <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
             <script>
-                const qrContainer = document.getElementById('rxQrCode');
-                if (qrContainer && window.QRCode) {
-                    new QRCode(qrContainer, {
+                if (window.QRCode) {
+                    new QRCode(document.getElementById("rxQrCode"), {
                         text: 'https://lomedx.com/verify-rx/${data.verCode}',
-                        width: 78, height: 78,
+                        width: 90, height: 90,
                         colorDark: '#052E22', colorLight: '#ffffff',
                         correctLevel: QRCode.CorrectLevel.M
                     });
                 }
-                window.onload = function() {
-                    setTimeout(function() { window.print(); }, 500);
-                };
+                window.onload = function() { setTimeout(function() { window.print(); }, 500); };
             <\/script>
         </body>
         </html>
@@ -5686,39 +5687,55 @@ window.handleHealthLogin = async (e) => {
             <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border)">
                 <h4 class="font-bold mb-4 text-sm flex items-center gap-2"><i class="fas fa-file-medical text-blue-600"></i> روشتي الطبية السابقة</h4>
                 <div class="flex flex-col gap-4 mt-2">
+                 
+                    
+                    
                     ${data.prescriptions && data.prescriptions.length > 0 ? 
-                        data.prescriptions.slice().reverse().map(rx => `
-                            <div class="bg-gradient-to-br from-white to-blue-50/40 p-5 rounded-2xl border-2 border-dashed border-blue-300 relative shadow-sm">
-                                <button onclick="deletePrescription('${rx.date}')" class="absolute top-3 left-3 w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center shadow-sm" title="حذف الروشتة">
-                                    <i class="fas fa-trash-alt text-xs"></i>
-                                </button>
-                                <div class="flex justify-between items-center mb-4 pb-3 border-b border-blue-200">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><i class="fas fa-user-md"></i></div>
-                                        <div>
-                                            <div class="font-bold text-blue-800 text-sm">د. ${escapeHtml(rx.doctor || 'طبيب')}</div>
-                                            <div class="text-[10px] text-gray-500">${new Date(rx.date).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+    data.prescriptions.slice().reverse().map(rx => `
+        <div class="bg-white rounded-2xl border shadow-sm overflow-hidden mb-4" style="border-color: var(--border);">
+            <div class="bg-gradient-to-l from-[#0E7C5F] to-[#052E22] p-4 text-white flex justify-between items-center relative">
+                <div>
+                    <div class="font-bold text-lg font-sans" style="font-family: 'Noto Kufi Arabic';">د. ${escapeHtml(rx.doctor || 'طبيب')}</div>
+                    <div class="text-[11px] text-emerald-100 mt-1"><i class="fas fa-stethoscope ml-1"></i> ${escapeHtml(rx.specialty || 'طبيب عام')}</div>
+                </div>
+                <div class="text-left">
+                    <div class="text-yellow-400 font-black text-xl" style="font-family: 'Outfit';">LomedX</div>
+                    <div class="text-[9px] text-gray-300 mt-1">${new Date(rx.date).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                </div>
+                <button onclick="deletePrescription('${rx.date}')" class="absolute top-2 left-2 w-7 h-7 rounded-full bg-red-500/80 hover:bg-red-600 text-white flex items-center justify-center transition-all"><i class="fas fa-trash-alt text-xs"></i></button>
+            </div>
+            
+            <div class="p-4">
+                <div class="flex flex-col gap-2 mb-4">
+                    ${rx.text.split('\n').filter(line => line.trim() && !line.includes('*')).map((line, idx) => {
+                        const match = line.match(/^\d+\.\s*(.+?)\n?\s*الجرعة:\s*(.+)$/);
+                        if (match) {
+                            return `<div class="flex items-center gap-3 p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                                        <div class="w-6 h-6 rounded bg-[#0E7C5F] text-white flex items-center justify-center font-bold text-xs">${idx+1}</div>
+                                        <div class="flex-1 flex justify-between items-center">
+                                            <span class="font-bold text-sm text-gray-800">${escapeHtml(match[1].trim())}</span>
+                                            <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded border">${escapeHtml(match[2].trim())}</span>
                                         </div>
-                                    </div>
-                                    <i class="fas fa-prescription-bottle-medical text-2xl text-blue-200"></i>
-                                </div>
-                                <div class="whitespace-pre-line font-sans text-gray-800 text-sm leading-loose" style="white-space: pre-wrap;">${escapeHtml(rx.text)}</div>
-                                <div class="mt-4 pt-4 border-t-2 border-double border-blue-300 flex justify-between items-end">
-                                    <div class="flex flex-col gap-0.5">
-                                        <span class="font-bold text-sm text-blue-900" style="font-family: 'Noto Kufi Arabic'">${escapeHtml(rx.doctor || 'طبيب')}</span>
-                                        <span class="text-[10px] text-gray-500">${escapeHtml(rx.specialty || 'طبيب عام')}</span>
-                                        <span class="text-[10px] text-gray-400">${new Date(rx.date).toLocaleString('ar-EG', { date: 'short', time: 'short' })}</span>
-                                    </div>
-                                    <div class="flex flex-col items-end gap-1">
-                                        <span class="bg-green-100 text-green-700 text-[9px] font-bold px-2 py-1 rounded-full flex items-center gap-1 border border-green-200">
-                                            <i class="fas fa-shield-halved"></i> موثقة إلكترونياً
-                                        </span>
-                                        <span class="text-[9px] text-gray-400 font-mono" dir="ltr">VRX: ${escapeHtml(rx.verCode || 'N/A')}</span>
-                                    </div>
-                                </div>
-                            </div> 
-                        `).join('') 
-                    : '<div class="text-center py-8 text-gray-400 text-sm flex flex-col items-center gap-2"><i class="fas fa-file-prescription text-4xl text-gray-200 mb-2"></i>لا توجد روشتات طبية محفوظة حالياً.</div>'}
+                                    </div>`;
+                        }
+                        return `<div class="text-xs text-gray-500 pr-8">${escapeHtml(line)}</div>`;
+                    }).join('')}
+                </div>
+                
+                <div class="flex justify-between items-end mt-4 pt-3 border-t border-dashed border-gray-300">
+                    <div class="bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg text-left" dir="ltr">
+                        <div class="text-[9px] text-gray-500 font-sans">VRX</div>
+                        <div class="font-mono text-xs text-[#0E7C5F] font-bold">${escapeHtml(rx.verCode || 'N/A')}</div>
+                    </div>
+                    <div class="flex items-center gap-1 text-[10px] bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full border border-emerald-200">
+                        <i class="fas fa-shield-halved"></i> موثقة إلكترونياً
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('') 
+: '<div class="text-center py-8 text-gray-400 text-sm flex flex-col items-center gap-2"><i class="fas fa-file-prescription text-4xl text-gray-200 mb-2"></i>لا توجد روشتات طبية محفوظة حالياً.</div>'}
+                
                 </div>
             </div>
             
@@ -9292,72 +9309,54 @@ function renderPrescriptionResult(data) {
     const rx = data.prescription;
     const patient = data.patient;
 
-    const dateStr = new Date(rx.date).toLocaleDateString('ar-EG', { 
-        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-
     container.innerHTML = `
-        <div class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl p-5 mb-4">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                    <i class="fas fa-check text-2xl text-white"></i>
-                </div>
+        <div class="bg-white rounded-2xl border shadow-sm overflow-hidden mb-4" style="border-color: var(--border);">
+            <div class="bg-gradient-to-l from-[#0E7C5F] to-[#052E22] p-5 text-white flex justify-between items-center">
                 <div>
-                    <h4 class="font-bold text-lg text-green-800">روشتة صالحة وموثقة</h4>
-                    <p class="text-xs text-green-600">تم التحقق بواسطة: ${escapeHtml(data.verifiedBy)}</p>
+                    <div class="font-bold text-xl" style="font-family: 'Noto Kufi Arabic';">د. ${escapeHtml(rx.doctor)}</div>
+                    <div class="text-xs text-emerald-100 mt-1"><i class="fas fa-stethoscope ml-1"></i> ${escapeHtml(rx.specialty || 'طبيب عام')}</div>
+                </div>
+                <div class="text-left">
+                    <div class="text-yellow-400 font-black text-2xl tracking-wider" style="font-family: 'Outfit';">LomedX</div>
+                    <div class="text-[10px] text-gray-300 mt-1">${new Date(rx.date).toLocaleDateString('ar-EG')}</div>
                 </div>
             </div>
-        </div>
-
-        <!-- بطاقة الطبيب -->
-        <div class="bg-white rounded-2xl border p-4 mb-4" style="border-color: var(--border);">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                    <i class="fas fa-user-md text-blue-600 text-xl"></i>
+            
+            <div class="bg-gray-50 p-3 px-5 border-b border-gray-200 flex justify-between items-center text-sm">
+                <div class="text-gray-600"><i class="fas fa-user text-[#0E7C5F] ml-1"></i> المريض: <strong class="text-gray-900 font-bold">${escapeHtml(patient.name)}</strong></div>
+                <div class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full font-bold"><i class="fas fa-check-circle"></i> موثقة</div>
+            </div>
+            
+            <div class="p-5">
+                <div class="flex flex-col gap-2 mb-5">
+                    ${rx.text.split('\n').filter(line => line.trim() && !line.includes('*')).map((line, idx) => {
+                        const match = line.match(/^\d+\.\s*(.+?)\n?\s*الجرعة:\s*(.+)$/);
+                        if (match) {
+                            return `<div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 shadow-sm">
+                                        <div class="w-8 h-8 rounded-lg bg-[#0E7C5F] text-white flex items-center justify-center font-bold">${idx+1}</div>
+                                        <div class="flex-1 flex justify-between items-center">
+                                            <span class="font-bold text-sm text-gray-800">${escapeHtml(match[1].trim())}</span>
+                                            <span class="text-xs text-gray-600 bg-gray-100 px-3 py-1 rounded-lg">${escapeHtml(match[2].trim())}</span>
+                                        </div>
+                                    </div>`;
+                        }
+                        return '';
+                    }).join('')}
                 </div>
-                <div>
-                    <div class="font-bold text-gray-800">د. ${escapeHtml(rx.doctor)}</div>
-                    <div class="text-xs text-gray-500">${escapeHtml(rx.specialty || 'طبيب عام')}</div>
+                
+                <div class="flex justify-between items-end mt-6 pt-4 border-t-2 border-dashed border-gray-200">
+                    <div class="bg-gray-50 border border-gray-200 px-4 py-2 rounded-lg text-left" dir="ltr">
+                        <div class="text-[10px] text-gray-500 mb-1">Verification Code</div>
+                        <div class="font-mono text-sm text-[#0E7C5F] font-bold tracking-widest">${escapeHtml(rx.verCode)}</div>
+                    </div>
+                    <button onclick="printVerifiedPrescription()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm transition-all">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
                 </div>
             </div>
-        </div>
-
-        <!-- بطاقة المريض -->
-        <div class="bg-white rounded-2xl border p-4 mb-4" style="border-color: var(--border);">
-            <div class="flex items-center gap-2 mb-2">
-                <i class="fas fa-user text-blue-600"></i>
-                <span class="font-bold text-sm text-gray-700">بيانات المريض:</span>
-            </div>
-            <div class="text-sm font-semibold text-gray-800">${escapeHtml(patient.name)}</div>
-            <div class="text-xs text-gray-500 mt-1">التاريخ: ${escapeHtml(dateStr)}</div>
-        </div>
-
-        <!-- نص الروشتة -->
-        <div class="bg-white rounded-2xl border p-4 mb-4" style="border-color: var(--border);">
-            <div class="flex items-center gap-2 mb-3 border-b pb-2" style="border-color: var(--border);">
-                <i class="fas fa-prescription-bottle-medical text-emerald-600"></i>
-                <span class="font-bold text-sm text-gray-700">تفاصيل الروشتة:</span>
-            </div>
-            <div class="whitespace-pre-line font-sans text-gray-800 text-sm leading-loose" style="white-space: pre-wrap;">${escapeHtml(rx.text)}</div>
-        </div>
-
-        <!-- كود التحقق -->
-        <div class="bg-gray-50 rounded-xl p-3 text-center border" style="border-color: var(--border);">
-            <div class="text-[10px] text-gray-500 mb-1">كود التحقق الرسمي</div>
-            <div class="font-mono font-bold text-emerald-700 tracking-wider">VRX: ${escapeHtml(rx.verCode)}</div>
-        </div>
-
-        <div class="mt-4 flex gap-2">
-            <button onclick="printVerifiedPrescription()" class="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-sm">
-                <i class="fas fa-print"></i> طباعة نسخة
-            </button>
-            <button onclick="document.getElementById('prescriptionResultContainer').innerHTML=''" class="flex-1 py-2.5 rounded-xl border font-bold text-sm" style="border-color: var(--border);">
-                <i class="fas fa-qrcode"></i> مسح روشتة أخرى
-            </button>
         </div>
     `;
 
-    // حفظ البيانات للطباعة
     window.lastVerifiedRx = data;
 }
 
