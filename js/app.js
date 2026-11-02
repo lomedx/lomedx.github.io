@@ -8900,11 +8900,6 @@ window.openPrivacyPolicy = () => {
                 </ul>
             </div>
 
-            <div class="bg-white p-5 rounded-xl border" style="border-color: var(--border);">
-                <h4 class="font-bold text-sm mb-3 flex items-center gap-2"><i class="fas fa-cookie-bite text-emerald-600"></i> 4. ملفات تعريف الارتباط (Cookies)</h4>
-                <p class="text-sm text-gray-700 leading-relaxed">نستخدم الكوكيز لتحسين تجربتك وتحليل حركة المرور عبر أدوات مثل Google Analytics، ولا نستخدمها لتخزين بياناتك الحساسة. يمكنك تعطيلها من إعدادات متصفحك.</p>
-            </div>
-
             <div class="bg-gray-50 p-4 rounded-xl border text-xs text-gray-600" style="border-color: var(--border);">
                 <i class="fas fa-envelope ml-1"></i> لأي استفسار: 
                 <a href="/contact" class="text-emerald-600 font-bold">تواصل معنا</a>
@@ -8916,7 +8911,7 @@ window.openPrivacyPolicy = () => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// ⚠️ إخلاء المسؤولية الطبية
+//  إخلاء المسؤولية الطبية
 // ═══════════════════════════════════════════════════════════
 window.openDisclaimer = () => {
     openCtrlPanel('⚠️ إخلاء المسؤولية وشروط الاستخدام', `
@@ -8986,7 +8981,7 @@ window.openAddFacilityModal = () => {
     const overlay = document.getElementById('addFacilityOverlay');
     if (!overlay) return;
     
-    // ✅ استخدم نفس نظام تواصل معنا
+    // استخدم نفس نظام تواصل معنا
     overlay.classList.add('active');
     lockScroll();  // ← نفس الدالة التي يستخدمها openCtrlPanel
     
