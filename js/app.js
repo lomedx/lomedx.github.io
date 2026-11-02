@@ -5656,6 +5656,28 @@ window.handleHealthLogin = async (e) => {
     <div id="qrcode" class="bg-white p-3 rounded-xl border" style="border-color: var(--border)"></div>
       <p class="text-xs text-gray-500 mt-3 text-center">وجه الطبيب لمسح هذا الرمز للوصول لملفك فوراً دون كلمة مرور</p>
           </div>
+
+<!-- إعدادات الخصوصية وسجل الوصول -->
+<div class="bg-white p-5 rounded-xl border mb-4 mt-4" style="border-color: var(--border);">
+    <h4 class="font-bold text-sm mb-3 flex items-center gap-2"><i class="fas fa-shield-alt text-blue-600"></i> الخصوصية والأمان</h4>
+    
+    <!-- إخفاء الاسم -->
+    <label class="flex items-center justify-between p-3 rounded-lg bg-gray-50 cursor-pointer mb-3">
+        <div class="flex flex-col">
+            <span class="font-bold text-sm">إخفاء اسمي في الروشتة</span>
+            <span class="text-[10px] text-gray-500">سيظهر للصيدلي الاسم الأول وحرف من الكنية فقط.</span>
+        </div>
+        <input type="checkbox" class="w-5 h-5 accent-blue-600" 
+               ${data.hide_name_in_rx ? 'checked' : ''} 
+               onchange="toggleHideName(this.checked)">
+    </label>
+
+    <!-- سجل الوصول -->
+    <button onclick="openAccessLogs()" class="w-full py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 font-bold text-sm hover:bg-gray-100 transition-all flex items-center justify-center gap-2">
+        <i class="fas fa-user-secret text-gray-500"></i> من قام بفتح ملفي؟ (سجل الوصول)
+    </button>
+</div>
+          
             <form onsubmit="saveHealthProfile(event)" class="bg-white p-5 rounded-xl border grid grid-cols-1 sm:grid-cols-2 gap-3" style="border-color: var(--border)">
                 <div class="col-span-1 sm:col-span-2"><label class="text-xs font-bold text-gray-500">الاسم الكامل</label><input type="text" id="hfFullName" class="ctrl-input" value="${escapeHtml(safe(data.full_name) || safe(data.fullName))}" required></div>
                 <div><label class="text-xs font-bold text-gray-500">العمر</label><input type="number" id="hfAge" class="ctrl-input" value="${escapeHtml(safe(data.age))}"></div>
@@ -5815,6 +5837,45 @@ window.regenerateQrToken = async () => {
         showToast('حدث خطأ أثناء تغيير الرمز: ' + err.message, 'error');
     }
 };
+
+// دالة إخفاء الاسم
+window.toggleHideName = async (value) => {
+    try {
+        await supabase.from('health_files').update({ hide_name_in_rx: value }).eq('id', currentHealthFileId);
+        showToast('تم حفظ إعدادات الخصوصية بنجاح', 'success');
+    } catch (err) { showToast('حدث خطأ', 'error'); }
+};
+
+// دالة سجل الوصول
+window.openAccessLogs = async () => {
+    openCtrlPanel('سجل الوصول للملف', '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i></div>', '#2563EB');
+    
+    const { data: logs } = await supabase.from('access_logs')
+        .select('*')
+        .eq('patient_id', currentHealthFileId)
+        .order('created_at', { ascending: false })
+        .limit(30);
+        
+    let html = '';
+    if (!logs || logs.length === 0) {
+        html = '<p class="text-center text-gray-500 py-8">لم يقم أحد بفتح ملفك بعد.</p>';
+    } else {
+        html = logs.map(l => `
+            <div class="flex justify-between items-center p-3 border-b">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><i class="fas fa-user-md"></i></div>
+                    <div>
+                        <div class="font-bold text-sm">${escapeHtml(l.visitor_name)}</div>
+                        <div class="text-[10px] text-gray-500">${l.action_type === 'scan_file' ? 'مسح الملف الصحي' : 'التحقق من روشتة'}</div>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-400" dir="ltr">${new Date(l.created_at).toLocaleString('ar-EG')}</div>
+            </div>
+        `).join('');
+    }
+    document.getElementById('ctrlContent').innerHTML = `<div class="flex flex-col gap-3">${html}</div>`;
+};
+
 window.logoutHealthFile = async () => { 
     await supabase.auth.signOut();
     localStorage.removeItem('healthFileId'); 
