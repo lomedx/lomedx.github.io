@@ -5659,15 +5659,14 @@ window.handleHealthLogin = async (e) => {
       <p class="text-xs text-gray-500 mt-3 text-center">وجه الطبيب لمسح هذا الرمز للوصول لملفك فوراً دون كلمة مرور</p>
           </div>
 
-<!-- إعدادات الخصوصية وسجل الوصول -->
+
 <div class="bg-white p-5 rounded-xl border mb-4 mt-4" style="border-color: var(--border);">
     <h4 class="font-bold text-sm mb-3 flex items-center gap-2"><i class="fas fa-shield-alt text-blue-600"></i> الخصوصية والأمان</h4>
-    
-    <!-- إخفاء الاسم -->
+
     <label class="flex items-center justify-between p-3 rounded-lg bg-gray-50 cursor-pointer mb-3">
         <div class="flex flex-col">
             <span class="font-bold text-sm">إخفاء اسمي في الروشتة</span>
-            <span class="text-[10px] text-gray-500">سيظهر للصيدلي الاسم الأول وحرف من الكنية فقط.</span>
+            <span class="text-[10px] text-gray-500">سيظهر للصيدلي حرف من الاسم وحرف من الكنية فقط.</span>
         </div>
         <input type="checkbox" class="w-5 h-5 accent-blue-600" 
                ${data.hide_name_in_rx ? 'checked' : ''} 
@@ -9431,7 +9430,7 @@ function renderPrescriptionResult(data) {
                     <i class="fas fa-user-md text-blue-600 text-xl"></i>
                 </div>
                 <div>
-                    <div class="font-bold text-gray-800">د. ${escapeHtml(rx.doctor)}</div>
+                    <div class="font-bold text-gray-800"> ${escapeHtml(rx.doctor)}</div>
                     <div class="text-xs text-gray-500">${escapeHtml(rx.specialty || 'طبيب عام')}</div>
                 </div>
             </div>
@@ -9508,10 +9507,10 @@ window.printVerifiedPrescription = () => {
                     <h2 style="margin: 0;">✓ روشتة طبية موثقة</h2>
                     <p style="margin: 5px 0 0 0;">تم التحقق بواسطة: ${escapeHtml(data.verifiedBy)}</p>
                 </div>
-                <div class="field"><b>الطبيب:</b> د. ${escapeHtml(rx.doctor)}</div>
+                <div class="field"><b>الطبيب:</b>.  ${escapeHtml(rx.doctor)}</div>
                 <div class="field"><b>التخصص:</b> ${escapeHtml(rx.specialty || 'طبيب عام')}</div>
-                <div class="field"><b>المريض:</b> ${escapeHtml(patient.name)}</div>
-                <div class="field"><b>التاريخ:</b> ${escapeHtml(dateStr)}</div>
+                <div class="field"><b>المريض:</b>  ${escapeHtml(patient.name)}</div>
+                <div class="field"><b>التاريخ:</b>   ${escapeHtml(dateStr)}</div>
                 <div class="content">${escapeHtml(rx.text)}</div>
                 <div class="vercode">VRX: ${escapeHtml(rx.verCode)}</div>
                 <div class="stamp">🛡️ LomedX | روشتة موثقة إلكترونياً</div>
@@ -9898,13 +9897,13 @@ window.printVerifiedPrescription = () => {
 
         if (animate) {
             animateWeb(0, 1, CONFIG.animationDuration, () => {
-                // ✅ تطبيق الثيم على <html> كما في نظامك الأصلي
+                //  تطبيق الثيم على <html> كما في نظامك الأصلي
                 document.documentElement.classList.toggle('dark', isDark);
                 
                 compactLight.setAttribute('aria-pressed', (!isDark).toString());
                 compactDark.setAttribute('aria-pressed', isDark.toString());
 
-                // ✅ حفظ في localStorage بنفس مفتاح نظامك
+                //  حفظ في localStorage بنفس مفتاح نظامك
                 try {
                     localStorage.setItem('darkMode', isDark ? 'true' : 'false');
                 } catch (e) {}
