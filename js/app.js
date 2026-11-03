@@ -891,7 +891,7 @@ window.addEventListener('popstate', () => {
     }
 });
 
-function createCard(item) {
+function createCard(item, index) {
     const typeMap = { 
         hospital: { cardClass: 'hospital-card', badgeClass: 'badge-hospital', iconClass: 'cat-icon-hospital', icon: 'fa-hospital-symbol', label: 'مشفى', color: 'var(--hospital)' }, 
         center: { cardClass: 'center-card', badgeClass: 'badge-center', iconClass: 'cat-icon-center', icon: 'fa-clinic-medical', label: 'مركز طبي', color: 'var(--center)' }, 
@@ -934,7 +934,7 @@ function createCard(item) {
     </div>
 ` : `
 
-    <img src="${getOptimizedImageUrl(item.image, 400, 300)}" alt="${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} في سوريا | منصة LomedX" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 cursor-zoom-in" loading="lazy" onclick="event.stopPropagation(); openLightbox(this.src, 'صورة ${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} | LomedX')">
+    <img src="${getOptimizedImageUrl(item.image, 400, 300)}" alt="${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} في سوريا | منصة LomedX" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 cursor-zoom-in" ${index === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} onclick="event.stopPropagation(); openLightbox(this.src, 'صورة ${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} | LomedX')">
 `}<div class="absolute top-3 right-3"><span class="badge ${t.badgeClass}">${t.label}</span></div><div class="absolute top-3 left-3 flex flex-col gap-1 items-start">
 
 
@@ -1074,7 +1074,7 @@ filtered.sort((a, b) => {
         // عرض البطاقات بناءً على الحد المخصص لكل قسم
         const itemsToRender = filtered.slice(0, renderLimits[type]);
         
-        g.el.innerHTML = itemsToRender.map(createCard).join(''); 
+        g.el.innerHTML = itemsToRender.map((item, i) => createCard(item, i)).join(''); 
         g.section.style.display = show ? '' : 'none'; 
         
         // إظهار أو إخفاء زر "عرض المزيد" الخاص بهذا القسم
