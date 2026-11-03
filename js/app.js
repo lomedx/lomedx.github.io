@@ -8084,7 +8084,7 @@ async function fetchAdminArticles() {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
             const id = this.getAttribute('data-id');
-            window.deleteArticle(id); // تم التصحيح هنا
+            window.deleteArticle(id); 
         });
     });
 }
@@ -8097,7 +8097,7 @@ window.toggleAccordion = (el) => {
         item.parentElement.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
         // فتح الأكورديون المضغوط عليه إذا كان مغلقاً
         if (!isActive) item.classList.add('active');
-    
+    }
     else {
         const accordion = document.getElementById('toolsAccordion');
         if (accordion) {
