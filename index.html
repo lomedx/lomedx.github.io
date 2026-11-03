@@ -124,15 +124,14 @@
     
     <!-- استدعاء الملفات الخارجية -->
  <script defer src="/js/seo-data.js?v=1.1"></script>
-<script type="module" src="/js/app.js?v=17"></script>
+<script type="module" src="/js/app.js?v=5"></script>
+
+
+
+
+
+
 <script src="https://cdn.tailwindcss.com"></script>
-
-
-
-
-
-
-    
 <script>tailwind.config = { darkMode: 'class' }</script>
 <!--  ----------  -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1170,56 +1169,23 @@
     </a>
 </div>
                     <!-- الروابط المستقلةة -->
-                        <div class="mt-4 pt-4 border-t border-white/10 space-y-2.5">
-
-    <!-- ═══ البريد الأساسي: support@ (بارز) ═══ -->
-    <a href="mailto:support@lomedx.com?subject=طلب%20مساعدة%20-%20LomedX"
-       class="block w-full rounded-xl p-3 hover:scale-[1.02] transition-all"
-       style="text-decoration:none; background: linear-gradient(135deg, rgba(96, 165, 250, 0.10), rgba(96, 165, 250, 0.02)); border: 1.5px solid rgba(96, 165, 250, 0.28);">
-        <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                 style="background: linear-gradient(135deg, #60A5FA, #2563EB);">
-                <i class="fas fa-life-ring text-white text-sm"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-                <div class="text-[11px] font-black text-white" style="font-family: 'Noto Kufi Arabic';">الدعم الفني</div>
-                <div class="text-[10.5px] font-bold truncate" dir="ltr" style="color: #93C5FD; font-family: 'JetBrains Mono', monospace; text-align: right;">
-                    support@lomedx.com
-                </div>
-            </div>
-            <i class="fas fa-arrow-left text-[10px]" style="color: #93C5FD;"></i>
-        </div>
-    </a>
-
-    <!-- ═══ روابط سريعة (بدون بريد ثانٍ لتقليل التشتت) ═══ -->
-    <a href="/add-facility" class="w-full flex items-center justify-between text-[11px] font-semibold text-white/50 hover:text-[var(--gold)] transition-colors py-1.5" style="text-decoration:none;">
-        <span class="flex items-center gap-2"><i class="fas fa-plus-circle text-[var(--gold)] text-xs"></i> أضف منشأتك الطبية</span>
-        <i class="fas fa-chevron-left text-[9px] text-white/20"></i>
-    </a>
-
-    <a href="/contact" class="w-full flex items-center justify-between text-[11px] font-semibold text-white/50 hover:text-[var(--gold)] transition-colors py-1.5" style="text-decoration:none;">
-        <span class="flex items-center gap-2"><i class="fas fa-headset text-[var(--gold)] text-xs"></i> تواصل معنا</span>
-        <i class="fas fa-chevron-left text-[9px] text-white/20"></i>
-    </a>
-
-    <a href="/support" class="w-full flex items-center justify-between text-[11px] font-semibold text-white/50 hover:text-white transition-colors py-1.5" style="text-decoration:none;">
-        <span class="flex items-center gap-2"><i class="fas fa-circle-question text-[var(--gold)] text-xs"></i> مركز المساعدة الشامل</span>
-        <i class="fas fa-chevron-left text-[9px] text-white/20"></i>
-    </a>
-
-    <!-- ═══ info@ كرابط صغير في الأسفل ═══ -->
-    <div class="pt-2 text-center">
-        <p class="text-[10px] text-white/30 leading-relaxed">
-            للشراكات والاستفسارات العامة:
-            <a href="mailto:info@lomedx.com?subject=استفسار%20عام%20-%20LomedX"
-               style="color: var(--gold-light); text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;"
-               dir="ltr">
-                info@lomedx.com
-            </a>
-        </p>
-    </div>
-
-</div>
+                        <div class="mt-4 pt-4 border-t border-white/10 space-y-3">
+                            <a href="/add-facility" class="w-full flex items-center justify-between text-sm font-semibold text-white/80 hover:text-[var(--gold)] transition-colors py-2 cursor-pointer" style="text-decoration:none;">
+    <span class="flex items-center gap-2"><i class="fas fa-plus-circle text-[var(--gold)]"></i> أضف منشأتك الطبية</span>
+    <i class="fas fa-chevron-left text-xs text-white/30"></i>
+</a>
+                        </div>
+                            <a href="/contact" class="w-full flex items-center justify-between text-sm font-semibold text-white/80 hover:text-[var(--gold)] transition-colors py-2 cursor-pointer" style="text-decoration:none;">
+    <span class="flex items-center gap-2"><i class="fas fa-headset text-[var(--gold)]"></i> تواصل معنا / دعم فني</span>
+    <i class="fas fa-chevron-left text-xs text-white/30"></i>
+</a>
+                        </div>
+                        <!-- زر الدعم الفني -->
+<a href="/support" target="_blank" rel="noopener" class="w-full flex items-center justify-between text-sm font-semibold text-white/80 hover:text-white transition-colors py-2 cursor-pointer" style="text-decoration:none; background: transparent; border: none;">
+    <span class="flex items-center gap-2"><i class="fas fa-circle-question text-[var(--gold)]"></i> هل تواجه مشكلة؟ مركز الدعم</span>
+    <i class="fas fa-chevron-left text-xs text-white/30"></i>
+</a>
+                    </div>
                 </div>
         </div>
             <!-- الشريط السفلي لحقوق النشر -->
