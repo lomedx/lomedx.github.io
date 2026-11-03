@@ -8097,8 +8097,7 @@ window.toggleAccordion = (el) => {
         item.parentElement.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
         // فتح الأكورديون المضغوط عليه إذا كان مغلقاً
         if (!isActive) item.classList.add('active');
-    } 
-    // إذا لم يتم تمرير عنصر، فهذا يعني أن الضغط جاء من زر الحاسبات في قائمة الجوال
+    
     else {
         const accordion = document.getElementById('toolsAccordion');
         if (accordion) {
@@ -8106,7 +8105,7 @@ window.toggleAccordion = (el) => {
         }
     }
 };
-// === دوال تصنيفات المدونة المنزلقة (تعتمد على التصنيفات المضافة من لوحة الإدارة) ===
+
 window.openBlogCategory = () => {
     const overlay = document.getElementById('blogCategoryOverlay');
     const listContainer = document.getElementById('blogCategoryList');
@@ -8115,12 +8114,10 @@ window.openBlogCategory = () => {
     // 1. إضافة خيار "كل التصنيفات" افتراضياً
     let cats = ['كل التصنيفات'];
     
-    // 2. استخراج التصنيفات الفريدة من المقالات المحملة في allArticles (التي جاءت من لوحة الإدارة)
     allArticles.forEach(a => {
         if (a.category && !cats.includes(a.category)) cats.push(a.category);
     });
 
-    // 3. رسم القائمة
     listContainer.innerHTML = cats.map(cat => `
         <div class="city-option ${(currentBlogCategory === 'all' && cat === 'كل التصنيفات') || currentBlogCategory === cat ? 'selected' : ''}" onclick="selectBlogCategory('${escapeHtml(cat)}')">
             <div class="flex items-center gap-3">
@@ -8140,16 +8137,14 @@ window.closeBlogCategory = () => {
 };
 
 window.selectBlogCategory = (cat) => {
-    // إذا كان الخيار المختار هو "كل التصنيفات"، نعيد المتغير إلى 'all' لمنع الفلترة
+    
     currentBlogCategory = (cat === 'كل التصنيفات') ? 'all' : cat;
     
-    // تحديث النص الظاهر في المدونة
     const catText = document.getElementById('currentBlogCategoryText');
     if (catText) catText.innerText = cat;
     
     closeBlogCategory();
     
-    // إعادة جلب المقالات
     const searchInput = document.getElementById('blogSearchInput');
     fetchArticles(searchInput ? searchInput.value : '');
 };
@@ -8169,16 +8164,10 @@ window.checkOnlineStatus = () => {
     }
     return true;
 };
-
-
-
-
-// === نظام التحديث النظيف (يعتمد على سؤال الـ SW عن إصداره) ===
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('OneSignalSDKWorker.js').then(reg => {
       
-      // 1. الاستماع لردود الـ Service Worker
       navigator.serviceWorker.addEventListener('message', event => {
   if (event.data && event.data.type === 'SW_VERSION_REPLY') {
     const newVersion = event.data.version;
@@ -8205,15 +8194,12 @@ if ('serviceWorker' in navigator) {
         if (!newWorker) return;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // تم تثبيت إصدار جديد في الخلفية، أرسل له طلب معرفة الإصدار
             newWorker.postMessage({ type: 'GET_VERSION' });
           }
         });
       });
     });
   });
-
-  // دالة إظهار رسالة التحديث
   function showUpdateToast(newVersion) {
     const toast = document.getElementById('toast');
     if (toast.classList.contains('show') && toast.innerHTML.includes('يتوفر إصدار جديد')) return;
@@ -8250,11 +8236,6 @@ if ('serviceWorker' in navigator) {
     window.location.reload();
   });
 }
-
-
-
-
-
 const PwaInstaller = (() => {
     let deferredPrompt = null;
 
@@ -8395,8 +8376,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (onclickVal && onclickVal.includes('toggleMobileMenu()')) {
                 btn.setAttribute('onclick', onclickVal.replace(/toggleMobileMenu\(\);?\s*/g, ''));
             }
-            
-            // إضافة منطقنا الذكي
             btn.addEventListener('click', () => {
                 openedFromMenu = true; // تعليم أن الميزة فُتحت من القائمة
                 menuOverlay.classList.add('hidden'); // إخفاء الخلفية السوداء
@@ -8438,7 +8417,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 });
-
+//----------------------------ولككككك الووووو و 
 let pageVisibilityTimers = {};
 
 document.addEventListener('visibilitychange', () => {
@@ -8518,15 +8497,11 @@ document.addEventListener('visibilitychange', () => {
             }
             document.getElementById('toast').classList.remove('show');
         }
-
-        // 8. [جديد] تنظيف مؤقتات الواجهة (الإشعارات وشريط المدينة)
         if (window._toastTimer) clearTimeout(window._toastTimer);
         if (window._cityBannerTimer) {
             clearTimeout(window._cityBannerTimer);
             window._cityBannerTimer = null;
         }
-
-        // 9. إغلاق قنوات الاتصال اللحظي (WebSockets)
         if (unsubscribeMedRequests) { 
             supabase.removeChannel(unsubscribeMedRequests); 
             unsubscribeMedRequests = null; 
@@ -8541,7 +8516,7 @@ document.addEventListener('visibilitychange', () => {
         }
 
     } else {
-        // ===== [2] عند العودة (وضع الاستيقاظ الكامل) =====
+    
         document.body.classList.remove('tab-hidden');
         
         // 1. إعادة تشغيل الفيديوهات والإعلانات
@@ -8555,12 +8530,9 @@ document.addEventListener('visibilitychange', () => {
             renderAdSlide(currentAdIndex);
         }
 
-        // 2. تحديث البيانات الأساسية
         if (typeof fetchTodayDutiesForBadge === 'function') fetchTodayDutiesForBadge();
         if (typeof fetchListings === 'function') fetchListings(); 
         if (typeof fetchBookings === 'function') fetchBookings();
-        
-        // إعادة تهيئة اتصال المناوبات وبدء الفحص المحلي
         if (typeof initDutyRealtime === 'function') initDutyRealtime();
         if (typeof startDutyLocalChecker === 'function') startDutyLocalChecker();
 
@@ -8654,13 +8626,9 @@ document.addEventListener('visibilitychange', () => {
                 showToast('تم إيقاف الكاميرا مؤقتاً بسبب خروجك من التطبيق. يرجى إعادة فتح الماسح.', 'info');
             }).catch(() => { activeQrScanner = null; });
         }
-
-        // 8. تحديث جلسة الدخول بصمت
         if (typeof supabase !== 'undefined' && supabase.auth) {
             supabase.auth.getSession();
         }
-
-        // 9. إصلاح القائمة المنسدلة للبحث
         if (typeof searchDropdown !== 'undefined' && searchDropdown && !searchDropdown.classList.contains('hidden')) {
             if (window.updateSmartSearchPosition) window.updateSmartSearchPosition();
         }
@@ -8693,14 +8661,6 @@ document.addEventListener('visibilitychange', () => {
           .subscribe();
     }
 });
-
-
-
-
-
-
-
-
 
 // === إيقاف أنيميشن الهيرو عند التمرير لأسفل ===
 const heroSection = document.getElementById('home');
@@ -8772,12 +8732,10 @@ const routesConfig = {
 
 function handleRouteChange() {
     const path = window.location.pathname;
-    
-    //التعامل مع روابط التحقق من الروشتة
     if (path.startsWith('/verify-rx/')) {
-        const verCode = path.split('/')[2]; // استخراج الكود من الرابط
+        const verCode = path.split('/')[2]; 
         if (verCode) {
-            // فتح نافذة التحقق وإرسال الكود تلقائياً
+    
             openCtrlPanel('التحقق من الروشتة', `
                 <div class="flex flex-col gap-4">
                     <div id="prescriptionResultContainer" class="mt-2"></div>
@@ -8785,11 +8743,11 @@ function handleRouteChange() {
             `, '#0E7C5F');
             fetchPrescriptionByCode(verCode);
         }
-        return; // إيقاف التنفيذ هنا لأننا تعاملنا مع الرابط
+        return; /٠
     }
     
     if (path === '/verify-rx') {
-        // إذا فتح الرابط بدون كود، افتح شاشة إدخال الكود
+    
         openCtrlPanel('التحقق من الروشتة', `
             <div class="flex flex-col gap-4">
                 <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm flex items-center gap-3">
@@ -8838,8 +8796,6 @@ document.addEventListener('click', (e) => {
         const path = new URL(link.href).pathname;
         history.pushState({}, '', path);
         handleRouteChange();
-        
-        // ✅ لا تمرر للأعلى للصفحات التي تفتح نوافذ منبثقة
         const modalRoutes = ['/add-facility', '/contact', '/ask-doctor', '/blood-bank', '/first-aid', '/burn-calculator', '/raheba-radar', '/medicine-finder', '/medicine-donation', '/medical-map', '/events-first-aid', '/blog'];
         
         if (!modalRoutes.includes(path)) {
@@ -8973,9 +8929,6 @@ window.openDisclaimer = () => {
     `, '#DC2626');
 };
 // نهاية ملف
-// ═══════════════════════════════════════════════════════════
-// Modal Management
-// ═══════════════════════════════════════════════════════════
 
 window.openAddFacilityModal = () => {
     const overlay = document.getElementById('addFacilityOverlay');
@@ -8985,7 +8938,6 @@ window.openAddFacilityModal = () => {
     overlay.classList.add('active');
     lockScroll();  // ← نفس الدالة التي يستخدمها openCtrlPanel
     
-    // Focus أول حقل
     setTimeout(() => {
         const firstInput = document.getElementById('facName');
         if (firstInput) {
@@ -9000,24 +8952,19 @@ window.closeAddFacilityModal = () => {
     
     overlay.classList.remove('active');
     
-    setTimeout(() => {
-    
+    setTimeout(() => {   
         unlockScroll();
         const form = document.getElementById('addFacilityForm');
         if (form) form.reset();
-        
-        // إعادة تعيين زر الإرسال
         const submitBtn = document.querySelector('.submit-facility-btn');
         if (submitBtn && submitBtn.disabled) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>إرسال طلب التسجيل</span>';
         }
-        
-        // إزالة التركيز (بعد كل شيء)
         if (document.activeElement && document.activeElement.blur) {
             document.activeElement.blur();
         }
-    }, 350);  // ← تأخير بسيط
+    }, 350);  
 };
 window.handleOverlayClick = (event) => {
     if (event.target.id === 'addFacilityOverlay') {
@@ -9025,7 +8972,6 @@ window.handleOverlayClick = (event) => {
     }
 };
 
-// ESC to close
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         const modal = document.getElementById('addFacilityOverlay');
@@ -9035,15 +8981,10 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// ═══════════════════════════════════════════════════════════
-// Handle iOS keyboard (يُصلح مشكلة الجوال)
-// ═══════════════════════════════════════════════════════════
 if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', () => {
         const modal = document.querySelector('.add-facility-modal');
         if (!modal || !modal.closest('.modal-overlay.active')) return;
-        
-        // Adjust max-height when keyboard opens
         const availableHeight = window.visualViewport.height - 40;
         modal.style.maxHeight = Math.min(availableHeight, window.innerHeight * 0.92) + 'px';
     });
@@ -9054,36 +8995,29 @@ window.submitFacilityRequest = (e) => {
 
     const nameInput = document.getElementById('facName');
     const cityInput = document.getElementById('facCity');
-    const addressInput = document.getElementById('facAddress'); // ✅ الحقل الجديد
+    const addressInput = document.getElementById('facAddress'); 
     
     const name = nameInput.value.trim();
     const type = document.getElementById('facType').value;
     const city = cityInput.value.trim();
-    const address = addressInput.value.trim(); // ✅ القيمة الجديدة
+    const address = addressInput.value.trim(); 
     const phone = document.getElementById('facPhone').value.trim();
-
     // 1. التحقق من الاسم
     if (name.length < 3) {
         showToast('الرجاء إدخال اسم كامل للمنشأة', 'error');
         nameInput.focus();
         return;
     }
-
-    // 2. التحقق من المدينة
     if (city.length < 2) {
         showToast('الرجاء إدخال اسم المدينة', 'error');
         cityInput.focus();
         return;
     }
-
-    // ✅ 3. التحقق من العنوان
     if (address.length < 5) {
         showToast('الرجاء إدخال عنوان تفصيلي (الشارع، علامة مميزة)', 'error');
         addressInput.focus();
         return;
     }
-
-    // 4. فلتر الكلمات المسيئة
     let hasBadWords = false;
     if (containsBadWords(name)) { nameInput.classList.add('input-invalid'); hasBadWords = true; } else { nameInput.classList.remove('input-invalid'); }
     if (containsBadWords(city)) { cityInput.classList.add('input-invalid'); hasBadWords = true; } else { cityInput.classList.remove('input-invalid'); }
@@ -9093,8 +9027,6 @@ window.submitFacilityRequest = (e) => {
         showToast('تم رفض الطلب لاحتوائه على كلمات غير لائقة.', 'error');
         return;
     }
-
-    // 5. التحقق من رقم الهاتف
     const cleanPhone = phone.replace(/[\s\-()]/g, '');
     const phoneRegex = /^(09\d{8}|9\d{8}|\+?9639\d{8})$/;
     if (!phoneRegex.test(cleanPhone)) {
@@ -9102,13 +9034,9 @@ window.submitFacilityRequest = (e) => {
         document.getElementById('facPhone').focus();
         return;
     }
-
-    // حالة التحميل
     const submitBtn = document.querySelector('.submit-facility-btn');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>جاري التحويل...</span>';
-
-    // ✅ 6. بناء رسالة الواتساب (مع العنوان الجديد)
     const adminWhatsApp = "963980390813";
     const message = [
         '*📋 طلب تسجيل منشأة طبية جديدة على LomedX*',
@@ -9116,15 +9044,13 @@ window.submitFacilityRequest = (e) => {
         `*🏥 اسم المنشأة/الطبيب:* ${name}`,
         `*📌 النوع:* ${type}`,
         `*📍 المدينة:* ${city}`,
-        `*🏠 العنوان التفصيلي:* ${address}`, // ✅ إضافة العنوان هنا
+        `*🏠 العنوان التفصيلي:* ${address}`, 
         `*📞 هاتف التواصل:* ${phone}`,
         '',
         '_تم الإرسال من نموذج LomedX_'
     ].join('\n');
 
     const whatsappUrl = `https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(message)}`;
-
-    // فتح واتساب
     setTimeout(() => {
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
         showToast('✓ تم تجهيز طلبك! يرجى إرسال الرسالة عبر واتساب لإتمام التسجيل.', 'success');
@@ -9134,7 +9060,7 @@ window.submitFacilityRequest = (e) => {
 
 
 // ==========================================
-// [الخطوة 1] نظام مكتبة الأدوية المحلية للطبيب
+// نظام مكتبة الأدوية المحلية للطبيب
 // ==========================================
 let docMedsLibrary = JSON.parse(localStorage.getItem('lomedx_doc_meds_library') || '[]');
 
@@ -9320,12 +9246,10 @@ window.openPharmacyScanner = async (pharmacyId) => {
             { facingMode: "environment" }, 
             { fps: 10, qrbox: { width: 250, height: 250 } },
             (decodedText) => { 
-                // استخراج كود التحقق من الرابط
                 let verCode = decodedText;
                 if (decodedText.includes('verify-rx/')) {
                     verCode = decodedText.split('verify-rx/')[1];
-                }
-                
+                }             
                 activeQrScanner.stop().then(() => { 
                     activeQrScanner = null; 
                     fetchPrescriptionByCode(verCode); 
@@ -9341,7 +9265,6 @@ window.openPharmacyScanner = async (pharmacyId) => {
 };
 
 window.fetchPrescriptionByCode = async (verCode = null) => {
-    // إذا لم يُمرر الكود، خذه من الحقل اليدوي
     if (!verCode) {
         const input = document.getElementById('manualVerCode');
         verCode = input ? input.value.trim().toUpperCase() : '';
@@ -9517,13 +9440,6 @@ window.printVerifiedPrescription = () => {
     printWindow.document.close();
 };
 
-
-
-
-
-// ═══════════════════════════════════════════════════════════
-// THEME COMPACT TOGGLE — Dual Ring with Web Bridge
-// ═══════════════════════════════════════════════════════════
 (function initThemeCompact() {
     'use strict';
 
@@ -9538,7 +9454,7 @@ window.printVerifiedPrescription = () => {
     const ctx = compactCanvas.getContext('2d');
 
     // ═══════════════════════════════════════════════════════
-    // ⚙️ إعدادات الشبكة (قابلة للتعديل)
+    //  إعدادات الشبكة
     // ═══════════════════════════════════════════════════════
     const CONFIG = {
         animationDuration: 2500,   // مدة نسج الشبكة
@@ -9549,10 +9465,7 @@ window.printVerifiedPrescription = () => {
         jitterAmount: 2             // اهتزاز بسيط
     };
 
-    // ═══════════════════════════════════════════════════════
-    // STATE
-    // ═══════════════════════════════════════════════════════
-    let isAnimating = false;
+        let isAnimating = false;
     let animFrame = null;
     let lightCenter = { x: 0, y: 0 };
     let darkCenter = { x: 0, y: 0 };
@@ -9562,10 +9475,7 @@ window.printVerifiedPrescription = () => {
     let webConnections = [];
     let resizeTimeout = null;
 
-    // ═══════════════════════════════════════════════════════
-    // SETUP CANVAS
-    // ═══════════════════════════════════════════════════════
-    function setupCanvas() {
+        function setupCanvas() {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const rect = compactCanvas.getBoundingClientRect();
         
@@ -9739,10 +9649,7 @@ window.printVerifiedPrescription = () => {
         return 1 - Math.pow(1 - t, 3);
     }
 
-    // ═══════════════════════════════════════════════════════
-    // DRAW
-    // ═══════════════════════════════════════════════════════
-    function drawWeb() {
+        function drawWeb() {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const w = compactCanvas.width / dpr;
         const h = compactCanvas.height / dpr;
@@ -9752,8 +9659,6 @@ window.printVerifiedPrescription = () => {
 
         const eased = easeOutCubic(Math.min(webProgress, 1));
         const isGoingToDark = webDirection === 'light-to-dark';
-        
-        // ✅ استخدام ألوان المنصة
         const webColor = isGoingToDark 
             ? 'rgba(240, 215, 123, 0.95)'
             : 'rgba(196, 150, 44, 0.95)';
@@ -9844,10 +9749,7 @@ window.printVerifiedPrescription = () => {
         ctx.globalAlpha = 1;
     }
 
-    // ═══════════════════════════════════════════════════════
-    // ANIMATE
-    // ═══════════════════════════════════════════════════════
-    function animateWeb(from, to, duration, onComplete) {
+        function animateWeb(from, to, duration, onComplete) {
         const startTime = performance.now();
         const delta = to - from;
 
@@ -9869,10 +9771,7 @@ window.printVerifiedPrescription = () => {
         animFrame = requestAnimationFrame(step);
     }
 
-    // ═══════════════════════════════════════════════════════
-    // APPLY THEME — يتوافق مع نظامك (html.dark)
-    // ═══════════════════════════════════════════════════════
-    function applyTheme(isDark, animate = true) {
+        function applyTheme(isDark, animate = true) {
         if (isAnimating) return;
         isAnimating = true;
 
@@ -9892,13 +9791,12 @@ window.printVerifiedPrescription = () => {
 
         if (animate) {
             animateWeb(0, 1, CONFIG.animationDuration, () => {
-                //  تطبيق الثيم على <html> كما في نظامك الأصلي
+            
                 document.documentElement.classList.toggle('dark', isDark);
                 
                 compactLight.setAttribute('aria-pressed', (!isDark).toString());
                 compactDark.setAttribute('aria-pressed', isDark.toString());
 
-                //  حفظ في localStorage بنفس مفتاح نظامك
                 try {
                     localStorage.setItem('darkMode', isDark ? 'true' : 'false');
                 } catch (e) {}
@@ -9919,9 +9817,6 @@ window.printVerifiedPrescription = () => {
         }
     }
 
-    // ═══════════════════════════════════════════════════════
-    // EVENTS
-    // ═══════════════════════════════════════════════════════
     compactLight.addEventListener('click', () => {
         if (document.documentElement.classList.contains('dark')) {
             applyTheme(false);
@@ -9943,9 +9838,6 @@ window.printVerifiedPrescription = () => {
         });
     });
 
-    // ═══════════════════════════════════════════════════════
-    // INIT
-    // ═══════════════════════════════════════════════════════
     function init() {
         setupCanvas();
         calculateRingCenters();
@@ -9975,7 +9867,7 @@ window.printVerifiedPrescription = () => {
 
 
 // ═══════════════════════════════════════════════════════════
-// 📁 نظام ملفات المرضى — localStorage
+//  نظام ملفات المرضى — localStorage
 // ═══════════════════════════════════════════════════════════
 
 const PATIENTS_KEY = (doctorId) => `doctor_patients_${doctorId}`;
@@ -10617,7 +10509,7 @@ window.submitEditReview = (doctorId, patientId, index) => {
     setTimeout(() => openPatientFile(doctorId, patientId), 300);
 };
 
-// ─── الأدوية (حقل واحد متعدد الأسطر) ───
+
 window.addMedication = (doctorId, patientId) => {
     const patient = getPatient(doctorId, patientId);
     const currentText = patient?.medications?.text || '';
@@ -10673,7 +10565,7 @@ window.deleteMedication = (doctorId, patientId) => {
     openPatientFile(doctorId, patientId);
 };
 
-// ─── نسخ / تصدير / استيراد ───
+// ─── نسخ تصدير استيراد ───
 window.copyPatientsData = (doctorId) => {
     const patients = getPatients(doctorId);
     if (patients.length === 0) return showToast('لا يوجد مرضى', 'error');
@@ -10789,16 +10681,12 @@ window.filterPatientsList = (doctorId, query) => {
     }
     container.innerHTML = filtered.map(p => renderPatientRow(p, doctorId)).join('');
 };
-
-// ─── تأكيد الحذف ───
 window.confirmDeletePatient = (doctorId, patientId) => {
     if (!confirm('حذف المريض وكل بياناته؟')) return;
     deletePatient(doctorId, patientId);
     showToast('تم حذف المريض', 'success');
     setTimeout(() => openPatientsManager(doctorId), 300);
 };
-
-// ─── تحديث البطاقة ───
 window.updatePatientsCard = (doctorId) => {
     const patients = getPatients(doctorId);
     const badge = document.getElementById('patientsCountBadge');
@@ -10808,20 +10696,9 @@ window.updatePatientsCard = (doctorId) => {
     }
 };
 
-
-
-
-
-
-
-
-
 // ═══════════════════════════════════════════════════════════════════
 // نظام إدارة المناوبات الرسمية 
 // ═══════════════════════════════════════════════════════════════════
-
-
-// ─── الحالة العامة ───
 let dutyFilters = {
     city: localStorage.getItem('lomedx_duty_last_city') || 'الرحيبة',
     month: new Date().toISOString().slice(0, 7)
@@ -10843,7 +10720,6 @@ const DUTY_DEFAULTS = {
 window.openDutyAdminLogin = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
-        // ✅ التحقق من صلاحية المناوبات (أو الأدمن العام)
         const { data: isDutyAdmin } = await supabase.rpc('is_duty_admin');
         const { data: isAdmin } = await supabase.rpc('is_admin');
         
@@ -10885,8 +10761,6 @@ window.handleDutyAdminLogin = async (e) => {
         showToast('البريد أو كلمة المرور غير صحيحة!', 'error'); 
         return; 
     }
-    
-    // ✅ التحقق من صلاحية المناوبات (أو الأدمن العام)
     const { data: isDutyAdmin } = await supabase.rpc('is_duty_admin');
     const { data: isAdmin } = await supabase.rpc('is_admin');
     
@@ -10985,9 +10859,6 @@ window.onDutyCityChange = () => {
     loadDuties();
 };
 
-// ═══════════════════════════════════════════════════════════════════
-// 3. تحميل المناوبات من Supabase
-// ═══════════════════════════════════════════════════════════════════
 window.loadDuties = async function() {
     dutyFilters.city = document.getElementById('cityFilter').value;
     dutyFilters.month = document.getElementById('monthFilter').value;
@@ -11395,7 +11266,7 @@ window.confirmImport = async () => {
         // ─── معالجة التاريخ ───
         let date = row['التاريخ'] || row['date'] || row['Date'] || '';
         if (typeof date === 'number') {
-            // Excel serial date
+
             const excelEpoch = new Date(1899, 11, 30);
             date = new Date(excelEpoch.getTime() + date * 86400000).toISOString().split('T')[0];
         } else if (typeof date === 'string') {
@@ -11449,8 +11320,6 @@ window.confirmImport = async () => {
         showToast('لا توجد بيانات صالحة للاستيراد', 'error');
         return;
     }
-    
-    // ─── الاستيراد مع تجاهل المكررات ───
     const { error } = await supabase
         .from('pharmacy_duties')
         .upsert(rowsToInsert, { 
@@ -11475,9 +11344,7 @@ window.confirmImport = async () => {
     fetchTodayDutiesForBadge();
 };
 
-// ═══════════════════════════════════════════════════════════════════
 // 6. تصدير Excel
-// ═══════════════════════════════════════════════════════════════════
 window.exportToExcel = async () => {
     if (currentDuties.length === 0) { 
         showToast('لا توجد بيانات للتصدير', 'error'); 
@@ -11526,25 +11393,15 @@ window.exportToExcel = async () => {
         showToast('خطأ: ' + err.message, 'error');
     }
 };
-
-// ═══════════════════════════════════════════════════════════════════
-// 7. الطباعة الرسمية
-// ═══════════════════════════════════════════════════════════════════
-
 // ═══════════════════════════════════════════════════════════════
-// 🕐 دالة تحويل الوقت إلى ص/م
+//  دالة تحويل الوقت إلى ص/م
 // ═══════════════════════════════════════════════════════════════
 function formatTime12h(timeStr) {
     if (!timeStr) return '';
-    
-    // تنظيف الوقت من HH:MM:SS إلى HH:MM
     const clean = String(timeStr).substring(0, 5);
     const [hourStr, minute] = clean.split(':');
     let hour = parseInt(hourStr, 10);
-    
     if (isNaN(hour)) return '';
-    
-    // تحديد الفترة
     const period = hour >= 12 ? 'م' : 'ص';
     
     // تحويل 24 إلى 12
@@ -11685,11 +11542,8 @@ window.printSchedule = () => {
 // ═══════════════════════════════════════════════════════════════════
 // 8. جلب مناوبات اليوم (مع دعم العبور لمنتصف الليل) — الإصلاح الحرِج
 // ═══════════════════════════════════════════════════════════════════
- // ═══════════════════════════════════════════════════════════════
-//  نظام المناوبات — مع تفاصيل الحالة
-// ═══════════════════════════════════════════════════════════════
-window.todayDutyPharmacyIds = [];
-window.todayDutyDetails = {};  // ⭐ جديد: تفاصيل كل صيدلية
+ window.todayDutyPharmacyIds = [];
+window.todayDutyDetails = {};  
 window.todayDutyNextTransition = null;
 let dutyTransitionTimer = null;
 let dutyStartTimer = null;
@@ -11737,11 +11591,7 @@ async function fetchTodayDutiesForBadge() {
             const end = new Date(`${dutyDate}T${eT}:00`);
             
             if (isNaN(start) || isNaN(end)) return;
-            
-            // دعم العبور لمنتصف الليل
             if (end <= start) end.setDate(end.getDate() + 1);
-            
-            // تحديد الحالة
             let status = 'upcoming';
             if (now >= start && now <= end) {
                 status = 'active';
@@ -12186,38 +12036,6 @@ window.requestPasswordReset = (e, type) => {
     showToast('جاري تحويلك للواتساب...', 'success');
 };
 
-// ═══════════════════════════════════════════════════════════
-// 🛠️ (خاص بك كأدمن) إعادة تعيين كلمة مرور طبيب/صيدلية بضغطة زر
-// ═══════════════════════════════════════════════════════════
-window.adminResetPassword = async (loginId, type, newPassword) => {
-    // هذا الزر سيُستخدم من لوحة الإدارة الخاصة بك عند وصول رسالة للواتساب
-    if (!confirm(`هل تريد إعادة تعيين كلمة مرور (${loginId}) إلى: ${newPassword}؟`)) return;
-    
-    const email = `${type === 'doctor' ? 'doc_' : 'pharm_'}${loginId}@lomedx.app`;
-    
-    try {
-        const { data, error } = await supabase.functions.invoke('create-user', {
-            body: { 
-                action: 'update', // نفترض أن دالة create-user تدعم التحديث
-                email: email,
-                password: newPassword 
-            }
-        });
-
-        if (error) throw error;
-        showToast(`تم تغيير كلمة المرور إلى ${newPassword} بنجاح!`, 'success');
-        // الآن يمكنك نسخ كلمة المرور وإرسالها للطبيب عبر الواتساب.
-    } catch (err) {
-        showToast('حدث خطأ في إعادة التعيين: ' + err.message, 'error');
-    }
-};
-
-
-
-
-
-
-
 window.openCustomNotificationModal = async () => {
     openCtrlPanel('إرسال إشعار مخصص', `
         <div class="flex flex-col gap-4 max-w-md mx-auto py-4">
@@ -12230,7 +12048,7 @@ window.openCustomNotificationModal = async () => {
     `, '#4F46E5');
 
     try {
-        // ✅ جلب الأطباء والصيدليات مباشرة من Supabase لضمان وجود user_id
+    
         const { data: targetUsers, error } = await supabase
             .from('listings')
             .select('id, name, type, user_id')
@@ -12251,7 +12069,6 @@ window.openCustomNotificationModal = async () => {
             </option>
         `).join('');
 
-        // ✅ إعادة رسم الواجهة بعد جلب البيانات
         document.getElementById('ctrlContent').innerHTML = `
             <div class="flex flex-col gap-4 max-w-md mx-auto py-4">
                 <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-indigo-800 text-sm flex items-center gap-3">
@@ -12300,19 +12117,16 @@ window.sendCustomNotification = async (e) => {
         showToast('الرجاء إكمال جميع الحقول', 'error');
         return;
     }
-
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
 
     try {
-        //  نرسل الإشعار باستخدام target: 'user' والـ user_id
         await sendPushNotification(
             targetUserId, 
             title,
             message,
-            'user' // نطلب من الدالة إرساله لهذا المستخدم فقط
+            'user' 
         );
-
         showToast('✅ تم إرسال الإشعار بنجاح!', 'success');
         closeCtrlPanel();
     } catch (err) {
@@ -12321,14 +12135,13 @@ window.sendCustomNotification = async (e) => {
         btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال الإشعار';
     }
 };
-// === تشغيل الفيديوهات في البطاقات فقط عند ظهورها في الشاشة (لتوفير الإنترنت) ===
 
 document.addEventListener('DOMContentLoaded', () => {
     const videoObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             const video = entry.target;
             if (entry.isIntersecting) {
-                // إيقاف أي فيديو آخر يعمل حالياً
+    
                 document.querySelectorAll('video').forEach(v => {
                     if (v !== video && !v.paused) v.pause();
                 });
@@ -12355,17 +12168,14 @@ window.reportBadImage = async (reqId, phone, ip) => {
     if (!confirm('هل أنت متأكد؟ سيتم حظر المريض نهائياً وحذف الطلب.')) return;
     
     try {
-        // 1. إخفاء الطلب وحذف رابط الصورة
-        await supabase.from('medicine_requests').update({ status: 'blocked', image_url: '' }).eq('id', reqId);
         
-        // 2. إضافة الهاتف والـ IP لقائمة الحظر
+        await supabase.from('medicine_requests').update({ status: 'blocked', image_url: '' }).eq('id', reqId);
         await supabase.from('blocked_users').insert([
             { phone: phone, ip_address: ip, reason: 'رفع محتوى غير لائق' }
         ]);
         
         showToast('تم حظر المستخدم نهائياً وإزالة الصورة.', 'success');
-        
-        // 3. تحديث الشاشة
+    
         if (window.currentDashboardData) {
             fetchMedRequests(window.currentDashboardData.name);
         }
@@ -12374,23 +12184,17 @@ window.reportBadImage = async (reqId, phone, ip) => {
     }
 };
 window.openPharmacyImage = (element) => {
-    // جلب رابط الصورة من العنصر الذي تم الضغط عليه
+
     const url = element.getAttribute('data-src');
     if (!url) return;
-
-    // إنشاء طبقة سوداء تغطي الشاشة بالكامل
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;padding:15px;backdrop-filter:blur(5px);';
-    
-    // إغلاق النافذة عند الضغط في أي مكان فارغ
     overlay.onclick = () => overlay.remove();
 
     // إنشاء عنصر الصورة
     const img = document.createElement('img');
     img.src = url;
     img.style.cssText = 'max-width:100%;max-height:90vh;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5);object-fit:contain;';
-    
-    // زر إغلاق (X)
     const closeBtn = document.createElement('button');
     closeBtn.innerHTML = '&times;';
     closeBtn.style.cssText = 'position:absolute;top:20px;right:20px;background:white;color:black;border:none;border-radius:50%;width:40px;height:40px;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,0.3);font-weight:bold;';
