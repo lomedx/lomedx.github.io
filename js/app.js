@@ -922,20 +922,31 @@ function createCard(item, index) {
         }
     }
     
-    return `<div class="card ${t.cardClass} cursor-pointer" onclick="handleCardClick(event, '${escapeHtml(item.id)}')" data-type="${escapeHtml(item.type)}"><div class="relative h-40 overflow-hidden rounded-t-2xl">
-  ${item.video_url ? `
+    return `<div class="card ${t.cardClass} cursor-pointer" onclick="handleCardClick(event, '${escapeHtml(item.id)}')" data-type="${escapeHtml(item.type)}">
+
+<div class="relative h-40 overflow-hidden rounded-t-2xl media-preview-container"
+     data-id="${escapeHtml(item.id)}"
+     onmousedown="startMediaHold(this, event)" 
+     onmouseup="stopMediaHold(this, event)" 
+     onmouseleave="stopMediaHold(this, event)"
+     ontouchstart="startMediaHold(this, event)" 
+     ontouchend="stopMediaHold(this, event)" 
+     ontouchcancel="stopMediaHold(this, event)"
+     oncontextmenu="return false;">
+     
+    <img src="${getOptimizedImageUrl(item.image, 400, 300)}" 
+         alt="${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} في سوريا | منصة LomedX" 
+         class="w-full h-full object-cover transition-opacity duration-300 cursor-zoom-in media-poster ${index === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}" 
+         onclick="event.stopPropagation(); openLightbox(this.src, 'صورة ${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} | LomedX')">
     
-    <video src="${escapeHtml(item.video_url)}" poster="${getOptimizedImageUrl(item.image, 400, 300)}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 relative z-0" muted loop playsinline preload="metadata">
-    title="فيديو ${escapeHtml(item.name)} - LomedX"
-</video>
-
-    <div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm z-10">
-        <i class="fas fa-play ml-1"></i> فيديو
-    </div>
-` : `
-
-    <img src="${getOptimizedImageUrl(item.image, 400, 300)}" alt="${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} في سوريا | منصة LomedX" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 cursor-zoom-in" ${index === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} onclick="event.stopPropagation(); openLightbox(this.src, 'صورة ${escapeHtml(item.name)} - ${escapeHtml(item.specialty || t.label)} | LomedX')">
-`}<div class="absolute top-3 right-3"><span class="badge ${t.badgeClass}">${t.label}</span></div><div class="absolute top-3 left-3 flex flex-col gap-1 items-start">
+    ${item.video_url ? `
+        <video src="${escapeHtml(item.video_url)}" 
+               class="absolute inset-0 w-full h-full object-cover opacity-0 pointer-events-none transition-opacity duration-300 media-video" 
+               muted loop playsinline preload="none"></video>
+        <div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm z-10 media-badge flex items-center gap-1 transition-opacity duration-300">
+            <i class="fas fa-hand-pointer text-[10px]"></i> اضغط مطولاً للمعاينة
+        </div>
+    ` : ''}<div class="absolute top-3 right-3"><span class="badge ${t.badgeClass}">${t.label}</span></div><div class="absolute top-3 left-3 flex flex-col gap-1 items-start">
 
 
    
@@ -12203,4 +12214,65 @@ window.openPharmacyImage = (element) => {
     overlay.appendChild(img);
     overlay.appendChild(closeBtn);
     document.body.appendChild(overlay);
+};
+// === نظام معاينة الفيديو بالضغط المطول ===
+let mediaHoldTimer = null;
+let isHoldingMedia = false;
+
+window.startMediaHold = (container, event) => {
+    const video = container.querySelector('.media-video');
+    if (!video) return; 
+    
+    isHoldingMedia = false;
+    
+    // منع تحديد النص أثناء الضغط المطول على الجوال
+    if (event.type === 'touchstart') {
+        event.target.style.webkitUserSelect = 'none'; 
+    }
+    
+    mediaHoldTimer = setTimeout(() => {
+        isHoldingMedia = true;
+        const img = container.querySelector('.media-poster');
+        const badge = container.querySelector('.media-badge');
+        
+        // إخفاء الصورة والشارة بسلاسة
+        if (img) img.classList.add('opacity-0');
+        if (badge) badge.classList.add('opacity-0');
+        
+        // إظهار وتشغيل الفيديو
+        video.classList.remove('opacity-0');
+        video.currentTime = 0;
+        video.play().catch(() => {});
+        
+    }, 300); // 300 مللي ثانية = مدة الضغط المطول
+};
+
+window.stopMediaHold = (container, event) => {
+    if (mediaHoldTimer) {
+        clearTimeout(mediaHoldTimer);
+        mediaHoldTimer = null;
+    }
+    
+    const video = container.querySelector('.media-video');
+    if (!video) return;
+    
+    if (isHoldingMedia) {
+        // إيقاف الفيديو وإعادة الصورة فوراً
+        video.pause();
+        video.classList.add('opacity-0');
+        
+        const img = container.querySelector('.media-poster');
+        const badge = container.querySelector('.media-badge');
+        
+        if (img) img.classList.remove('opacity-0');
+        if (badge) badge.classList.remove('opacity-0');
+        
+        isHoldingMedia = false;
+        
+        // منع فتح المودال (البطاقة) فور رفع الإصبع بعد المشاهدة
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    }
 };
