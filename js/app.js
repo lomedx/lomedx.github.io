@@ -768,7 +768,8 @@ function getItemFullUrl(item) {
 
 window.handleCardClick = (e, id) => {
     if (isHoldingMedia) return;
-    if (e) {  e.stopPropagation();
+    if (e) { 
+        e.stopPropagation();
     }
     
     const item = allData.find(d => d.id === id);
@@ -946,7 +947,7 @@ function createCard(item, index) {
         <div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm z-10 media-badge flex items-center gap-1 transition-opacity duration-300">
             <i class="fas fa-hand-pointer text-[10px]"></i> اضغط مطولاً للمعاينة
         </div>
-    ` : ''}<div class="absolute top-3 right-3"><span class="badge ${t.badgeClass}">${t.label}</span></div><div class="absolute top-3 left-3 flex flex-col gap-1 items-start">
+    ` : ''}<div/><div class="absolute top-3 right-3"><span class="badge ${t.badgeClass}">${t.label}</span></div><div class="absolute top-3 left-3 flex flex-col gap-1 items-start">
 
 
    
