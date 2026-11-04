@@ -8743,7 +8743,7 @@ function handleRouteChange() {
             `, '#0E7C5F');
             fetchPrescriptionByCode(verCode);
         }
-        return; /٠
+        return; 
     }
     
     if (path === '/verify-rx') {
