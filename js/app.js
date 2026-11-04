@@ -767,8 +767,8 @@ function getItemFullUrl(item) {
 }
 
 window.handleCardClick = (e, id) => {
-    if (e) {
-        e.stopPropagation();
+    if (isHoldingMedia) return;
+    if (e) {  e.stopPropagation();
     }
     
     const item = allData.find(d => d.id === id);
