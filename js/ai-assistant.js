@@ -252,7 +252,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                         </div>
                     </div>
                     <div class="lomi-header-info">
-                        <div class="lomi-header-title">لومي</div>
+                        <div class="lomi-header-title">Lomi</div>
                         <div class="lomi-header-status">
                             <span class="lomi-status-dot" id="lomiStatusDot"></span>
                             <span id="lomiStatusText">متصل بمنصة LomedX</span>
@@ -340,7 +340,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
     function showWelcome() {
         const el = createAssistantMessage('');
-        el.bubble.innerHTML = formatText(`أهلاً بك في **منصة LomedX** 👋\n\nأنا **لومي**، مساعدك الطبي الذكي.\n\nجرّب أن تكتب:\n• "أبحث عن دواء"\n• "حاسبة جرعة طفلي"\n\n⚕️ للتوعية فقط — للطوارئ: 110`);
+        el.bubble.innerHTML = formatText(`أهلاً بك في **منصة LomedX** 👋\n\nأنا **Lomi**، مساعدك الطبي الذكي.\n\nجرّب أن تكتب:\n• "أبحث عن دواء"\n• "حاسبة جرعة طفلي"\n\n للتوعية فقط`);
         messageHistory.push(el);
     }
 
@@ -402,7 +402,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         if (!text?.trim() || isSending) return;
         refs.input.value = ''; refs.input.style.height = '48px'; refs.sendBtn.disabled = true;
         isSending = true; refs.sendBtn.innerHTML = ICONS.stop; refs.sendBtn.classList.add('stop');
-        refs.statusText.textContent = ; refs.statusDot.classList.add('busy'); refs.charCounter.classList.remove('show');
+        refs.statusText.textContent = 'يكتب...'; refs.statusDot.classList.add('busy'); refs.charCounter.classList.remove('show');
 
         const userEntry = createUserMessage(text);
         messageHistory.push(userEntry);
