@@ -402,7 +402,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         if (!text?.trim() || isSending) return;
         refs.input.value = ''; refs.input.style.height = '48px'; refs.sendBtn.disabled = true;
         isSending = true; refs.sendBtn.innerHTML = ICONS.stop; refs.sendBtn.classList.add('stop');
-        refs.statusText.textContent = 'يكتب...'; refs.statusDot.classList.add('busy'); refs.charCounter.classList.remove('show');
+        refs.statusText.textContent = ; refs.statusDot.classList.add('busy'); refs.charCounter.classList.remove('show');
 
         const userEntry = createUserMessage(text);
         messageHistory.push(userEntry);
@@ -464,10 +464,43 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         recognition.onerror = (e) => { isListening = false; refs.voiceBtn.classList.remove('recording'); refs.voiceBtn.title = 'تسجيل صوتي'; refs.statusText.textContent = 'خطأ في الصوت'; };
     }
 
-    function toggleVoice() {
-        if (!recognition) { alert('المتصفح لا يدعم التسجيل الصوتي'); return; }
-        if (isListening) { recognition.stop(); } else { try { recognition.start(); } catch (err) {} }
+    async function toggleVoice() {
+    // 1. التحقق من دعم المتصفح
+    if (!recognition) {
+        alert('متصفحك لا يدعم الإدخال الصوتي. يرجى استخدام Google Chrome أو Safari.');
+        return;
     }
+
+    // 2. إذا كان يستمع حالياً، قم بإيقافه
+    if (isListening) {
+        recognition.stop();
+        return;
+    }
+
+    // 3. طلب إذن الميكروفون صراحة (هذا هو السر لجعل نافذة الإذن تظهر)
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // إيقاف المسار فوراً لأننا فقط نريد طلب الإذن، والـ recognition سيتولى التسجيل
+        stream.getTracks().forEach(track => track.stop());
+    } catch (err) {
+        console.error("خطأ في الوصول للميكروفون:", err);
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+            alert('تم رفض إذن الميكروفون. يرجى السماح به من إعدادات المتصفح (أيقونة القفل بجانب الرابط).');
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+            alert('لم يتم العثور على ميكروفون متصل بجهازك.');
+        } else {
+            alert('تعذر الوصول إلى الميكروفون. تأكد من عدم استخدامه بواسطة تطبيق آخر.');
+        }
+        return;
+    }
+
+    // 4. تشغيل التعرف على الصوت (بعد التأكد من وجود إذن)
+    try {
+        recognition.start();
+    } catch (err) {
+        console.warn("خطأ في بدء التعرف على الصوت:", err);
+    }
+}
 
     window.openLomi = function() { buildUI(); document.getElementById('lomiOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; setTimeout(() => refs.input?.focus(), 300); };
     window.closeLomi = function() { const overlay = document.getElementById('lomiOverlay'); if (overlay) overlay.classList.remove('active'); document.body.style.overflow = ''; if (isSending) stopGeneration(); saveCurrentConversation(); };
