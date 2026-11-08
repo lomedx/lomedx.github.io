@@ -134,7 +134,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <!-- ------------  -->
     <link rel="stylesheet" href="/css/style.css?v=8">
-<link rel="stylesheet" href="/css/ai-assistant.css?v=5">
+<link rel="stylesheet" href="/css/ai-assistant.css?v=8">
 </head>
 <body>
 <!-- شاشة التحميل  -->
@@ -629,7 +629,13 @@
         استعلام
     </button>
 </div>
-
+<!-- زر يفتح المساعد -->
+<a href="#" onclick="window.openLomi(); return false;" class="my-lomi-trigger">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12h4l2-7 4 14 2-7h6"/>
+    </svg>
+    <span>اسأل لومي</span>
+</a>
 <!-- ═══════════════════════════════════════════════════════════
      🤖 زر مساعد LomedX الذكي (قيد التطوير)
      ═══════════════════════════════════════════════════════════ -->
@@ -693,7 +699,7 @@
                 </div>
         </div>
                 <div class="absolute bottom-0 left-0 right-0"><svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H0Z" fill="var(--bg)"/></svg></div>
-    </section> <!-- تم إغلاق قسم الهيرو هنا 
+    </section> <!--  إغلاق قسم الهيرو 
     
        <!-- قسم الاستغاثات والتصفية (مستقل تماماً) -->
     <section class="z-30 py-10 shadow-sm relative" style="background: rgba(250, 248, 244, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border)">
@@ -732,9 +738,8 @@
                     </div>
                     <div id="homeMedicinesList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
                 </div>
-            </div> <!-- تم إغلاق الـ Wrapper هنا بشكل صحيح -->
+            </div> 
 
-            <!-- 2. مربعات التصفية (أصبحت الآن خارج صندوق التنبيهات لتظهر دائماً) -->
             <div class="max-w-5xl mx-auto bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-6 rounded-3xl border-2 shadow-sm" style="border-color: #2563EB;">
                 <div class="grid grid-cols-4 sm:grid-cols-8 gap-3 sm:gap-4">
                     <button class="filter-btn active rounded-2xl flex flex-col items-center justify-center shadow-sm p-3 aspect-square" data-filter="all" onclick="setFilter('all', this)">
@@ -826,10 +831,7 @@
     </div>
 </div>
 
-    <!-- ══════════════ CTA: أضف منشأتك الطبية ══════════════ -->
-    <!-- ══════════════ CTA: أضف منشأتك الطبية ══════════════ -->
-<!-- ══════════════ CTA: أضف منشأتك الطبية ══════════════ -->
-<section id="join-us" class="cta-section">
+    <section id="join-us" class="cta-section">
   <div class="cta-box">
     <div class="cta-grid"></div>
 
@@ -1289,7 +1291,7 @@
 </div>
 
 
-<script type="module" src="/js/ai-assistant.js?v=12"></script>
+<script type="module" src="/js/ai-assistant.js?v=18"></script>
 
     
     
