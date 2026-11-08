@@ -3,7 +3,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 (function() {
     'use strict';
 
-    // ═══ الإعدادات ═══
+    // ═══ الإعدادات ══
     const CONFIG = {
         functionUrl: `${supabaseUrl}/functions/v1/ai-assistant`,
         anonKey: supabaseKey,
