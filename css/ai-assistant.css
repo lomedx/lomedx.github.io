@@ -1,0 +1,75 @@
+/* LOMI AI — Compact (v1) */
+.lomi-fab{position:fixed;bottom:90px;left:20px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0E7C5F,#10B981);color:#fff;border:none;cursor:pointer;box-shadow:0 6px 24px rgba(14,124,95,.4);z-index:9998;display:flex;align-items:center;justify-content:center;transition:all .3s cubic-bezier(.16,1,.3,1);animation:lomiPulse 2.5s infinite}
+.lomi-fab svg{width:28px;height:28px}
+.lomi-fab:hover{transform:scale(1.08);box-shadow:0 8px 30px rgba(14,124,95,.6)}
+.lomi-fab.hidden{opacity:0;pointer-events:none;transform:scale(.8)}
+@keyframes lomiPulse{0%,100%{box-shadow:0 6px 24px rgba(14,124,95,.4),0 0 0 0 rgba(16,185,129,.7)}50%{box-shadow:0 6px 24px rgba(14,124,95,.5),0 0 0 14px rgba(16,185,129,0)}}
+
+.lomi-window{position:fixed;bottom:20px;left:20px;width:400px;height:600px;max-height:calc(100vh - 40px);background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(6,46,34,.25);display:flex;flex-direction:column;z-index:9999;opacity:0;visibility:hidden;transform:translateY(20px) scale(.95);transition:all .3s cubic-bezier(.16,1,.3,1);overflow:hidden;font-family:'IBM Plex Sans Arabic',sans-serif}
+.lomi-window.open{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
+
+.lomi-header{background:linear-gradient(135deg,#0E7C5F,#10B981);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.lomi-avatar{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px}
+.lomi-header-info{flex:1}
+.lomi-title{font-weight:800;font-size:15px;margin-bottom:2px}
+.lomi-subtitle{font-size:11px;opacity:.9;display:flex;align-items:center;gap:5px}
+.lomi-dot{width:6px;height:6px;background:#4ADE80;border-radius:50%;box-shadow:0 0 6px #4ADE80}
+.lomi-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px}
+.lomi-close:hover{background:rgba(255,255,255,.35)}
+
+.lomi-messages{flex:1;overflow-y:auto;padding:16px;background:#F5F9F6;display:flex;flex-direction:column;gap:10px}
+.lomi-messages::-webkit-scrollbar{width:5px}
+.lomi-messages::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
+
+.lomi-msg{display:flex;max-width:88%;animation:lomiMsgIn .3s ease}
+.lomi-msg.user{align-self:flex-end}
+.lomi-msg.assistant{align-self:flex-start;flex-direction:column;max-width:100%}
+@keyframes lomiMsgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.lomi-bubble{padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.65;white-space:pre-wrap;word-wrap:break-word}
+.lomi-msg.user .lomi-bubble{background:linear-gradient(135deg,#0E7C5F,#10B981);color:#fff;border-bottom-right-radius:4px}
+.lomi-msg.assistant .lomi-bubble{background:#fff;color:#1F2937;border:1px solid #E5E7EB;border-bottom-left-radius:4px}
+.lomi-bubble strong{color:#0E7C5F;font-weight:800}
+.lomi-msg.user .lomi-bubble strong{color:#FEF3C7}
+
+.lomi-typing{display:flex;gap:4px;padding:12px 16px;background:#fff;border-radius:16px;border:1px solid #E5E7EB;width:fit-content}
+.lomi-typing span{width:8px;height:8px;background:#10B981;border-radius:50%;animation:lomiBounce 1.3s infinite}
+.lomi-typing span:nth-child(2){animation-delay:.15s}
+.lomi-typing span:nth-child(3){animation-delay:.3s}
+@keyframes lomiBounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+
+.lomi-features{display:flex;flex-direction:column;gap:6px;margin-top:8px;width:100%}
+.lomi-feature-btn{display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(135deg,#fff,#ECFDF5);border:1.5px solid #10B981;border-radius:12px;cursor:pointer;font-family:inherit;text-align:right;transition:all .2s}
+.lomi-feature-btn:hover{border-color:#0E7C5F;transform:translateY(-1px);box-shadow:0 4px 14px -4px rgba(16,185,129,.35)}
+.lomi-feature-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#0E7C5F,#10B981);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.lomi-feature-text{flex:1;text-align:right}
+.lomi-feature-title{display:block;font-size:13px;font-weight:700;color:#0A5F4A}
+.lomi-feature-sub{display:block;font-size:10.5px;color:#64748B}
+.lomi-feature-arrow{color:#10B981;font-size:13px}
+
+.lomi-input-area{display:flex;gap:8px;padding:12px 14px;background:#fff;border-top:1px solid #E5E7EB;align-items:flex-end;flex-shrink:0}
+.lomi-input{flex:1;padding:10px 14px;border:1.5px solid #E5E7EB;border-radius:18px;font-family:inherit;font-size:14px;resize:none;max-height:100px;outline:none;background:#F8FAF9;transition:all .2s}
+.lomi-input:focus{border-color:#10B981;background:#fff;box-shadow:0 0 0 3px rgba(16,185,129,.1)}
+.lomi-send{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#0E7C5F,#10B981);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:all .2s}
+.lomi-send:hover:not(:disabled){transform:translateY(-1px)}
+.lomi-send:disabled{background:#CBD5E1;cursor:not-allowed}
+
+.lomi-footer{text-align:center;padding:8px;background:#F8FAF9;border-top:1px solid #E5E7EB;font-size:10.5px;color:#64748B;font-weight:500}
+
+/* Dark Mode */
+html.dark .lomi-window{background:#0F172A}
+html.dark .lomi-messages{background:#1E293B}
+html.dark .lomi-msg.assistant .lomi-bubble{background:#334155;color:#E2E8F0;border-color:#475569}
+html.dark .lomi-input-area{background:#0F172A;border-color:#334155}
+html.dark .lomi-input{background:#1E293B;color:#E2E8F0;border-color:#475569}
+html.dark .lomi-footer{background:#1E293B;border-color:#334155;color:#94A3B8}
+html.dark .lomi-feature-btn{background:linear-gradient(135deg,#1E293B,#0F172A);border-color:#334155}
+html.dark .lomi-feature-title{color:#6EE7B7}
+html.dark .lomi-feature-sub{color:#94A3B8}
+
+/* Mobile */
+@media (max-width:600px){
+.lomi-window{bottom:0;left:0;right:0;width:100vw;height:100vh;max-height:100vh;border-radius:0}
+.lomi-fab{bottom:80px;left:16px;width:54px;height:54px}
+.lomi-fab svg{width:24px;height:24px}
+}
