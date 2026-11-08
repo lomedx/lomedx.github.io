@@ -1,384 +1,292 @@
-/* ═══════════════════════════════════════════════════════════════
-   🤖 LOMI AI — ملف مستقل (Module)
-   يعتمد على supabase.js الموجود في المشروع
-   ═══════════════════════════════════════════════════════════════ */
 import { supabaseUrl, supabaseKey } from './supabase.js';
 
 (function() {
-  'use strict';
+    'use strict';
 
-  // ═══ الإعدادات ═══
-  const CONFIG = {
-    functionUrl: `${supabaseUrl}/functions/v1/ai-assistant`,
-    anonKey: supabaseKey,
-    maxHistory: 8,
-    fingerprint: null,
-  };
+    // ═══ الإعدادات ═══
+    const CONFIG = {
+        functionUrl: `${supabaseUrl}/functions/v1/ai-assistant`,
+        anonKey: supabaseKey,
+        maxHistory: 8,
+    };
 
-  // ═══ خريطة الميزات الـ25 ═══
-  const FEATURES = {
-    'medicine-finder':   { icon: '💊', title: 'باحث الأدوية',         sub: 'ابحث عن دوائك',          handler: 'openMedicineFinder' },
-    'book-doctor':       { icon: '📅', title: 'حجز موعد',             sub: 'احجز مع طبيب',           handler: 'redirectToDoctorsSearch' },
-    'blood-bank':        { icon: '🩸', title: 'بنك الدم',             sub: 'تبرّع أو اطلب دماً',     handler: 'openBloodBank' },
-    'health-file':       { icon: '📁', title: 'الملف الصحي',          sub: 'سجلك الطبي',              handler: 'openHealthFile' },
-    'first-aid':         { icon: '🚑', title: 'الإسعافات الأولية',    sub: 'دليل الطوارئ',            handler: 'openFirstAid' },
-    'burn-calculator':   { icon: '🔥', title: 'حاسبة الحروق',         sub: 'إسعافات الحروق',          handler: 'openBurnCalculator' },
-    'pregnancy-calc':    { icon: '🤰', title: 'حاسبة الحمل',          sub: 'موعد الولادة',            handler: 'openPregnancyCalc' },
-    'dose-calc':         { icon: '💉', title: 'حاسبة الجرعات',        sub: 'جرعات الأطفال',           handler: 'openDoseCalc' },
-    'vaccine-scheduler': { icon: '🗓️', title: 'جدول اللقاحات',        sub: 'تطعيم طفلك',              handler: 'openVaccineScheduler' },
-    'health-calc':       { icon: '⚖️', title: 'حاسبة الصحة',          sub: 'BMI والسعرات',            handler: 'openHealthCalc' },
-    'water-calc':        { icon: '💧', title: 'حاسبة الماء',          sub: 'احتياجك اليومي',          handler: 'openWaterCalc' },
-    'med-renewal':       { icon: '🔄', title: 'تجديد الدواء',         sub: 'متى ينفد دواؤك',          handler: 'openMedRenewalCalc' },
-    'med-symbols':       { icon: '🧪', title: 'رموز التحاليل',        sub: 'فهم الروشتات',            handler: 'openMedSymbols' },
-    'chronic-nutrition': { icon: '🥗', title: 'تغذية الأمراض',        sub: 'نظام غذائي',              handler: 'openChronicNutrition' },
-    'pre-visit':         { icon: '📋', title: 'قبل زيارة الطبيب',     sub: 'جهّز نفسك',               handler: 'openPreVisitGuide' },
-    'pre-test':          { icon: '🔬', title: 'قبل التحاليل',         sub: 'تعليمات الصيام',          handler: 'openPreTestGuide' },
-    'food-interactions': { icon: '⚠️', title: 'تعارضات الأدوية',      sub: 'أدوية والطعام',           handler: 'openFoodInteractions' },
-    'patient-reminder':  { icon: '⏰', title: 'دفتر التذكير',         sub: 'مواعيد الأدوية',          handler: 'openPatientReminder' },
-    'seasonal-diseases': { icon: '🌡️', title: 'الأمراض الموسمية',    sub: 'دليل القلمون',            handler: 'openSeasonalDiseases' },
-    'medical-map':       { icon: '🗺️', title: 'الخريطة الطبية',       sub: 'أقرب منشأة',              handler: 'openMedicalMap' },
-    'medicine-donation': { icon: '🩺', title: 'الأجهزة الطبية',       sub: 'تبادل الأجهزة',           handler: 'openMedicineDonation' },
-    'raheba-radar':      { icon: '📡', title: 'الرادار الصحي',        sub: 'رصد الأمراض',             handler: 'openRahebaRadar' },
-    'ask-doctor':        { icon: '👨‍⚕️', title: 'اسأل طبيب',           sub: 'استشارة مجانية',          handler: 'openAskDoctor' },
-    'blog':              { icon: '📰', title: 'المدونة الطبية',       sub: 'مقالات موثوقة',           handler: 'openMedicalBlog' },
-    'events-first-aid':  { icon: '🎉', title: 'إسعافات المناسبات',    sub: 'حوادث التجمعات',          handler: 'openEventsFirstAid' }
-  };
+    // ═══ الميزات الـ25 ═══
+    const FEATURES = {
+        'medicine-finder': { icon: '💊', title: 'باحث الأدوية', sub: 'ابحث عن دوائك في صيدليات مدينتك', route: '/medicine-finder' },
+        'book-doctor': { icon: '📅', title: 'حجز موعد', sub: 'احجز مع طبيب متخصص', route: '/' },
+        'blood-bank': { icon: '🩸', title: 'بنك الدم', sub: 'تبرّع أو اطلب دماً', route: '/blood-bank' },
+        'health-file': { icon: '📁', title: 'الملف الصحي', sub: 'سجلك الطبي المشفر بـ QR', route: '/health-file' },
+        'first-aid': { icon: '🚑', title: 'الإسعافات الأولية', sub: 'دليل شامل للطوارئ', route: '/first-aid' },
+        'burn-calculator': { icon: '🔥', title: 'حاسبة الحروق', sub: 'إسعافات الحروق خطوة بخطوة', route: '/burn-calculator' },
+        'pregnancy-calc': { icon: '🤰', title: 'حاسبة الحمل', sub: 'موعد الولادة وتطور الجنين', route: '/pregnancy-calc' },
+        'dose-calc': { icon: '💉', title: 'حاسبة الجرعات', sub: 'جرعات آمنة للأطفال', route: '/dose-calc' },
+        'vaccine-scheduler': { icon: '🗓️', title: 'جدول اللقاحات', sub: 'مواعيد تطعيم طفلك', route: '/vaccine-scheduler' },
+        'health-calc': { icon: '⚖️', title: 'حاسبة الصحة', sub: 'BMI والسعرات اليومية', route: '/health-calc' },
+        'water-calc': { icon: '💧', title: 'حاسبة الماء', sub: 'احتياجك اليومي من الماء', route: '/water-calc' },
+        'med-renewal': { icon: '🔄', title: 'تجديد الدواء', sub: 'متى ينفد دواؤك؟', route: '/med-renewal-calc' },
+        'med-symbols': { icon: '🧪', title: 'رموز التحاليل', sub: 'فهم مصطلحات الروشتات', route: '/med-symbols' },
+        'chronic-nutrition': { icon: '🥗', title: 'تغذية الأمراض المزمنة', sub: 'نظام غذائي حسب مرضك', route: '/chronic-nutrition' },
+        'pre-visit': { icon: '📋', title: 'قبل زيارة الطبيب', sub: 'جهّز نفسك للاستشارة', route: '/pre-visit-guide' },
+        'pre-test': { icon: '🔬', title: 'قبل التحاليل', sub: 'تعليمات الصيام والتحضير', route: '/pre-test-guide' },
+        'food-interactions': { icon: '⚠️', title: 'تعارضات الأدوية', sub: 'أدوية لا تُخلط مع طعام', route: '/food-interactions' },
+        'patient-reminder': { icon: '⏰', title: 'دفتر التذكير', sub: 'تذكيرات الأدوية والمواعيد', route: '/patient-reminder' },
+        'seasonal-diseases': { icon: '🌡️', title: 'الأمراض الموسمية', sub: 'دليل القلمون الموسمي', route: '/seasonal-diseases' },
+        'medical-map': { icon: '🗺️', title: 'الخريطة الطبية', sub: 'أقرب منشأة طبية لك', route: '/medical-map' },
+        'medicine-donation': { icon: '🩺', title: 'الأجهزة الطبية', sub: 'تبادل الأجهزة والمستلزمات', route: '/medicine-donation' },
+        'raheba-radar': { icon: '📡', title: 'الرادار الصحي', sub: 'رصد الأمراض في منطقتك', route: '/raheba-radar' },
+        'ask-doctor': { icon: '👨‍⚕️', title: 'اسأل طبيب', sub: 'استشارة طبية مجانية', route: '/ask-doctor' },
+        'blog': { icon: '📰', title: 'المدونة الطبية', sub: 'مقالات موثوقة', route: '/blog' },
+        'events-first-aid': { icon: '🎉', title: 'إسعافات المناسبات', sub: 'حوادث الأفراح والتجمعات', route: '/events-first-aid' }
+    };
 
-  // ═══ تنسيق النص (Markdown-lite) ═══
-  function formatText(text) {
-    if (!text) return '';
-    return String(text)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#0E7C5F;font-weight:800;">$1</strong>')
-      .replace(/^• /gm, '<span style="color:#10B981;font-weight:700;">• </span>');
-  }
+    // ═══ الحالة ═══
+    let messageHistory = [];
+    let isSending = false;
+    let currentAbortController = null;
+    let recognition = null;
+    let isListening = false;
+    let voiceOriginalInput = '';
+    let refs = {};
 
-  // ═══ حذف علامات [OPEN:xxx] كاملة أو جزئية (أثناء البث) ═══
-  function stripFeatures(text) {
-    return String(text)
-      .replace(/\[OPEN:[\w-]*\]?/g, '')
-      .replace(/\[OPEN:[^\]]*$/g, '')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
-  }
+    const ICONS = {
+        copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>',
+        edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+        resend: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>',
+        regen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>',
+        send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="20" height="20"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>',
+        stop: '<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
+        mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v3"/></svg>',
+        plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 5v14M5 12h14"/></svg>',
+        close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+        shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>'
+    };
 
-  // ═══ استخراج الميزات من الرد النهائي ═══
-  function extractFeatures(text) {
-    const regex = /\[OPEN:([\w-]+)\]/g;
-    const features = [];
-    let match;
-    while ((match = regex.exec(text)) !== null) {
-      if (FEATURES[match[1]] && !features.includes(match[1])) {
-        features.push(match[1]);
-      }
+    function formatText(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/^• /gm,'<span style="color:var(--brand-600);font-weight:700;">• </span>'); }
+    
+    function extractFeatures(text) {
+        const regex = /\[OPEN:([\w-]+)\]/g; const features = []; let match;
+        while ((match = regex.exec(text)) !== null) { if (FEATURES[match[1]] && !features.includes(match[1])) features.push(match[1]); }
+        return { cleanText: text.replace(regex, '').trim(), features };
     }
-    return { cleanText: stripFeatures(text), features };
-  }
 
-  // ═══ توليد fingerprint (بدون مكتبات) ═══
-  function generateFingerprint() {
-    try {
-      const stored = localStorage.getItem('lomi_fp');
-      if (stored) return stored;
-      const nav = window.navigator || {};
-      const scr = window.screen || {};
-      const data = [
-        nav.userAgent || '',
-        nav.language || '',
-        nav.platform || '',
-        nav.hardwareConcurrency || '',
-        scr.width + 'x' + scr.height,
-        new Date().getTimezoneOffset()
-      ].join('|');
-      let hash = 2166136261;
-      for (let i = 0; i < data.length; i++) {
-        hash ^= data.charCodeAt(i);
-        hash = Math.imul(hash, 16777619);
-      }
-      const fp = 'fp_' + (hash >>> 0).toString(16);
-      localStorage.setItem('lomi_fp', fp);
-      return fp;
-    } catch (e) {
-      return 'fp_fallback';
+    function buildFeatureButton(id) {
+        const f = FEATURES[id]; if (!f) return '';
+        return `<a href="${f.route}" class="lomi-feature-btn">
+            <div class="lomi-feature-btn-icon">${f.icon}</div>
+            <div class="lomi-feature-btn-text"><div class="lomi-feature-btn-title">${f.title}</div><div class="lomi-feature-btn-sub">${f.sub}</div></div>
+        </a>`;
     }
-  }
 
-  // ═══ الحالة ═══
-  let history = [];
-  let isOpen = false;
-  let isSending = false;
-  let abortController = null;
+    function showToast(msg) { /* يمكنك إضافة توست بسيط هنا إن أردت */ alert(msg); }
 
-  const messagesEl = () => document.getElementById('lomiMessages');
+    // ═══ بناء الواجهة ═══
+    function buildUI() {
+        if (document.getElementById('lomiOverlay')) return;
 
-  // ═══ بناء الواجهة ═══
-  function buildUI() {
-    // زر عائم
-    const btn = document.createElement('button');
-    btn.className = 'lomi-fab';
-    btn.id = 'lomiFab';
-    btn.title = 'اسأل لومي';
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>`;
-    document.body.appendChild(btn);
+        const overlay = document.createElement('div');
+        overlay.className = 'lomi-overlay';
+        overlay.id = 'lomiOverlay';
+        overlay.innerHTML = `
+            <div class="lomi-app">
+                <header class="lomi-header">
+                    <div class="lomi-avatar-wrap"><span class="lomi-avatar-ring"></span><span class="lomi-avatar-ring-2"></span><div class="lomi-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg></div></div>
+                    <div class="lomi-header-info"><div class="lomi-header-title">لومي</div><div class="lomi-header-status"><span class="lomi-status-dot" id="lomiStatusDot"></span><span id="lomiStatusText">متصل بمنصة LomedX</span></div></div>
+                    <button class="lomi-header-btn" id="lomiClearBtn" title="محادثة جديدة">${ICONS.plus}</button>
+                    <button class="lomi-header-btn" id="lomiCloseBtn" title="إغلاق">${ICONS.close}</button>
+                </header>
+                <div class="lomi-messages" id="lomiMessages"></div>
+                <div class="lomi-chips" id="lomiChips">
+                    <button class="lomi-chip" data-q="أبحث عن دواء"><span>💊</span> دواء</button>
+                    <button class="lomi-chip" data-q="أريد حجز موعد مع طبيب"><span>📅</span> حجز</button>
+                    <button class="lomi-chip" data-q="حاسبة جرعة طفلي"><span>💉</span> جرعات</button>
+                    <button class="lomi-chip" data-q="ألم في الصدر مع تعرق"><span>🆘</span> طوارئ</button>
+                    <button class="lomi-chip" data-q="عندي صداع خفيف"><span>🤯</span> صداع</button>
+                </div>
+                <div class="lomi-input-area">
+                    <div class="lomi-input-wrap">
+                        <textarea id="lomiInput" class="lomi-input" placeholder="اكتب سؤالك الطبي..." rows="1" maxlength="1000"></textarea>
+                        <div class="lomi-char-counter" id="lomiCharCounter">0 / 1000</div>
+                    </div>
+                    <button class="lomi-voice-btn" id="lomiVoiceBtn">${ICONS.mic}</button>
+                    <button class="lomi-send-btn" id="lomiSendBtn" disabled>${ICONS.send}</button>
+                </div>
+                <footer class="lomi-disclaimer">${ICONS.shield}<span>للتوعية الصحية فقط — <strong>لا يغني عن استشارة الطبيب</strong></span></footer>
+            </div>
+        `;
+        document.body.appendChild(overlay);
 
-    // نافذة المساعد
-    const win = document.createElement('div');
-    win.className = 'lomi-window';
-    win.id = 'lomiWindow';
-    win.innerHTML = `
-      <div class="lomi-header">
-        <div class="lomi-avatar">🤖</div>
-        <div class="lomi-header-info">
-          <div class="lomi-title">لومي</div>
-          <div class="lomi-subtitle"><span class="lomi-dot"></span>متصل الآن</div>
-        </div>
-        <button class="lomi-close" id="lomiClose" aria-label="إغلاق">✕</button>
-      </div>
-      <div class="lomi-messages" id="lomiMessages"></div>
-      <div class="lomi-input-area">
-        <textarea class="lomi-input" id="lomiInput" placeholder="اكتب سؤالك..." rows="1" maxlength="1000"></textarea>
-        <button class="lomi-send" id="lomiSend" disabled aria-label="إرسال">➤</button>
-      </div>
-      <div class="lomi-footer">⚕️ للتوعية فقط — للطوارئ: 110</div>
-    `;
-    document.body.appendChild(win);
-  }
+        refs = {
+            messages: document.getElementById('lomiMessages'),
+            input: document.getElementById('lomiInput'),
+            sendBtn: document.getElementById('lomiSendBtn'),
+            voiceBtn: document.getElementById('lomiVoiceBtn'),
+            statusText: document.getElementById('lomiStatusText'),
+            statusDot: document.getElementById('lomiStatusDot'),
+            chips: document.getElementById('lomiChips'),
+            charCounter: document.getElementById('lomiCharCounter'),
+            clearBtn: document.getElementById('lomiClearBtn'),
+            closeBtn: document.getElementById('lomiCloseBtn')
+        };
 
-  // ═══ إضافة رسالة ═══
-  function addMessage(role, text) {
-    const msg = document.createElement('div');
-    msg.className = `lomi-msg ${role}`;
-    const bubble = document.createElement('div');
-    bubble.className = 'lomi-bubble';
-    bubble.innerHTML = formatText(text);
-    msg.appendChild(bubble);
-    messagesEl().appendChild(msg);
-    messagesEl().scrollTop = messagesEl().scrollHeight;
-    return bubble;
-  }
+        bindEvents();
+        initVoice();
+        showWelcome();
+    }
 
-  // ═══ إضافة أزرار الميزات ═══
-  function addFeatureButtons(bubble, featureIds) {
-    const wrap = document.createElement('div');
-    wrap.className = 'lomi-features';
-    featureIds.forEach(id => {
-      const f = FEATURES[id];
-      if (!f) return;
-      const btn = document.createElement('button');
-      btn.className = 'lomi-feature-btn';
-      btn.innerHTML = `
-        <span class="lomi-feature-icon">${f.icon}</span>
-        <span class="lomi-feature-text">
-          <span class="lomi-feature-title">${f.title}</span>
-          <span class="lomi-feature-sub">${f.sub}</span>
-        </span>
-        <span class="lomi-feature-arrow">←</span>
-      `;
-      btn.onclick = () => {
-        closeAssistant();
-        setTimeout(() => {
-          if (typeof window[f.handler] === 'function') {
-            try { window[f.handler](); }
-            catch (e) { console.error('[Lomi] خطأ في التنفيذ:', e); }
-          } else {
-            console.warn(`[Lomi] الدالة "${f.handler}" غير موجودة`);
-          }
-        }, 300);
-      };
-      wrap.appendChild(btn);
-    });
-    bubble.parentElement.appendChild(wrap);
-  }
+    // ═══ الأحداث ═══
+    function bindEvents() {
+        document.getElementById('lomiCloseBtn').addEventListener('click', () => window.closeLomi());
+        document.getElementById('lomiOverlay').addEventListener('click', (e) => { if (e.target.id === 'lomiOverlay') window.closeLomi(); });
+        
+        document.getElementById('lomiClearBtn').addEventListener('click', () => {
+            if (isSending) return;
+            messageHistory = []; refs.messages.innerHTML = ''; showWelcome();
+        });
 
-  // ═══ إرسال الرسالة ═══
-  async function sendMessage(text) {
-    if (!text?.trim() || isSending) return;
+        refs.input.addEventListener('input', () => {
+            refs.input.style.height = 'auto'; refs.input.style.height = Math.min(refs.input.scrollHeight, 130) + 'px';
+            refs.sendBtn.disabled = !refs.input.value.trim() || isSending;
+        });
 
-    const input = document.getElementById('lomiInput');
-    const sendBtn = document.getElementById('lomiSend');
+        refs.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isSending) sendMessage(refs.input.value); } });
+        refs.sendBtn.addEventListener('click', () => { isSending ? stopGeneration() : sendMessage(refs.input.value); });
+        refs.voiceBtn.addEventListener('click', toggleVoice);
+        refs.chips.querySelectorAll('.lomi-chip').forEach(c => c.addEventListener('click', () => sendMessage(c.dataset.q)));
 
-    text = text.trim();
-    input.value = '';
-    input.style.height = 'auto';
-    sendBtn.disabled = true;
-    isSending = true;
+        refs.messages.addEventListener('click', (e) => {
+            const b = e.target.closest('.lomi-action-btn');
+            if (b) handleMessageAction(b.dataset.action, b.closest('.lomi-msg').dataset.id);
+        });
+    }
 
-    addMessage('user', text);
+    // ═══ منطق الرسائل ═══
+    function showWelcome() {
+        const el = createAssistantMessage('');
+        el.bubble.innerHTML = formatText(`أهلاً بك في **منصة LomedX** 👋\n\nأنا **لومي**، مساعدك الطبي الذكي.\n\nجرّب أن تكتب:\n• "أبحث عن دواء"\n• "حاسبة جرعة طفلي"\n\n⚕️ للتوعية فقط — للطوارئ: 110`);
+        messageHistory.push(el);
+    }
 
-    // مؤشر الكتابة
-    const typing = document.createElement('div');
-    typing.className = 'lomi-msg assistant';
-    typing.id = 'lomiTyping';
-    typing.innerHTML = '<div class="lomi-typing"><span></span><span></span><span></span></div>';
-    messagesEl().appendChild(typing);
-    messagesEl().scrollTop = messagesEl().scrollHeight;
+    function createUserMessage(text) {
+        const id = 'm_' + Date.now();
+        const el = document.createElement('div'); el.className = 'lomi-msg user'; el.dataset.id = id;
+        el.innerHTML = `<div class="lomi-bubble">${formatText(text)}</div><div class="lomi-msg-actions"><button class="lomi-action-btn" data-action="edit">${ICONS.edit}</button><button class="lomi-action-btn" data-action="copy">${ICONS.copy}</button></div>`;
+        refs.messages.appendChild(el); refs.messages.scrollTop = refs.messages.scrollHeight;
+        return { id, role: 'user', content: text, element: el };
+    }
 
-    let assistantBubble = null;
-    let accumulated = '';
+    function createAssistantMessage(text = '') {
+        const id = 'm_' + Date.now() + Math.random();
+        const el = document.createElement('div'); el.className = 'lomi-msg assistant'; el.dataset.id = id;
+        el.innerHTML = `<div class="lomi-msg-row"><div class="lomi-bubble"></div></div>`;
+        refs.messages.appendChild(el);
+        return { id, role: 'assistant', content: text, element: el, bubble: el.querySelector('.lomi-bubble') };
+    }
 
-    abortController = new AbortController();
-
-    try {
-      const context = {
-        currentRoute: window.location.pathname,
-        currentCity: window.currentCity || 'الرحيبة',
-      };
-
-      const res = await fetch(CONFIG.functionUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${CONFIG.anonKey}`,
-        },
-        signal: abortController.signal,
-        body: JSON.stringify({
-          message: text,
-          history: history.slice(-8),
-          context,
-          fingerprint: CONFIG.fingerprint,
-        }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.response || err.error || 'فشل الاتصال');
-      }
-
-      // ═══ قراءة البث ═══
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (!line.startsWith('data:')) continue;
-          const data = line.slice(5).trim();
-          if (!data || data === '[DONE]') continue;
-
-          try {
-            const parsed = JSON.parse(data);
-            const chunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (chunk) {
-              if (!assistantBubble) {
-                document.getElementById('lomiTyping')?.remove();
-                assistantBubble = addMessage('assistant', '');
-              }
-              accumulated += chunk;
-              assistantBubble.innerHTML = formatText(stripFeatures(accumulated));
-              messagesEl().scrollTop = messagesEl().scrollHeight;
-            }
-          } catch (e) { /* تجاهل الأسطر غير المكتملة */ }
-        }
-      }
-
-      document.getElementById('lomiTyping')?.remove();
-
-      if (assistantBubble) {
-        const { cleanText, features } = extractFeatures(accumulated);
-        assistantBubble.innerHTML = formatText(cleanText);
-
+    function renderAssistantFinal(entry, fullText) {
+        const { cleanText, features } = extractFeatures(fullText);
+        entry.content = cleanText;
+        entry.bubble.innerHTML = formatText(cleanText);
         if (features.length > 0) {
-          addFeatureButtons(assistantBubble, features);
+            const a = document.createElement('div'); a.className = 'lomi-feature-actions'; a.innerHTML = features.map(buildFeatureButton).join(''); entry.element.appendChild(a);
         }
+        const acts = document.createElement('div'); acts.className = 'lomi-msg-actions';
+        acts.innerHTML = `<button class="lomi-action-btn" data-action="copy">${ICONS.copy}</button><button class="lomi-action-btn" data-action="regen">${ICONS.regen}</button>`;
+        entry.element.querySelector('.lomi-msg-row').appendChild(acts);
+        refs.messages.scrollTop = refs.messages.scrollHeight;
+    }
 
-        history.push({ role: 'user', content: text });
-        history.push({ role: 'assistant', content: cleanText });
-        if (history.length > CONFIG.maxHistory * 2) {
-          history = history.slice(-CONFIG.maxHistory * 2);
+    function handleMessageAction(action, msgId) {
+        const idx = messageHistory.findIndex(m => m.id === msgId); if (idx === -1) return;
+        const msg = messageHistory[idx];
+        if (action === 'copy') { navigator.clipboard.writeText(msg.content); return; }
+        if (action === 'edit' && msg.role === 'user') {
+            messageHistory.splice(idx).forEach(m => m.element.remove());
+            refs.input.value = msg.content; refs.sendBtn.disabled = false; refs.input.focus();
         }
-      }
-
-    } catch (err) {
-      document.getElementById('lomiTyping')?.remove();
-      if (err.name !== 'AbortError') {
-        addMessage('assistant', '🚨 ' + (err.message || 'حدث خطأ. حاول مجدداً.'));
-      }
-    } finally {
-      isSending = false;
-      abortController = null;
-      sendBtn.disabled = !input.value.trim();
-      input.focus();
+        if (action === 'regen' && msg.role === 'assistant') {
+            let uIdx = idx - 1; while(uIdx >= 0 && messageHistory[uIdx].role !== 'user') uIdx--;
+            if (uIdx >= 0) { const t = messageHistory[uIdx].content; messageHistory.splice(uIdx).forEach(m => m.element.remove()); sendMessage(t); }
+        }
     }
-  }
 
-  // ═══ فتح/إغلاق المساعد ═══
-  function openAssistant() {
-    isOpen = true;
-    document.getElementById('lomiWindow').classList.add('open');
-    document.getElementById('lomiFab').classList.add('hidden');
+    // ═══ الإرسال ═══
+    async function sendMessage(text) {
+        if (!text?.trim() || isSending) return;
+        refs.input.value = ''; refs.input.style.height = '48px'; refs.sendBtn.disabled = true; isSending = true; refs.sendBtn.innerHTML = ICONS.stop; refs.sendBtn.classList.add('stop');
+        refs.statusText.textContent = 'يكتب...'; refs.statusDot.classList.add('busy');
 
-    if (messagesEl().children.length === 0) {
-      addMessage('assistant', `أهلاً بك في **منصة LomedX** 👋
+        const userEntry = createUserMessage(text); messageHistory.push(userEntry);
+        const typing = document.createElement('div'); typing.className = 'lomi-msg assistant'; typing.id = 'lomiTyping';
+        typing.innerHTML = `<div class="lomi-typing"><span></span><span></span><span></span><span style="font-size:12px; color:#64748B; margin-right:6px;">يكتب</span></div>`;
+        refs.messages.appendChild(typing); refs.messages.scrollTop = refs.messages.scrollHeight;
 
-أنا **لومي**، مساعدك الطبي الذكي.
+        let assistantEntry = null, accumulated = ''; currentAbortController = new AbortController();
 
-جرّب:
-• "أبحث عن دواء"
-• "حاسبة جرعة طفلي"
-• "أريد أحجز موعد"
+        try {
+            const res = await fetch(CONFIG.functionUrl, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.anonKey}` },
+                signal: currentAbortController.signal,
+                body: JSON.stringify({ 
+                    message: text, 
+                    history: messageHistory.map(m=>({role:m.role,content:m.content})).slice(-8),
+                    fingerprint: 'web' 
+                })
+            });
 
-⚕️ للتوعية فقط — للطوارئ: 110`);
+            if (!res.ok) throw new Error('فشل الاتصال');
+            const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read(); if (done) break;
+                buffer += decoder.decode(value, { stream: true }); const lines = buffer.split('\n'); buffer = lines.pop() || '';
+                for (const line of lines) {
+                    if (!line.startsWith('data:')) continue; const d = line.slice(5).trim(); if (!d || d === '[DONE]') continue;
+                    try {
+                        const p = JSON.parse(d); const chunk = p.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (chunk) {
+                            if (!assistantEntry) { typing.remove(); assistantEntry = createAssistantMessage(''); messageHistory.push(assistantEntry); }
+                            accumulated += chunk; assistantEntry.bubble.textContent = extractFeatures(accumulated).cleanText; refs.messages.scrollTop = refs.messages.scrollHeight;
+                        }
+                    } catch(e) {}
+                }
+            }
+            typing.remove(); if (assistantEntry) renderAssistantFinal(assistantEntry, accumulated);
+            refs.statusText.textContent = 'متصل'; refs.statusDot.classList.remove('busy');
+        } catch (err) {
+            typing.remove(); if (err.name !== 'AbortError') refs.statusText.textContent = 'خطأ';
+        } finally {
+            isSending = false; refs.sendBtn.innerHTML = ICONS.send; refs.sendBtn.classList.remove('stop'); refs.sendBtn.disabled = !refs.input.value.trim(); refs.statusDot.classList.remove('busy');
+        }
     }
-    setTimeout(() => document.getElementById('lomiInput')?.focus(), 200);
-  }
 
-  function closeAssistant() {
-    isOpen = false;
-    document.getElementById('lomiWindow').classList.remove('open');
-    document.getElementById('lomiFab').classList.remove('hidden');
-  }
+    function stopGeneration() { if (currentAbortController) currentAbortController.abort(); }
 
-  // ═══ التهيئة ═══
-  function init() {
-    CONFIG.fingerprint = generateFingerprint();
-    buildUI();
+    // ═══ الصوت ═══
+    function initVoice() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return;
+        recognition = new SR(); recognition.lang = 'ar-SA'; recognition.interimResults = true;
+        recognition.onstart = () => { isListening = true; voiceOriginalInput = refs.input.value; refs.statusText.textContent = 'يستمع...'; };
+        recognition.onresult = (e) => {
+            let interim = '', final = '';
+            for (let i = e.resultIndex; i < e.results.length; i++) { if (e.results[i].isFinal) final += e.results[i][0].transcript; else interim += e.results[i][0].transcript; }
+            if (final) voiceOriginalInput += final; refs.input.value = voiceOriginalInput + interim; refs.sendBtn.disabled = false;
+        };
+        recognition.onend = () => { isListening = false; refs.statusText.textContent = 'متصل'; };
+    }
+    function toggleVoice() { if (!recognition) return; isListening ? recognition.stop() : recognition.start(); }
 
-    document.getElementById('lomiFab').addEventListener('click', openAssistant);
-    document.getElementById('lomiClose').addEventListener('click', closeAssistant);
+    // ═══ الدوال العامة للفتح والإغلاق ═══
+    window.openLomi = function() {
+        buildUI();
+        document.getElementById('lomiOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden'; // منع تمرير الخلفية
+        setTimeout(() => refs.input?.focus(), 300);
+    };
 
-    const input = document.getElementById('lomiInput');
-    const sendBtn = document.getElementById('lomiSend');
-
-    input.addEventListener('input', () => {
-      input.style.height = 'auto';
-      input.style.height = Math.min(input.scrollHeight, 100) + 'px';
-      sendBtn.disabled = !input.value.trim() || isSending;
-    });
-
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        if (!isSending) sendMessage(input.value);
-      }
-    });
-
-    sendBtn.addEventListener('click', () => sendMessage(input.value));
-
-    // إيقاف التوليد بـ Esc
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && isSending && abortController) {
-        abortController.abort();
-      }
-      if (e.key === 'Escape' && isOpen) {
-        closeAssistant();
-      }
-    });
-  }
-
-  // ═══ تشغيل بعد تحميل الصفحة ═══
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-
+    window.closeLomi = function() {
+        const overlay = document.getElementById('lomiOverlay');
+        if (overlay) overlay.classList.remove('active');
+        document.body.style.overflow = '';
+        if (isSending) stopGeneration();
+    };
 })();
