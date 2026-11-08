@@ -1,75 +1,134 @@
-/* LOMI AI — Compact (v1) */
-.lomi-fab{position:fixed;bottom:90px;left:20px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0E7C5F,#10B981);color:#fff;border:none;cursor:pointer;box-shadow:0 6px 24px rgba(14,124,95,.4);z-index:9998;display:flex;align-items:center;justify-content:center;transition:all .3s cubic-bezier(.16,1,.3,1);animation:lomiPulse 2.5s infinite}
-.lomi-fab svg{width:28px;height:28px}
-.lomi-fab:hover{transform:scale(1.08);box-shadow:0 8px 30px rgba(14,124,95,.6)}
-.lomi-fab.hidden{opacity:0;pointer-events:none;transform:scale(.8)}
-@keyframes lomiPulse{0%,100%{box-shadow:0 6px 24px rgba(14,124,95,.4),0 0 0 0 rgba(16,185,129,.7)}50%{box-shadow:0 6px 24px rgba(14,124,95,.5),0 0 0 14px rgba(16,185,129,0)}}
+/* ═══════════════════════════════════════════════════════════════
+   🤖 LOMI AI — ملف التصميم
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+    --brand-900: #052A1F; --brand-800: #0A5F4A; --brand-700: #0E7C5F; --brand-600: #10B981; --brand-500: #34D399; --brand-50: #ECFDF5;
+    --gold-400: #D4AF37; --gold-200: #F0D77B;
+    --ink-900: #0A1812; --ink-800: #1A2E27; --ink-700: #2C4038; --ink-600: #4A5F56; --ink-500: #64748B; --ink-400: #94A3B8; --ink-300: #CBD5E1; --ink-200: #E3E8E6; --ink-100: #F0F4F2; --ink-50: #F8FAF9;
+    --danger: #DC2626; --success: #059669;
+    --ease-out: cubic-bezier(0.16,1,0.3,1); --ease-smooth: cubic-bezier(0.4,0,0.2,1);
+}
 
-.lomi-window{position:fixed;bottom:20px;left:20px;width:400px;height:600px;max-height:calc(100vh - 40px);background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(6,46,34,.25);display:flex;flex-direction:column;z-index:9999;opacity:0;visibility:hidden;transform:translateY(20px) scale(.95);transition:all .3s cubic-bezier(.16,1,.3,1);overflow:hidden;font-family:'IBM Plex Sans Arabic',sans-serif}
-.lomi-window.open{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
+/* ─── الغطاء الخلفي ─── */
+.lomi-overlay {
+    position: fixed; inset: 0; z-index: 99999;
+    background: rgba(6,46,34,0.4); backdrop-filter: blur(5px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; visibility: hidden;
+    transition: all 0.3s var(--ease-out);
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+.lomi-overlay.active { opacity: 1; visibility: visible; }
 
-.lomi-header{background:linear-gradient(135deg,#0E7C5F,#10B981);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
-.lomi-avatar{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px}
-.lomi-header-info{flex:1}
-.lomi-title{font-weight:800;font-size:15px;margin-bottom:2px}
-.lomi-subtitle{font-size:11px;opacity:.9;display:flex;align-items:center;gap:5px}
-.lomi-dot{width:6px;height:6px;background:#4ADE80;border-radius:50%;box-shadow:0 0 6px #4ADE80}
-.lomi-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px}
-.lomi-close:hover{background:rgba(255,255,255,.35)}
+/* ─── التصميم الأساسي ─── */
+.lomi-app {
+    width: 100%; max-width: 580px; height: 94vh; max-height: 940px;
+    background: #fff; border-radius: 32px;
+    box-shadow: 0 0 0 1px rgba(6,46,34,0.05), 0 20px 50px -20px rgba(6,46,34,0.4), 0 40px 100px -40px rgba(6,46,34,0.5);
+    display: flex; flex-direction: column; overflow: hidden; position: relative;
+    transform: translateY(20px) scale(0.98);
+    transition: all 0.4s var(--ease-out);
+}
+.lomi-overlay.active .lomi-app { transform: translateY(0) scale(1); }
+.lomi-app * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; -webkit-font-smoothing:antialiased; }
 
-.lomi-messages{flex:1;overflow-y:auto;padding:16px;background:#F5F9F6;display:flex;flex-direction:column;gap:10px}
-.lomi-messages::-webkit-scrollbar{width:5px}
-.lomi-messages::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
+/* ─── الهيدر ─── */
+.lomi-header { position:relative; background:radial-gradient(circle at 15% -20%,rgba(240,215,123,0.2) 0%,transparent 55%),radial-gradient(circle at 85% 120%,rgba(110,231,183,0.22) 0%,transparent 55%),linear-gradient(135deg,var(--brand-900) 0%,var(--brand-700) 60%,var(--brand-600) 100%); color:#fff; padding:20px 24px; display:flex; align-items:center; gap:14px; flex-shrink:0; overflow:hidden; }
+.lomi-header::before { content:''; position:absolute; inset:0; background-image:linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(0deg,rgba(255,255,255,0.025) 1px,transparent 1px); background-size:28px 28px; pointer-events:none; }
+.lomi-header::after { content:''; position:absolute; bottom:0; left:-100%; width:100%; height:1.5px; background:linear-gradient(90deg,transparent 0%,rgba(240,215,123,0.9) 50%,transparent 100%); animation:headerShimmer 5s ease-in-out infinite; pointer-events:none; }
+@keyframes headerShimmer { 0%,20%{left:-100%;opacity:0} 50%{opacity:1} 80%,100%{left:100%;opacity:0} }
 
-.lomi-msg{display:flex;max-width:88%;animation:lomiMsgIn .3s ease}
-.lomi-msg.user{align-self:flex-end}
-.lomi-msg.assistant{align-self:flex-start;flex-direction:column;max-width:100%}
-@keyframes lomiMsgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.lomi-avatar-wrap { position:relative; width:52px; height:52px; flex-shrink:0; display:flex; align-items:center; justify-content:center; z-index:1; }
+.lomi-avatar-ring,.lomi-avatar-ring-2 { position:absolute; inset:0; border-radius:50%; border:1.5px solid rgba(240,215,123,0.35); animation:ringPulse 3s ease-out infinite; pointer-events:none; }
+.lomi-avatar-ring-2 { animation-delay:1.5s; }
+@keyframes ringPulse { 0%{transform:scale(1);opacity:.7} 100%{transform:scale(1.55);opacity:0} }
+.lomi-avatar { width:46px; height:46px; border-radius:50%; background:radial-gradient(circle at 30% 25%,rgba(255,255,255,0.5) 0%,transparent 45%),linear-gradient(135deg,var(--gold-400),#A67C1F); display:flex; align-items:center; justify-content:center; box-shadow:inset 0 0 0 1.5px rgba(255,255,255,0.3),0 6px 16px -4px rgba(0,0,0,0.35); position:relative; overflow:hidden; }
+.lomi-avatar svg { width:24px; height:24px; color:var(--brand-900); position:relative; z-index:1; }
 
-.lomi-bubble{padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.65;white-space:pre-wrap;word-wrap:break-word}
-.lomi-msg.user .lomi-bubble{background:linear-gradient(135deg,#0E7C5F,#10B981);color:#fff;border-bottom-right-radius:4px}
-.lomi-msg.assistant .lomi-bubble{background:#fff;color:#1F2937;border:1px solid #E5E7EB;border-bottom-left-radius:4px}
-.lomi-bubble strong{color:#0E7C5F;font-weight:800}
-.lomi-msg.user .lomi-bubble strong{color:#FEF3C7}
+.lomi-header-info { flex:1; min-width:0; position:relative; z-index:1; }
+.lomi-header-title { font-family:'Noto Kufi Arabic',sans-serif; font-weight:800; font-size:15.5px; margin-bottom:3px; }
+.lomi-header-status { font-size:11.5px; font-weight:500; display:flex; align-items:center; gap:6px; color:rgba(255,255,255,0.85); }
+.lomi-status-dot { width:6px; height:6px; border-radius:50%; background:#4ADE80; box-shadow:0 0 0 3px rgba(74,222,128,0.2); flex-shrink:0; }
+.lomi-status-dot.busy { background:var(--gold-400); animation:dotBlink 1s infinite; }
+@keyframes dotBlink { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-.lomi-typing{display:flex;gap:4px;padding:12px 16px;background:#fff;border-radius:16px;border:1px solid #E5E7EB;width:fit-content}
-.lomi-typing span{width:8px;height:8px;background:#10B981;border-radius:50%;animation:lomiBounce 1.3s infinite}
-.lomi-typing span:nth-child(2){animation-delay:.15s}
-.lomi-typing span:nth-child(3){animation-delay:.3s}
-@keyframes lomiBounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+.lomi-header-btn { width:38px; height:38px; border-radius:11px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.12); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s; z-index:1; flex-shrink:0; }
+.lomi-header-btn:hover { background:rgba(255,255,255,0.2); transform:translateY(-1px); }
 
-.lomi-features{display:flex;flex-direction:column;gap:6px;margin-top:8px;width:100%}
-.lomi-feature-btn{display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(135deg,#fff,#ECFDF5);border:1.5px solid #10B981;border-radius:12px;cursor:pointer;font-family:inherit;text-align:right;transition:all .2s}
-.lomi-feature-btn:hover{border-color:#0E7C5F;transform:translateY(-1px);box-shadow:0 4px 14px -4px rgba(16,185,129,.35)}
-.lomi-feature-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#0E7C5F,#10B981);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.lomi-feature-text{flex:1;text-align:right}
-.lomi-feature-title{display:block;font-size:13px;font-weight:700;color:#0A5F4A}
-.lomi-feature-sub{display:block;font-size:10.5px;color:#64748B}
-.lomi-feature-arrow{color:#10B981;font-size:13px}
+/* ─── منطقة الرسائل ─── */
+.lomi-messages { flex:1; overflow-y:auto; padding:24px 22px; background:#F5F9F6; display:flex; flex-direction:column; gap:14px; scrollbar-width:thin; }
+.lomi-messages::-webkit-scrollbar { width:6px; }
+.lomi-messages::-webkit-scrollbar-thumb { background:var(--ink-300); border-radius:3px; }
 
-.lomi-input-area{display:flex;gap:8px;padding:12px 14px;background:#fff;border-top:1px solid #E5E7EB;align-items:flex-end;flex-shrink:0}
-.lomi-input{flex:1;padding:10px 14px;border:1.5px solid #E5E7EB;border-radius:18px;font-family:inherit;font-size:14px;resize:none;max-height:100px;outline:none;background:#F8FAF9;transition:all .2s}
-.lomi-input:focus{border-color:#10B981;background:#fff;box-shadow:0 0 0 3px rgba(16,185,129,.1)}
-.lomi-send{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#0E7C5F,#10B981);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:all .2s}
-.lomi-send:hover:not(:disabled){transform:translateY(-1px)}
-.lomi-send:disabled{background:#CBD5E1;cursor:not-allowed}
+.lomi-msg { display:flex; gap:8px; max-width:88%; position:relative; animation:msgEnter 0.4s var(--ease-out); }
+@keyframes msgEnter { from{opacity:0;transform:translateY(10px) scale(0.98)} to{opacity:1;transform:translateY(0) scale(1)} }
+.lomi-msg.user { align-self:flex-end; flex-direction:row-reverse; }
+.lomi-msg.assistant { align-self:flex-start; flex-direction:column; max-width:100%; }
+.lomi-msg-row { display:flex; gap:8px; width:100%; }
 
-.lomi-footer{text-align:center;padding:8px;background:#F8FAF9;border-top:1px solid #E5E7EB;font-size:10.5px;color:#64748B;font-weight:500}
+.lomi-bubble { padding:13px 17px; border-radius:20px; font-size:14.5px; line-height:1.7; word-wrap:break-word; white-space:pre-wrap; }
+.lomi-msg.user .lomi-bubble { background:linear-gradient(135deg,var(--brand-700) 0%,var(--brand-600) 100%); color:#fff; border-bottom-right-radius:6px; box-shadow:0 4px 16px -4px rgba(10,95,74,0.4); }
+.lomi-msg.assistant .lomi-bubble { background:#fff; color:var(--ink-800); border:1px solid var(--ink-200); border-bottom-left-radius:6px; }
+.lomi-bubble strong { color:var(--brand-800); font-weight:700; }
+.lomi-msg.user .lomi-bubble strong { color:var(--gold-200); }
 
-/* Dark Mode */
-html.dark .lomi-window{background:#0F172A}
-html.dark .lomi-messages{background:#1E293B}
-html.dark .lomi-msg.assistant .lomi-bubble{background:#334155;color:#E2E8F0;border-color:#475569}
-html.dark .lomi-input-area{background:#0F172A;border-color:#334155}
-html.dark .lomi-input{background:#1E293B;color:#E2E8F0;border-color:#475569}
-html.dark .lomi-footer{background:#1E293B;border-color:#334155;color:#94A3B8}
-html.dark .lomi-feature-btn{background:linear-gradient(135deg,#1E293B,#0F172A);border-color:#334155}
-html.dark .lomi-feature-title{color:#6EE7B7}
-html.dark .lomi-feature-sub{color:#94A3B8}
+/* ─── أزرار الميزات ─── */
+.lomi-feature-actions { display:flex; flex-direction:column; gap:8px; margin-top:10px; width:100%; }
+.lomi-feature-btn { display:flex; align-items:center; gap:12px; padding:12px 16px; background:linear-gradient(135deg,#fff,var(--brand-50)); border:1.5px solid var(--brand-500); border-radius:14px; cursor:pointer; transition:all 0.25s; text-decoration:none; color:var(--brand-800); font-family:inherit; text-align:right; }
+.lomi-feature-btn:hover { box-shadow:0 6px 20px -6px rgba(16,185,129,0.35); transform:translateY(-2px); }
+.lomi-feature-btn-icon { width:38px; height:38px; border-radius:11px; background:linear-gradient(135deg,var(--brand-700),var(--brand-600)); display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0; }
+.lomi-feature-btn-text { flex:1; min-width:0; }
+.lomi-feature-btn-title { font-size:13.5px; font-weight:700; color:var(--brand-800); margin-bottom:2px; }
+.lomi-feature-btn-sub { font-size:11px; color:var(--ink-500); }
 
-/* Mobile */
-@media (max-width:600px){
-.lomi-window{bottom:0;left:0;right:0;width:100vw;height:100vh;max-height:100vh;border-radius:0}
-.lomi-fab{bottom:80px;left:16px;width:54px;height:54px}
-.lomi-fab svg{width:24px;height:24px}
+/* ─── أزرار الإجراءات ─── */
+.lomi-msg-actions { display:flex; gap:2px; align-self:flex-end; opacity:0; transition:opacity 0.2s; margin-bottom:4px; }
+.lomi-msg:hover .lomi-msg-actions { opacity:1; }
+.lomi-action-btn { width:28px; height:28px; border-radius:8px; background:transparent; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-400); }
+.lomi-action-btn:hover { background:var(--ink-100); color:var(--brand-700); }
+
+/* ─── مؤشر الكتابة ─── */
+.lomi-typing { display:flex; gap:5px; padding:15px 20px; background:#fff; border-radius:20px; border:1px solid var(--ink-200); border-bottom-left-radius:6px; width:fit-content; align-items:center; }
+.lomi-typing span { width:7px; height:7px; border-radius:50%; background:var(--brand-600); animation:typingBounce 1.3s infinite ease-in-out; }
+.lomi-typing span:nth-child(2) { animation-delay:.15s; } .lomi-typing span:nth-child(3) { animation-delay:.3s; }
+@keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-6px);opacity:1} }
+
+/* ─── الاقتراحات ─── */
+.lomi-chips { display:flex; gap:8px; padding:12px 22px; overflow-x:auto; scrollbar-width:none; background:#fff; border-top:1px solid var(--ink-200); flex-shrink:0; }
+.lomi-chips::-webkit-scrollbar { display:none; }
+.lomi-chip { flex-shrink:0; padding:9px 15px; background:#fff; border:1.5px solid var(--ink-200); border-radius:20px; font-size:12.5px; font-weight:600; color:var(--ink-700); cursor:pointer; display:flex; align-items:center; gap:7px; transition:all 0.2s; }
+.lomi-chip:hover { background:var(--brand-50); border-color:var(--brand-600); color:var(--brand-800); transform:translateY(-2px); }
+
+/* ─── منطقة الإدخال ─── */
+.lomi-input-area { padding:14px 18px 12px; background:#fff; border-top:1px solid var(--ink-200); display:flex; gap:8px; align-items:flex-end; flex-shrink:0; }
+.lomi-input-wrap { flex:1; position:relative; }
+.lomi-input { width:100%; padding:13px 18px; border:1.5px solid var(--ink-200); border-radius:18px; font-family:inherit; font-size:14.5px; resize:none; max-height:130px; min-height:48px; outline:none; background:var(--ink-50); transition:all 0.2s; }
+.lomi-input:focus { border-color:var(--brand-600); background:#fff; box-shadow:0 0 0 3px rgba(16,185,129,0.1); }
+.lomi-char-counter { position:absolute; bottom:-16px; left:12px; font-size:10.5px; color:var(--ink-400); opacity:0; transition:opacity 0.2s; }
+.lomi-char-counter.show { opacity:1; }
+
+.lomi-voice-btn, .lomi-send-btn { width:48px; height:48px; border-radius:16px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; }
+.lomi-voice-btn { background:var(--ink-100); color:var(--ink-600); }
+.lomi-voice-btn:hover { background:var(--brand-50); color:var(--brand-700); }
+.lomi-voice-btn.recording { background:#FEE2E2; color:var(--danger); border-color:#FCA5A5; }
+.lomi-send-btn { background:linear-gradient(135deg,var(--brand-700),var(--brand-600)); color:#fff; box-shadow:0 4px 14px -3px rgba(16,185,129,0.45); }
+.lomi-send-btn:disabled { background:var(--ink-200); color:var(--ink-400); box-shadow:none; cursor:not-allowed; }
+.lomi-send-btn.stop { background:linear-gradient(135deg,var(--danger),#F87171); }
+
+/* ─── التذييل ─── */
+.lomi-disclaimer { display:flex; align-items:center; justify-content:center; gap:7px; padding:10px 16px; background:#FAFBFA; border-top:1px solid var(--ink-200); font-size:10.5px; color:var(--ink-600); flex-shrink:0; }
+.lomi-disclaimer svg { width:13px; height:13px; color:var(--brand-600); }
+.lomi-disclaimer strong { color:var(--brand-800); }
+
+/* ─── شاشة كاملة للجوال ─── */
+@media(max-width:600px) {
+    .lomi-overlay { padding: 0; align-items: flex-end; }
+    .lomi-app { max-width:100%; height:100vh; max-height:100vh; border-radius:0; transform: translateY(100%); padding-bottom:env(safe-area-inset-bottom); }
+    .lomi-overlay.active .lomi-app { transform: translateY(0); }
+    .lomi-header { padding:14px 16px; }
+    .lomi-messages { padding:18px 14px; }
+    .lomi-input-area { padding:10px 12px 10px; }
+    .lomi-chips { padding:10px 16px; }
+    .lomi-disclaimer { padding:8px 12px; font-size:10px; }
 }
