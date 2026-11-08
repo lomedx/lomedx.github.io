@@ -77,7 +77,10 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         </a>`;
     }
 
-    function showToast(msg) { alert(msg); }
+    function showToast(msg) { 
+        // استبدل alert البسيط بتوست أنيق إن أردت لاحقاً
+        console.log(msg); 
+    }
 
     // ═══ بناء الواجهة ═══
     function buildUI() {
@@ -162,26 +165,8 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     // ═══ منطق الرسائل ═══
     function showWelcome() {
         const el = createAssistantMessage('');
-        el.bubble.innerHTML = `
-            <div style="margin-bottom: 12px;">
-                أهلاً بك في <strong>منصة LomedX</strong> 👋<br>
-                أنا <strong>لومي</strong>، مساعدك الطبي الذكي. كيف يمكنني مساعدتك اليوم؟
-            </div>
-            <div style="background: #F8FAF9; border: 1px solid #E3E8E6; border-radius: 12px; padding: 12px; font-size: 13.5px;">
-                <div style="color: #64748B; margin-bottom: 8px; font-weight: 600;">يمكنك سؤالي عن:</div>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; align-items: center; gap: 8px;"><span style="font-size: 16px;">🩺</span> <span><strong>الأعراض:</strong> "عندي صداع شديد"</span></div>
-                    <div style="display: flex; align-items: center; gap: 8px;"><span style="font-size: 16px;">💊</span> <span><strong>الأدوية:</strong> "أبحث عن دواء للضغط"</span></div>
-                    <div style="display: flex; align-items: center; gap: 8px;"><span style="font-size: 16px;">🧮</span> <span><strong>الحاسبات:</strong> "حاسبة جرعة طفلي"</span></div>
-                </div>
-            </div>
-            <div style="margin-top: 12px; font-size: 11px; color: #94A3B8; display: flex; align-items: center; gap: 4px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-                للتوعية الصحية فقط.
-            </div>
-        `;
+        el.bubble.innerHTML = formatText(`أهلاً بك في **منصة LomedX** 👋\n\nأنا **لومي**، مساعدك الطبي الذكي.\n\nجرّب أن تكتب:\n• "أبحث عن دواء"\n• "حاسبة جرعة طفلي"\n\n⚕️ للتوعية فقط — للطوارئ: 110`);
         messageHistory.push(el);
-        refs.messages.scrollTop = refs.messages.scrollHeight;
     }
 
     function createUserMessage(text) {
@@ -279,24 +264,32 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
     function stopGeneration() { if (currentAbortController) currentAbortController.abort(); }
 
-    // ═══ الصوت ═══
+    // ═══ الصوت (تم إصلاحه) ═══
     function initVoice() {
         const SR = window.SpeechRecognition || window.webkitSpeechRecognition; 
+        
         if (!SR) { 
+            // إخفاء الزر إذا كان المتصفح لا يدعم الإدخال الصوتي
             if (refs.voiceBtn) refs.voiceBtn.style.display = 'none'; 
             return; 
         }
+        
         recognition = new SR(); 
         recognition.lang = 'ar-SA'; 
         recognition.interimResults = true;
         
+        // عند بدء الاستماع
         recognition.onstart = () => { 
             isListening = true; 
             voiceOriginalInput = refs.input.value; 
             refs.statusText.textContent = 'يستمع...'; 
-            refs.voiceBtn.classList.add('recording');
+            refs.statusDot.classList.add('busy');
+            // تحويل لون الزر للأحمر ليوضح للمستخدم أنه يستمع الآن
+            refs.voiceBtn.style.color = '#DC2626';
+            refs.voiceBtn.style.background = '#FEE2E2';
         };
         
+        // أثناء الاستماع وتحويل الصوت لنص
         recognition.onresult = (e) => {
             let interim = '', final = '';
             for (let i = e.resultIndex; i < e.results.length; i++) { 
@@ -308,36 +301,35 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             refs.sendBtn.disabled = false;
         };
         
+        // عند حدوث خطأ (مثل عدم إعطاء إذن المايك)
         recognition.onerror = (e) => {
-            isListening = false;
-            refs.statusText.textContent = 'متصل';
-            refs.voiceBtn.classList.remove('recording');
             if (e.error === 'not-allowed') {
-                alert('يرجى السماح بالوصول إلى الميكروفون من إعدادات المتصفح.');
+                alert('الرجاء السماح للمتصفح باستخدام الميكروفون من إعدادات الموقع.');
+            } else if (e.error === 'no-speech') {
+                console.log('لم يتم التقاط أي صوت.');
             }
         };
 
+        // عند انتهاء الاستماع
         recognition.onend = () => { 
             isListening = false; 
             refs.statusText.textContent = 'متصل'; 
-            refs.voiceBtn.classList.remove('recording'); 
+            refs.statusDot.classList.remove('busy');
+            // إعادة الزر للونه الطبيعي
+            refs.voiceBtn.style.color = '';
+            refs.voiceBtn.style.background = '';
         };
     }
-
-    async function toggleVoice() { 
-        if (!recognition) {
-            alert('متصفحك لا يدعم الإدخال الصوتي. جرب استخدام Google Chrome.');
-            return;
-        }
-        
+    
+    function toggleVoice() { 
+        if (!recognition) return; 
         if (isListening) {
-            recognition.stop();
+            recognition.stop(); 
         } else {
             try {
-                await navigator.mediaDevices.getUserMedia({ audio: true });
                 recognition.start();
-            } catch (e) {
-                alert('تعذر الوصول للميكروفون. يرجى التأكد من السماح للموقع باستخدام الميكروفون من إعدادات المتصفح.');
+            } catch(e) {
+                alert('تعذر تشغيل الميكروفون. قد يكون مستخدماً من تطبيق آخر.');
             }
         }
     }
@@ -346,7 +338,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     window.openLomi = function() {
         buildUI();
         document.getElementById('lomiOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden'; 
+        document.body.style.overflow = 'hidden'; // منع تمرير الخلفية
         setTimeout(() => refs.input?.focus(), 300);
     };
 
