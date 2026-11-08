@@ -3,14 +3,12 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 (function() {
     'use strict';
 
-    // ═══ الإعدادات ═══
     const CONFIG = {
         functionUrl: `${supabaseUrl}/functions/v1/ai-assistant`,
         anonKey: supabaseKey,
         maxHistory: 8,
     };
 
-    // ═══ الميزات الـ25 ═══
     const FEATURES = {
         'medicine-finder': { icon: '💊', title: 'باحث الأدوية', sub: 'ابحث عن دوائك في صيدليات مدينتك', route: '/medicine-finder' },
         'book-doctor': { icon: '📅', title: 'حجز موعد', sub: 'احجز مع طبيب متخصص', route: '/' },
@@ -39,7 +37,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         'events-first-aid': { icon: '🎉', title: 'إسعافات المناسبات', sub: 'حوادث الأفراح والتجمعات', route: '/events-first-aid' }
     };
 
-    // ═══ الحالة ═══
     let messageHistory = [];
     let isSending = false;
     let currentAbortController = null;
@@ -94,11 +91,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
     // ═══ إدارة المحادثات ═══
     function loadConversations() {
-        try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        } catch {
-            return [];
-        }
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
     }
 
     function saveConversations(list) {
@@ -143,7 +136,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 updatedAt: now
             });
         }
-
         if (list.length > 50) list.length = 50;
         saveConversations(list);
     }
@@ -177,12 +169,12 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 entry.bubble.innerHTML = formatText(m.content);
                 const acts = document.createElement('div');
                 acts.className = 'lomi-msg-actions';
-                acts.innerHTML = `<button class="lomi-action-btn" data-action="copy">\( {ICONS.copy}</button><button class="lomi-action-btn" data-action="regen"> \){ICONS.regen}</button>`;
+                // تم إصلاح السطر التالي
+                acts.innerHTML = `<button class="lomi-action-btn" data-action="copy">${ICONS.copy}</button><button class="lomi-action-btn" data-action="regen">${ICONS.regen}</button>`;
                 entry.element.querySelector('.lomi-msg-row').appendChild(acts);
                 messageHistory.push(entry);
             }
         });
-
         refs.messages.scrollTop = refs.messages.scrollHeight;
         closeHistoryPanel();
     }
@@ -191,7 +183,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         e.stopPropagation();
         const list = loadConversations().filter(c => c.id !== id);
         saveConversations(list);
-
         if (currentConversationId === id) {
             currentConversationId = null;
             messageHistory = [];
@@ -217,32 +208,24 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         const list = loadConversations();
 
         if (list.length === 0) {
-            listEl.innerHTML = `
-                <div class="lomi-history-empty">
-                    <span>💬</span>
-                    <div>لا توجد محادثات سابقة</div>
-                </div>`;
+            listEl.innerHTML = `<div class="lomi-history-empty"><span>💬</span><div>لا توجد محادثات سابقة</div></div>`;
             return;
         }
 
         listEl.innerHTML = list.map(c => {
             const date = new Date(c.updatedAt);
-            const timeStr = date.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' }) +
-                            ' • ' + date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+            const timeStr = date.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' }) + ' • ' + date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
             const msgCount = c.messages.length;
             const isActive = c.id === currentConversationId ? 'active' : '';
-
+            // تم إصلاح السطر التالي
             return `
-                <div class="lomi-history-item \( {isActive}" data-id=" \){c.id}">
+                <div class="lomi-history-item ${isActive}" data-id="${c.id}">
                     <div class="lomi-history-item-icon">💬</div>
                     <div class="lomi-history-item-body">
                         <div class="lomi-history-item-title">${c.title}</div>
-                        <div class="lomi-history-item-meta">
-                            <span>${timeStr}</span>
-                            <span>${msgCount} رسالة</span>
-                        </div>
+                        <div class="lomi-history-item-meta"><span>${timeStr}</span><span>${msgCount} رسالة</span></div>
                     </div>
-                    <button class="lomi-history-item-delete" data-delete="\( {c.id}" title="حذف"> \){ICONS.trash}</button>
+                    <button class="lomi-history-item-delete" data-delete="${c.id}" title="حذف">${ICONS.trash}</button>
                 </div>`;
         }).join('');
 
@@ -257,7 +240,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     // ═══ بناء الواجهة ═══
     function buildUI() {
         if (document.getElementById('lomiOverlay')) return;
-
         const overlay = document.createElement('div');
         overlay.className = 'lomi-overlay';
         overlay.id = 'lomiOverlay';
@@ -265,12 +247,8 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             <div class="lomi-app">
                 <header class="lomi-header">
                     <div class="lomi-avatar-wrap">
-                        <span class="lomi-avatar-ring"></span>
-                        <span class="lomi-avatar-ring-2"></span>
                         <div class="lomi-avatar">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 12h4l2-7 4 14 2-7h6"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>
                         </div>
                     </div>
                     <div class="lomi-header-info">
@@ -284,9 +262,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                     <button class="lomi-header-btn" id="lomiClearBtn" title="محادثة جديدة">${ICONS.plus}</button>
                     <button class="lomi-header-btn" id="lomiCloseBtn" title="إغلاق">${ICONS.close}</button>
                 </header>
-
                 <div class="lomi-messages" id="lomiMessages"></div>
-
                 <div class="lomi-chips" id="lomiChips">
                     <button class="lomi-chip" data-q="أبحث عن دواء"><span>💊</span> دواء</button>
                     <button class="lomi-chip" data-q="أريد حجز موعد مع طبيب"><span>📅</span> حجز</button>
@@ -294,7 +270,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                     <button class="lomi-chip" data-q="ألم في الصدر مع تعرق"><span>🆘</span> طوارئ</button>
                     <button class="lomi-chip" data-q="عندي صداع خفيف"><span>🤯</span> صداع</button>
                 </div>
-
                 <div class="lomi-input-area">
                     <div class="lomi-input-wrap">
                         <textarea id="lomiInput" class="lomi-input" placeholder="اكتب سؤالك الطبي..." rows="1" maxlength="1000"></textarea>
@@ -303,13 +278,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                     <button class="lomi-voice-btn" id="lomiVoiceBtn" title="تسجيل صوتي">${ICONS.mic}</button>
                     <button class="lomi-send-btn" id="lomiSendBtn" disabled>${ICONS.send}</button>
                 </div>
-
-                <footer class="lomi-disclaimer">
-                    ${ICONS.shield}
-                    <span>للتوعية الصحية فقط — <strong>لا يغني عن استشارة الطبيب</strong></span>
-                </footer>
-
-                <!-- لوحة سجل المحادثات -->
+                <footer class="lomi-disclaimer">${ICONS.shield}<span>للتوعية الصحية فقط — <strong>لا يغني عن استشارة الطبيب</strong></span></footer>
                 <div class="lomi-history-panel" id="lomiHistoryPanel">
                     <div class="lomi-history-header">
                         <div class="lomi-history-title">سجل المحادثات</div>
@@ -317,9 +286,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                     </div>
                     <div class="lomi-history-list" id="lomiHistoryList"></div>
                     <div class="lomi-history-footer">
-                        <button class="lomi-history-new-btn" id="lomiHistoryNewBtn">
-                            ${ICONS.plus} محادثة جديدة
-                        </button>
+                        <button class="lomi-history-new-btn" id="lomiHistoryNewBtn">${ICONS.plus} محادثة جديدة</button>
                     </div>
                 </div>
             </div>
@@ -338,7 +305,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             clearBtn: document.getElementById('lomiClearBtn'),
             closeBtn: document.getElementById('lomiCloseBtn')
         };
-
         bindEvents();
         initVoice();
         showWelcome();
@@ -347,10 +313,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     // ═══ الأحداث ═══
     function bindEvents() {
         document.getElementById('lomiCloseBtn').addEventListener('click', () => window.closeLomi());
-        document.getElementById('lomiOverlay').addEventListener('click', (e) => {
-            if (e.target.id === 'lomiOverlay') window.closeLomi();
-        });
-
+        document.getElementById('lomiOverlay').addEventListener('click', (e) => { if (e.target.id === 'lomiOverlay') window.closeLomi(); });
         document.getElementById('lomiClearBtn').addEventListener('click', startNewConversation);
         document.getElementById('lomiHistoryBtn').addEventListener('click', openHistoryPanel);
         document.getElementById('lomiHistoryCloseBtn').addEventListener('click', closeHistoryPanel);
@@ -360,36 +323,21 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             refs.input.style.height = 'auto';
             refs.input.style.height = Math.min(refs.input.scrollHeight, 130) + 'px';
             refs.sendBtn.disabled = !refs.input.value.trim() || isSending;
-
             const len = refs.input.value.length;
             refs.charCounter.textContent = `${len} / 1000`;
             refs.charCounter.classList.toggle('show', len > 0);
         });
 
-        refs.input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (!isSending) sendMessage(refs.input.value);
-            }
-        });
-
-        refs.sendBtn.addEventListener('click', () => {
-            isSending ? stopGeneration() : sendMessage(refs.input.value);
-        });
-
+        refs.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isSending) sendMessage(refs.input.value); } });
+        refs.sendBtn.addEventListener('click', () => { isSending ? stopGeneration() : sendMessage(refs.input.value); });
         refs.voiceBtn.addEventListener('click', toggleVoice);
-
-        refs.chips.querySelectorAll('.lomi-chip').forEach(c => {
-            c.addEventListener('click', () => sendMessage(c.dataset.q));
-        });
-
+        refs.chips.querySelectorAll('.lomi-chip').forEach(c => c.addEventListener('click', () => sendMessage(c.dataset.q)));
         refs.messages.addEventListener('click', (e) => {
             const b = e.target.closest('.lomi-action-btn');
             if (b) handleMessageAction(b.dataset.action, b.closest('.lomi-msg').dataset.id);
         });
     }
 
-    // ═══ منطق الرسائل ═══
     function showWelcome() {
         const el = createAssistantMessage('');
         el.bubble.innerHTML = formatText(`أهلاً بك في **منصة LomedX** 👋\n\nأنا **لومي**، مساعدك الطبي الذكي.\n\nجرّب أن تكتب:\n• "أبحث عن دواء"\n• "حاسبة جرعة طفلي"\n\n⚕️ للتوعية فقط — للطوارئ: 110`);
@@ -401,12 +349,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         const el = document.createElement('div');
         el.className = 'lomi-msg user';
         el.dataset.id = id;
-        el.innerHTML = `
-            <div class="lomi-bubble">${formatText(text)}</div>
-            <div class="lomi-msg-actions">
-                <button class="lomi-action-btn" data-action="edit">${ICONS.edit}</button>
-                <button class="lomi-action-btn" data-action="copy">${ICONS.copy}</button>
-            </div>`;
+        el.innerHTML = `<div class="lomi-bubble">${formatText(text)}</div><div class="lomi-msg-actions"><button class="lomi-action-btn" data-action="edit">${ICONS.edit}</button><button class="lomi-action-btn" data-action="copy">${ICONS.copy}</button></div>`;
         refs.messages.appendChild(el);
         refs.messages.scrollTop = refs.messages.scrollHeight;
         return { id, role: 'user', content: text, element: el };
@@ -426,19 +369,15 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         const { cleanText, features } = extractFeatures(fullText);
         entry.content = cleanText;
         entry.bubble.innerHTML = formatText(cleanText);
-
         if (features.length > 0) {
             const a = document.createElement('div');
             a.className = 'lomi-feature-actions';
             a.innerHTML = features.map(buildFeatureButton).join('');
             entry.element.appendChild(a);
         }
-
         const acts = document.createElement('div');
         acts.className = 'lomi-msg-actions';
-        acts.innerHTML = `
-            <button class="lomi-action-btn" data-action="copy">${ICONS.copy}</button>
-            <button class="lomi-action-btn" data-action="regen">${ICONS.regen}</button>`;
+        acts.innerHTML = `<button class="lomi-action-btn" data-action="copy">${ICONS.copy}</button><button class="lomi-action-btn" data-action="regen">${ICONS.regen}</button>`;
         entry.element.querySelector('.lomi-msg-row').appendChild(acts);
         refs.messages.scrollTop = refs.messages.scrollHeight;
     }
@@ -447,244 +386,89 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         const idx = messageHistory.findIndex(m => m.id === msgId);
         if (idx === -1) return;
         const msg = messageHistory[idx];
-
-        if (action === 'copy') {
-            navigator.clipboard.writeText(msg.content);
-            return;
-        }
+        if (action === 'copy') { navigator.clipboard.writeText(msg.content); return; }
         if (action === 'edit' && msg.role === 'user') {
             messageHistory.splice(idx).forEach(m => m.element.remove());
-            refs.input.value = msg.content;
-            refs.sendBtn.disabled = false;
-            refs.input.focus();
+            refs.input.value = msg.content; refs.sendBtn.disabled = false; refs.input.focus();
         }
         if (action === 'regen' && msg.role === 'assistant') {
             let uIdx = idx - 1;
             while (uIdx >= 0 && messageHistory[uIdx].role !== 'user') uIdx--;
-            if (uIdx >= 0) {
-                const t = messageHistory[uIdx].content;
-                messageHistory.splice(uIdx).forEach(m => m.element.remove());
-                sendMessage(t);
-            }
+            if (uIdx >= 0) { const t = messageHistory[uIdx].content; messageHistory.splice(uIdx).forEach(m => m.element.remove()); sendMessage(t); }
         }
     }
 
-    // ═══ الإرسال ═══
     async function sendMessage(text) {
         if (!text?.trim() || isSending) return;
-
-        refs.input.value = '';
-        refs.input.style.height = '48px';
-        refs.sendBtn.disabled = true;
-        isSending = true;
-        refs.sendBtn.innerHTML = ICONS.stop;
-        refs.sendBtn.classList.add('stop');
-        refs.statusText.textContent = 'يكتب...';
-        refs.statusDot.classList.add('busy');
-        refs.charCounter.classList.remove('show');
+        refs.input.value = ''; refs.input.style.height = '48px'; refs.sendBtn.disabled = true;
+        isSending = true; refs.sendBtn.innerHTML = ICONS.stop; refs.sendBtn.classList.add('stop');
+        refs.statusText.textContent = 'يكتب...'; refs.statusDot.classList.add('busy'); refs.charCounter.classList.remove('show');
 
         const userEntry = createUserMessage(text);
         messageHistory.push(userEntry);
-
         const typing = document.createElement('div');
-        typing.className = 'lomi-msg assistant';
-        typing.id = 'lomiTyping';
+        typing.className = 'lomi-msg assistant'; typing.id = 'lomiTyping';
         typing.innerHTML = `<div class="lomi-typing"><span></span><span></span><span></span><span style="font-size:12px; color:#64748B; margin-right:6px;">يكتب</span></div>`;
-        refs.messages.appendChild(typing);
-        refs.messages.scrollTop = refs.messages.scrollHeight;
+        refs.messages.appendChild(typing); refs.messages.scrollTop = refs.messages.scrollHeight;
 
-        let assistantEntry = null;
-        let accumulated = '';
+        let assistantEntry = null; let accumulated = '';
         currentAbortController = new AbortController();
 
         try {
             const res = await fetch(CONFIG.functionUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${CONFIG.anonKey}`
-                },
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.anonKey}` },
                 signal: currentAbortController.signal,
-                body: JSON.stringify({
-                    message: text,
-                    history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8),
-                    fingerprint: 'web'
-                })
+                body: JSON.stringify({ message: text, history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8), fingerprint: 'web' })
             });
-
             if (!res.ok) throw new Error('فشل الاتصال');
-
-            const reader = res.body.getReader();
-            const decoder = new TextDecoder();
-            let buffer = '';
-
+            const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
             while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n');
-                buffer = lines.pop() || '';
-
+                const { done, value } = await reader.read(); if (done) break;
+                buffer += decoder.decode(value, { stream: true }); const lines = buffer.split('\n'); buffer = lines.pop() || '';
                 for (const line of lines) {
-                    if (!line.startsWith('data:')) continue;
-                    const d = line.slice(5).trim();
-                    if (!d || d === '[DONE]') continue;
-
+                    if (!line.startsWith('data:')) continue; const d = line.slice(5).trim(); if (!d || d === '[DONE]') continue;
                     try {
-                        const p = JSON.parse(d);
-                        const chunk = p.candidates?.[0]?.content?.parts?.[0]?.text;
+                        const p = JSON.parse(d); const chunk = p.candidates?.[0]?.content?.parts?.[0]?.text;
                         if (chunk) {
-                            if (!assistantEntry) {
-                                typing.remove();
-                                assistantEntry = createAssistantMessage('');
-                                messageHistory.push(assistantEntry);
-                            }
-                            accumulated += chunk;
-                            assistantEntry.bubble.textContent = extractFeatures(accumulated).cleanText;
-                            refs.messages.scrollTop = refs.messages.scrollHeight;
+                            if (!assistantEntry) { typing.remove(); assistantEntry = createAssistantMessage(''); messageHistory.push(assistantEntry); }
+                            accumulated += chunk; assistantEntry.bubble.textContent = extractFeatures(accumulated).cleanText; refs.messages.scrollTop = refs.messages.scrollHeight;
                         }
                     } catch (e) {}
                 }
             }
-
             typing.remove();
-            if (assistantEntry) {
-                renderAssistantFinal(assistantEntry, accumulated);
-                saveCurrentConversation(); // حفظ المحادثة
-            }
-
-            refs.statusText.textContent = 'متصل';
-            refs.statusDot.classList.remove('busy');
-
+            if (assistantEntry) { renderAssistantFinal(assistantEntry, accumulated); saveCurrentConversation(); }
+            refs.statusText.textContent = 'متصل'; refs.statusDot.classList.remove('busy');
         } catch (err) {
-            typing.remove();
-            if (err.name !== 'AbortError') {
-                refs.statusText.textContent = 'خطأ في الاتصال';
-            }
+            typing.remove(); if (err.name !== 'AbortError') refs.statusText.textContent = 'خطأ في الاتصال';
         } finally {
-            isSending = false;
-            refs.sendBtn.innerHTML = ICONS.send;
-            refs.sendBtn.classList.remove('stop');
-            refs.sendBtn.disabled = !refs.input.value.trim();
-            refs.statusDot.classList.remove('busy');
+            isSending = false; refs.sendBtn.innerHTML = ICONS.send; refs.sendBtn.classList.remove('stop'); refs.sendBtn.disabled = !refs.input.value.trim(); refs.statusDot.classList.remove('busy');
         }
     }
 
-    function stopGeneration() {
-        if (currentAbortController) currentAbortController.abort();
-    }
+    function stopGeneration() { if (currentAbortController) currentAbortController.abort(); }
 
-    // ═══ الصوت ═══
     function initVoice() {
         const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SR) {
-            console.warn('SpeechRecognition غير مدعوم');
-            if (refs.voiceBtn) {
-                refs.voiceBtn.disabled = true;
-                refs.voiceBtn.title = 'الصوت غير مدعوم في هذا المتصفح';
-                refs.voiceBtn.style.opacity = '0.5';
-            }
-            return;
-        }
-
-        recognition = new SR();
-        recognition.lang = 'ar-SA';
-        recognition.interimResults = true;
-        recognition.continuous = false;
-
-        recognition.onstart = () => {
-            isListening = true;
-            voiceOriginalInput = refs.input.value;
-            refs.statusText.textContent = 'يستمع...';
-            refs.voiceBtn.classList.add('recording');
-            refs.voiceBtn.title = 'إيقاف التسجيل';
-        };
-
+        if (!SR) { if (refs.voiceBtn) { refs.voiceBtn.disabled = true; refs.voiceBtn.title = 'الصوت غير مدعوم'; refs.voiceBtn.style.opacity = '0.5'; } return; }
+        recognition = new SR(); recognition.lang = 'ar-SA'; recognition.interimResults = true; recognition.continuous = false;
+        recognition.onstart = () => { isListening = true; voiceOriginalInput = refs.input.value; refs.statusText.textContent = 'يستمع...'; refs.voiceBtn.classList.add('recording'); refs.voiceBtn.title = 'إيقاف التسجيل'; };
         recognition.onresult = (e) => {
             let interim = '', final = '';
-            for (let i = e.resultIndex; i < e.results.length; i++) {
-                if (e.results[i].isFinal) {
-                    final += e.results[i][0].transcript;
-                } else {
-                    interim += e.results[i][0].transcript;
-                }
-            }
+            for (let i = e.resultIndex; i < e.results.length; i++) { if (e.results[i].isFinal) final += e.results[i][0].transcript; else interim += e.results[i][0].transcript; }
             if (final) voiceOriginalInput += final;
-            refs.input.value = voiceOriginalInput + interim;
-            refs.sendBtn.disabled = !refs.input.value.trim();
-            refs.input.style.height = 'auto';
-            refs.input.style.height = Math.min(refs.input.scrollHeight, 130) + 'px';
+            refs.input.value = voiceOriginalInput + interim; refs.sendBtn.disabled = !refs.input.value.trim();
+            refs.input.style.height = 'auto'; refs.input.style.height = Math.min(refs.input.scrollHeight, 130) + 'px';
         };
-
-        recognition.onend = () => {
-            isListening = false;
-            refs.statusText.textContent = 'متصل';
-            refs.voiceBtn.classList.remove('recording');
-            refs.voiceBtn.title = 'تسجيل صوتي';
-        };
-
-        recognition.onerror = (e) => {
-            isListening = false;
-            refs.voiceBtn.classList.remove('recording');
-            refs.voiceBtn.title = 'تسجيل صوتي';
-
-            let msg = 'حدث خطأ في الصوت';
-            switch (e.error) {
-                case 'not-allowed':
-                case 'service-not-allowed':
-                    msg = 'تم رفض إذن الميكروفون';
-                    break;
-                case 'no-speech':
-                    msg = 'لم يتم اكتشاف كلام';
-                    break;
-                case 'audio-capture':
-                    msg = 'لا يوجد ميكروفون متاح';
-                    break;
-                case 'network':
-                    msg = 'مشكلة في الشبكة';
-                    break;
-                default:
-                    msg = 'خطأ: ' + e.error;
-            }
-            refs.statusText.textContent = msg;
-            console.error('SpeechRecognition error:', e.error);
-            setTimeout(() => {
-                if (!isListening) refs.statusText.textContent = 'متصل';
-            }, 3000);
-        };
+        recognition.onend = () => { isListening = false; refs.statusText.textContent = 'متصل'; refs.voiceBtn.classList.remove('recording'); refs.voiceBtn.title = 'تسجيل صوتي'; };
+        recognition.onerror = (e) => { isListening = false; refs.voiceBtn.classList.remove('recording'); refs.voiceBtn.title = 'تسجيل صوتي'; refs.statusText.textContent = 'خطأ في الصوت'; };
     }
 
     function toggleVoice() {
-        if (!recognition) {
-            alert('المتصفح لا يدعم التسجيل الصوتي، أو الموقع ليس على HTTPS');
-            return;
-        }
-        if (isListening) {
-            recognition.stop();
-        } else {
-            try {
-                recognition.start();
-            } catch (err) {
-                console.warn(err);
-                try { recognition.stop(); } catch (_) {}
-            }
-        }
+        if (!recognition) { alert('المتصفح لا يدعم التسجيل الصوتي'); return; }
+        if (isListening) { recognition.stop(); } else { try { recognition.start(); } catch (err) {} }
     }
 
-    // ═══ الدوال العامة ═══
-    window.openLomi = function() {
-        buildUI();
-        document.getElementById('lomiOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
-        setTimeout(() => refs.input?.focus(), 300);
-    };
-
-    window.closeLomi = function() {
-        const overlay = document.getElementById('lomiOverlay');
-        if (overlay) overlay.classList.remove('active');
-        document.body.style.overflow = '';
-        if (isSending) stopGeneration();
-        saveCurrentConversation(); // حفظ عند الإغلاق
-    };
+    window.openLomi = function() { buildUI(); document.getElementById('lomiOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; setTimeout(() => refs.input?.focus(), 300); };
+    window.closeLomi = function() { const overlay = document.getElementById('lomiOverlay'); if (overlay) overlay.classList.remove('active'); document.body.style.overflow = ''; if (isSending) stopGeneration(); saveCurrentConversation(); };
 })();
