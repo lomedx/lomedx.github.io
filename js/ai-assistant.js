@@ -35,7 +35,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         'ask-doctor': { icon: '👨‍⚕️', title: 'اسأل طبيب', sub: 'استشارة طبية مجانية', route: '/ask-doctor' },
         'blog': { icon: '📰', title: 'المدونة الطبية', sub: 'مقالات موثوقة', route: '/blog' },
         'events-first-aid': { icon: '🎉', title: 'إسعافات المناسبات', sub: 'حوادث الأفراح والتجمعات', route: '/events-first-aid' },
-        // ✅ ميزات جديدة
         'subscribe': { icon: '⭐', title: 'اشترك الآن', sub: 'انضم لنخبة الأطباء والصيدليات', route: '/join-us' },
         'add-facility': { icon: '🏥', title: 'أضف منشأتك', sub: 'سجل مجاناً في المنصة', route: '/add-facility' },
         'contact': { icon: '📞', title: 'تواصل معنا', sub: 'الدعم الفني والاستفسارات', route: '/contact' },
@@ -68,28 +67,29 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     function formatText(t) {
-        return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-                .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+        // نحمي النصوص من HTML ثم نطبق التنسيقات
+        return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
                 .replace(/^• /gm,'<span style="color:var(--brand-600);font-weight:700;">• </span>');
     }
 
-    // ═══ البحث عن كيان محدد ═══
+    // ═══ محرك البحث الذكي عن الكيانات ═══
     function findEntityByQuery(type, query) {
-        if (!window.allData || !Array.isArray(window.allData)) return [];
+        const data = window.allData || JSON.parse(localStorage.getItem('cached_listings') || '[]');
+        if (!data || data.length === 0) return [];
+        
         const q = query.toLowerCase().trim();
+        const words = q.split(/\s+/);
         const typeMap = {
             'doctor': ['doctor'], 'pharmacy': ['pharmacy'], 'lab': ['lab'],
             'center': ['center', 'clinic'], 'hospital': ['hospital']
         };
         const types = typeMap[type] || [type];
         
-        return window.allData.filter(item => {
+        return data.filter(item => {
             if (!types.includes(item.type)) return false;
-            return (
-                (item.name || '').toLowerCase().includes(q) ||
-                (item.specialty || '').toLowerCase().includes(q) ||
-                (item.address || item.clinic || '').toLowerCase().includes(q)
-            );
+            const searchStr = `${item.name || ''} ${item.specialty || ''} ${item.address || item.clinic || ''}`.toLowerCase();
+            // يجب أن تحتوي كل كلمة من كلمات البحث على تطابق
+            return words.every(w => searchStr.includes(w));
         });
     }
 
@@ -115,7 +115,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             if (typeof window.openModal === 'function') {
                 window.openModal(id);
             }
-        }, 350);
+        }, 300);
     };
 
     window.lomiRunHandler = function(handlerName) {
@@ -124,42 +124,10 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             if (typeof window[handlerName] === 'function') {
                 window[handlerName]();
             }
-        }, 350);
+        }, 300);
     };
 
-    function processSpecialTags(text) {
-        // 1. FIND entity: [FIND:doctor:اسم] أو [FIND:pharmacy:اسم] إلخ
-        text = text.replace(/\[FIND:(doctor|pharmacy|lab|center|hospital):([^\]]+)\]/g, (m, type, query) => {
-            const results = findEntityByQuery(type, query.trim());
-            if (results.length === 0) {
-                return `<div class="lomi-entity-results"><div class="lomi-entity-empty">🔍 لم أجد نتائج مطابقة لـ "<strong>${escapeHtml(query.trim())}</strong>"<br><small>جرب البحث بكلمة أخرى أو تصفح القائمة الكاملة</small></div></div>`;
-            }
-            if (results.length === 1) {
-                setTimeout(() => window.lomiOpenEntity(results[0].id), 1200);
-                return `<div class="lomi-entity-results"><div class="lomi-entity-loading">⏳ جاري فتح: <strong>${escapeHtml(results[0].name)}</strong>...</div></div>`;
-            }
-            return `<div class="lomi-entity-results">
-                <div class="lomi-entity-header">وجدت ${results.length} نتيجة. اختر:</div>
-                ${results.slice(0, 5).map(buildEntityCard).join('')}
-            </div>`;
-        });
-        
-        // 2. BLOG search: [BLOG:كلمة]
-        text = text.replace(/\[BLOG:([^\]]+)\]/g, (m, query) => {
-            const q = query.trim();
-            return `<div class="lomi-entity-results"><a href="/blog?search=${encodeURIComponent(q)}" class="lomi-feature-btn" onclick="window.closeLomi()">
-                <div class="lomi-feature-btn-icon">📰</div>
-                <div class="lomi-feature-btn-text">
-                    <div class="lomi-feature-btn-title">ابحث في المدونة: ${escapeHtml(q)}</div>
-                    <div class="lomi-feature-btn-sub">افتح المدونة واعرض المقالات</div>
-                </div>
-                <div class="lomi-feature-btn-arrow">←</div>
-            </a></div>`;
-        });
-        
-        return text;
-    }
-
+    // ═══ استخراج الأزرار والبطاقات ═══
     function extractFeatures(text) {
         const regex = /\[OPEN:([\w-]+)\]/g;
         const features = [];
@@ -175,21 +143,19 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         const f = FEATURES[id];
         if (!f) return '';
         
-        // إذا كان الرابط خارجياً (وسائل التواصل)
+        // 1. رابط خارجي (فيسبوك/إنستغرام)
         if (f.url) {
-            return `<a href="${f.url}" target="_blank" rel="noopener" class="lomi-feature-btn">
+            return `<a href="${f.url}" target="_blank" rel="noopener" class="lomi-feature-btn" onclick="setTimeout(() => window.closeLomi(), 50)">
                 <div class="lomi-feature-btn-icon">${f.icon}</div>
                 <div class="lomi-feature-btn-text">
                     <div class="lomi-feature-btn-title">${f.title}</div>
                     <div class="lomi-feature-btn-sub">${f.sub}</div>
                 </div>
-                <div class="lomi-feature-btn-arrow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
-                </div>
+                <div class="lomi-feature-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg></div>
             </a>`;
         }
         
-        // إذا كان له handler (مثل حجز موعد)
+        // 2. إجراء داخلي (مثل حجز موعد)
         if (f.handler) {
             return `<button class="lomi-feature-btn" onclick="window.lomiRunHandler('${f.handler}')">
                 <div class="lomi-feature-btn-icon">${f.icon}</div>
@@ -197,29 +163,23 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                     <div class="lomi-feature-btn-title">${f.title}</div>
                     <div class="lomi-feature-btn-sub">${f.sub}</div>
                 </div>
-                <div class="lomi-feature-btn-arrow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                </div>
+                <div class="lomi-feature-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
             </button>`;
         }
         
-        // رابط عادي
-        return `<a href="${f.route}" class="lomi-feature-btn" onclick="window.closeLomi()">
+        // 3. رابط داخلي عادي (سحب وإفلات)
+        return `<a href="${f.route}" class="lomi-feature-btn" onclick="setTimeout(() => window.closeLomi(), 50)">
             <div class="lomi-feature-btn-icon">${f.icon}</div>
             <div class="lomi-feature-btn-text">
                 <div class="lomi-feature-btn-title">${f.title}</div>
                 <div class="lomi-feature-btn-sub">${f.sub}</div>
             </div>
-            <div class="lomi-feature-btn-arrow">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            </div>
+            <div class="lomi-feature-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
         </a>`;
     }
 
     // ═══ إدارة المحادثات ═══
-    function loadConversations() {
-        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
-    }
+    function loadConversations() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; } }
     function saveConversations(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
     function generateId() { return 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7); }
     
@@ -322,11 +282,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         overlay.innerHTML = `
             <div class="lomi-app">
                 <header class="lomi-header">
-                    <div class="lomi-avatar-wrap">
-                        <div class="lomi-avatar">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>
-                        </div>
-                    </div>
+                    <div class="lomi-avatar-wrap"><div class="lomi-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg></div></div>
                     <div class="lomi-header-info">
                         <div class="lomi-header-title">Lomi</div>
                         <div class="lomi-header-status">
@@ -436,16 +392,56 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         return { id, role: 'assistant', content: text, element: el, bubble: el.querySelector('.lomi-bubble') };
     }
 
+    // ═══ محرك المعالجة النهائي (مصحح) ═══
     function renderAssistantFinal(entry, fullText) {
-        // 1. معالجة الأكواد الخاصة (FIND, BLOG)
-        let processedText = processSpecialTags(fullText);
+        // 1. استخراج أزرار الميزات
+        let textWithEntities = fullText;
+        const features = [];
+        textWithEntities = textWithEntities.replace(/\[OPEN:([\w-]+)\]/g, (match, id) => {
+            if (FEATURES[id] && !features.includes(id)) features.push(id);
+            return ''; 
+        });
+
+        // 2. استخراج أكواد البحث وتحويلها لـ HTML
+        const placeholders = [];
+        textWithEntities = textWithEntities.replace(/\[FIND:(doctor|pharmacy|lab|center|hospital):([^\]]+)\]/g, (match, type, query) => {
+            const results = findEntityByQuery(type, query.trim());
+            let html = '';
+            if (results.length === 0) {
+                html = `<div class="lomi-entity-results"><div class="lomi-entity-empty">🔍 لم أجد نتائج مطابقة لـ "<strong>${escapeHtml(query.trim())}</strong>"</div></div>`;
+            } else if (results.length === 1) {
+                html = `<div class="lomi-entity-results">${buildEntityCard(results[0])}</div>`;
+            } else {
+                html = `<div class="lomi-entity-results"><div class="lomi-entity-header">وجدت ${results.length} نتيجة:</div>${results.slice(0, 5).map(buildEntityCard).join('')}</div>`;
+            }
+            const placeholder = `__ENT_${placeholders.length}__`;
+            placeholders.push(html);
+            return placeholder;
+        });
+
+        textWithEntities = textWithEntities.replace(/\[BLOG:([^\]]+)\]/g, (match, query) => {
+            const html = `<div class="lomi-entity-results"><a href="/blog?search=${encodeURIComponent(query.trim())}" class="lomi-feature-btn" onclick="setTimeout(() => window.closeLomi(), 50)">
+                <div class="lomi-feature-btn-icon">📰</div>
+                <div class="lomi-feature-btn-text"><div class="lomi-feature-btn-title">ابحث في المدونة: ${escapeHtml(query.trim())}</div></div>
+                <div class="lomi-feature-btn-arrow">←</div>
+            </a></div>`;
+            const placeholder = `__ENT_${placeholders.length}__`;
+            placeholders.push(html);
+            return placeholder;
+        });
+
+        // 3. تنسيق النص الأساسي (بدون التأثير على HTML الذي تم توليده)
+        let finalHTML = formatText(textWithEntities);
+
+        // 4. حقن أزرار البحث في النص
+        placeholders.forEach((html, index) => {
+            finalHTML = finalHTML.replace(`__ENT_${index}__`, html);
+        });
+
+        entry.content = finalHTML;
+        entry.bubble.innerHTML = finalHTML;
         
-        // 2. استخراج أزرار الميزات [OPEN:...]
-        const { cleanText, features } = extractFeatures(processedText);
-        entry.content = cleanText;
-        entry.bubble.innerHTML = formatText(cleanText);
-        
-        // 3. إضافة أزرار الميزات
+        // 5. إضافة أزرار الميزات
         if (features.length > 0) {
             const a = document.createElement('div');
             a.className = 'lomi-feature-actions';
@@ -453,7 +449,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             entry.element.appendChild(a);
         }
         
-        // 4. إضافة أزرار الإجراءات
+        // 6. إضافة أزرار الإجراءات
         const acts = document.createElement('div');
         acts.className = 'lomi-msg-actions';
         acts.innerHTML = `<button class="lomi-action-btn" data-action="copy">${ICONS.copy}</button><button class="lomi-action-btn" data-action="regen">${ICONS.regen}</button>`;
@@ -465,7 +461,13 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         const idx = messageHistory.findIndex(m => m.id === msgId);
         if (idx === -1) return;
         const msg = messageHistory[idx];
-        if (action === 'copy') { navigator.clipboard.writeText(msg.content); return; }
+        if (action === 'copy') { 
+            // نسخ النص فقط بدون أكواد HTML
+            const tmp = document.createElement('div');
+            tmp.innerHTML = msg.content;
+            navigator.clipboard.writeText(tmp.textContent); 
+            return; 
+        }
         if (action === 'edit' && msg.role === 'user') {
             messageHistory.splice(idx).forEach(m => m.element.remove());
             refs.input.value = msg.content; refs.sendBtn.disabled = false; refs.input.focus();
@@ -519,7 +521,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                         if (chunk) {
                             if (!assistantEntry) { typing.remove(); assistantEntry = createAssistantMessage(''); messageHistory.push(assistantEntry); }
                             accumulated += chunk;
-                            // عرض النص أثناء البث (بدون الأكواد الخاصة)
                             const tempText = accumulated.replace(/\[OPEN:[\w-]+\]/g, '').replace(/\[FIND:[\w-]+:[^\]]+\]/g, '').replace(/\[BLOG:[^\]]+\]/g, '');
                             assistantEntry.bubble.textContent = tempText;
                             refs.messages.scrollTop = refs.messages.scrollHeight;
