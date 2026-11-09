@@ -40,9 +40,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     let messageHistory = [];
     let isSending = false;
     let currentAbortController = null;
-    let recognition = null;
-    let isListening = false;
-    let voiceOriginalInput = '';
     let refs = {};
     let currentConversationId = null;
     const STORAGE_KEY = 'lomi_conversations';
@@ -53,7 +50,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         regen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>',
         send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="20" height="20"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>',
         stop: '<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
-        mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v3"/></svg>',
         plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 5v14M5 12h14"/></svg>',
         close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 6L6 18M6 6l12 12"/></svg>',
         shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>',
@@ -80,11 +76,14 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     function buildFeatureButton(id) {
         const f = FEATURES[id];
         if (!f) return '';
-        return `<a href="${f.route}" class="lomi-feature-btn">
+        return `<a href="${f.route}" class="lomi-feature-btn" onclick="window.closeLomi()">
             <div class="lomi-feature-btn-icon">${f.icon}</div>
             <div class="lomi-feature-btn-text">
                 <div class="lomi-feature-btn-title">${f.title}</div>
                 <div class="lomi-feature-btn-sub">${f.sub}</div>
+            </div>
+            <div class="lomi-feature-btn-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </div>
         </a>`;
     }
@@ -169,7 +168,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 entry.bubble.innerHTML = formatText(m.content);
                 const acts = document.createElement('div');
                 acts.className = 'lomi-msg-actions';
-                // تم إصلاح السطر التالي
                 acts.innerHTML = `<button class="lomi-action-btn" data-action="copy">${ICONS.copy}</button><button class="lomi-action-btn" data-action="regen">${ICONS.regen}</button>`;
                 entry.element.querySelector('.lomi-msg-row').appendChild(acts);
                 messageHistory.push(entry);
@@ -217,7 +215,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             const timeStr = date.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' }) + ' • ' + date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
             const msgCount = c.messages.length;
             const isActive = c.id === currentConversationId ? 'active' : '';
-            // تم إصلاح السطر التالي
             return `
                 <div class="lomi-history-item ${isActive}" data-id="${c.id}">
                     <div class="lomi-history-item-icon">💬</div>
@@ -275,10 +272,10 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                         <textarea id="lomiInput" class="lomi-input" placeholder="اكتب سؤالك الطبي..." rows="1" maxlength="1000"></textarea>
                         <div class="lomi-char-counter" id="lomiCharCounter">0 / 1000</div>
                     </div>
-                    <button class="lomi-voice-btn" id="lomiVoiceBtn" title="تسجيل صوتي">${ICONS.mic}</button>
                     <button class="lomi-send-btn" id="lomiSendBtn" disabled>${ICONS.send}</button>
                 </div>
                 <footer class="lomi-disclaimer">${ICONS.shield}<span>للتوعية الصحية فقط — <strong>لا يغني عن استشارة الطبيب</strong></span></footer>
+                
                 <div class="lomi-history-panel" id="lomiHistoryPanel">
                     <div class="lomi-history-header">
                         <div class="lomi-history-title">سجل المحادثات</div>
@@ -297,7 +294,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             messages: document.getElementById('lomiMessages'),
             input: document.getElementById('lomiInput'),
             sendBtn: document.getElementById('lomiSendBtn'),
-            voiceBtn: document.getElementById('lomiVoiceBtn'),
             statusText: document.getElementById('lomiStatusText'),
             statusDot: document.getElementById('lomiStatusDot'),
             chips: document.getElementById('lomiChips'),
@@ -306,7 +302,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             closeBtn: document.getElementById('lomiCloseBtn')
         };
         bindEvents();
-        initVoice();
         showWelcome();
     }
 
@@ -330,7 +325,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
         refs.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isSending) sendMessage(refs.input.value); } });
         refs.sendBtn.addEventListener('click', () => { isSending ? stopGeneration() : sendMessage(refs.input.value); });
-        refs.voiceBtn.addEventListener('click', toggleVoice);
         refs.chips.querySelectorAll('.lomi-chip').forEach(c => c.addEventListener('click', () => sendMessage(c.dataset.q)));
         refs.messages.addEventListener('click', (e) => {
             const b = e.target.closest('.lomi-action-btn');
@@ -408,7 +402,10 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         messageHistory.push(userEntry);
         const typing = document.createElement('div');
         typing.className = 'lomi-msg assistant'; typing.id = 'lomiTyping';
-        typing.innerHTML = `<div class="lomi-typing"><span></span><span></span><span></span><span style="font-size:12px; color:#64748B; margin-right:6px;">يكتب</span></div>`;
+        
+        // النقاط الثلاث فقط بدون كلمة يكتب
+        typing.innerHTML = `<div class="lomi-typing"><span></span><span></span><span></span></div>`;
+        
         refs.messages.appendChild(typing); refs.messages.scrollTop = refs.messages.scrollHeight;
 
         let assistantEntry = null; let accumulated = '';
@@ -416,19 +413,10 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
         try {
             const res = await fetch(CONFIG.functionUrl, {
-    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.anonKey}` },
-    signal: currentAbortController.signal,
-    body: JSON.stringify({ 
-        message: text, 
-        history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8), 
-        fingerprint: 'web',
-        // ✅ إضافة التوجيه الذكي بالسياق:
-        context: {
-            currentRoute: window.location.pathname,
-            currentCity: window.currentCity || 'الرحيبة' 
-        }
-    })
-});
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.anonKey}` },
+                signal: currentAbortController.signal,
+                body: JSON.stringify({ message: text, history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8), fingerprint: 'web' })
+            });
             if (!res.ok) throw new Error('فشل الاتصال');
             const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
             while (true) {
@@ -456,60 +444,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     function stopGeneration() { if (currentAbortController) currentAbortController.abort(); }
-
-    function initVoice() {
-        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SR) { if (refs.voiceBtn) { refs.voiceBtn.disabled = true; refs.voiceBtn.title = 'الصوت غير مدعوم'; refs.voiceBtn.style.opacity = '0.5'; } return; }
-        recognition = new SR(); recognition.lang = 'ar-SA'; recognition.interimResults = true; recognition.continuous = false;
-        recognition.onstart = () => { isListening = true; voiceOriginalInput = refs.input.value; refs.statusText.textContent = 'يستمع...'; refs.voiceBtn.classList.add('recording'); refs.voiceBtn.title = 'إيقاف التسجيل'; };
-        recognition.onresult = (e) => {
-            let interim = '', final = '';
-            for (let i = e.resultIndex; i < e.results.length; i++) { if (e.results[i].isFinal) final += e.results[i][0].transcript; else interim += e.results[i][0].transcript; }
-            if (final) voiceOriginalInput += final;
-            refs.input.value = voiceOriginalInput + interim; refs.sendBtn.disabled = !refs.input.value.trim();
-            refs.input.style.height = 'auto'; refs.input.style.height = Math.min(refs.input.scrollHeight, 130) + 'px';
-        };
-        recognition.onend = () => { isListening = false; refs.statusText.textContent = 'متصل'; refs.voiceBtn.classList.remove('recording'); refs.voiceBtn.title = 'تسجيل صوتي'; };
-        recognition.onerror = (e) => { isListening = false; refs.voiceBtn.classList.remove('recording'); refs.voiceBtn.title = 'تسجيل صوتي'; refs.statusText.textContent = 'خطأ في الصوت'; };
-    }
-
-    async function toggleVoice() {
-    // 1. التحقق من دعم المتصفح
-    if (!recognition) {
-        alert('متصفحك لا يدعم الإدخال الصوتي. يرجى استخدام Google Chrome أو Safari.');
-        return;
-    }
-
-    // 2. إذا كان يستمع حالياً، قم بإيقافه
-    if (isListening) {
-        recognition.stop();
-        return;
-    }
-
-    // 3. طلب إذن الميكروفون صراحة (هذا هو السر لجعل نافذة الإذن تظهر)
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        // إيقاف المسار فوراً لأننا فقط نريد طلب الإذن، والـ recognition سيتولى التسجيل
-        stream.getTracks().forEach(track => track.stop());
-    } catch (err) {
-        console.error("خطأ في الوصول للميكروفون:", err);
-        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-            alert('تم رفض إذن الميكروفون. يرجى السماح به من إعدادات المتصفح (أيقونة القفل بجانب الرابط).');
-        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-            alert('لم يتم العثور على ميكروفون متصل بجهازك.');
-        } else {
-            alert('تعذر الوصول إلى الميكروفون. تأكد من عدم استخدامه بواسطة تطبيق آخر.');
-        }
-        return;
-    }
-
-    // 4. تشغيل التعرف على الصوت (بعد التأكد من وجود إذن)
-    try {
-        recognition.start();
-    } catch (err) {
-        console.warn("خطأ في بدء التعرف على الصوت:", err);
-    }
-}
 
     window.openLomi = function() { buildUI(); document.getElementById('lomiOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; setTimeout(() => refs.input?.focus(), 300); };
     window.closeLomi = function() { const overlay = document.getElementById('lomiOverlay'); if (overlay) overlay.classList.remove('active'); document.body.style.overflow = ''; if (isSending) stopGeneration(); saveCurrentConversation(); };
