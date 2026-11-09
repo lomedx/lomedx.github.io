@@ -53,7 +53,6 @@
     cursor: pointer !important; transition: background 0.2s !important; 
 }
 .lomi-header-btn:hover { background: var(--lomi-surface) !important; }
-.lomi-status-dot { display: none !important; } /* إخفاء النقطة لتبسيط الشكل */
 
 /* ─── 4. منطقة الرسائل (شاشة الترحيب) ─── */
 .lomi-messages { 
@@ -63,7 +62,7 @@
 }
 .lomi-messages::-webkit-scrollbar { display: none !important; }
 
-/* شاشة الترحيب الكبيرة (مثل Gemini) */
+/* شاشة الترحيب الكبيرة */
 .lomi-welcome-screen {
     display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important;
     height: 100% !important; text-align: center !important; padding-bottom: 100px !important;
@@ -75,7 +74,7 @@
     width: 60px !important; height: 60px !important; margin-bottom: 20px !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
 }
-.lomi-welcome-icon svg { width: 100% !important; height: 100% !important; fill: url(#gradient) !important; }
+.lomi-welcome-icon svg { width: 100% !important; height: 100% !important; }
 
 .lomi-welcome-text {
     font-family: 'IBM Plex Sans Arabic', sans-serif !important;
@@ -111,7 +110,6 @@
 .lomi-feature-btn:hover { background: var(--lomi-surface-hover) !important; }
 .lomi-feature-btn-icon { font-size: 16px !important; }
 .lomi-feature-btn-title { font-size: 13px !important; font-weight: 600 !important; }
-.lomi-feature-btn-sub, .lomi-feature-btn-arrow { display: none !important; } /* إخفاء التفاصيل الزائدة لتبسيط الشكل */
 
 /* أزرار الإجراءات */
 .lomi-msg-actions { display: flex !important; gap: 4px !important; opacity: 0 !important; transition: opacity 0.2s !important; margin-top: 8px !important; }
@@ -160,10 +158,7 @@
 .lomi-send-btn:disabled { opacity: 0.3 !important; cursor: not-allowed !important; }
 .lomi-send-btn.stop { color: #EF4444 !important; }
 
-/* إخفاء الأشياء الزائدة */
-.lomi-chips, .lomi-disclaimer, .lomi-char-counter, .lomi-avatar-wrap, .lomi-header-status { display: none !important; }
-
-/* ─── 7. لوحة سجل المحادثات (تعديل لتلائم الوضع المظلم) ─── */
+/* ─── 7. لوحة سجل المحادثات ─── */
 .lomi-history-panel {
     position: absolute !important; inset: 0 !important; background: var(--lomi-bg) !important;
     z-index: 100 !important; display: flex !important; flex-direction: column !important;
