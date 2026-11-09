@@ -412,11 +412,21 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         currentAbortController = new AbortController();
 
         try {
-            const res = await fetch(CONFIG.functionUrl, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.anonKey}` },
-                signal: currentAbortController.signal,
-                body: JSON.stringify({ message: text, history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8), fingerprint: 'web' })
-            });
+            
+const res = await fetch(CONFIG.functionUrl, {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.anonKey}` },
+    signal: currentAbortController.signal,
+    body: JSON.stringify({ 
+        message: text, 
+        history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8), 
+        fingerprint: 'web',
+        context: {
+            currentRoute: window.location.pathname,
+            currentCity: window.currentCity || 'الرحيبة' 
+        }
+    })
+});
+
             if (!res.ok) throw new Error('فشل الاتصال');
             const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
             while (true) {
