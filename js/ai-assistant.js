@@ -183,7 +183,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         overlay.className = 'lomi-overlay';
         overlay.id = 'lomiOverlay';
         
-        // تصميم الهيدر المخفي والواجهة المبسطة
         overlay.innerHTML = `
             <div class="lomi-app">
                 <header class="lomi-header">
@@ -251,7 +250,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         });
     }
 
-    // الشاشة الترحيبية الكبيرة (مثل Gemini)
     function showWelcome() {
         refs.messages.innerHTML = `
             <div class="lomi-welcome-screen">
@@ -271,7 +269,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 </h2>
             </div>
         `;
-        messageHistory = []; // تصفير التاريخ لعرض الشاشة الترحيبية
+        messageHistory = [];
     }
 
     function removeWelcome() {
@@ -384,6 +382,18 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
     function stopGeneration() { if (currentAbortController) currentAbortController.abort(); }
 
-    window.openLomi = function() { buildUI(); document.getElementById('lomiOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; setTimeout(() => refs.input?.focus(), 300); };
-    window.closeLomi = function() { const overlay = document.getElementById('lomiOverlay'); if (overlay) overlay.classList.remove('active'); document.body.style.overflow = ''; if (isSending) stopGeneration(); saveCurrentConversation(); };
+    window.openLomi = function() { 
+        buildUI(); 
+        document.getElementById('lomiOverlay').classList.add('active'); 
+        document.body.style.overflow = 'hidden'; 
+        setTimeout(() => refs.input?.focus(), 300); 
+    };
+    
+    window.closeLomi = function() { 
+        const overlay = document.getElementById('lomiOverlay'); 
+        if (overlay) overlay.classList.remove('active'); 
+        document.body.style.overflow = ''; 
+        if (isSending) stopGeneration(); 
+        saveCurrentConversation(); 
+    };
 })();
