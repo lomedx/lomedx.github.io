@@ -74,16 +74,20 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     function buildFeatureButton(id) {
-        const f = FEATURES[id];
-        if (!f) return '';
-        return `<a href="${f.route}" class="lomi-feature-btn">
-            <div class="lomi-feature-btn-icon">${f.icon}</div>
-            <div class="lomi-feature-btn-text">
-                <div class="lomi-feature-btn-title">${f.title}</div>
-                <div class="lomi-feature-btn-sub">${f.sub}</div>
-            </div>
-        </a>`;
-    }
+    const f = FEATURES[id];
+    if (!f) return '';
+    // أضفنا onclick لإغلاق المساعد فوراً عند النقر
+    return `<a href="${f.route}" class="lomi-feature-btn" onclick="window.closeLomi()">
+        <div class="lomi-feature-btn-icon">${f.icon}</div>
+        <div class="lomi-feature-btn-text">
+            <div class="lomi-feature-btn-title">${f.title}</div>
+            <div class="lomi-feature-btn-sub">${f.sub}</div>
+        </div>
+        <div class="lomi-feature-btn-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </div>
+    </a>`;
+}
 
     // ═══ إدارة المحادثات ═══
     function loadConversations() {
@@ -398,7 +402,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         messageHistory.push(userEntry);
         const typing = document.createElement('div');
         typing.className = 'lomi-msg assistant'; typing.id = 'lomiTyping';
-        typing.innerHTML = `<div class="lomi-typing"><span></span><span></span><span></span><span style="font-size:12px; color:#64748B; margin-right:6px;">يكتب</span></div>`;
+        typing.innerHTML = `<div class="lomi-typing"><span></span><span></span><span></span></div>`;
         refs.messages.appendChild(typing); refs.messages.scrollTop = refs.messages.scrollHeight;
 
         let assistantEntry = null; let accumulated = '';
