@@ -361,4 +361,60 @@
     color: var(--ink-600); background: var(--ink-50);
     border-radius: 12px; border: 1px dashed var(--ink-300); line-height: 1.6;
 }
-.lomi-entity-loading { color: var(--brand-700); font-weight: 700; background: var(--brand-50); border-color: var(--brand-300); }
+.lomi-entity-loading { color: var(--brand-700); font-weight: 700; background: var(--brand-50); border-color: var(--brand-300); 
+}
+
+/* ─── 14. أزرار التقييم ─── */
+.lomi-action-btn.rating-btn {
+    font-size: 14px !important;
+    transition: all 0.2s !important;
+}
+.lomi-action-btn.rating-btn:hover:not(:disabled) {
+    background: var(--brand-50) !important;
+    transform: scale(1.15) !important;
+}
+.lomi-action-btn.rating-btn.active {
+    background: var(--brand-100) !important;
+}
+.lomi-action-btn.rating-btn:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+}
+
+/* ─── 15. شارة حالة الفتح/الإغلاق ─── */
+.lomi-entity-status {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    padding: 2px 8px !important;
+    border-radius: 6px !important;
+    white-space: nowrap !important;
+}
+.lomi-entity-status .dot {
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 50% !important;
+    display: inline-block !important;
+}
+.lomi-entity-status.open {
+    background: #D1FAE5 !important;
+    color: #065F46 !important;
+}
+.lomi-entity-status.open .dot {
+    background: #10B981 !important;
+    box-shadow: 0 0 6px #10B981 !important;
+    animation: statusPulse 2s infinite !important;
+}
+.lomi-entity-status.closed {
+    background: #FEE2E2 !important;
+    color: #991B1B !important;
+}
+.lomi-entity-status.closed .dot {
+    background: #EF4444 !important;
+}
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
