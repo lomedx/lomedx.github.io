@@ -37,11 +37,11 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         'events-first-aid': { icon: '🎉', title: 'إسعافات المناسبات', sub: 'حوادث الأفراح والتجمعات', route: '/events-first-aid' },
         'add-facility': { icon: '🏥', title: 'أضف منشأتك', sub: 'سجل مجاناً في المنصة', route: '/add-facility' },
         'contact': { icon: '📞', title: 'تواصل معنا', sub: 'الدعم الفني والاستفسارات', route: '/contact' },
-        'social-facebook': { icon: '📘', title: 'فيسبوك', sub: 'تابعنا على فيسبوك', url: 'https://www.facebook.com/share/1GLT1xyBPA/' },
+        'social-facebook': { icon: '📲', title: 'فيسبوك', sub: 'تابعنا على فيسبوك', url: 'https://www.facebook.com/share/1GLT1xyBPA/' },
         'social-instagram': { icon: '📸', title: 'إنستغرام', sub: 'تابعنا على إنستغرام', url: 'https://www.instagram.com/lomed_x' },
         // ✅ ميزات الاشتراك الجديدة
         'join-doctor': { icon: '👨‍⚕️', title: 'اشتراك طبيب', sub: 'ارتقِ بعيادتك (ميزات متقدمة)', handler: 'join-doctor' },
-        'join-pharmacy': { icon: '💊', title: 'اشتراك صيدلية', sub: 'حوّل صيدليتك لرقمية', handler: 'join-pharmacy' }
+        'join-pharmacy': { icon: '🧑‍🔬', title: 'اشتراك صيدلية', sub: 'حوّل صيدليتك لرقمية', handler: 'join-pharmacy' }
     };
 
     let messageHistory = [];
@@ -147,7 +147,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
     // ═══ بناء بطاقة منشأة (تصميم احترافي) ═══
     function buildEntityCard(item) {
-        const icons = { doctor: '👨‍⚕️', pharmacy: '💊', lab: '🧪', center: '🏥', hospital: '🏨' };
+        const icons = { doctor: '👨‍⚕️', pharmacy: '🧑‍🔬', lab: '🧪', center: '🏥', hospital: '🏨' };
         const labels = { doctor: 'طبيب', pharmacy: 'صيدلية', lab: 'مخبر', center: 'مركز', hospital: 'مشفى' };
         
         const avatarHTML = item.image 
@@ -453,7 +453,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
     function showWelcome() {
         const el = createAssistantMessage('');
-        el.bubble.innerHTML = formatText(`أهلاً بك في **منصة LomedX** 👋\n\nأنا **Lomi**، مساعدك الطبي الذكي.\n\nيمكنني:\n• 🔍 **البحث عن طبيب أو صيدلية** (مثال: "دكتور جراحة عامة")\n• 💊 إرشادك للأدوية\n• 📅 حجز موعد\n• 📰 البحث في المدونة\n• ⭐ الاشتراك في المنصة\n\n⚕️ للتوعية فقط — للطوارئ: 110`);
+        el.bubble.innerHTML = formatText(`أهلاً بك في **منصة LomedX** \n\nأنا **Lomi**، مساعدك الطبي الذكي.\n\nيمكنني:\n• 🔍 **البحث عن طبيب أو صيدلية** (مثال:دكتور جراحة عامة)\n• 💊 إرشادك للأدوية\n• 📅 حجز موعد\n• 📰 البحث في المدونة\n• ⭐ الاشتراك في المنصة\n`);
         messageHistory.push(el);
     }
 
@@ -585,18 +585,38 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 buffer += decoder.decode(value, { stream: true }); const lines = buffer.split('\n'); buffer = lines.pop() || '';
                 for (const line of lines) {
                     if (!line.startsWith('data:')) continue; const d = line.slice(5).trim(); if (!d || d === '[DONE]') continue;
-                    try {
-                        const p = JSON.parse(d); const chunk = p.candidates?.[0]?.content?.parts?.[0]?.text;
-                        if (chunk) {
-                            if (!assistantEntry) { typing.remove(); assistantEntry = createAssistantMessage(''); messageHistory.push(assistantEntry); }
-                            accumulated += chunk;
-                            const tempText = accumulated.replace(/\[OPEN:[\w-]+\]/g, '').replace(/\[FIND:[\w-]+:[^\]]+\]/g, '').replace(/\[BLOG:[^\]]+\]/g, '');
-                            assistantEntry.bubble.textContent = tempText;
-                            refs.messages.scrollTop = refs.messages.scrollHeight;
-                        }
-                    } catch (e) {}
-                }
+                            try {
+            const p = JSON.parse(d);
+            
+            // 1. إذا كان هناك خطأ من الخادم
+            if (p.error) {
+                typing.remove();
+                const err = createAssistantMessage('🚨 عذراً، حدث خطأ في معالجة طلبك. يرجى المحاولة مرة أخرى لاحقاً.');
+                messageHistory.push(err);
+                return; 
             }
+
+            // 2. إذا تم حظر الرد بسبب فلاتر الأمان (رسالة عامة بدون ذكر جوجل)
+            if (p.promptFeedback?.blockReason) {
+                typing.remove();
+                const err = createAssistantMessage('⚠️ عذراً، لا يمكنني الرد على هذا الطلب.<br>يرجى إعادة صياغة سؤالك بأسلوب طبي ولائق.');
+                messageHistory.push(err);
+                return; 
+            }
+
+            // 3. قراءة النص
+            const chunk = p.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (chunk) {
+                if (!assistantEntry) { typing.remove(); assistantEntry = createAssistantMessage(''); messageHistory.push(assistantEntry); }
+                accumulated += chunk;
+                const tempText = accumulated.replace(/\[OPEN:[\w-]+\]/g, '').replace(/\[FIND:[\w-]+:[^\]]+\]/g, '').replace(/\[BLOG:[^\]]+\]/g, '');
+                assistantEntry.bubble.textContent = tempText;
+                refs.messages.scrollTop = refs.messages.scrollHeight;
+            }
+        } catch (e) {}
+    }
+}
+        
             typing.remove();
             if (assistantEntry) { renderAssistantFinal(assistantEntry, accumulated); saveCurrentConversation(); }
             refs.statusText.textContent = 'متصل'; refs.statusDot.classList.remove('busy');
