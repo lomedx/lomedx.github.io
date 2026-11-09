@@ -10,31 +10,31 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     };
 
     const FEATURES = {
-        'medicine-finder': { icon: '💊', title: 'باحث الأدوية', sub: 'ابحث عن دوائك في صيدليات مدينتك', route: '/medicine-finder' },
-        'book-doctor': { icon: '📅', title: 'حجز موعد', sub: 'احجز مع طبيب متخصص', route: '/' },
-        'blood-bank': { icon: '🩸', title: 'بنك الدم', sub: 'تبرّع أو اطلب دماً', route: '/blood-bank' },
-        'health-file': { icon: '📁', title: 'الملف الصحي', sub: 'سجلك الطبي المشفر بـ QR', route: '/health-file' },
-        'first-aid': { icon: '🚑', title: 'الإسعافات الأولية', sub: 'دليل شامل للطوارئ', route: '/first-aid' },
-        'burn-calculator': { icon: '🔥', title: 'حاسبة الحروق', sub: 'إسعافات الحروق خطوة بخطوة', route: '/burn-calculator' },
-        'pregnancy-calc': { icon: '🤰', title: 'حاسبة الحمل', sub: 'موعد الولادة وتطور الجنين', route: '/pregnancy-calc' },
-        'dose-calc': { icon: '💉', title: 'حاسبة الجرعات', sub: 'جرعات آمنة للأطفال', route: '/dose-calc' },
-        'vaccine-scheduler': { icon: '🗓️', title: 'جدول اللقاحات', sub: 'مواعيد تطعيم طفلك', route: '/vaccine-scheduler' },
-        'health-calc': { icon: '⚖️', title: 'حاسبة الصحة', sub: 'BMI والسعرات اليومية', route: '/health-calc' },
-        'water-calc': { icon: '💧', title: 'حاسبة الماء', sub: 'احتياجك اليومي من الماء', route: '/water-calc' },
-        'med-renewal': { icon: '🔄', title: 'تجديد الدواء', sub: 'متى ينفد دواؤك؟', route: '/med-renewal-calc' },
-        'med-symbols': { icon: '🧪', title: 'رموز التحاليل', sub: 'فهم مصطلحات الروشتات', route: '/med-symbols' },
-        'chronic-nutrition': { icon: '🥗', title: 'تغذية الأمراض المزمنة', sub: 'نظام غذائي حسب مرضك', route: '/chronic-nutrition' },
-        'pre-visit': { icon: '📋', title: 'قبل زيارة الطبيب', sub: 'جهّز نفسك للاستشارة', route: '/pre-visit-guide' },
-        'pre-test': { icon: '🔬', title: 'قبل التحاليل', sub: 'تعليمات الصيام والتحضير', route: '/pre-test-guide' },
-        'food-interactions': { icon: '⚠️', title: 'تعارضات الأدوية', sub: 'أدوية لا تُخلط مع طعام', route: '/food-interactions' },
-        'patient-reminder': { icon: '⏰', title: 'دفتر التذكير', sub: 'تذكيرات الأدوية والمواعيد', route: '/patient-reminder' },
-        'seasonal-diseases': { icon: '🌡️', title: 'الأمراض الموسمية', sub: 'دليل الأمراض الموسمية', route: '/seasonal-diseases' },
-        'medical-map': { icon: '🗺️', title: 'الخريطة الطبية', sub: 'أقرب منشأة طبية لك', route: '/medical-map' },
-        'medicine-donation': { icon: '🩺', title: 'الأجهزة الطبية', sub: 'تبادل الأجهزة والمستلزمات', route: '/medicine-donation' },
-        'raheba-radar': { icon: '📡', title: 'الرادار الصحي', sub: 'رصد الأمراض في منطقتك', route: '/raheba-radar' },
-        'ask-doctor': { icon: '👨‍⚕️', title: 'اسأل طبيب', sub: 'استشارة طبية مجانية', route: '/ask-doctor' },
-        'blog': { icon: '📰', title: 'المدونة الطبية', sub: 'مقالات موثوقة', route: '/blog' },
-        'events-first-aid': { icon: '🎉', title: 'إسعافات المناسبات', sub: 'حوادث الأفراح والتجمعات', route: '/events-first-aid' }
+        'medicine-finder': { icon: '💊', title: 'باحث الأدوية', route: '/medicine-finder' },
+        'book-doctor': { icon: '📅', title: 'حجز موعد', route: '/' },
+        'blood-bank': { icon: '🩸', title: 'بنك الدم', route: '/blood-bank' },
+        'health-file': { icon: '📁', title: 'الملف الصحي', route: '/health-file' },
+        'first-aid': { icon: '🚑', title: 'الإسعافات الأولية', route: '/first-aid' },
+        'burn-calculator': { icon: '🔥', title: 'حاسبة الحروق', route: '/burn-calculator' },
+        'pregnancy-calc': { icon: '🤰', title: 'حاسبة الحمل', route: '/pregnancy-calc' },
+        'dose-calc': { icon: '💉', title: 'حاسبة الجرعات', route: '/dose-calc' },
+        'vaccine-scheduler': { icon: '🗓️', title: 'جدول اللقاحات', route: '/vaccine-scheduler' },
+        'health-calc': { icon: '⚖️', title: 'حاسبة الصحة', route: '/health-calc' },
+        'water-calc': { icon: '💧', title: 'حاسبة الماء', route: '/water-calc' },
+        'med-renewal': { icon: '🔄', title: 'تجديد الدواء', route: '/med-renewal-calc' },
+        'med-symbols': { icon: '🧪', title: 'رموز التحاليل', route: '/med-symbols' },
+        'chronic-nutrition': { icon: '🥗', title: 'تغذية الأمراض المزمنة', route: '/chronic-nutrition' },
+        'pre-visit': { icon: '📋', title: 'قبل زيارة الطبيب', route: '/pre-visit-guide' },
+        'pre-test': { icon: '🔬', title: 'قبل التحاليل', route: '/pre-test-guide' },
+        'food-interactions': { icon: '⚠️', title: 'تعارضات الأدوية', route: '/food-interactions' },
+        'patient-reminder': { icon: '⏰', title: 'دفتر التذكير', route: '/patient-reminder' },
+        'seasonal-diseases': { icon: '🌡️', title: 'الأمراض الموسمية', route: '/seasonal-diseases' },
+        'medical-map': { icon: '🗺️', title: 'الخريطة الطبية', route: '/medical-map' },
+        'medicine-donation': { icon: '🩺', title: 'الأجهزة الطبية', route: '/medicine-donation' },
+        'raheba-radar': { icon: '📡', title: 'الرادار الصحي', route: '/raheba-radar' },
+        'ask-doctor': { icon: '👨‍⚕️', title: 'اسأل طبيب', route: '/ask-doctor' },
+        'blog': { icon: '📰', title: 'المدونة الطبية', route: '/blog' },
+        'events-first-aid': { icon: '🎉', title: 'إسعافات المناسبات', route: '/events-first-aid' }
     };
 
     let messageHistory = [];
@@ -50,17 +50,16 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         regen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>',
         send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="20" height="20"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>',
         stop: '<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
-        plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 5v14M5 12h14"/></svg>',
-        close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 6L6 18M6 6l12 12"/></svg>',
-        shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>',
-        history: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>',
+        plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 5v14M5 12h14"/></svg>',
+        close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+        history: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>',
         trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>'
     };
 
     function formatText(t) {
         return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
                 .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-                .replace(/^• /gm,'<span style="color:var(--brand-600);font-weight:700;">• </span>');
+                .replace(/^• /gm,'<span style="color:var(--lomi-brand);font-weight:700;">• </span>');
     }
 
     function extractFeatures(text) {
@@ -74,34 +73,18 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     function buildFeatureButton(id) {
-    const f = FEATURES[id];
-    if (!f) return '';
-    // أضفنا onclick لإغلاق المساعد فوراً عند النقر
-    return `<a href="${f.route}" class="lomi-feature-btn" onclick="window.closeLomi()">
-        <div class="lomi-feature-btn-icon">${f.icon}</div>
-        <div class="lomi-feature-btn-text">
-            <div class="lomi-feature-btn-title">${f.title}</div>
-            <div class="lomi-feature-btn-sub">${f.sub}</div>
-        </div>
-        <div class="lomi-feature-btn-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        </div>
-    </a>`;
-}
+        const f = FEATURES[id];
+        if (!f) return '';
+        return `<a href="${f.route}" class="lomi-feature-btn" onclick="window.closeLomi()">
+            <span class="lomi-feature-btn-icon">${f.icon}</span>
+            <span class="lomi-feature-btn-title">${f.title}</span>
+        </a>`;
+    }
 
     // ═══ إدارة المحادثات ═══
-    function loadConversations() {
-        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
-    }
-
-    function saveConversations(list) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    }
-
-    function generateId() {
-        return 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-    }
-
+    function loadConversations() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; } }
+    function saveConversations(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+    function generateId() { return 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7); }
     function getConversationTitle(messages) {
         const firstUser = messages.find(m => m.role === 'user');
         if (!firstUser) return 'محادثة جديدة';
@@ -110,31 +93,16 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     function saveCurrentConversation() {
-        const messagesToSave = messageHistory
-            .filter(m => m.content && m.content.trim())
-            .map(m => ({ role: m.role, content: m.content }));
-
+        const messagesToSave = messageHistory.filter(m => m.content && m.content.trim()).map(m => ({ role: m.role, content: m.content }));
         if (messagesToSave.length === 0) return;
-
         const list = loadConversations();
         const now = Date.now();
-
         if (currentConversationId) {
             const idx = list.findIndex(c => c.id === currentConversationId);
-            if (idx !== -1) {
-                list[idx].messages = messagesToSave;
-                list[idx].updatedAt = now;
-                list[idx].title = getConversationTitle(messagesToSave);
-            }
+            if (idx !== -1) { list[idx].messages = messagesToSave; list[idx].updatedAt = now; list[idx].title = getConversationTitle(messagesToSave); }
         } else {
             currentConversationId = generateId();
-            list.unshift({
-                id: currentConversationId,
-                title: getConversationTitle(messagesToSave),
-                messages: messagesToSave,
-                createdAt: now,
-                updatedAt: now
-            });
+            list.unshift({ id: currentConversationId, title: getConversationTitle(messagesToSave), messages: messagesToSave, createdAt: now, updatedAt: now });
         }
         if (list.length > 50) list.length = 50;
         saveConversations(list);
@@ -155,20 +123,16 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         const list = loadConversations();
         const conv = list.find(c => c.id === id);
         if (!conv) return;
-
         currentConversationId = id;
         messageHistory = [];
         refs.messages.innerHTML = '';
-
         conv.messages.forEach(m => {
             if (m.role === 'user') {
-                const entry = createUserMessage(m.content);
-                messageHistory.push(entry);
+                const entry = createUserMessage(m.content); messageHistory.push(entry);
             } else {
                 const entry = createAssistantMessage(m.content);
                 entry.bubble.innerHTML = formatText(m.content);
-                const acts = document.createElement('div');
-                acts.className = 'lomi-msg-actions';
+                const acts = document.createElement('div'); acts.className = 'lomi-msg-actions';
                 acts.innerHTML = `<button class="lomi-action-btn" data-action="copy">${ICONS.copy}</button><button class="lomi-action-btn" data-action="regen">${ICONS.regen}</button>`;
                 entry.element.querySelector('.lomi-msg-row').appendChild(acts);
                 messageHistory.push(entry);
@@ -182,57 +146,34 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         e.stopPropagation();
         const list = loadConversations().filter(c => c.id !== id);
         saveConversations(list);
-        if (currentConversationId === id) {
-            currentConversationId = null;
-            messageHistory = [];
-            refs.messages.innerHTML = '';
-            showWelcome();
-        }
+        if (currentConversationId === id) { currentConversationId = null; messageHistory = []; refs.messages.innerHTML = ''; showWelcome(); }
         renderHistoryList();
     }
 
-    function openHistoryPanel() {
-        renderHistoryList();
-        document.getElementById('lomiHistoryPanel')?.classList.add('open');
-    }
-
-    function closeHistoryPanel() {
-        document.getElementById('lomiHistoryPanel')?.classList.remove('open');
-    }
+    function openHistoryPanel() { renderHistoryList(); document.getElementById('lomiHistoryPanel')?.classList.add('open'); }
+    function closeHistoryPanel() { document.getElementById('lomiHistoryPanel')?.classList.remove('open'); }
 
     function renderHistoryList() {
         const listEl = document.getElementById('lomiHistoryList');
         if (!listEl) return;
-
         const list = loadConversations();
-
-        if (list.length === 0) {
-            listEl.innerHTML = `<div class="lomi-history-empty"><span>💬</span><div>لا توجد محادثات سابقة</div></div>`;
-            return;
-        }
-
+        if (list.length === 0) { listEl.innerHTML = `<div class="lomi-history-empty"><div>لا توجد محادثات سابقة</div></div>`; return; }
         listEl.innerHTML = list.map(c => {
             const date = new Date(c.updatedAt);
             const timeStr = date.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' }) + ' • ' + date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
-            const msgCount = c.messages.length;
             const isActive = c.id === currentConversationId ? 'active' : '';
             return `
                 <div class="lomi-history-item ${isActive}" data-id="${c.id}">
                     <div class="lomi-history-item-icon">💬</div>
                     <div class="lomi-history-item-body">
                         <div class="lomi-history-item-title">${c.title}</div>
-                        <div class="lomi-history-item-meta"><span>${timeStr}</span><span>${msgCount} رسالة</span></div>
+                        <div class="lomi-history-item-meta"><span>${timeStr}</span></div>
                     </div>
                     <button class="lomi-history-item-delete" data-delete="${c.id}" title="حذف">${ICONS.trash}</button>
                 </div>`;
         }).join('');
-
-        listEl.querySelectorAll('.lomi-history-item').forEach(item => {
-            item.addEventListener('click', () => loadConversation(item.dataset.id));
-        });
-        listEl.querySelectorAll('[data-delete]').forEach(btn => {
-            btn.addEventListener('click', (e) => deleteConversation(btn.dataset.delete, e));
-        });
+        listEl.querySelectorAll('.lomi-history-item').forEach(item => item.addEventListener('click', () => loadConversation(item.dataset.id)));
+        listEl.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', (e) => deleteConversation(btn.dataset.delete, e)));
     }
 
     // ═══ بناء الواجهة ═══
@@ -241,41 +182,26 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         const overlay = document.createElement('div');
         overlay.className = 'lomi-overlay';
         overlay.id = 'lomiOverlay';
+        
+        // تصميم الهيدر المخفي والواجهة المبسطة
         overlay.innerHTML = `
             <div class="lomi-app">
                 <header class="lomi-header">
-                    <div class="lomi-avatar-wrap">
-                        <div class="lomi-avatar">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>
-                        </div>
-                    </div>
-                    <div class="lomi-header-info">
-                        <div class="lomi-header-title">Lomi</div>
-                        <div class="lomi-header-status">
-                            <span class="lomi-status-dot" id="lomiStatusDot"></span>
-                            <span id="lomiStatusText">متصل بمنصة LomedX</span>
-                        </div>
-                    </div>
+                    <div class="lomi-header-title">Lomi</div>
                     <button class="lomi-header-btn" id="lomiHistoryBtn" title="سجل المحادثات">${ICONS.history}</button>
                     <button class="lomi-header-btn" id="lomiClearBtn" title="محادثة جديدة">${ICONS.plus}</button>
                     <button class="lomi-header-btn" id="lomiCloseBtn" title="إغلاق">${ICONS.close}</button>
                 </header>
+                
                 <div class="lomi-messages" id="lomiMessages"></div>
-                <div class="lomi-chips" id="lomiChips">
-                    <button class="lomi-chip" data-q="أبحث عن دواء"><span>💊</span> دواء</button>
-                    <button class="lomi-chip" data-q="أريد حجز موعد مع طبيب"><span>📅</span> حجز</button>
-                    <button class="lomi-chip" data-q="حاسبة جرعة طفلي"><span>💉</span> جرعات</button>
-                    <button class="lomi-chip" data-q="ألم في الصدر مع تعرق"><span>🆘</span> طوارئ</button>
-                    <button class="lomi-chip" data-q="عندي صداع خفيف"><span>🤯</span> صداع</button>
-                </div>
+                
                 <div class="lomi-input-area">
                     <div class="lomi-input-wrap">
-                        <textarea id="lomiInput" class="lomi-input" placeholder="اكتب سؤالك الطبي..." rows="1" maxlength="1000"></textarea>
-                        <div class="lomi-char-counter" id="lomiCharCounter">0 / 1000</div>
+                        <textarea id="lomiInput" class="lomi-input" placeholder="اسأل Lomi..." rows="1" maxlength="1000"></textarea>
+                        <button class="lomi-send-btn" id="lomiSendBtn" disabled>${ICONS.send}</button>
                     </div>
-                    <button class="lomi-send-btn" id="lomiSendBtn" disabled>${ICONS.send}</button>
                 </div>
-                <footer class="lomi-disclaimer">${ICONS.shield}<span>للتوعية الصحية فقط — <strong>لا يغني عن استشارة الطبيب</strong></span></footer>
+
                 <div class="lomi-history-panel" id="lomiHistoryPanel">
                     <div class="lomi-history-header">
                         <div class="lomi-history-title">سجل المحادثات</div>
@@ -294,10 +220,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             messages: document.getElementById('lomiMessages'),
             input: document.getElementById('lomiInput'),
             sendBtn: document.getElementById('lomiSendBtn'),
-            statusText: document.getElementById('lomiStatusText'),
-            statusDot: document.getElementById('lomiStatusDot'),
-            chips: document.getElementById('lomiChips'),
-            charCounter: document.getElementById('lomiCharCounter'),
             clearBtn: document.getElementById('lomiClearBtn'),
             closeBtn: document.getElementById('lomiCloseBtn')
         };
@@ -318,27 +240,47 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             refs.input.style.height = 'auto';
             refs.input.style.height = Math.min(refs.input.scrollHeight, 130) + 'px';
             refs.sendBtn.disabled = !refs.input.value.trim() || isSending;
-            const len = refs.input.value.length;
-            refs.charCounter.textContent = `${len} / 1000`;
-            refs.charCounter.classList.toggle('show', len > 0);
         });
 
         refs.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isSending) sendMessage(refs.input.value); } });
         refs.sendBtn.addEventListener('click', () => { isSending ? stopGeneration() : sendMessage(refs.input.value); });
-        refs.chips.querySelectorAll('.lomi-chip').forEach(c => c.addEventListener('click', () => sendMessage(c.dataset.q)));
+        
         refs.messages.addEventListener('click', (e) => {
             const b = e.target.closest('.lomi-action-btn');
             if (b) handleMessageAction(b.dataset.action, b.closest('.lomi-msg').dataset.id);
         });
     }
 
+    // الشاشة الترحيبية الكبيرة (مثل Gemini)
     function showWelcome() {
-        const el = createAssistantMessage('');
-        el.bubble.innerHTML = formatText(`أهلاً بك في **منصة LomedX** 👋\n\nأنا **Lomi**، مساعدك الطبي الذكي.\n\nجرّب أن تكتب:\n• "أبحث عن دواء"\n• "حاسبة جرعة طفلي"\n\n للتوعية فقط`);
-        messageHistory.push(el);
+        refs.messages.innerHTML = `
+            <div class="lomi-welcome-screen">
+                <div class="lomi-welcome-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--lomi-brand)">
+                        <path d="M3 12h4l2-7 4 14 2-7h6" stroke="url(#grad)"/>
+                        <defs>
+                            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#10B981" />
+                                <stop offset="100%" stop-color="#3B82F6" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h2 class="lomi-welcome-text">
+                    على ماذا يجب أن <strong>نركز؟</strong>
+                </h2>
+            </div>
+        `;
+        messageHistory = []; // تصفير التاريخ لعرض الشاشة الترحيبية
+    }
+
+    function removeWelcome() {
+        const welcome = refs.messages.querySelector('.lomi-welcome-screen');
+        if (welcome) welcome.remove();
     }
 
     function createUserMessage(text) {
+        removeWelcome();
         const id = 'm_' + Date.now();
         const el = document.createElement('div');
         el.className = 'lomi-msg user';
@@ -394,12 +336,13 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
     async function sendMessage(text) {
         if (!text?.trim() || isSending) return;
-        refs.input.value = ''; refs.input.style.height = '48px'; refs.sendBtn.disabled = true;
+        removeWelcome();
+        refs.input.value = ''; refs.input.style.height = '24px'; refs.sendBtn.disabled = true;
         isSending = true; refs.sendBtn.innerHTML = ICONS.stop; refs.sendBtn.classList.add('stop');
-        refs.statusText.textContent = 'يكتب...'; refs.statusDot.classList.add('busy'); refs.charCounter.classList.remove('show');
 
         const userEntry = createUserMessage(text);
         messageHistory.push(userEntry);
+        
         const typing = document.createElement('div');
         typing.className = 'lomi-msg assistant'; typing.id = 'lomiTyping';
         typing.innerHTML = `<div class="lomi-typing"><span></span><span></span><span></span></div>`;
@@ -432,11 +375,10 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             }
             typing.remove();
             if (assistantEntry) { renderAssistantFinal(assistantEntry, accumulated); saveCurrentConversation(); }
-            refs.statusText.textContent = 'متصل'; refs.statusDot.classList.remove('busy');
         } catch (err) {
-            typing.remove(); if (err.name !== 'AbortError') refs.statusText.textContent = 'خطأ في الاتصال';
+            typing.remove(); if (err.name !== 'AbortError') { alert('حدث خطأ في الاتصال'); }
         } finally {
-            isSending = false; refs.sendBtn.innerHTML = ICONS.send; refs.sendBtn.classList.remove('stop'); refs.sendBtn.disabled = !refs.input.value.trim(); refs.statusDot.classList.remove('busy');
+            isSending = false; refs.sendBtn.innerHTML = ICONS.send; refs.sendBtn.classList.remove('stop'); refs.sendBtn.disabled = !refs.input.value.trim();
         }
     }
 
