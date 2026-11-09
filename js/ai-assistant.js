@@ -11,7 +11,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
     const FEATURES = {
         'medicine-finder': { icon: '💊', title: 'باحث الأدوية', sub: 'ابحث عن دوائك في صيدليات مدينتك', route: '/medicine-finder' },
-        'book-doctor': { icon: '📅', title: 'حجز موعد', sub: 'احجز مع طبيب متخصص', route: '/' },
+        'book-doctor': { icon: '📅', title: 'حجز موعد', sub: 'احجز مع طبيب متخصص', handler: 'redirectToDoctorsSearch' },
         'blood-bank': { icon: '🩸', title: 'بنك الدم', sub: 'تبرّع أو اطلب دماً', route: '/blood-bank' },
         'health-file': { icon: '📁', title: 'الملف الصحي', sub: 'سجلك الطبي المشفر بـ QR', route: '/health-file' },
         'first-aid': { icon: '🚑', title: 'الإسعافات الأولية', sub: 'دليل شامل للطوارئ', route: '/first-aid' },
@@ -34,7 +34,13 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         'raheba-radar': { icon: '📡', title: 'الرادار الصحي', sub: 'رصد الأمراض في منطقتك', route: '/raheba-radar' },
         'ask-doctor': { icon: '👨‍⚕️', title: 'اسأل طبيب', sub: 'استشارة طبية مجانية', route: '/ask-doctor' },
         'blog': { icon: '📰', title: 'المدونة الطبية', sub: 'مقالات موثوقة', route: '/blog' },
-        'events-first-aid': { icon: '🎉', title: 'إسعافات المناسبات', sub: 'حوادث الأفراح والتجمعات', route: '/events-first-aid' }
+        'events-first-aid': { icon: '🎉', title: 'إسعافات المناسبات', sub: 'حوادث الأفراح والتجمعات', route: '/events-first-aid' },
+        // ✅ ميزات جديدة
+        'subscribe': { icon: '⭐', title: 'اشترك الآن', sub: 'انضم لنخبة الأطباء والصيدليات', route: '/join-us' },
+        'add-facility': { icon: '🏥', title: 'أضف منشأتك', sub: 'سجل مجاناً في المنصة', route: '/add-facility' },
+        'contact': { icon: '📞', title: 'تواصل معنا', sub: 'الدعم الفني والاستفسارات', route: '/contact' },
+        'social-facebook': { icon: '📘', title: 'فيسبوك', sub: 'تابعنا على فيسبوك', url: 'https://www.facebook.com/share/1GLT1xyBPA/' },
+        'social-instagram': { icon: '📸', title: 'إنستغرام', sub: 'تابعنا على إنستغرام', url: 'https://www.instagram.com/lomed_x' }
     };
 
     let messageHistory = [];
@@ -57,10 +63,101 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>'
     };
 
+    function escapeHtml(t) {
+        return String(t || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
     function formatText(t) {
         return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
                 .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
                 .replace(/^• /gm,'<span style="color:var(--brand-600);font-weight:700;">• </span>');
+    }
+
+    // ═══ البحث عن كيان محدد ═══
+    function findEntityByQuery(type, query) {
+        if (!window.allData || !Array.isArray(window.allData)) return [];
+        const q = query.toLowerCase().trim();
+        const typeMap = {
+            'doctor': ['doctor'], 'pharmacy': ['pharmacy'], 'lab': ['lab'],
+            'center': ['center', 'clinic'], 'hospital': ['hospital']
+        };
+        const types = typeMap[type] || [type];
+        
+        return window.allData.filter(item => {
+            if (!types.includes(item.type)) return false;
+            return (
+                (item.name || '').toLowerCase().includes(q) ||
+                (item.specialty || '').toLowerCase().includes(q) ||
+                (item.address || item.clinic || '').toLowerCase().includes(q)
+            );
+        });
+    }
+
+    function buildEntityCard(item) {
+        const icons = { doctor: '👨‍⚕️', pharmacy: '💊', lab: '🧪', center: '🏥', hospital: '🏨' };
+        const labels = { doctor: 'طبيب', pharmacy: 'صيدلية', lab: 'مخبر', center: 'مركز', hospital: 'مشفى' };
+        return `<button class="lomi-entity-card" onclick="window.lomiOpenEntity('${escapeHtml(item.id)}')">
+            <div class="lomi-entity-icon">${icons[item.type] || '📍'}</div>
+            <div class="lomi-entity-body">
+                <div class="lomi-entity-name">${escapeHtml(item.name)}</div>
+                <div class="lomi-entity-meta">${escapeHtml(item.specialty || item.address || item.clinic || labels[item.type])}</div>
+            </div>
+            <div class="lomi-entity-arrow">←</div>
+        </button>`;
+    }
+
+    window.lomiOpenEntity = function(id) {
+        window.closeLomi();
+        setTimeout(() => {
+            if (typeof window.handleCardClick === 'function') {
+                try { window.handleCardClick({ stopPropagation: () => {} }, id); return; } catch(e) {}
+            }
+            if (typeof window.openModal === 'function') {
+                window.openModal(id);
+            }
+        }, 350);
+    };
+
+    window.lomiRunHandler = function(handlerName) {
+        window.closeLomi();
+        setTimeout(() => {
+            if (typeof window[handlerName] === 'function') {
+                window[handlerName]();
+            }
+        }, 350);
+    };
+
+    function processSpecialTags(text) {
+        // 1. FIND entity: [FIND:doctor:اسم] أو [FIND:pharmacy:اسم] إلخ
+        text = text.replace(/\[FIND:(doctor|pharmacy|lab|center|hospital):([^\]]+)\]/g, (m, type, query) => {
+            const results = findEntityByQuery(type, query.trim());
+            if (results.length === 0) {
+                return `<div class="lomi-entity-results"><div class="lomi-entity-empty">🔍 لم أجد نتائج مطابقة لـ "<strong>${escapeHtml(query.trim())}</strong>"<br><small>جرب البحث بكلمة أخرى أو تصفح القائمة الكاملة</small></div></div>`;
+            }
+            if (results.length === 1) {
+                setTimeout(() => window.lomiOpenEntity(results[0].id), 1200);
+                return `<div class="lomi-entity-results"><div class="lomi-entity-loading">⏳ جاري فتح: <strong>${escapeHtml(results[0].name)}</strong>...</div></div>`;
+            }
+            return `<div class="lomi-entity-results">
+                <div class="lomi-entity-header">وجدت ${results.length} نتيجة. اختر:</div>
+                ${results.slice(0, 5).map(buildEntityCard).join('')}
+            </div>`;
+        });
+        
+        // 2. BLOG search: [BLOG:كلمة]
+        text = text.replace(/\[BLOG:([^\]]+)\]/g, (m, query) => {
+            const q = query.trim();
+            return `<div class="lomi-entity-results"><a href="/blog?search=${encodeURIComponent(q)}" class="lomi-feature-btn" onclick="window.closeLomi()">
+                <div class="lomi-feature-btn-icon">📰</div>
+                <div class="lomi-feature-btn-text">
+                    <div class="lomi-feature-btn-title">ابحث في المدونة: ${escapeHtml(q)}</div>
+                    <div class="lomi-feature-btn-sub">افتح المدونة واعرض المقالات</div>
+                </div>
+                <div class="lomi-feature-btn-arrow">←</div>
+            </a></div>`;
+        });
+        
+        return text;
     }
 
     function extractFeatures(text) {
@@ -70,12 +167,43 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         while ((match = regex.exec(text)) !== null) {
             if (FEATURES[match[1]] && !features.includes(match[1])) features.push(match[1]);
         }
-        return { cleanText: text.replace(regex, '').trim(), features };
+        const cleanText = text.replace(regex, '').trim();
+        return { cleanText, features };
     }
 
     function buildFeatureButton(id) {
         const f = FEATURES[id];
         if (!f) return '';
+        
+        // إذا كان الرابط خارجياً (وسائل التواصل)
+        if (f.url) {
+            return `<a href="${f.url}" target="_blank" rel="noopener" class="lomi-feature-btn">
+                <div class="lomi-feature-btn-icon">${f.icon}</div>
+                <div class="lomi-feature-btn-text">
+                    <div class="lomi-feature-btn-title">${f.title}</div>
+                    <div class="lomi-feature-btn-sub">${f.sub}</div>
+                </div>
+                <div class="lomi-feature-btn-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+                </div>
+            </a>`;
+        }
+        
+        // إذا كان له handler (مثل حجز موعد)
+        if (f.handler) {
+            return `<button class="lomi-feature-btn" onclick="window.lomiRunHandler('${f.handler}')">
+                <div class="lomi-feature-btn-icon">${f.icon}</div>
+                <div class="lomi-feature-btn-text">
+                    <div class="lomi-feature-btn-title">${f.title}</div>
+                    <div class="lomi-feature-btn-sub">${f.sub}</div>
+                </div>
+                <div class="lomi-feature-btn-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </div>
+            </button>`;
+        }
+        
+        // رابط عادي
         return `<a href="${f.route}" class="lomi-feature-btn" onclick="window.closeLomi()">
             <div class="lomi-feature-btn-icon">${f.icon}</div>
             <div class="lomi-feature-btn-text">
@@ -92,15 +220,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     function loadConversations() {
         try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
     }
-
-    function saveConversations(list) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    }
-
-    function generateId() {
-        return 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-    }
-
+    function saveConversations(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+    function generateId() { return 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7); }
+    
     function getConversationTitle(messages) {
         const firstUser = messages.find(m => m.role === 'user');
         if (!firstUser) return 'محادثة جديدة';
@@ -109,31 +231,16 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     function saveCurrentConversation() {
-        const messagesToSave = messageHistory
-            .filter(m => m.content && m.content.trim())
-            .map(m => ({ role: m.role, content: m.content }));
-
+        const messagesToSave = messageHistory.filter(m => m.content && m.content.trim()).map(m => ({ role: m.role, content: m.content }));
         if (messagesToSave.length === 0) return;
-
         const list = loadConversations();
         const now = Date.now();
-
         if (currentConversationId) {
             const idx = list.findIndex(c => c.id === currentConversationId);
-            if (idx !== -1) {
-                list[idx].messages = messagesToSave;
-                list[idx].updatedAt = now;
-                list[idx].title = getConversationTitle(messagesToSave);
-            }
+            if (idx !== -1) { list[idx].messages = messagesToSave; list[idx].updatedAt = now; list[idx].title = getConversationTitle(messagesToSave); }
         } else {
             currentConversationId = generateId();
-            list.unshift({
-                id: currentConversationId,
-                title: getConversationTitle(messagesToSave),
-                messages: messagesToSave,
-                createdAt: now,
-                updatedAt: now
-            });
+            list.unshift({ id: currentConversationId, title: getConversationTitle(messagesToSave), messages: messagesToSave, createdAt: now, updatedAt: now });
         }
         if (list.length > 50) list.length = 50;
         saveConversations(list);
@@ -154,20 +261,16 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         const list = loadConversations();
         const conv = list.find(c => c.id === id);
         if (!conv) return;
-
         currentConversationId = id;
         messageHistory = [];
         refs.messages.innerHTML = '';
-
         conv.messages.forEach(m => {
             if (m.role === 'user') {
-                const entry = createUserMessage(m.content);
-                messageHistory.push(entry);
+                const entry = createUserMessage(m.content); messageHistory.push(entry);
             } else {
                 const entry = createAssistantMessage(m.content);
                 entry.bubble.innerHTML = formatText(m.content);
-                const acts = document.createElement('div');
-                acts.className = 'lomi-msg-actions';
+                const acts = document.createElement('div'); acts.className = 'lomi-msg-actions';
                 acts.innerHTML = `<button class="lomi-action-btn" data-action="copy">${ICONS.copy}</button><button class="lomi-action-btn" data-action="regen">${ICONS.regen}</button>`;
                 entry.element.querySelector('.lomi-msg-row').appendChild(acts);
                 messageHistory.push(entry);
@@ -181,57 +284,33 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         e.stopPropagation();
         const list = loadConversations().filter(c => c.id !== id);
         saveConversations(list);
-        if (currentConversationId === id) {
-            currentConversationId = null;
-            messageHistory = [];
-            refs.messages.innerHTML = '';
-            showWelcome();
-        }
+        if (currentConversationId === id) { currentConversationId = null; messageHistory = []; refs.messages.innerHTML = ''; showWelcome(); }
         renderHistoryList();
     }
 
-    function openHistoryPanel() {
-        renderHistoryList();
-        document.getElementById('lomiHistoryPanel')?.classList.add('open');
-    }
-
-    function closeHistoryPanel() {
-        document.getElementById('lomiHistoryPanel')?.classList.remove('open');
-    }
+    function openHistoryPanel() { renderHistoryList(); document.getElementById('lomiHistoryPanel')?.classList.add('open'); }
+    function closeHistoryPanel() { document.getElementById('lomiHistoryPanel')?.classList.remove('open'); }
 
     function renderHistoryList() {
         const listEl = document.getElementById('lomiHistoryList');
         if (!listEl) return;
-
         const list = loadConversations();
-
-        if (list.length === 0) {
-            listEl.innerHTML = `<div class="lomi-history-empty"><span>💬</span><div>لا توجد محادثات سابقة</div></div>`;
-            return;
-        }
-
+        if (list.length === 0) { listEl.innerHTML = `<div class="lomi-history-empty"><span>💬</span><div>لا توجد محادثات سابقة</div></div>`; return; }
         listEl.innerHTML = list.map(c => {
             const date = new Date(c.updatedAt);
             const timeStr = date.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' }) + ' • ' + date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
-            const msgCount = c.messages.length;
             const isActive = c.id === currentConversationId ? 'active' : '';
-            return `
-                <div class="lomi-history-item ${isActive}" data-id="${c.id}">
-                    <div class="lomi-history-item-icon">💬</div>
-                    <div class="lomi-history-item-body">
-                        <div class="lomi-history-item-title">${c.title}</div>
-                        <div class="lomi-history-item-meta"><span>${timeStr}</span><span>${msgCount} رسالة</span></div>
-                    </div>
-                    <button class="lomi-history-item-delete" data-delete="${c.id}" title="حذف">${ICONS.trash}</button>
-                </div>`;
+            return `<div class="lomi-history-item ${isActive}" data-id="${c.id}">
+                <div class="lomi-history-item-icon">💬</div>
+                <div class="lomi-history-item-body">
+                    <div class="lomi-history-item-title">${c.title}</div>
+                    <div class="lomi-history-item-meta"><span>${timeStr}</span></div>
+                </div>
+                <button class="lomi-history-item-delete" data-delete="${c.id}" title="حذف">${ICONS.trash}</button>
+            </div>`;
         }).join('');
-
-        listEl.querySelectorAll('.lomi-history-item').forEach(item => {
-            item.addEventListener('click', () => loadConversation(item.dataset.id));
-        });
-        listEl.querySelectorAll('[data-delete]').forEach(btn => {
-            btn.addEventListener('click', (e) => deleteConversation(btn.dataset.delete, e));
-        });
+        listEl.querySelectorAll('.lomi-history-item').forEach(item => item.addEventListener('click', () => loadConversation(item.dataset.id)));
+        listEl.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', (e) => deleteConversation(btn.dataset.delete, e)));
     }
 
     // ═══ بناء الواجهة ═══
@@ -263,9 +342,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 <div class="lomi-chips" id="lomiChips">
                     <button class="lomi-chip" data-q="أبحث عن دواء"><span>💊</span> دواء</button>
                     <button class="lomi-chip" data-q="أريد حجز موعد مع طبيب"><span>📅</span> حجز</button>
-                    <button class="lomi-chip" data-q="حاسبة جرعة طفلي"><span>💉</span> جرعات</button>
-                    <button class="lomi-chip" data-q="ألم في الصدر مع تعرق"><span>🆘</span> طوارئ</button>
-                    <button class="lomi-chip" data-q="عندي صداع خفيف"><span>🤯</span> صداع</button>
+                    <button class="lomi-chip" data-q="أريد طبيب أسنان"><span>🦷</span> أسنان</button>
+                    <button class="lomi-chip" data-q="كيف أشترك في المنصة؟"><span>⭐</span> اشتراك</button>
+                    <button class="lomi-chip" data-q="كيف أضيف منشأتي الطبية؟"><span>🏥</span> إضافة منشأة</button>
                 </div>
                 <div class="lomi-input-area">
                     <div class="lomi-input-wrap">
@@ -275,7 +354,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                     <button class="lomi-send-btn" id="lomiSendBtn" disabled>${ICONS.send}</button>
                 </div>
                 <footer class="lomi-disclaimer">${ICONS.shield}<span>للتوعية الصحية فقط — <strong>لا يغني عن استشارة الطبيب</strong></span></footer>
-                
                 <div class="lomi-history-panel" id="lomiHistoryPanel">
                     <div class="lomi-history-header">
                         <div class="lomi-history-title">سجل المحادثات</div>
@@ -305,7 +383,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         showWelcome();
     }
 
-    // ═══ الأحداث ═══
     function bindEvents() {
         document.getElementById('lomiCloseBtn').addEventListener('click', () => window.closeLomi());
         document.getElementById('lomiOverlay').addEventListener('click', (e) => { if (e.target.id === 'lomiOverlay') window.closeLomi(); });
@@ -334,7 +411,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
     function showWelcome() {
         const el = createAssistantMessage('');
-        el.bubble.innerHTML = formatText(`أهلاً بك في **منصة LomedX** 👋\n\nأنا **Lomi**، مساعدك الطبي الذكي.\n\nجرّب أن تكتب:\n• "أبحث عن دواء"\n• "حاسبة جرعة طفلي"\n\n للتوعية فقط`);
+        el.bubble.innerHTML = formatText(`أهلاً بك في **منصة LomedX** 👋\n\nأنا **Lomi**، مساعدك الطبي الذكي.\n\nيمكنني:\n• 🔍 **البحث عن طبيب محدد** (مثال: "أريد دكتور أحمد")\n• 💊 إرشادك للأدوية والصيدليات\n• 📅 **حجز موعد** مع أي طبيب\n• 📰 البحث في المدونة\n• ⭐ شرح كيفية الاشتراك\n\n⚕️ للتوعية فقط — للطوارئ: 110`);
         messageHistory.push(el);
     }
 
@@ -360,15 +437,23 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     function renderAssistantFinal(entry, fullText) {
-        const { cleanText, features } = extractFeatures(fullText);
+        // 1. معالجة الأكواد الخاصة (FIND, BLOG)
+        let processedText = processSpecialTags(fullText);
+        
+        // 2. استخراج أزرار الميزات [OPEN:...]
+        const { cleanText, features } = extractFeatures(processedText);
         entry.content = cleanText;
         entry.bubble.innerHTML = formatText(cleanText);
+        
+        // 3. إضافة أزرار الميزات
         if (features.length > 0) {
             const a = document.createElement('div');
             a.className = 'lomi-feature-actions';
             a.innerHTML = features.map(buildFeatureButton).join('');
             entry.element.appendChild(a);
         }
+        
+        // 4. إضافة أزرار الإجراءات
         const acts = document.createElement('div');
         acts.className = 'lomi-msg-actions';
         acts.innerHTML = `<button class="lomi-action-btn" data-action="copy">${ICONS.copy}</button><button class="lomi-action-btn" data-action="regen">${ICONS.regen}</button>`;
@@ -402,31 +487,26 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         messageHistory.push(userEntry);
         const typing = document.createElement('div');
         typing.className = 'lomi-msg assistant'; typing.id = 'lomiTyping';
-        
-        // النقاط الثلاث فقط بدون كلمة يكتب
         typing.innerHTML = `<div class="lomi-typing"><span></span><span></span><span></span></div>`;
-        
         refs.messages.appendChild(typing); refs.messages.scrollTop = refs.messages.scrollHeight;
 
         let assistantEntry = null; let accumulated = '';
         currentAbortController = new AbortController();
 
         try {
-            
-const res = await fetch(CONFIG.functionUrl, {
-    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.anonKey}` },
-    signal: currentAbortController.signal,
-    body: JSON.stringify({ 
-        message: text, 
-        history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8), 
-        fingerprint: 'web',
-        context: {
-            currentRoute: window.location.pathname,
-            currentCity: window.currentCity || 'الرحيبة' 
-        }
-    })
-});
-
+            const res = await fetch(CONFIG.functionUrl, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.anonKey}` },
+                signal: currentAbortController.signal,
+                body: JSON.stringify({ 
+                    message: text, 
+                    history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8), 
+                    fingerprint: 'web',
+                    context: {
+                        currentRoute: window.location.pathname,
+                        currentCity: window.currentCity || 'الرحيبة'
+                    }
+                })
+            });
             if (!res.ok) throw new Error('فشل الاتصال');
             const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
             while (true) {
@@ -438,7 +518,11 @@ const res = await fetch(CONFIG.functionUrl, {
                         const p = JSON.parse(d); const chunk = p.candidates?.[0]?.content?.parts?.[0]?.text;
                         if (chunk) {
                             if (!assistantEntry) { typing.remove(); assistantEntry = createAssistantMessage(''); messageHistory.push(assistantEntry); }
-                            accumulated += chunk; assistantEntry.bubble.textContent = extractFeatures(accumulated).cleanText; refs.messages.scrollTop = refs.messages.scrollHeight;
+                            accumulated += chunk;
+                            // عرض النص أثناء البث (بدون الأكواد الخاصة)
+                            const tempText = accumulated.replace(/\[OPEN:[\w-]+\]/g, '').replace(/\[FIND:[\w-]+:[^\]]+\]/g, '').replace(/\[BLOG:[^\]]+\]/g, '');
+                            assistantEntry.bubble.textContent = tempText;
+                            refs.messages.scrollTop = refs.messages.scrollHeight;
                         }
                     } catch (e) {}
                 }
