@@ -406,7 +406,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         else if (hour >= 12 && hour < 17) smartSuggestion = `💊 <strong>وقت الغداء</strong> — هل تحتاج حاسبة جرعات لطفلك؟`;
         else smartSuggestion = `👨‍⚕️ <strong>مساء الخير</strong> — هل تريد استشارة طبية سريعة؟ اسألني: "أريد اسأل طبيب"`;
         
-        el.bubble.innerHTML = formatText(`أهلاً وسهلاً فيك في **منصة LomedX** يا غالي! 🌹\n\nأنا **Lomi**، مساعدك الطبي الذكي.\n\n${smartSuggestion}\n\n⚕️ للتوعية فقط — للطوارئ: 110`);
+        el.bubble.innerHTML = formatText(`أهلاً وسهلاً فيك في **منصة LomedX** يا غالي! 🌹\n\nأنا **Lomi**، مساعدك الطبي الذكي.\n\n${smartSuggestion}\n`);
         messageHistory.push(el);
     }
 
@@ -502,7 +502,27 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             const res = await fetch(CONFIG.functionUrl, {
                 method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.anonKey}` },
                 signal: currentAbortController.signal,
-                body: JSON.stringify({ message: text, history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8), fingerprint: 'web', context: { currentRoute: window.location.pathname, currentCity: window.currentCity || 'كل المدن' } })
+                body: JSON.stringify({ message: text, history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8), fingerprint: 'web', context: { currentRoute: window.location.pathname, currentCity: (function() {
+    // 1. البحث عن المدينة في المتغيرات المعروفة
+    let saved = localStorage.getItem('lomedx_user_city');
+    if (saved) return saved;
+
+    // 2. إذا لم نجدها، نقرأها من الزر المكتوب في أعلى الصفحة
+    let btn = document.getElementById('currentCityText');
+    if (btn) {
+        let btnText = btn.innerText.trim();
+        if (btnText && btnText !== 'كل المدن') return btnText;
+    }
+
+    // 3. البحث في شريط القائمة الجانبية
+    let menuBtn = document.getElementById('menuCurrentCityText');
+    if (menuBtn) {
+        let menuText = menuBtn.innerText.trim();
+        if (menuText && menuText !== 'كل المدن') return menuText;
+    }
+
+    return 'كل المدن'; // الخيار الأخير
+})()
             });
             if (!res.ok) throw new Error('فشل الاتصال');
             
