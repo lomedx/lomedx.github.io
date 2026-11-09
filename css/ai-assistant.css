@@ -346,16 +346,25 @@
     resize: none !important; 
     max-height: 130px !important; 
     min-height: 48px !important; 
-    outline: none !important; 
     background: var(--ink-50) !important; 
     transition: all 0.2s !important; 
-    box-shadow: none !important; 
     color: var(--ink-900) !important;
+    
+    /* الكود السحري لإزالة إطار التركيز */
+    outline: none !important; 
+    outline-width: 0 !important;
+    box-shadow: none !important; 
+    -webkit-appearance: none !important;
+    appearance: none !important;
 }
+
 .lomi-input:focus { 
+    /* إطار خفيف جداً وأنيق يظهر فقط عند الكتابة */
     border-color: var(--brand-600) !important; 
     background: #ffffff !important; 
     box-shadow: 0 0 0 3px rgba(16,185,129,0.1) !important; 
+    outline: none !important;
+    outline-width: 0 !important;
 }
 .lomi-char-counter { 
     position: absolute !important; 
