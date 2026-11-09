@@ -502,7 +502,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             const res = await fetch(CONFIG.functionUrl, {
                 method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.anonKey}` },
                 signal: currentAbortController.signal,
-                body: JSON.stringify({ message: text, history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8), fingerprint: 'web', context: { currentRoute: window.location.pathname, currentCity: window.currentCity || 'الرحيبة' } })
+                body: JSON.stringify({ message: text, history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8), fingerprint: 'web', context: { currentRoute: window.location.pathname, currentCity: window.currentCity || 'كل المدن' } })
             });
             if (!res.ok) throw new Error('فشل الاتصال');
             
