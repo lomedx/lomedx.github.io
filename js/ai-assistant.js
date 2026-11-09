@@ -119,7 +119,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         });
     }
 
-    // ═══ بناء البطاقة (مع شارة الحالة) ═══
+    // ═══ بناء البطاقة ═══
     function buildEntityCard(item) {
         const icons = { doctor: '👨‍⚕️', pharmacy: '💊', lab: '🧪', center: '🏥', hospital: '🏨' };
         const labels = { doctor: 'طبيب', pharmacy: 'صيدلية', lab: 'مخبر', center: 'مركز', hospital: 'مشفى' };
@@ -128,7 +128,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             ? `<img src="${escapeHtml(item.image)}" class="lomi-entity-avatar" onerror="this.outerHTML='<div class=\\'lomi-entity-avatar-fallback\\'>${icons[item.type] || '📍'}</div>'">`
             : `<div class="lomi-entity-avatar-fallback">${icons[item.type] || '📍'}</div>`;
             
-        // ✅ شارة الحالة
         let statusBadge = '';
         if (['pharmacy', 'doctor', 'clinic'].includes(item.type) && item.isopen !== undefined && item.isopen !== null) {
             if (item.isopen === true) {
@@ -248,6 +247,23 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 body: JSON.stringify({ analytics_id: lastAnalyticsId, rating })
             });
         } catch (e) {}
+    }
+
+    // ═══ دالة جلب المدينة الذكية ═══
+    function getCurrentCity() {
+        let saved = localStorage.getItem('lomedx_user_city');
+        if (saved) return saved;
+        let btn = document.getElementById('currentCityText');
+        if (btn) {
+            let btnText = btn.innerText.trim();
+            if (btnText && btnText !== 'كل المدن') return btnText;
+        }
+        let menuBtn = document.getElementById('menuCurrentCityText');
+        if (menuBtn) {
+            let menuText = menuBtn.innerText.trim();
+            if (menuText && menuText !== 'كل المدن') return menuText;
+        }
+        return 'كل المدن';
     }
 
     // ═══ إدارة المحادثات ═══
@@ -399,7 +415,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     function showWelcome() {
         const el = createAssistantMessage('');
         const hour = new Date().getHours();
-        const city = window.currentCity || 'الرحيبة';
+        const city = getCurrentCity();
         let smartSuggestion = '';
         if (hour >= 22 || hour < 6) smartSuggestion = `🌙 <strong>صيدليات المناوبة الليلة</strong> في ${escapeHtml(city)} جاهزة. اسألني: "أريد صيدلية مناوبة"`;
         else if (hour >= 6 && hour < 12) smartSuggestion = `☀️ <strong>صباح الخير!</strong> هل تريد حجز موعد اليوم؟ اسألني: "أريد حجز موعد"`;
@@ -479,8 +495,10 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         const userEntry = createUserMessage(text);
         messageHistory.push(userEntry);
 
+        const currentCity = getCurrentCity();
+
         // ✅ Cache
-        const cached = getCachedResponse(text, window.currentCity || 'الرحيبة');
+        const cached = getCachedResponse(text, currentCity);
         if (cached) {
             const cachedEntry = createAssistantMessage('');
             messageHistory.push(cachedEntry);
@@ -502,31 +520,18 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             const res = await fetch(CONFIG.functionUrl, {
                 method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.anonKey}` },
                 signal: currentAbortController.signal,
-                body: JSON.stringify({ message: text, history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8), fingerprint: 'web', context: { currentRoute: window.location.pathname, currentCity: (function() {
-    // 1. البحث عن المدينة في المتغيرات المعروفة
-    let saved = localStorage.getItem('lomedx_user_city');
-    if (saved) return saved;
-
-    // 2. إذا لم نجدها، نقرأها من الزر المكتوب في أعلى الصفحة
-    let btn = document.getElementById('currentCityText');
-    if (btn) {
-        let btnText = btn.innerText.trim();
-        if (btnText && btnText !== 'كل المدن') return btnText;
-    }
-
-    // 3. البحث في شريط القائمة الجانبية
-    let menuBtn = document.getElementById('menuCurrentCityText');
-    if (menuBtn) {
-        let menuText = menuBtn.innerText.trim();
-        if (menuText && menuText !== 'كل المدن') return menuText;
-    }
-
-    return 'كل المدن'; // الخيار الأخير
-})()
+                body: JSON.stringify({ 
+                    message: text, 
+                    history: messageHistory.map(m => ({ role: m.role, content: m.content })).slice(-8), 
+                    fingerprint: 'web', 
+                    context: { 
+                        currentRoute: window.location.pathname, 
+                        currentCity: currentCity 
+                    }
+                })
             });
             if (!res.ok) throw new Error('فشل الاتصال');
             
-            // ✅ حفظ analytics id
             lastAnalyticsId = res.headers.get('X-Analytics-Id') || null;
 
             const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
@@ -564,7 +569,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             if (assistantEntry) {
                 renderAssistantFinal(assistantEntry, accumulated);
                 saveCurrentConversation();
-                setCachedResponse(text, window.currentCity || 'الرحيبة', accumulated);
+                setCachedResponse(text, currentCity, accumulated);
             }
             refs.statusText.textContent = 'متصل'; refs.statusDot.classList.remove('busy');
         } catch (err) {
