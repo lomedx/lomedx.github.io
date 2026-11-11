@@ -5936,21 +5936,42 @@ function animateCounter(target, elementId) {
     const timer = setInterval(() => { current += inc; if (current >= target) { current = target; clearInterval(timer); } el.innerText = current.toLocaleString('ar-EG'); }, stepTime);
 }
 
+// ═══════════════════════════════════════════════════════════════
+// كودك الأصلي (محسّن تقنياً بدون تغيير التصميم)
+// ═══════════════════════════════════════════════════════════════
+
 window.renderAdSlide = (index) => {
-    const container = document.getElementById('homeAdContainer'); const dotsContainer = document.getElementById('adDots');
-    if (!container || activeAds.length === 0) return;
-    const ad = activeAds[index]; let mediaHTML = '';
-    if (adInterval) { clearTimeout(adInterval); clearInterval(adInterval); adInterval = null; }
+    const container = document.getElementById('homeAdContainer'); 
+    const dotsContainer = document.getElementById('adDots');
+    
+    if (!container || !activeAds || activeAds.length === 0) {
+        if (container) container.closest('#homeMediaAdsSection')?.classList.add('hidden');
+        return;
+    }
+    
+    // إظهار القسم إذا كان هناك إعلانات
+    container.closest('#homeMediaAdsSection')?.classList.remove('hidden');
+
+    const ad = activeAds[index]; 
+    let mediaHTML = '';
+    
+    if (adInterval) { 
+        clearTimeout(adInterval); 
+        clearInterval(adInterval); 
+        adInterval = null; 
+    }
+    
     const isSingleAd = activeAds.length === 1;
+
     if (ad.type === 'image') {
         mediaHTML = `<a href="${escapeHtml(ad.link || '#')}" target="_blank" class="block w-full h-full"><img src="${escapeHtml(ad.content)}" alt="إعلان" class="w-full h-full object-cover"></a>`;
-        if (!isSingleAd) adInterval = setTimeout(nextAdSlide, 10000);
-        } else if (ad.type === 'video') {
+        if (!isSingleAd) adInterval = setTimeout(window.nextAdSlide, 10000);
+    } else if (ad.type === 'video') {
         const loopAttr = isSingleAd ? 'loop' : ''; 
         const endedAttr = isSingleAd ? '' : 'onended="nextAdSlide()"';
         mediaHTML = `
         <div class="relative w-full h-full bg-black">
-                <video id="homeAdVideo" autoplay muted playsinline ${loopAttr} ${endedAttr} onerror="nextAdSlide()" class="w-full h-full object-cover">
+            <video id="homeAdVideo" autoplay muted playsinline ${loopAttr} ${endedAttr} onerror="nextAdSlide()" class="w-full h-full object-cover">
                 <source src="${escapeHtml(ad.content)}" type="video/mp4">
             </video>
             <button onclick="toggleAdVideoSound()" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-sm z-30 transition-all">
@@ -5959,22 +5980,102 @@ window.renderAdSlide = (index) => {
         </div>`;
     }
     
+    // ✅ تحسين: إيقاف الفيديو القديم قبل استبداله
+    const oldVideo = container.querySelector('video');
+    if (oldVideo) {
+        oldVideo.pause();
+        oldVideo.src = '';
+    }
+
     container.innerHTML = `<div class="w-full h-full">${mediaHTML}</div>`;
     
     if (dotsContainer) { 
-        if (isSingleAd) dotsContainer.innerHTML = ''; 
-        else dotsContainer.innerHTML = activeAds.map((_, i) => `<span class="w-2 h-2 rounded-full bg-white/50 cursor-pointer ${i === index ? 'w-6 bg-white' : ''}" onclick="goToAdSlide(${i})"></span>`).join(''); 
+        if (isSingleAd) {
+            dotsContainer.innerHTML = ''; 
+            dotsContainer.classList.add('hidden');
+        } else {
+            dotsContainer.classList.remove('hidden');
+            dotsContainer.innerHTML = activeAds.map((_, i) => `<span class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all ${i === index ? 'w-6 bg-white' : ''}" onclick="goToAdSlide(${i})"></span>`).join(''); 
+        }
     }
 }
-window.nextAdSlide = () => { if (activeAds.length === 0) return; currentAdIndex = (currentAdIndex + 1) % activeAds.length; renderAdSlide(currentAdIndex); }
+
+window.nextAdSlide = () => { 
+    if (activeAds.length === 0) return; 
+    currentAdIndex = (currentAdIndex + 1) % activeAds.length; 
+    window.renderAdSlide(currentAdIndex); 
+}
+
 window.toggleAdVideoSound = () => {
     const video = document.getElementById('homeAdVideo');
     const icon = document.getElementById('adVideoSoundIcon');
-    if (!video) return;
+    if (!video || !icon) return;
+    
     video.muted = !video.muted;
-    if (video.muted) { icon.className = 'fas fa-volume-xmark'; } 
-    else { icon.className = 'fas fa-volume-high'; }
+    if (video.muted) { 
+        icon.className = 'fas fa-volume-xmark'; 
+    } else { 
+        icon.className = 'fas fa-volume-high'; 
+    }
 };
+
+async function fetchHomeAdsPublic() {
+    const cachedAds = localStorage.getItem('cached_home_ads');
+    if (cachedAds) {
+        try {
+            activeAds = JSON.parse(cachedAds);
+            const section = document.getElementById('homeMediaAdsSection');
+            if (activeAds.length === 0) { 
+                section?.classList.add('hidden'); 
+            } else { 
+                section?.classList.remove('hidden'); 
+                currentAdIndex = 0; 
+                window.renderAdSlide(currentAdIndex); 
+            }
+        } catch (e) {}
+    }
+    
+    try {
+        const { data: configSnap } = await supabase.from('app_config').select('last_update').eq('id', 'ads_sync').single();
+        let serverTime = configSnap?.last_update || 0;
+        if (serverTime === 0) { 
+            await supabase.from('app_config').upsert({ id: 'ads_sync', last_update: Date.now() }); 
+            serverTime = Date.now(); 
+        }
+        
+        const localTime = parseInt(localStorage.getItem('ads_last_fetch') || '0');
+        if (serverTime > localTime) {
+            const { data: snap } = await supabase.from('homepage_ads').select('*').eq('is_active', true).limit(5);
+            activeAds = snap || [];
+            const section = document.getElementById('homeMediaAdsSection');
+            if (activeAds.length === 0) { 
+                section?.classList.add('hidden'); 
+                if (adInterval) clearInterval(adInterval); 
+            } else { 
+                section?.classList.remove('hidden'); 
+                currentAdIndex = 0; 
+                window.renderAdSlide(currentAdIndex); 
+            }
+            try { 
+                localStorage.setItem('cached_home_ads', JSON.stringify(activeAds)); 
+                localStorage.setItem('ads_last_fetch', serverTime.toString()); 
+            } catch(e) {}
+        }
+    } catch (err) {
+        console.warn('Ads sync paused:', err.message);
+    }
+}
+
+// تحسين: إيقاف الفيديو عند إخفاء الصفحة (توفير بطارية)
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        if (adInterval) { clearTimeout(adInterval); adInterval = null; }
+        const video = document.getElementById('homeAdVideo');
+        if (video) video.pause();
+    }
+});
+
+fetchHomeAdsPublic();
 window.prevAdSlide = () => { if (activeAds.length === 0) return; currentAdIndex = (currentAdIndex - 1 + activeAds.length) % activeAds.length; renderAdSlide(currentAdIndex); }
 window.goToAdSlide = (index) => { currentAdIndex = index; renderAdSlide(currentAdIndex); }
 window.saveHomeAd = async (e) => {
