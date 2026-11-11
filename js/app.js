@@ -5960,6 +5960,7 @@ window.renderAdSlide = function(index) {
         section.classList.remove('hidden');
     }
 
+    // التحقق من صحة المؤشر
     if (index >= activeAds.length) index = 0;
     if (index < 0) index = activeAds.length - 1;
     currentAdIndex = index;
@@ -5987,62 +5988,89 @@ window.renderAdSlide = function(index) {
         }, 300);
     }
 
-    // 3. إنشاء الحاوية الجديدة
+    // ==========================================
+    // 3. الحاوية الرئيسية للإعلان (تقسيم عمودي للجوال، وأفقي للكمبيوتر)
+    // ==========================================
     const adWrapper = document.createElement('div');
-    adWrapper.className = 'ad-slide-wrapper absolute inset-0 flex flex-col sm:flex-row w-full h-full';
+    // h-[170px] للجوال لضمان ظهور كل العناصر، و h-full للكمبيوتر
+    adWrapper.className = 'ad-slide-wrapper absolute inset-0 flex flex-col sm:flex-row w-full h-full sm:h-full overflow-hidden';
     adWrapper.style.opacity = '0';
     adWrapper.style.transition = 'opacity 0.4s ease';
+    adWrapper.style.minHeight = '170px'; // ارتفاع أدنى آمن للجوال
 
-    // 4. الوسائط (صورة أو فيديو)
+    // ==========================================
+    // 4. الجزء الخاص بالوسائط (صورة أو فيديو)
+    // ==========================================
     const mediaContainer = document.createElement('div');
-    mediaContainer.className = 'w-full sm:w-5/12 h-[140px] sm:h-full relative overflow-hidden bg-[#04100a] flex-shrink-0';
+    // في الجوال: الارتفاع 80px، وفي الكمبيوتر: يأخذ 5/12 من العرض
+    mediaContainer.className = 'w-full sm:w-5/12 h-[85px] sm:h-full relative overflow-hidden bg-[#04100a] flex-shrink-0';
     
     if (ad.type === 'video') {
         const video = document.createElement('video');
         video.src = ad.content;
-        video.className = 'w-full h-full object-cover sm:opacity-80 sm:group-hover:opacity-100 transition-opacity duration-500';
+        video.className = 'w-full h-full object-cover opacity-90 sm:opacity-80 sm:group-hover:opacity-100 transition-all duration-500';
         video.autoplay = true;
-        video.muted = true;
+        video.muted = true; 
         video.loop = true;
         video.playsInline = true;
+        video.id = 'nativeAdVideo';
         mediaContainer.appendChild(video);
+
+        // زر الصوت
+        const soundBtn = document.createElement('button');
+        soundBtn.className = 'absolute bottom-2 left-2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm z-30 transition-all';
+        soundBtn.innerHTML = '<i class="fas fa-volume-xmark text-[10px]"></i>';
+        
+        soundBtn.onclick = (e) => {
+            e.stopPropagation();
+            const vid = document.getElementById('nativeAdVideo');
+            if (!vid) return;
+            vid.muted = !vid.muted;
+            soundBtn.innerHTML = vid.muted 
+                ? '<i class="fas fa-volume-xmark text-[10px]"></i>' 
+                : '<i class="fas fa-volume-high text-[10px]"></i>';
+            if (!vid.muted) vid.play().catch(() => {});
+        };
+        mediaContainer.appendChild(soundBtn);
+        
     } else {
         const img = document.createElement('img');
         img.src = ad.content;
         img.alt = 'إعلان مدعوم من LomedX';
-        img.className = 'w-full h-full object-cover sm:opacity-80 sm:group-hover:opacity-100 sm:group-hover:scale-105 transition-all duration-700';
+        img.className = 'w-full h-full object-cover opacity-90 sm:opacity-80 sm:group-hover:opacity-100 sm:group-hover:scale-105 transition-all duration-700';
         mediaContainer.appendChild(img);
     }
 
-    // تدرج لدمج الوسائط
+    // تدرج لدمج الوسائط مع النص (فوق الصورة في الجوال، ويمين الصورة في الكمبيوتر)
     const gradientOverlay = document.createElement('div');
-    gradientOverlay.className = 'absolute inset-0 pointer-events-none';
-    gradientOverlay.style.background = window.innerWidth >= 640 
-        ? 'linear-gradient(to left, #030a06 0%, transparent 60%)' 
-        : 'linear-gradient(to top, #030a06 0%, transparent 60%)';
+    gradientOverlay.className = 'absolute inset-0 pointer-events-none hidden sm:block';
+    gradientOverlay.style.background = 'linear-gradient(to left, #030a06 0%, transparent 60%)';
     mediaContainer.appendChild(gradientOverlay);
 
-    // 5. النص والزر
+    // ==========================================
+    // 5. الجزء الخاص بالنص والزر
+    // ==========================================
     const textContainer = document.createElement('div');
-    textContainer.className = 'flex-1 p-4 sm:p-6 flex flex-col justify-center text-right relative z-10';
+    // في الجوال: يملأ باقي المساحة، خلفية داكنة لضمان وضوح النص
+    textContainer.className = 'flex-1 px-3 py-2 sm:p-6 flex flex-col justify-center text-right relative z-10 bg-[#030a06] sm:bg-transparent';
 
-    // شارة "إعلان مدعوم"
+    // شارة "إعلان مدعوم" (في الزاوية اليمنى العلوية)
     const badge = document.createElement('div');
-    badge.className = 'absolute top-3 right-3 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider';
+    badge.className = 'absolute top-2 right-3 sm:top-4 sm:right-4 px-1.5 py-0.5 rounded text-[8px] sm:text-[9px] font-bold uppercase tracking-wider';
     badge.style.cssText = 'background: rgba(0,0,0,0.6); color: rgba(255,255,255,0.6); backdrop-filter: blur(4px);';
-    badge.innerText = 'Sponsored';
+    badge.innerText = 'SPONSORED';
     textContainer.appendChild(badge);
 
     // العنوان
     const title = document.createElement('h3');
-    title.className = 'text-[16px] sm:text-[18px] font-black text-white mb-2 leading-tight';
+    title.className = 'text-[13px] sm:text-[18px] font-black text-white mb-1 sm:mb-2 leading-tight pl-2';
     title.style.fontFamily = "'Noto Kufi Arabic', sans-serif";
     title.innerText = ad.title || 'إعلان مميز من شركائنا';
     textContainer.appendChild(title);
 
     // الوصف
     const desc = document.createElement('p');
-    desc.className = 'text-[12px] sm:text-[13px] text-[#8fa89d] leading-relaxed mb-4 line-clamp-2';
+    desc.className = 'text-[10px] sm:text-[13px] text-[#8fa89d] leading-relaxed mb-2 sm:mb-4 line-clamp-1 sm:line-clamp-2';
     desc.innerText = ad.description || 'اكتشف المزيد من الخدمات الطبية المقدمة من شركائنا.';
     textContainer.appendChild(desc);
 
@@ -6051,22 +6079,28 @@ window.renderAdSlide = function(index) {
     btn.href = ad.link || '#';
     btn.target = '_blank';
     btn.rel = 'noopener noreferrer';
-    btn.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[11px] sm:text-xs font-bold transition-all duration-300 w-fit';
+    btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-300 w-fit';
     btn.style.cssText = 'background: rgba(240, 215, 123, 0.1); color: #F0D77B; border: 1px solid rgba(240, 215, 123, 0.3);';
     btn.onclick = (e) => e.stopPropagation();
     btn.onmouseenter = () => { btn.style.background = '#F0D77B'; btn.style.color = '#030a06'; };
     btn.onmouseleave = () => { btn.style.background = 'rgba(240, 215, 123, 0.1)'; btn.style.color = '#F0D77B'; };
-    btn.innerHTML = `اكتشف المزيد <i class="fas fa-arrow-left text-[10px]"></i>`;
+    btn.innerHTML = `اكتشف المزيد <i class="fas fa-arrow-left text-[9px] sm:text-[10px]"></i>`;
     textContainer.appendChild(btn);
 
-    // 6. التجميع والإضافة
+    // ==========================================
+    // 6. التجميع النهائي
+    // ==========================================
     adWrapper.appendChild(mediaContainer);
     adWrapper.appendChild(textContainer);
     adMainContainer.appendChild(adWrapper);
 
-    requestAnimationFrame(() => { adWrapper.style.opacity = '1'; });
+    requestAnimationFrame(() => { 
+        adWrapper.style.opacity = '1'; 
+    });
 
-    // 7. تحديث النقاط
+    // ==========================================
+    // 7. تحديث النقاط (Dots)
+    // ==========================================
     if (adDotsContainer) {
         if (activeAds.length <= 1) {
             adDotsContainer.classList.add('hidden');
@@ -6074,14 +6108,16 @@ window.renderAdSlide = function(index) {
             adDotsContainer.classList.remove('hidden');
             adDotsContainer.innerHTML = activeAds.map((_, i) => {
                 const activeStyle = i === index 
-                    ? 'width: 24px; height: 6px; background: #F0D77B;' 
-                    : 'width: 6px; height: 6px; background: rgba(255,255,255,0.4);';
+                    ? 'width: 20px; height: 5px; background: #F0D77B;' 
+                    : 'width: 5px; height: 5px; background: rgba(255,255,255,0.4);';
                 return `<button type="button" class="rounded-full transition-all duration-300 cursor-pointer" style="${activeStyle}" onclick="event.stopPropagation(); window.renderAdSlide(${i})"></button>`;
             }).join('');
         }
     }
 
+    // ==========================================
     // 8. المؤقت التلقائي
+    // ==========================================
     if (activeAds.length > 1) {
         adInterval = setTimeout(() => {
             window.renderAdSlide((currentAdIndex + 1) % activeAds.length);
