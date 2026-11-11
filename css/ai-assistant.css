@@ -13,37 +13,37 @@
     display: flex !important; align-items: center !important; justify-content: center !important; padding: 16px !important;
     opacity: 0; visibility: hidden; transition: all 0.3s var(--ease-out) !important;
     font-family: 'IBM Plex Sans Arabic', sans-serif !important; direction: rtl !important;
+    overflow: hidden !important; /* منع تمرير الخلفية */
 }
 .lomi-overlay.active { opacity: 1 !important; visibility: visible !important; }
 
-/* تصفير المتصفح لجميع العناصر داخل المساعد فقط لمنع التداخل */
 .lomi-overlay *, .lomi-overlay *::before, .lomi-overlay *::after { 
     margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; 
     -webkit-tap-highlight-color: transparent !important; -webkit-font-smoothing: antialiased !important;
 }
 
-/* ─── 2. التصميم الأساسي (App Container) ─── */
+/* ─── 2. الحاوية الرئيسية (App Container) ─── */
 .lomi-app {
-    width: 100% !important; 
-    max-width: 580px !important; 
-    /* ✅ الحل الجذري: استخدم 100dvh ليتكيف مع لوحة المفاتيح في الجوال والكمبيوتر */
-    height: 100dvh !important; 
+    width: 100% !important; max-width: 580px !important; 
+    height: 100dvh !important; /* يتكيف مع الكيبورد */
     max-height: 880px !important;
     background: #ffffff !important; border-radius: 24px !important;
     box-shadow: 0 0 0 1px rgba(6,46,34,0.05), 0 20px 50px -20px rgba(6,46,34,0.4), 0 40px 100px -40px rgba(6,46,34,0.5) !important;
-    display: flex !important; flex-direction: column !important; overflow: hidden !important; 
-    position: relative !important; transform: translateY(20px) scale(0.98) !important;
+    display: flex !important; flex-direction: column !important; 
+    overflow: hidden !important; 
+    position: relative !important; 
+    transform: translateY(20px) scale(0.98) !important;
     transition: all 0.4s var(--ease-out) !important;
 }
 .lomi-overlay.active .lomi-app { transform: translateY(0) scale(1) !important; }
 
 /* ─── 3. الهيدر الثابت (Fixed Header) ─── */
 .lomi-header { 
-    position: absolute !important;
+    position: absolute !important; /* ✅ تثبيت مطلق */
     top: 0 !important; 
     left: 0 !important;
     right: 0 !important;
-    z-index: 50 !important; 
+    z-index: 100 !important; 
     background: radial-gradient(circle at 15% -20%, rgba(240,215,123,0.2) 0%, transparent 55%), radial-gradient(circle at 85% 120%, rgba(110,231,183,0.22) 0%, transparent 55%), linear-gradient(135deg, var(--brand-900) 0%, var(--brand-700) 60%, var(--brand-600) 100%) !important; 
     color: #ffffff !important; 
     padding: 20px 24px !important; 
@@ -81,10 +81,12 @@
 }
 .lomi-header-btn:hover { background: rgba(255,255,255,0.2) !important; transform: translateY(-1px) !important; }
 
+/* ─── 4. منطقة الرسائل (تحت الهيدر) ─── */
 .lomi-messages { 
     flex: 1 !important; 
     overflow-y: auto !important; 
-    padding: 90px 22px 24px !important; 
+    /* ✅ إضافة مساحة علوية بقيمة ارتفاع الهيدر لعدم اختفاء أول رسالة */
+    padding: 100px 22px 24px !important; 
     background: #F5F9F6 !important; 
     display: flex !important; 
     flex-direction: column !important; 
@@ -129,7 +131,7 @@
 .lomi-action-btn { width: 28px !important; height: 28px !important; border-radius: 8px !important; background: transparent !important; border: none !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; color: var(--ink-400) !important; }
 .lomi-action-btn:hover { background: var(--ink-100) !important; color: var(--brand-700) !important; }
 
-/* ─── 7. مؤشر الكتابة (النقاط الثلاث) ─── */
+/* ─── 7. مؤشر الكتابة ─── */
 .lomi-typing { display: flex !important; gap: 5px !important; padding: 15px 20px !important; background: #ffffff !important; border-radius: 20px !important; border: 1px solid var(--ink-200) !important; border-bottom-left-radius: 6px !important; width: fit-content !important; align-items: center !important; }
 .lomi-typing span { width: 7px !important; height: 7px !important; border-radius: 50% !important; background: var(--brand-600) !important; animation: typingBounce 1.3s infinite ease-in-out !important; }
 .lomi-typing span:nth-child(2) { animation-delay: .15s !important; } 
@@ -145,7 +147,7 @@
 }
 .lomi-chip:hover { background: var(--brand-50) !important; border-color: var(--brand-600) !important; color: var(--brand-800) !important; transform: translateY(-2px) !important; }
 
-/* ─── 9. منطقة الإدخال (الإطار الأخضر الأنيق) ─── */
+/* ─── 9. منطقة الإدخال ─── */
 .lomi-input-area { padding: 14px 18px 12px !important; background: #ffffff !important; border-top: 1px solid var(--ink-200) !important; display: flex !important; gap: 8px !important; align-items: flex-end !important; flex-shrink: 0 !important; }
 .lomi-input-wrap { flex: 1 !important; position: relative !important; }
 
@@ -160,8 +162,6 @@
     border-color: var(--brand-600) !important; 
     box-shadow: 0 0 0 3px rgba(16,185,129,0.15) !important; 
     background: #ffffff !important; 
-    outline: none !important;
-    outline-width: 0 !important;
 }
 
 .lomi-char-counter { position: absolute !important; bottom: -16px !important; left: 12px !important; font-size: 10.5px !important; color: var(--ink-400) !important; opacity: 0; transition: opacity 0.2s !important; }
@@ -180,274 +180,88 @@
 .lomi-disclaimer svg { width: 13px !important; height: 13px !important; color: var(--brand-600) !important; }
 .lomi-disclaimer strong { color: var(--brand-800) !important; }
 
-/* ─── 11. لوحة سجل المحادثات (History Panel) ─── */
+/* ─── 11. سجل المحادثات (History Panel) ─── */
 .lomi-history-panel {
-    position: absolute !important; 
-    top: 0 !important; 
-    left: 0 !important; 
-    right: 0 !important; 
-    bottom: 0 !important; 
-    background: #ffffff !important; 
-    z-index: 100 !important; 
-    display: flex !important; 
-    flex-direction: column !important; 
-    transform: translateX(100%) !important; 
-    transition: transform 0.35s var(--ease-out) !important;
+    position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; 
+    background: #ffffff !important; z-index: 200 !important; display: flex !important; flex-direction: column !important; 
+    transform: translateX(100%) !important; transition: transform 0.35s var(--ease-out) !important;
     box-shadow: -10px 0 30px rgba(0,0,0,0.1) !important; 
 }
-.lomi-history-panel.open { 
-    transform: translateX(0) !important; 
-}
-
-.lomi-history-header { 
-    display: flex !important; align-items: center !important; justify-content: space-between !important; 
-    padding: 18px 20px !important; border-bottom: 1px solid var(--ink-200) !important; 
-    background: var(--ink-50) !important; flex-shrink: 0 !important; 
-}
-.lomi-history-title { 
-    font-family: 'Noto Kufi Arabic', sans-serif !important; font-weight: 700 !important; 
-    font-size: 15px !important; color: var(--ink-800) !important; 
-}
-.lomi-history-close { 
-    width: 36px !important; height: 36px !important; border-radius: 10px !important; 
-    border: none !important; background: var(--ink-100) !important; 
-    color: var(--ink-600) !important; display: flex !important; align-items: center !important; 
-    justify-content: center !important; cursor: pointer !important; 
-}
+.lomi-history-panel.open { transform: translateX(0) !important; }
+.lomi-history-header { display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 18px 20px !important; border-bottom: 1px solid var(--ink-200) !important; background: var(--ink-50) !important; flex-shrink: 0 !important; }
+.lomi-history-title { font-family: 'Noto Kufi Arabic', sans-serif !important; font-weight: 700 !important; font-size: 15px !important; color: var(--ink-800) !important; }
+.lomi-history-close { width: 36px !important; height: 36px !important; border-radius: 10px !important; border: none !important; background: var(--ink-100) !important; color: var(--ink-600) !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; }
 .lomi-history-close:hover { background: var(--ink-200) !important; }
-
-.lomi-history-list { 
-    flex: 1 !important; overflow-y: auto !important; padding: 12px !important; 
-    display: flex !important; flex-direction: column !important; gap: 8px !important; 
-    background: #ffffff !important;
-}
-.lomi-history-item { 
-    display: flex !important; align-items: center !important; gap: 12px !important; 
-    padding: 14px !important; border-radius: 14px !important; border: 1.5px solid var(--ink-200) !important; 
-    background: #ffffff !important; cursor: pointer !important; transition: all 0.2s !important; 
-    text-align: right !important; width: 100% !important;
-}
-.lomi-history-item:hover { 
-    border-color: var(--brand-500) !important; background: var(--brand-50) !important; 
-    transform: translateY(-1px) !important; 
-}
-.lomi-history-item.active { 
-    border-color: var(--brand-600) !important; background: var(--brand-50) !important; 
-}
-
-.lomi-history-item-icon { 
-    width: 40px !important; height: 40px !important; border-radius: 12px !important; 
-    background: linear-gradient(135deg, var(--brand-700), var(--brand-600)) !important; 
-    display: flex !important; align-items: center !important; justify-content: center !important; 
-    font-size: 18px !important; flex-shrink: 0 !important; color: #ffffff !important; 
-}
+.lomi-history-list { flex: 1 !important; overflow-y: auto !important; padding: 12px !important; display: flex !important; flex-direction: column !important; gap: 8px !important; background: #ffffff !important; }
+.lomi-history-item { display: flex !important; align-items: center !important; gap: 12px !important; padding: 14px !important; border-radius: 14px !important; border: 1.5px solid var(--ink-200) !important; background: #ffffff !important; cursor: pointer !important; transition: all 0.2s !important; text-align: right !important; width: 100% !important; }
+.lomi-history-item:hover { border-color: var(--brand-500) !important; background: var(--brand-50) !important; transform: translateY(-1px) !important; }
+.lomi-history-item.active { border-color: var(--brand-600) !important; background: var(--brand-50) !important; }
+.lomi-history-item-icon { width: 40px !important; height: 40px !important; border-radius: 12px !important; background: linear-gradient(135deg, var(--brand-700), var(--brand-600)) !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 18px !important; flex-shrink: 0 !important; color: #ffffff !important; }
 .lomi-history-item-body { flex: 1 !important; min-width: 0 !important; }
-.lomi-history-item-title { 
-    font-size: 13.5px !important; font-weight: 700 !important; color: var(--ink-800) !important; 
-    white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; 
-    margin-bottom: 3px !important; 
-}
-.lomi-history-item-meta { 
-    font-size: 11.5px !important; color: var(--ink-500) !important; 
-    display: flex !important; gap: 8px !important; 
-}
-
-.lomi-history-item-delete { 
-    width: 32px !important; height: 32px !important; border-radius: 8px !important; 
-    border: none !important; background: transparent !important; color: var(--ink-400) !important; 
-    display: flex !important; align-items: center !important; justify-content: center !important; 
-    cursor: pointer !important; opacity: 0 !important; transition: all 0.2s !important; 
-    flex-shrink: 0 !important; 
-}
+.lomi-history-item-title { font-size: 13.5px !important; font-weight: 700 !important; color: var(--ink-800) !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; margin-bottom: 3px !important; }
+.lomi-history-item-meta { font-size: 11.5px !important; color: var(--ink-500) !important; display: flex !important; gap: 8px !important; }
+.lomi-history-item-delete { width: 32px !important; height: 32px !important; border-radius: 8px !important; border: none !important; background: transparent !important; color: var(--ink-400) !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; opacity: 0 !important; transition: all 0.2s !important; flex-shrink: 0 !important; }
 .lomi-history-item:hover .lomi-history-item-delete { opacity: 1 !important; }
 .lomi-history-item-delete:hover { background: #FEE2E2 !important; color: var(--danger) !important; }
-
-.lomi-history-empty { 
-    flex: 1 !important; display: flex !important; flex-direction: column !important; 
-    align-items: center !important; justify-content: center !important; gap: 10px !important; 
-    color: var(--ink-500) !important; font-size: 14px !important; padding: 40px 20px !important; 
-}
+.lomi-history-empty { flex: 1 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 10px !important; color: var(--ink-500) !important; font-size: 14px !important; padding: 40px 20px !important; }
 .lomi-history-empty span { font-size: 36px !important; }
+.lomi-history-footer { padding: 12px 16px !important; border-top: 1px solid var(--ink-200) !important; flex-shrink: 0 !important; }
+.lomi-history-new-btn { width: 100% !important; padding: 13px !important; border-radius: 14px !important; border: none !important; background: linear-gradient(135deg, var(--brand-700), var(--brand-600)) !important; color: #ffffff !important; font-family: inherit !important; font-size: 14px !important; font-weight: 700 !important; cursor: pointer !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; transition: all 0.2s !important; }
+.lomi-history-new-btn:hover { transform: translateY(-1px) !important; box-shadow: 0 6px 16px -4px rgba(16,185,129,0.4) !important; }
 
-.lomi-history-footer { 
-    padding: 12px 16px !important; border-top: 1px solid var(--ink-200) !important; 
-    flex-shrink: 0 !important; 
-}
-.lomi-history-new-btn { 
-    width: 100% !important; padding: 13px !important; border-radius: 14px !important; 
-    border: none !important; background: linear-gradient(135deg, var(--brand-700), var(--brand-600)) !important; 
-    color: #ffffff !important; font-family: inherit !important; font-size: 14px !important; 
-    font-weight: 700 !important; cursor: pointer !important; display: flex !important; 
-    align-items: center !important; justify-content: center !important; gap: 8px !important; 
-    transition: all 0.2s !important; 
-}
-.lomi-history-new-btn:hover { 
-    transform: translateY(-1px) !important; box-shadow: 0 6px 16px -4px rgba(16,185,129,0.4) !important; 
-}
-
-/* ─── 12. استجابة الشاشات الصغيرة (Mobile) ─── */
+/* ─── 12. استجابة الشاشات الصغيرة (Mobile Fix) ─── */
 @media (max-width: 600px) {
-    .lomi-overlay { 
-        padding: 0 !important; 
-        align-items: flex-end !important; 
-    }
+    .lomi-overlay { padding: 0 !important; align-items: flex-end !important; }
     .lomi-app { 
         max-width: 100% !important; 
-        height: 100dvh !important; 
-        max-height: 100dvh !important; 
+        height: 100% !important; 
+        max-height: 100% !important; 
         border-radius: 0 !important; 
         transform: translateY(100%) !important; 
-        padding-bottom: env(safe-area-inset-bottom) !important; 
+        position: fixed !important; 
+        top: 0 !important; 
+        bottom: 0 !important;
     }
     .lomi-overlay.active .lomi-app { transform: translateY(0) !important; }
     .lomi-header { padding: 14px 16px !important; }
-    .lomi-messages { padding: 18px 14px !important; }
+    .lomi-messages { padding: 85px 14px 18px !important; } /* تعديل المساحة العلوية للجوال */
     .lomi-input-area { padding: 10px 12px 10px !important; }
     .lomi-chips { padding: 10px 16px !important; }
     .lomi-disclaimer { padding: 8px 12px !important; font-size: 10px !important; }
 }
 
-/* ─── 13. تصميم بطاقات المنشآت الاحترافي ─── */
+/* ─── 13. بطاقات المنشآت ─── */
 .lomi-entity-results { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; width: 100%; }
-
-.lomi-entity-header {
-    font-size: 13px; font-weight: 700; color: var(--ink-600);
-    padding: 4px 8px; margin-bottom: 2px;
-}
-
-.lomi-entity-card {
-    display: flex; align-items: center; gap: 14px; padding: 14px 16px;
-    background: #FFFFFF; border: 1px solid var(--ink-200); border-radius: 16px;
-    cursor: pointer; transition: all 0.2s ease; text-align: right;
-    font-family: inherit; width: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-}
-.lomi-entity-card:hover {
-    border-color: var(--brand-500);
-    box-shadow: 0 6px 20px -6px rgba(16,185,129,0.25);
-    transform: translateY(-2px);
-}
-
-.lomi-entity-avatar {
-    width: 52px; height: 52px; border-radius: 50%;
-    object-fit: cover; flex-shrink: 0;
-    border: 2px solid var(--brand-50);
-    background: var(--ink-50);
-}
-.lomi-entity-avatar-fallback {
-    width: 52px; height: 52px; border-radius: 50%;
-    background: var(--brand-50); color: var(--brand-600);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px; flex-shrink: 0; border: 2px solid var(--brand-100);
-}
-
+.lomi-entity-header { font-size: 13px; font-weight: 700; color: var(--ink-600); padding: 4px 8px; margin-bottom: 2px; }
+.lomi-entity-card { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #FFFFFF; border: 1px solid var(--ink-200); border-radius: 16px; cursor: pointer; transition: all 0.2s ease; text-align: right; font-family: inherit; width: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+.lomi-entity-card:hover { border-color: var(--brand-500); box-shadow: 0 6px 20px -6px rgba(16,185,129,0.25); transform: translateY(-2px); }
+.lomi-entity-avatar { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--brand-50); background: var(--ink-50); }
+.lomi-entity-avatar-fallback { width: 52px; height: 52px; border-radius: 50%; background: var(--brand-50); color: var(--brand-600); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; border: 2px solid var(--brand-100); }
 .lomi-entity-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
-.lomi-entity-name {
-    font-size: 15px; font-weight: 800; color: var(--ink-800);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.lomi-entity-meta {
-    font-size: 12px; color: var(--ink-500);
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-}
-.lomi-entity-badge {
-    background: var(--ink-100); padding: 2px 8px; border-radius: 6px;
-    font-size: 10.5px; font-weight: 700; color: var(--ink-600);
-}
-.lomi-entity-rating {
-    font-size: 11px; color: #F59E0B; font-weight: 800;
-}
-
-.lomi-entity-action {
-    font-size: 12px; font-weight: 800; color: var(--brand-700);
-    background: var(--brand-50); padding: 8px 14px; border-radius: 10px;
-    flex-shrink: 0; transition: all 0.2s;
-}
-.lomi-entity-card:hover .lomi-entity-action {
-    background: var(--brand-600); color: #fff;
-}
-
-.lomi-show-more-btn {
-    width: 100%; padding: 12px; background: var(--ink-50);
-    border: 1.5px dashed var(--ink-300); border-radius: 12px;
-    color: var(--ink-600); font-size: 13px; font-weight: 700;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    gap: 6px; margin-top: 6px; transition: all 0.2s; font-family: inherit;
-}
-.lomi-show-more-btn:hover {
-    background: var(--brand-50); border-color: var(--brand-500); color: var(--brand-700);
-}
-
-.lomi-entity-empty, .lomi-entity-loading {
-    padding: 16px; text-align: center; font-size: 13px;
-    color: var(--ink-600); background: var(--ink-50);
-    border-radius: 12px; border: 1px dashed var(--ink-300); line-height: 1.6;
-}
-.lomi-entity-loading { color: var(--brand-700); font-weight: 700; background: var(--brand-50); border-color: var(--brand-300); 
-}
+.lomi-entity-name { font-size: 15px; font-weight: 800; color: var(--ink-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lomi-entity-meta { font-size: 12px; color: var(--ink-500); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.lomi-entity-badge { background: var(--ink-100); padding: 2px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 700; color: var(--ink-600); }
+.lomi-entity-rating { font-size: 11px; color: #F59E0B; font-weight: 800; }
+.lomi-entity-action { font-size: 12px; font-weight: 800; color: var(--brand-700); background: var(--brand-50); padding: 8px 14px; border-radius: 10px; flex-shrink: 0; transition: all 0.2s; }
+.lomi-entity-card:hover .lomi-entity-action { background: var(--brand-600); color: #fff; }
+.lomi-show-more-btn { width: 100%; padding: 12px; background: var(--ink-50); border: 1.5px dashed var(--ink-300); border-radius: 12px; color: var(--ink-600); font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 6px; transition: all 0.2s; font-family: inherit; }
+.lomi-show-more-btn:hover { background: var(--brand-50); border-color: var(--brand-500); color: var(--brand-700); }
+.lomi-entity-empty, .lomi-entity-loading { padding: 16px; text-align: center; font-size: 13px; color: var(--ink-600); background: var(--ink-50); border-radius: 12px; border: 1px dashed var(--ink-300); line-height: 1.6; }
+.lomi-entity-loading { color: var(--brand-700); font-weight: 700; background: var(--brand-50); border-color: var(--brand-300); }
 
 /* ─── 14. أزرار التقييم ─── */
-.lomi-action-btn.rating-btn {
-    font-size: 14px !important;
-    transition: all 0.2s !important;
-}
-.lomi-action-btn.rating-btn:hover:not(:disabled) {
-    background: var(--brand-50) !important;
-    transform: scale(1.15) !important;
-}
-.lomi-action-btn.rating-btn.active {
-    background: var(--brand-100) !important;
-}
-.lomi-action-btn.rating-btn:disabled {
-    opacity: 0.6 !important;
-    cursor: not-allowed !important;
-}
+.lomi-action-btn.rating-btn { font-size: 14px !important; transition: all 0.2s !important; }
+.lomi-action-btn.rating-btn:hover:not(:disabled) { background: var(--brand-50) !important; transform: scale(1.15) !important; }
+.lomi-action-btn.rating-btn.active { background: var(--brand-100) !important; }
+.lomi-action-btn.rating-btn:disabled { opacity: 0.6 !important; cursor: not-allowed !important; }
 
-/* ─── 15. شارة حالة الفتح/الإغلاق ─── */
-.lomi-entity-status {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 4px !important;
-    font-size: 10.5px !important;
-    font-weight: 700 !important;
-    padding: 2px 8px !important;
-    border-radius: 6px !important;
-    white-space: nowrap !important;
-}
-.lomi-entity-status .dot {
-    width: 6px !important;
-    height: 6px !important;
-    border-radius: 50% !important;
-    display: inline-block !important;
-}
-.lomi-entity-status.open {
-    background: #D1FAE5 !important;
-    color: #065F46 !important;
-}
-.lomi-entity-status.open .dot {
-    background: #10B981 !important;
-    box-shadow: 0 0 6px #10B981 !important;
-    animation: statusPulse 2s infinite !important;
-}
-.lomi-entity-status.closed {
-    background: #FEE2E2 !important;
-    color: #991B1B !important;
-}
-.lomi-entity-status.closed .dot {
-    background: #EF4444 !important;
-}
-@keyframes statusPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-}
-/* فاصل الرسائل المطوية */
-.lomi-truncated-notice {
-    text-align: center;
-    padding: 8px 16px;
-    margin: 8px auto;
-    background: var(--ink-100);
-    border-radius: 12px;
-    font-size: 11px;
-    color: var(--ink-500);
-    width: fit-content;
-    font-family: 'IBM Plex Sans Arabic', sans-serif;
-}
+/* ─── 15. شارة الحالة ─── */
+.lomi-entity-status { display: inline-flex !important; align-items: center !important; gap: 4px !important; font-size: 10.5px !important; font-weight: 700 !important; padding: 2px 8px !important; border-radius: 6px !important; white-space: nowrap !important; }
+.lomi-entity-status .dot { width: 6px !important; height: 6px !important; border-radius: 50% !important; display: inline-block !important; }
+.lomi-entity-status.open { background: #D1FAE5 !important; color: #065F46 !important; }
+.lomi-entity-status.open .dot { background: #10B981 !important; box-shadow: 0 0 6px #10B981 !important; animation: statusPulse 2s infinite !important; }
+.lomi-entity-status.closed { background: #FEE2E2 !important; color: #991B1B !important; }
+.lomi-entity-status.closed .dot { background: #EF4444 !important; }
+@keyframes statusPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.lomi-truncated-notice { text-align: center; padding: 8px 16px; margin: 8px auto; background: var(--ink-100); border-radius: 12px; font-size: 11px; color: var(--ink-500); width: fit-content; font-family: 'IBM Plex Sans Arabic', sans-serif; }
