@@ -1199,7 +1199,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             }
         } catch {}
 
-        safeSetTimeout(() => refs.input?.focus(), 300);
+        setTimeout(() => refs.input?.focus({ preventScroll: true }), 300);
     };
 
     window.closeLomi = function () {
