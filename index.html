@@ -629,38 +629,31 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
-     🤖 زر Lomi AI (بدون صورة - تصميم نقي للجوال)
+      زر Lomi AI 
      ═══════════════════════════════════════════════════════════ -->
 <div class="mt-5 max-w-2xl mx-auto px-1">
     <div onclick="window.openLomi()" 
          class="lomi-card group w-full"
          style="background: linear-gradient(145deg, #071710 0%, #030a06 100%); border-radius: 20px; padding: 18px; cursor: pointer; display: flex; flex-direction: column; gap: 16px; border: 1px solid rgba(16, 185, 129, 0.15); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.8); transition: all 0.3s ease; position: relative; overflow: hidden; text-align: right;">
-        
-        <!-- تأثير الخلفية -->
         <div class="absolute top-[-50%] right-[-10%] w-[250px] h-[250px] pointer-events-none" 
              style="background: radial-gradient(circle, rgba(240, 215, 123, 0.08) 0%, transparent 70%);"></div>
-
-        <!-- القسم العلوي (النص فقط) -->
         <div class="flex flex-col relative z-10 w-full">
-            <!-- شارة الحالة -->
+        
             <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold self-start mb-3" 
                  style="background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2);">
                 <div class="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_8px_#10b981] animate-pulse"></div>
                 AI متقدم
             </div>
-            
-            <!-- العنوان الرئيسي (تم تكبيره قليلاً) -->
+
             <div class="text-[22px] font-black text-white leading-tight flex items-center gap-2 mb-2" style="font-family: 'Noto Kufi Arabic', sans-serif;">
                 تحدث مع <span style="font-family: 'Outfit', sans-serif; color: #F0D77B; font-size: 28px; letter-spacing: 0.5px; text-shadow: 0 2px 10px rgba(240, 215, 123, 0.2);">Lomi</span>
             </div>
             
-            <!-- النص الاحترافي -->
-            <div class="text-[13.5px] text-[#8fa89d] leading-relaxed font-normal w-full">
-                مساعدك الذكي في <strong class="text-[#cbd5d1]">LomedX</strong> للاستشارات والإرشاد الطبي الفوري، مع إجابات دقيقة على مدار الساعة.
+             <div class="text-[13.5px] text-[#8fa89d] leading-relaxed font-normal w-full">
+                مساعدك الطبي الذكي في <strong class="text-[#cbd5d1]">LomedX</strong>. اسأل عن دواء، احجز موعدك، أو احصل على إجابة فورية على مدار الساعة.
             </div>
         </div>
 
-        <!-- القسم السفلي (حقل الإدخال الوهمي) -->
         <div class="flex items-center justify-between rounded-[14px] p-2.5 pl-4 relative z-10 mt-1" 
              style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15);">
             
@@ -669,7 +662,6 @@
                 <span>اسألني أي شيء طبي...</span>
             </div>
             
-            <!-- زر السهم (أصبح أكبر وأوضح) -->
             <div class="w-[42px] h-[42px] rounded-[12px] flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-105" 
                  style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);">
                 <i class="fas fa-arrow-left text-[14px]"></i>
