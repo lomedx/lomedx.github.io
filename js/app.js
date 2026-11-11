@@ -33,9 +33,10 @@ let radarSettings = { defaultSeason: 'summer', lastReset: 0 };
 let hasVideoFilter = false;
 
 let latestRadarReports = [];
-
-
-
+let activeAds = [];
+let currentAdIndex = 0;
+let adInterval = null;
+let allHomeAds = [];
 let currentCity = 'all';
 let activeQrScanner = null;
 let currentRadarCity = 'الرحيبة';
@@ -5935,262 +5936,45 @@ function animateCounter(target, elementId) {
     const timer = setInterval(() => { current += inc; if (current >= target) { current = target; clearInterval(timer); } el.innerText = current.toLocaleString('ar-EG'); }, stepTime);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   📢 محرك الإعلانات المدمج (Optimized Native Ads Engine v2.0)
-   ═══════════════════════════════════════════════════════════════ */
-
-let adInterval = null;
-let currentAdIndex = 0;
-let activeAds = [];
-let adDotsContainer = null;
-let adMainContainer = null;
-
-window.renderAdSlide = function(index) {
-    adMainContainer = document.getElementById('homeAdContainer');
-    adDotsContainer = document.getElementById('adDots');
-    const section = document.getElementById('homeMediaAdsSection');
-    
-    if (!adMainContainer || !section) return;
-
-    // إذا لم توجد إعلانات، أخفِ القسم بالكامل
-    if (!activeAds || activeAds.length === 0) {
-        section.classList.add('hidden');
-        return;
-    } else {
-        section.classList.remove('hidden');
-    }
-
-    // التحقق من صحة المؤشر
-    if (index >= activeAds.length) index = 0;
-    if (index < 0) index = activeAds.length - 1;
-    currentAdIndex = index;
-
-    const ad = activeAds[index];
-
-    // 1. إيقاف أي مؤقت سابق
-    if (adInterval) {
-        clearTimeout(adInterval);
-        adInterval = null;
-    }
-
-    // 2. إزالة الإعلان السابق بسلاسة
-    const oldElement = adMainContainer.querySelector('.ad-slide-wrapper');
-    if (oldElement) {
-        const oldVideo = oldElement.querySelector('video');
-        if (oldVideo) {
-            oldVideo.pause();
-            oldVideo.src = ''; 
-        }
-        oldElement.style.opacity = '0';
-        oldElement.style.transition = 'opacity 0.3s ease';
-        setTimeout(() => {
-            if (oldElement && oldElement.parentNode) oldElement.remove();
-        }, 300);
-    }
-
-    // ==========================================
-    // 3. الحاوية الرئيسية (تتمدد تلقائياً حسب المحتوى)
-    // ==========================================
-    const adWrapper = document.createElement('div');
-    // نستخدم flex-col للجوال و flex-row للكمبيوتر. لا نضع ارتفاعاً قسرياً.
-    adWrapper.className = 'ad-slide-wrapper w-full h-full flex flex-col sm:flex-row overflow-hidden rounded-2xl relative';
-    adWrapper.style.opacity = '0';
-    adWrapper.style.transition = 'opacity 0.4s ease';
-
-    // ==========================================
-    // 4. قسم الوسائط (الصورة أو الفيديو)
-    // ==========================================
-    const mediaContainer = document.createElement('div');
-    // ارتفاع ثابت للجوال (130px) ليظهر بشكل جيد، ويملأ الشاشة للكمبيوتر
-    mediaContainer.className = 'w-full sm:w-[45%] h-[130px] sm:h-auto relative bg-[#04100a] flex-shrink-0';
-    
-    // شارة Sponsored (نضعها فوق الصورة مباشرة)
-    const badge = document.createElement('div');
-    badge.className = 'absolute top-2 right-2 sm:top-3 sm:right-3 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider z-20';
-    badge.style.cssText = 'background: rgba(0,0,0,0.7); color: rgba(255,255,255,0.9); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1);';
-    badge.innerText = 'Sponsored';
-
-    if (ad.type === 'video') {
-        const video = document.createElement('video');
-        video.src = ad.content;
-        video.className = 'w-full h-full object-cover';
-        video.autoplay = true;
-        video.muted = true; 
-        video.loop = true;
-        video.playsInline = true;
-        video.id = 'nativeAdVideo';
-        mediaContainer.appendChild(video);
-
-        // زر الصوت
-        const soundBtn = document.createElement('button');
-        soundBtn.className = 'absolute bottom-2 left-2 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center z-20 hover:bg-black/80 transition-all';
-        soundBtn.innerHTML = '<i class="fas fa-volume-xmark text-[10px]"></i>';
-        soundBtn.onclick = (e) => {
-            e.stopPropagation();
-            const vid = document.getElementById('nativeAdVideo');
-            if (!vid) return;
-            vid.muted = !vid.muted;
-            soundBtn.innerHTML = vid.muted ? '<i class="fas fa-volume-xmark text-[10px]"></i>' : '<i class="fas fa-volume-high text-[10px]"></i>';
-            if (!vid.muted) vid.play().catch(() => {});
-        };
-        mediaContainer.appendChild(soundBtn);
-    } else {
-        const img = document.createElement('img');
-        img.src = ad.content;
-        img.alt = 'إعلان مدعوم';
-        img.className = 'w-full h-full object-cover';
-        mediaContainer.appendChild(img);
+window.renderAdSlide = (index) => {
+    const container = document.getElementById('homeAdContainer'); const dotsContainer = document.getElementById('adDots');
+    if (!container || activeAds.length === 0) return;
+    const ad = activeAds[index]; let mediaHTML = '';
+    if (adInterval) { clearTimeout(adInterval); clearInterval(adInterval); adInterval = null; }
+    const isSingleAd = activeAds.length === 1;
+    if (ad.type === 'image') {
+        mediaHTML = `<a href="${escapeHtml(ad.link || '#')}" target="_blank" class="block w-full h-full"><img src="${escapeHtml(ad.content)}" alt="إعلان" class="w-full h-full object-cover"></a>`;
+        if (!isSingleAd) adInterval = setTimeout(nextAdSlide, 10000);
+        } else if (ad.type === 'video') {
+        const loopAttr = isSingleAd ? 'loop' : ''; 
+        const endedAttr = isSingleAd ? '' : 'onended="nextAdSlide()"';
+        mediaHTML = `
+        <div class="relative w-full h-full bg-black">
+                <video id="homeAdVideo" autoplay muted playsinline ${loopAttr} ${endedAttr} onerror="nextAdSlide()" class="w-full h-full object-cover">
+                <source src="${escapeHtml(ad.content)}" type="video/mp4">
+            </video>
+            <button onclick="toggleAdVideoSound()" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-sm z-30 transition-all">
+                <i class="fas fa-volume-xmark" id="adVideoSoundIcon"></i>
+            </button>
+        </div>`;
     }
     
-    mediaContainer.appendChild(badge); // إضافة الشارة
-
-    // ==========================================
-    // 5. قسم النص والزر (يأخذ المساحة المتبقية)
-    // ==========================================
-    const textContainer = document.createElement('div');
-    // خلفية داكنة، نستخدم flex-col لتوزيع المساحة
-    textContainer.className = 'flex-1 flex flex-col justify-between p-4 bg-[#0a1c14] relative z-10';
-
-    // الحاوية العلوية للنص
-    const textContent = document.createElement('div');
+    container.innerHTML = `<div class="w-full h-full">${mediaHTML}</div>`;
     
-    const title = document.createElement('h3');
-    title.className = 'text-[15px] sm:text-[18px] font-black text-white mb-1 leading-tight';
-    title.style.fontFamily = "'Noto Kufi Arabic', sans-serif";
-    title.innerText = ad.title || 'إعلان مميز من شركائنا';
-    textContent.appendChild(title);
-
-    const desc = document.createElement('p');
-    desc.className = 'text-[11px] sm:text-[13px] text-gray-400 leading-relaxed line-clamp-2';
-    desc.innerText = ad.description || 'اكتشف المزيد من الخدمات الطبية المقدمة من شركائنا.';
-    textContent.appendChild(desc);
-    
-    textContainer.appendChild(textContent);
-
-    // الحاوية السفلية للزر
-    const btnContainer = document.createElement('div');
-    btnContainer.className = 'mt-3 flex justify-start'; // الزر على اليسار
-
-    const btn = document.createElement('a');
-    btn.href = ad.link || '#';
-    btn.target = '_blank';
-    btn.rel = 'noopener noreferrer';
-    btn.className = 'inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all duration-300';
-    btn.style.cssText = 'background: rgba(240, 215, 123, 0.1); color: #F0D77B; border: 1px solid rgba(240, 215, 123, 0.3);';
-    btn.onclick = (e) => e.stopPropagation();
-    btn.innerHTML = `اكتشف المزيد <i class="fas fa-arrow-left text-[10px]"></i>`;
-    
-    btnContainer.appendChild(btn);
-    textContainer.appendChild(btnContainer);
-
-    // ==========================================
-    // 6. التجميع النهائي (بدون ارتفاعات قسرية)
-    // ==========================================
-    adWrapper.appendChild(mediaContainer);
-    adWrapper.appendChild(textContainer);
-    
-    // تفريغ الحاوية القديمة وإضافة الجديدة
-    adMainContainer.innerHTML = ''; 
-    adMainContainer.appendChild(adWrapper);
-
-    requestAnimationFrame(() => { adWrapper.style.opacity = '1'; });
-
-    // ==========================================
-    // 7. تحديث النقاط
-    // ==========================================
-    if (adDotsContainer) {
-        if (activeAds.length <= 1) {
-            adDotsContainer.classList.add('hidden');
-        } else {
-            adDotsContainer.classList.remove('hidden');
-            adDotsContainer.innerHTML = activeAds.map((_, i) => {
-                const activeStyle = i === index 
-                    ? 'width: 20px; height: 6px; background: #F0D77B;' 
-                    : 'width: 6px; height: 6px; background: rgba(255,255,255,0.4);';
-                return `<button type="button" class="rounded-full transition-all duration-300 cursor-pointer" style="${activeStyle}" onclick="event.stopPropagation(); window.renderAdSlide(${i})"></button>`;
-            }).join('');
-        }
-    }
-
-    // ==========================================
-    // 8. المؤقت التلقائي
-    // ==========================================
-    if (activeAds.length > 1) {
-        adInterval = setTimeout(() => {
-            window.renderAdSlide((currentAdIndex + 1) % activeAds.length);
-        }, 8000);
-    }
-};
-
-async function fetchHomeAdsPublic() {
-    // 1. محاولة القراءة من الكاش لتسريع العرض
-    const cachedAds = localStorage.getItem('cached_home_ads');
-    if (cachedAds) {
-        try {
-            const parsed = JSON.parse(cachedAds);
-            if (parsed && parsed.length > 0) {
-                activeAds = parsed;
-                const section = document.getElementById('homeMediaAdsSection');
-                if (section) section.classList.remove('hidden');
-                window.renderAdSlide(0);
-            }
-        } catch (e) {}
-    }
-
-    // 2. جلب التحديثات من قاعدة البيانات
-    try {
-        const { data: configSnap } = await supabase.from('app_config').select('last_update').eq('id', 'ads_sync').single();
-        let serverTime = configSnap?.last_update || 0;
-        if (serverTime === 0) { 
-            await supabase.from('app_config').upsert({ id: 'ads_sync', last_update: Date.now() }); 
-            serverTime = Date.now(); 
-        }
-        
-        const localTime = parseInt(localStorage.getItem('ads_last_fetch') || '0');
-        
-        if (serverTime > localTime) {
-            const { data: snap } = await supabase.from('homepage_ads').select('*').eq('is_active', true).order('created_at', { ascending: false }).limit(5);
-            activeAds = snap || [];
-            const section = document.getElementById('homeMediaAdsSection');
-            
-            if (activeAds.length === 0) { 
-                section?.classList.add('hidden'); 
-                if (adInterval) { clearTimeout(adInterval); adInterval = null; } 
-            } else { 
-                section?.classList.remove('hidden'); 
-                currentAdIndex = 0; 
-                window.renderAdSlide(0); 
-            }
-            
-            try { 
-                localStorage.setItem('cached_home_ads', JSON.stringify(activeAds)); 
-                localStorage.setItem('ads_last_fetch', serverTime.toString()); 
-            } catch(e) {}
-        }
-    } catch (err) {
-        console.warn('Ads Sync paused:', err.message);
+    if (dotsContainer) { 
+        if (isSingleAd) dotsContainer.innerHTML = ''; 
+        else dotsContainer.innerHTML = activeAds.map((_, i) => `<span class="w-2 h-2 rounded-full bg-white/50 cursor-pointer ${i === index ? 'w-6 bg-white' : ''}" onclick="goToAdSlide(${i})"></span>`).join(''); 
     }
 }
-
-// إيقاف المؤقت والفيديو عند إخفاء الصفحة
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        if (adInterval) { clearTimeout(adInterval); adInterval = null; }
-        const video = adMainContainer?.querySelector('video');
-        if (video) video.pause();
-    } else {
-        if (activeAds.length > 1 && !adInterval) {
-            adInterval = setTimeout(() => {
-                window.renderAdSlide((currentAdIndex + 1) % activeAds.length);
-            }, 8000);
-        }
-        const video = adMainContainer?.querySelector('video');
-        if (video) video.play().catch(() => {});
-    }
-});
-
-fetchHomeAdsPublic();
-
+window.nextAdSlide = () => { if (activeAds.length === 0) return; currentAdIndex = (currentAdIndex + 1) % activeAds.length; renderAdSlide(currentAdIndex); }
+window.toggleAdVideoSound = () => {
+    const video = document.getElementById('homeAdVideo');
+    const icon = document.getElementById('adVideoSoundIcon');
+    if (!video) return;
+    video.muted = !video.muted;
+    if (video.muted) { icon.className = 'fas fa-volume-xmark'; } 
+    else { icon.className = 'fas fa-volume-high'; }
+};
 window.prevAdSlide = () => { if (activeAds.length === 0) return; currentAdIndex = (currentAdIndex - 1 + activeAds.length) % activeAds.length; renderAdSlide(currentAdIndex); }
 window.goToAdSlide = (index) => { currentAdIndex = index; renderAdSlide(currentAdIndex); }
 window.saveHomeAd = async (e) => {
@@ -6207,7 +5991,29 @@ async function fetchHomeAdsForAdmin() {
     if (allHomeAds.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 text-sm">لا توجد إعلانات.</p>'; return; }
     list.innerHTML = allHomeAds.map(ad => `<div class="flex items-center justify-between p-2 rounded-lg border"><div class="text-xs truncate flex-1 flex items-center gap-2"><i class="fas ${ad.type === 'image' ? 'fa-image text-blue-500' : 'fa-video text-purple-500'}"></i><span class="truncate">${escapeHtml(ad.content.substring(0, 30))}...</span></div><div class="flex gap-1 mr-2"><button onclick="toggleHomeAdStatus('${ad.id}', ${!ad.is_active})" class="px-2 py-1 rounded text-xs ${ad.is_active ? 'bg-green-500 text-white' : 'bg-gray-200'}">${ad.is_active ? 'مفعّل' : 'معطّل'}</button><button onclick="deleteHomeAd('${ad.id}')" class="px-2 py-1 rounded text-xs bg-red-500 text-white"><i class="fas fa-trash"></i></button></div></div>`).join('');
 }
-
+async function fetchHomeAdsPublic() {
+    const cachedAds = localStorage.getItem('cached_home_ads');
+    if (cachedAds) {
+        activeAds = JSON.parse(cachedAds);
+        const section = document.getElementById('homeMediaAdsSection');
+        if (activeAds.length === 0) section.classList.add('hidden');
+        else { section.classList.remove('hidden'); currentAdIndex = 0; renderAdSlide(currentAdIndex); }
+    }
+    const { data: configSnap } = await supabase.from('app_config').select('last_update').eq('id', 'ads_sync').single();
+    let serverTime = configSnap?.last_update || 0;
+    if (serverTime === 0) { await supabase.from('app_config').upsert({ id: 'ads_sync', last_update: Date.now() }); serverTime = Date.now(); }
+    const localTime = parseInt(localStorage.getItem('ads_last_fetch') || '0');
+    if (serverTime > localTime) {
+        const { data: snap } = await supabase.from('homepage_ads').select('*').eq('is_active', true).limit(5);
+        activeAds = snap || [];
+        const section = document.getElementById('homeMediaAdsSection');
+        if (activeAds.length === 0) { section.classList.add('hidden'); if (adInterval) clearInterval(adInterval); } 
+        else { section.classList.remove('hidden'); currentAdIndex = 0; renderAdSlide(currentAdIndex); }
+        try { localStorage.setItem('cached_home_ads', JSON.stringify(activeAds)); localStorage.setItem('ads_last_fetch', serverTime.toString()); } catch(e) {}
+    }
+}
+fetchHomeAdsPublic();
+            
 //==========الجزء الأخير==============
 // === الأدوات الطبية والرادار واسأل طبيب ===
 window.openBurnCalculator = () => {
@@ -12398,5 +12204,3 @@ window.openPharmacyImage = (element) => {
     overlay.appendChild(closeBtn);
     document.body.appendChild(overlay);
 };
-
-
