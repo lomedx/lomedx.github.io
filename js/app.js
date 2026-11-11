@@ -12204,3 +12204,245 @@ window.openPharmacyImage = (element) => {
     overlay.appendChild(closeBtn);
     document.body.appendChild(overlay);
 };
+/* ═══════════════════════════════════════════════════════════════
+   📢 محرك الإعلانات المدمج (Optimized Native Ads Engine v2.0)
+   ═══════════════════════════════════════════════════════════════ */
+
+let adInterval = null;
+let currentAdIndex = 0;
+let activeAds = [];
+let adDotsContainer = null;
+let adMainContainer = null;
+
+/**
+ * الدالة الرئيسية لعرض الإعلان
+ */
+window.renderAdSlide = function(index) {
+    adMainContainer = document.getElementById('homeAdContainer');
+    adDotsContainer = document.getElementById('adDots');
+    const section = document.getElementById('homeMediaAdsSection');
+    
+    if (!adMainContainer || !section) return;
+
+    // إذا لم توجد إعلانات، أخفِ القسم بالكامل
+    if (!activeAds || activeAds.length === 0) {
+        section.classList.add('hidden');
+        return;
+    } else {
+        section.classList.remove('hidden');
+    }
+
+    // التحقق من صحة المؤشر
+    if (index >= activeAds.length) index = 0;
+    if (index < 0) index = activeAds.length - 1;
+    currentAdIndex = index;
+
+    const ad = activeAds[index];
+
+    // 1. إيقاف أي مؤقت سابق
+    if (adInterval) {
+        clearTimeout(adInterval);
+        adInterval = null;
+    }
+
+    // 2. إزالة الإعلان السابق بسلاسة (مع إيقاف الفيديو أولاً)
+    const oldElement = adMainContainer.querySelector('.ad-slide-wrapper');
+    if (oldElement) {
+        // إيقاف أي فيديو في الإعلان القديم قبل حذفه
+        const oldVideo = oldElement.querySelector('video');
+        if (oldVideo) {
+            oldVideo.pause();
+            oldVideo.src = ''; // تحرير الذاكرة
+        }
+        
+        oldElement.style.opacity = '0';
+        oldElement.style.transition = 'opacity 0.3s ease';
+        
+        setTimeout(() => {
+            if (oldElement && oldElement.parentNode) {
+                oldElement.remove();
+            }
+        }, 300);
+    }
+
+    // إنشاء الحاوية الجديدة للإعلان
+    const adWrapper = document.createElement('div');
+    adWrapper.className = 'ad-slide-wrapper absolute inset-0 flex flex-col sm:flex-row w-full h-full';
+    adWrapper.style.opacity = '0';
+    adWrapper.style.transition = 'opacity 0.4s ease';
+
+    // ==========================================
+    // 1. الجزء الخاص بالوسائط (صورة أو فيديو)
+    // ==========================================
+    const mediaContainer = document.createElement('div');
+    mediaContainer.className = 'w-full sm:w-5/12 h-[140px] sm:h-full relative overflow-hidden bg-[#04100a] flex-shrink-0';
+    
+    if (ad.type === 'video') {
+        const video = document.createElement('video');
+        video.src = ad.content;
+        // ✅ إصلاح: الفيديو واضح دائماً في الجوال، ويصبح باهتاً فقط عند عدم التمرير في الكمبيوتر
+        video.className = 'w-full h-full object-cover sm:opacity-80 sm:group-hover:opacity-100 transition-opacity duration-500';
+        video.autoplay = true;
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        mediaContainer.appendChild(video);
+    } else {
+        const img = document.createElement('img');
+        img.src = ad.content;
+        img.alt = 'إعلان مدعوم من LomedX';
+        img.className = 'w-full h-full object-cover sm:opacity-80 sm:group-hover:opacity-100 sm:group-hover:scale-105 transition-all duration-700';
+        mediaContainer.appendChild(img);
+    }
+
+    // تدرج لدمج الصورة/الفيديو مع الخلفية
+    const gradientOverlay = document.createElement('div');
+    gradientOverlay.className = 'absolute inset-0 pointer-events-none';
+    gradientOverlay.style.background = 'linear-gradient(to top, #030a06 0%, transparent 60%)';
+    if (window.innerWidth >= 640) {
+        gradientOverlay.style.background = 'linear-gradient(to left, #030a06 0%, transparent 60%)';
+    }
+    mediaContainer.appendChild(gradientOverlay);
+
+    // ==========================================
+    // 2. الجزء الخاص بالنص والزر (Native Split)
+    // ==========================================
+    const textContainer = document.createElement('div');
+    textContainer.className = 'flex-1 p-4 sm:p-6 flex flex-col justify-center text-right relative z-10';
+
+    // شارة "إعلان مدعوم"
+    const badge = document.createElement('div');
+    badge.className = 'absolute top-3 right-3 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider';
+    badge.style.cssText = 'background: rgba(0,0,0,0.6); color: rgba(255,255,255,0.6); backdrop-filter: blur(4px);';
+    badge.innerText = 'Sponsored';
+    textContainer.appendChild(badge);
+
+    // العنوان (يدعم الحقل الجديد أو النص الافتراضي)
+    const title = document.createElement('h3');
+    title.className = 'text-[16px] sm:text-[18px] font-black text-white mb-2 leading-tight';
+    title.style.fontFamily = "'Noto Kufi Arabic', sans-serif";
+    title.innerText = ad.title || 'إعلان مميز من شركائنا';
+    textContainer.appendChild(title);
+
+    // الوصف
+    const desc = document.createElement('p');
+    desc.className = 'text-[12px] sm:text-[13px] text-[#8fa89d] leading-relaxed mb-4 line-clamp-2';
+    desc.innerText = ad.description || 'اكتشف المزيد من الخدمات الطبية المقدمة من شركائنا.';
+    textContainer.appendChild(desc);
+
+    // الزر
+    const btn = document.createElement('a');
+    btn.href = ad.link || '#';
+    btn.target = '_blank';
+    btn.rel = 'noopener noreferrer';
+    btn.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[11px] sm:text-xs font-bold transition-all duration-300 w-fit';
+    btn.style.cssText = 'background: rgba(240, 215, 123, 0.1); color: #F0D77B; border: 1px solid rgba(240, 215, 123, 0.3);';
+    
+    // منع انتشار الحدث (حتى لا يفتح الرابط مرتين إذا كان الإعلان كله رابطاً)
+    btn.onclick = (e) => e.stopPropagation();
+    
+    btn.onmouseenter = () => { btn.style.background = '#F0D77B'; btn.style.color = '#030a06'; };
+    btn.onmouseleave = () => { btn.style.background = 'rgba(240, 215, 123, 0.1)'; btn.style.color = '#F0D77B'; };
+
+    btn.innerHTML = `اكتشف المزيد <i class="fas fa-arrow-left text-[10px]"></i>`;
+    textContainer.appendChild(btn);
+
+    // ==========================================
+    // 3. تجميع الإعلان وإضافته للشاشة
+    // ==========================================
+    adWrapper.appendChild(mediaContainer);
+    adWrapper.appendChild(textContainer);
+    adMainContainer.appendChild(adWrapper);
+
+    // تأثير الدخول (Fade In)
+    requestAnimationFrame(() => {
+        adWrapper.style.opacity = '1';
+    });
+
+    // ==========================================
+    // 4. تحديث النقاط (Dots)
+    // ==========================================
+    if (adDotsContainer) {
+        if (activeAds.length <= 1) {
+            adDotsContainer.classList.add('hidden');
+        } else {
+            adDotsContainer.classList.remove('hidden');
+            adDotsContainer.innerHTML = activeAds.map((_, i) => {
+                const activeStyle = i === index 
+                    ? 'width: 24px; height: 6px; background: #F0D77B;' 
+                    : 'width: 6px; height: 6px; background: rgba(255,255,255,0.4);';
+                return `<button type="button" class="rounded-full transition-all duration-300 cursor-pointer" style="${activeStyle}" onclick="event.stopPropagation(); renderAdSlide(${i})"></button>`;
+            }).join('');
+        }
+    }
+
+    // ==========================================
+    // 5. المؤقت التلقائي للتبديل
+    // ==========================================
+    if (activeAds.length > 1) {
+        adInterval = setTimeout(() => {
+            renderAdSlide((currentAdIndex + 1) % activeAds.length);
+        }, 8000);
+    }
+};
+
+/**
+ * جلب الإعلانات وعرضها
+ */
+window.fetchHomeAdsPublic = async function() {
+    try {
+        const cachedAds = localStorage.getItem('cached_home_ads');
+        if (cachedAds) {
+            try {
+                const parsed = JSON.parse(cachedAds);
+                if (parsed && parsed.length > 0) {
+                    activeAds = parsed;
+                    renderAdSlide(0);
+                }
+            } catch (e) { /* تجاهل كاش تالف */ }
+        }
+
+        const { data: ads, error } = await supabase
+            .from('homepage_ads')
+            .select('*')
+            .eq('is_active', true)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (ads && ads.length > 0) {
+            activeAds = ads;
+            localStorage.setItem('cached_home_ads', JSON.stringify(ads));
+            currentAdIndex = 0;
+            renderAdSlide(0);
+        } else {
+            activeAds = [];
+            document.getElementById('homeMediaAdsSection')?.classList.add('hidden');
+        }
+    } catch (err) {
+        console.warn('Ads Engine paused (No active ads or connection issue).');
+    }
+};
+
+// ==========================================
+// إيقاف المؤقت والفيديو عند إخفاء الصفحة
+// ==========================================
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        if (adInterval) {
+            clearTimeout(adInterval);
+            adInterval = null;
+        }
+        const video = adMainContainer?.querySelector('video');
+        if (video) video.pause();
+    } else {
+        if (activeAds.length > 1 && !adInterval) {
+            adInterval = setTimeout(() => {
+                renderAdSlide((currentAdIndex + 1) % activeAds.length);
+            }, 8000);
+        }
+        // استئناف الفيديو إذا كان موجوداً
+        const video = adMainContainer?.querySelector('video');
+        if (video) video.play().catch(() => {});
+    }
+});
