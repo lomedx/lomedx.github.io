@@ -1170,9 +1170,18 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         if (refs.statusDot) refs.statusDot.classList.remove('busy');
     }
 
-    /* ═══════════════════════════════════════════════════════════
+        /* ═══════════════════════════════════════════════════════════
        17. Public API
        ═══════════════════════════════════════════════════════════ */
+
+    //  دالة منفصلة ومستقلة للتعامل مع لوحة المفاتيح
+    function handleKeyboard() {
+        const app = document.querySelector('.lomi-app');
+        if (app && window.visualViewport) {
+            app.style.height = `${window.visualViewport.height}px`;
+        }
+    }
+
     window.openLomi = function () {
         buildUI();
 
@@ -1199,18 +1208,18 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             }
         } catch {}
 
+        //  تفعيل مراقبة لوحة المفاتيح
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', handleKeyboard);
+        }
+
+        //  منع القفز عند التركيز
         setTimeout(() => {
-    if (refs.input) {
-        refs.input.focus({ preventScroll: true }); // ✅ يمنع القفز
-    }
-}, 300);
-    function handleKeyboard() {
-    const app = document.querySelector('.lomi-app');
-    if (app && window.visualViewport) {
-        // تعديل الارتفاع بهدوء دون التسبب في تمرير
-        app.style.height = `${window.visualViewport.height}px`;
-    }
-}
+            if (refs.input) {
+                refs.input.focus({ preventScroll: true });
+            }
+        }, 300);
+    };
 
     window.closeLomi = function () {
         try {
@@ -1218,6 +1227,24 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 localStorage.setItem(STORAGE_KEYS.unsentInput, refs.input.value);
             }
         } catch {}
+
+        const overlay = document.getElementById('lomiOverlay');
+        if (overlay) overlay.classList.remove('active');
+        
+        //  إعادة الصفحة لطبيعتها
+        document.body.style.overflow = '';
+        
+        // ✅ إيقاف مراقبة لوحة المفاتيح
+        if (window.visualViewport) {
+            window.visualViewport.removeEventListener('resize', handleKeyboard);
+        }
+
+        if (isSending) stopGeneration();
+        clearAllTimeouts();
+        saveCurrentConversation();
+    };
+
+})();
 
         const overlay = document.getElementById('lomiOverlay');
         if (overlay) overlay.classList.remove('active');
