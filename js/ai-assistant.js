@@ -74,7 +74,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         'social-facebook': { icon: '📘', title: 'فيسبوك', sub: 'تابعنا على فيسبوك', url: 'https://www.facebook.com/share/1GLT1xyBPA/' },
         'social-instagram': { icon: '📸', title: 'إنستغرام', sub: 'تابعنا على إنستغرام', url: 'https://www.instagram.com/lomed_x' },
         'join-doctor': { icon: '👨‍⚕️', title: 'اشتراك طبيب', sub: 'ارتقِ بعيادتك (ميزات متقدمة)', handler: 'join-doctor' },
-        'join-pharmacy': { icon: '💊', title: 'اشتراك صيدلية', sub: 'حوّل صيدليتك لرقمية', handler: 'join-pharmacy' }
+        'join-pharmacy': { icon: '🧑‍🔬', title: 'اشتراك صيدلية', sub: 'حوّل صيدليتك لرقمية', handler: 'join-pharmacy' }
     };
 
     /* ═══════════════════════════════════════════════════════════
@@ -181,37 +181,44 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         if (refs.messages) refs.messages.scrollTop = refs.messages.scrollHeight;
     }
 
-    /* ═══════════════════════════════════════════════════════════
-       5.1 معالجة لوحة المفاتيح (Visual Viewport API)
-       ═══════════════════════════════════════════════════════════ */
-    function updateAppHeight() {
-        const app = document.querySelector('.lomi-app');
-        if (!app || !window.visualViewport) return;
+/* ─── معالجة لوحة المفاتيح (نسخة محسّنة) ─── */
+function updateAppHeight() {
+    const app = document.querySelector('.lomi-app');
+    if (!app || !window.visualViewport) return;
 
-        app.style.height = window.visualViewport.height + 'px';
-        app.style.transform = `translateY(${window.visualViewport.offsetTop}px)`;
+    const vv = window.visualViewport;
+
+    // نضبط الارتفاع فقط (بدون لمس الـ transform)
+    app.style.height = vv.height + 'px';
+
+    // في بعض أجهزة iOS نحتاج تعويض بسيط
+    if (vv.offsetTop > 0) {
+        app.style.marginTop = vv.offsetTop + 'px';
+    } else {
+        app.style.marginTop = '';
     }
+}
 
-    function enableViewportFix() {
-        if (!window.visualViewport) return;
+function enableViewportFix() {
+    if (!window.visualViewport) return;
 
-        window.visualViewport.addEventListener('resize', updateAppHeight);
-        window.visualViewport.addEventListener('scroll', updateAppHeight);
-        updateAppHeight();
+    window.visualViewport.addEventListener('resize', updateAppHeight);
+    window.visualViewport.addEventListener('scroll', updateAppHeight);
+    updateAppHeight();
+}
+
+function disableViewportFix() {
+    if (!window.visualViewport) return;
+
+    window.visualViewport.removeEventListener('resize', updateAppHeight);
+    window.visualViewport.removeEventListener('scroll', updateAppHeight);
+
+    const app = document.querySelector('.lomi-app');
+    if (app) {
+        app.style.height = '';
+        app.style.marginTop = '';
     }
-
-    function disableViewportFix() {
-        if (!window.visualViewport) return;
-
-        window.visualViewport.removeEventListener('resize', updateAppHeight);
-        window.visualViewport.removeEventListener('scroll', updateAppHeight);
-
-        const app = document.querySelector('.lomi-app');
-        if (app) {
-            app.style.height = '';
-            app.style.transform = '';
-        }
-    }
+}
 
     /* ═══════════════════════════════════════════════════════════
        6. البحث في الكيانات
