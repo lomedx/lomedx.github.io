@@ -182,6 +182,38 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
+       5.1 معالجة لوحة المفاتيح (Visual Viewport API)
+       ═══════════════════════════════════════════════════════════ */
+    function updateAppHeight() {
+        const app = document.querySelector('.lomi-app');
+        if (!app || !window.visualViewport) return;
+
+        app.style.height = window.visualViewport.height + 'px';
+        app.style.transform = `translateY(${window.visualViewport.offsetTop}px)`;
+    }
+
+    function enableViewportFix() {
+        if (!window.visualViewport) return;
+
+        window.visualViewport.addEventListener('resize', updateAppHeight);
+        window.visualViewport.addEventListener('scroll', updateAppHeight);
+        updateAppHeight();
+    }
+
+    function disableViewportFix() {
+        if (!window.visualViewport) return;
+
+        window.visualViewport.removeEventListener('resize', updateAppHeight);
+        window.visualViewport.removeEventListener('scroll', updateAppHeight);
+
+        const app = document.querySelector('.lomi-app');
+        if (app) {
+            app.style.height = '';
+            app.style.transform = '';
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
        6. البحث في الكيانات
        ═══════════════════════════════════════════════════════════ */
     function searchEntities(type, query) {
@@ -770,7 +802,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 const toRemove = visible.length - CONFIG.domLimit;
                 for (let i = 0; i < toRemove; i++) {
                     const el = visible[i];
-                    // قطع المرجع من messageHistory لمنع تسريب الذاكرة
                     const msg = messageHistory.find(m => m.element === el);
                     if (msg) {
                         msg.element = null;
@@ -1224,6 +1255,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             }
         } catch {}
 
+        // تفعيل إصلاح لوحة المفاتيح
+        enableViewportFix();
+
         setTimeout(() => refs.input?.focus({ preventScroll: true }), 300);
     };
 
@@ -1241,6 +1275,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         if (isSending) stopGeneration();
         clearAllTimeouts();
         saveCurrentConversation();
+
+        // إيقاف إصلاح لوحة المفاتيح
+        disableViewportFix();
     };
 
 })();
