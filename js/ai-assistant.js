@@ -124,7 +124,24 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             .replace(/\s+/g, ' ')
             .trim();
     }
+function getDeviceFingerprint() {
+    const cookieMatch = document.cookie.match(/(?:^|; )lomi_fp=([^;]*)/);
+    if (cookieMatch) return cookieMatch[1];
 
+    const deviceInfo = [navigator.userAgent, navigator.language, window.screen.colorDepth].join('|');
+    let hash = 0;
+    for (let i = 0; i < deviceInfo.length; i++) {
+        const char = deviceInfo.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    const randomPart = Math.random().toString(36).slice(2, 8);
+    const fp = 'fp_' + Math.abs(hash).toString(36) + '_' + randomPart;
+
+    document.cookie = `lomi_fp=${fp}; max-age=31536000; path=/; SameSite=Lax`;
+    localStorage.setItem('lomi_device_fp', fp);
+    return fp;
+}
     function safeSetTimeout(callback, delay) {
         const id = setTimeout(() => {
             activeTimeouts.delete(id);
@@ -250,7 +267,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     function buildEntityCard(item) {
-        const icons = { doctor: '👨‍⚕️', pharmacy: '💊', lab: '🧪', center: '🏥', hospital: '🏨' };
+        const icons = { doctor: '👨‍⚕️', pharmacy: '🧑‍🔬', lab: '🧪', center: '🏥', hospital: '🏨' };
         const labels = { doctor: 'طبيب', pharmacy: 'صيدلية', lab: 'مخبر', center: 'مركز', hospital: 'مشفى' };
 
         const avatarHTML = item.image
@@ -335,7 +352,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 if (typeof window.openModal === 'function') {
                     window.openModal(id);
                 }
-            } catch { /* ignore */ }
+            } catch { }
         }, 300);
     };
 
@@ -350,7 +367,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 } else if (typeof window[handlerName] === 'function') {
                     window[handlerName]();
                 }
-            } catch { /* ignore */ }
+            } catch {}
         }, 300);
     };
 
@@ -408,7 +425,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.anonKey}` },
                 body: JSON.stringify({ analytics_id: lastAnalyticsId, rating })
             });
-        } catch { /* ignore */ }
+        } catch { }
     }
 
     /* ═══════════════════════════════════════════════════════════
@@ -418,7 +435,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         try {
             const saved = localStorage.getItem(STORAGE_KEYS.userCity);
             if (saved) return saved;
-        } catch { /* ignore */ }
+        } catch { }
 
         const btn = document.getElementById('currentCityText');
         if (btn) {
@@ -1025,7 +1042,8 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                         .map(m => ({ role: m.role, content: String(m.rawContent ?? m.content ?? '') }))
                         .filter(m => m.content)
                         .slice(-CONFIG.maxHistory),
-                    fingerprint: 'web',
+                    
+                    fingerprint: getDeviceFingerprint(),
                     context: {
                         currentRoute: window.location.pathname,
                         currentCity: currentCity
