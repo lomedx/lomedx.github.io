@@ -27,8 +27,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         cache: 'lomi_response_cache',
         unsentInput: 'lomi_unsent_input',
         userCity: 'lomedx_user_city',
-        rateLimit: 'lomi_rate_limit',
-        userName: 'lomedx_user_name' // ✅ جديد: لحفظ اسم المستخدم
+        rateLimit: 'lomi_rate_limit'
     });
 
     /* ═══════════════════════════════════════════════════════════
@@ -111,14 +110,10 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             .replace(/'/g, '&#39;');
     }
 
-    /**
-     * ✅ إصلاح نهائي: يمنع ظهور أكواد HTML البرمجية (<strong>) ويحولها لتنسيق صحيح
-     */
     function formatText(text) {
         let safe = String(text ?? '');
-        
-        // 1. إزالة أي وسوم HTML قد يرسلها النموذج (مثل <strong> أو <br>)
-        safe = safe.replace(/<[^>]*>?/gm, '');
+        // 1. إزالة أي وسوم HTML قد يرسلها النموذج (ما عدا span الذي نستخدمه للتلوين)
+        safe = safe.replace(/<(?!\/?span\b)[^>]*>?/gm, '');
         
         // 2. تحويل علامات النجمة (Markdown) إلى وسوم HTML آمنة
         safe = safe.replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
@@ -498,7 +493,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
-       12. City & User Helper
+       12. City Helper
        ═══════════════════════════════════════════════════════════ */
     function getCurrentCity() {
         try {
@@ -517,14 +512,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             if (t && t !== 'كل المدن') return t;
         }
         return 'كل المدن';
-    }
-
-    function getCurrentUserName() {
-        try {
-            return localStorage.getItem(STORAGE_KEYS.userName) || 'يا غالي';
-        } catch {
-            return 'يا غالي';
-        }
     }
 
     /* ═══════════════════════════════════════════════════════════
@@ -847,49 +834,36 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         }
     }
 
-    /**
-     * ✅ تحديث: رسالة الترحيب حسب الوقت (8 فترات دقيقة) + اسم المستخدم + المدينة
-     */
+    // ✅ دالة الترحيب المحدثة (8 فترات + تلوين الكلمات المهمة)
     function showWelcome() {
         const el = createAssistantMessage('');
         const hour = new Date().getHours();
         const city = getCurrentCity();
-        const userName = getCurrentUserName();
 
         let smartSuggestion = '';
-        let greeting = '';
-
-        // ✅ 8 فترات زمنية دقيقة
+        
         if (hour >= 0 && hour < 4) {
-            greeting = '🌙 ليلة هادئة';
-            smartSuggestion = `إذا احتجت مساعدة طارئة، أنا هنا. صيدليات المناوبة في **${escapeHtml(city)}** جاهزة.`;
+            smartSuggestion = `🌙 <span class="text-brand">ليلة هادئة</span> — إذا احتجت مساعدة طارئة، أنا هنا. صيدليات المناوبة في ${escapeHtml(city)} جاهزة.`;
         } else if (hour >= 4 && hour < 6) {
-            greeting = '🌅 الفجر';
-            smartSuggestion = `وقت الصلاة والراحة. هل تحتاج دواءً من صيدلية مناوبة في **${escapeHtml(city)}**؟`;
+            smartSuggestion = `🌅 <span class="text-brand">الفجر</span> — وقت الصلاة والراحة. هل تحتاج دواءً من صيدلية مناوبة في ${escapeHtml(city)}؟`;
         } else if (hour >= 6 && hour < 9) {
-            greeting = '☀️ صباح الخير';
-            smartSuggestion = `ابدأ يومك بصحة — هل تريد حجز موعد اليوم؟ اسألني: "أريد حجز موعد"`;
+            smartSuggestion = `☀️ <span class="text-brand">صباح الخير</span> — ابدأ يومك بصحة. هل تريد حجز موعد اليوم؟ اسألني: "أريد حجز موعد"`;
         } else if (hour >= 9 && hour < 12) {
-            greeting = '🌞 صباح النشاط';
-            smartSuggestion = `هل تحتاج استشارة طبية سريعة؟ اسألني: "أريد اسأل طبيب"`;
+            smartSuggestion = `🌞 <span class="text-brand">صباح النشاط</span> — هل تحتاج استشارة طبية سريعة؟ اسألني: "أريد اسأل طبيب"`;
         } else if (hour >= 12 && hour < 14) {
-            greeting = '🍽️ وقت الغداء';
-            smartSuggestion = `لا تنس شرب الماء! هل تحتاج حاسبة احتياجك اليومي من الماء؟`;
+            smartSuggestion = `🍽️ <span class="text-brand">وقت الغداء</span> — لا تنس شرب الماء! هل تحتاج حاسبة احتياجك اليومي من الماء؟`;
         } else if (hour >= 14 && hour < 17) {
-            greeting = '☕ فترة العصر';
-            smartSuggestion = `هل تحتاج حاسبة جرعات لطفلك؟ أو تجديد دواء؟`;
+            smartSuggestion = `☕ <span class="text-brand">فترة العصر</span> — هل تحتاج حاسبة جرعات لطفلك؟ أو تجديد دواء؟`;
         } else if (hour >= 17 && hour < 20) {
-            greeting = '🌆 مساء الخير';
-            smartSuggestion = `هل تريد استشارة طبيب؟ اسألني: "أريد اسأل طبيب"`;
+            smartSuggestion = `🌆 <span class="text-brand">مساء الخير</span> — هل تريد استشارة طبيب؟ اسألني: "أريد اسأل طبيب"`;
         } else if (hour >= 20 && hour < 22) {
-            greeting = '🌙 مساء هادئ';
-            smartSuggestion = `هل تحتاج صيدلية مناوبة في **${escapeHtml(city)}**؟ اسألني: "أريد صيدلية مناوبة"`;
+            smartSuggestion = `🌙 <span class="text-brand">مساء هادئ</span> — هل تحتاج صيدلية مناوبة في ${escapeHtml(city)}؟ اسألني: "أريد صيدلية مناوبة"`;
         } else {
-            greeting = '🌙 صيدليات المناوبة';
-            smartSuggestion = `صيدليات المناوبة الليلة في **${escapeHtml(city)}** جاهزة. اسألني: "أريد صيدلية مناوبة"`;
+            smartSuggestion = `🌙 <span class="text-brand">صيدليات المناوبة</span> — صيدليات المناوبة الليلة في ${escapeHtml(city)} جاهزة. اسألني: "أريد صيدلية مناوبة"`;
         }
 
-        const welcomeText = `أهلاً ${userName} في منصة LomedX! 🌹\n\nأنا Lomi، مساعدك الطبي الذكي.\n\n${greeting} — ${smartSuggestion}\n`;
+        const welcomeText = `أهلاً وسهلاً فيك في منصة <span class="text-brand">LomedX</span> يا غالي! 🌹\n\nأنا <span class="text-brand">Lomi</span>، مساعدك الطبي الذكي.\n\n${smartSuggestion}\n`;
+        
         el.rawContent = welcomeText;
         el.bubble.innerHTML = formatText(welcomeText);
         pushMessage(el);
@@ -977,6 +951,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             entry.element.appendChild(a);
         }
 
+        // ✅ إرجاع أزرار الإجراءات (نسخ، إعادة، لايك/دسلايك) كما كانت
         const acts = document.createElement('div');
         acts.className = 'lomi-msg-actions';
         acts.innerHTML = `
@@ -1155,8 +1130,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                     fingerprint: 'web',
                     context: {
                         currentRoute: window.location.pathname,
-                        currentCity: currentCity,
-                        userName: getCurrentUserName() // ✅ إرسال اسم المستخدم للسيرفر
+                        currentCity: currentCity
                     }
                 })
             });
@@ -1218,7 +1192,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                                 .replace(/\[OPEN:[\w-]+\]/g, '')
                                 .replace(/\[FIND:[\w-]+:[^\]]+\]/g, '')
                                 .replace(/\[BLOG:[^\]]+\]/g, '')
-                                .replace(/<[^>]*>?/gm, ''); // ✅ تنظيف أثناء البث أيضاً
+                                .replace(/<(?!\/?span\b)[^>]*>?/gm, '');
                             assistantEntry.bubble.textContent = tempText;
                             scheduleScrollToBottom();
                         }
@@ -1345,7 +1319,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         saveCurrentConversation();
     };
 
-    // للاستخدام في أدوات التصحيح فقط
     window.__lomiDebug = {
         getState: () => ({ messageHistory, isSending, currentConversationId }),
         getCache: () => JSON.parse(localStorage.getItem(STORAGE_KEYS.cache) || '{}'),
