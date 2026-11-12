@@ -1188,13 +1188,12 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                                 pushMessage(assistantEntry);
                             }
                             accumulated += chunk;
-                            const tempText = accumulated
-                                .replace(/\[OPEN:[\w-]+\]/g, '')
-                                .replace(/\[FIND:[\w-]+:[^\]]+\]/g, '')
-                                .replace(/\[BLOG:[^\]]+\]/g, '')
-                                .replace(/<(?!\/?span\b)[^>]*>?/gm, '');
-                            assistantEntry.bubble.textContent = tempText;
-                            scheduleScrollToBottom();
+                            
+                            // ✅ [إصلاح البطء] عرض النص الخام مباشرة أثناء البث لسرعة فائقة
+                            assistantEntry.bubble.textContent = accumulated;
+                            
+                            // ✅ [إصلاح البطء] التمرير المباشر بدون تأخير
+                            if (refs.messages) refs.messages.scrollTop = refs.messages.scrollHeight;
                         }
                     } catch { /* تجاهل chunk تالف */ }
                 }
