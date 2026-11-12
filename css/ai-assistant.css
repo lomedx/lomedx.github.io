@@ -491,7 +491,10 @@
     border-color: var(--brand-600) !important;
     color: var(--brand-800) !important;
 }
-
+.lomi-bubble .text-brand {
+    color: var(--brand-600) !important; /* اللون الأخضر الزاهي */
+    font-weight: 800 !important;
+}
 /* ─── 9. منطقة الإدخال ─── */
 .lomi-input-area {
     padding: 12px 16px !important;
