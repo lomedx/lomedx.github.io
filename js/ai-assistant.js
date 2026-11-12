@@ -19,6 +19,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         unsentInput: 'lomi_unsent_input', userCity: 'lomedx_user_city'
     };
 
+    /* ═══════════════════════════════════════════════════════════
+       2. الحالة العامة
+       ═══════════════════════════════════════════════════════════ */
     let messageHistory = [];
     let isSending = false;
     let currentAbortController = null;
@@ -28,6 +31,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     let lastSentMessages = [];
     const activeTimeouts = new Set();
 
+    /* ═══════════════════════════════════════════════════════════
+       3. الميزات (Features Map)
+       ═══════════════════════════════════════════════════════════ */
     const FEATURES = {
         'medicine-finder': { icon: '💊', title: 'باحث الأدوية', sub: 'ابحث عن دوائك في صيدليات مدينتك', route: '/medicine-finder' },
         'book-doctor': { icon: '📅', title: 'حجز موعد', sub: 'احجز مع طبيب متخصص', handler: 'redirectToDoctorsSearch' },
@@ -62,6 +68,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         'join-pharmacy': { icon: '💊', title: 'اشتراك صيدلية', sub: 'حوّل صيدليتك لرقمية', handler: 'join-pharmacy' }
     };
 
+    /* ═══════════════════════════════════════════════════════════
+       4. الأيقونات (SVG)
+       ═══════════════════════════════════════════════════════════ */
     const ICONS = {
         copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>',
         edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
@@ -75,6 +84,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>'
     };
 
+    /* ═══════════════════════════════════════════════════════════
+       5. أدوات مساعدة (Utilities)
+       ═══════════════════════════════════════════════════════════ */
     function escapeHtml(t) {
         return String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
@@ -134,6 +146,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         if (refs.messages) refs.messages.scrollTop = refs.messages.scrollHeight;
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       6. البحث في الكيانات
+       ═══════════════════════════════════════════════════════════ */
     function searchEntities(type, query) {
         let data = window.allData;
         if (!data) {
@@ -199,6 +214,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         return html;
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       7. Handlers
+       ═══════════════════════════════════════════════════════════ */
     window.lomiOpenEntity = function (id) {
         if (!id) return;
         window.closeLomi();
@@ -221,6 +239,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         }, 300);
     };
 
+    /* ═══════════════════════════════════════════════════════════
+       8. Features Rendering
+       ═══════════════════════════════════════════════════════════ */
     function buildFeatureButton(id) {
         const f = FEATURES[id];
         if (!f) return '';
@@ -233,6 +254,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         return `<a href="${escapeHtml(f.route)}" class="lomi-feature-btn" onclick="setTimeout(() => window.closeLomi(), 50)"><div class="lomi-feature-btn-icon">${f.icon}</div><div class="lomi-feature-btn-text"><div class="lomi-feature-btn-title">${escapeHtml(f.title)}</div><div class="lomi-feature-btn-sub">${escapeHtml(f.sub)}</div></div><div class="lomi-feature-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div></a>`;
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       9. Cache Engine
+       ═══════════════════════════════════════════════════════════ */
     function getCacheKey(text, city) {
         const route = window.location.pathname;
         const device = window.innerWidth < 768 ? 'mobile' : 'desktop';
@@ -262,6 +286,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         }
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       10. Analytics
+       ═══════════════════════════════════════════════════════════ */
     async function submitRating(rating, container) {
         if (!container) return;
         container.querySelectorAll('.rating-btn').forEach(b => b.disabled = true);
@@ -276,6 +303,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         } catch (e) {}
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       11. City Helper
+       ═══════════════════════════════════════════════════════════ */
     function getCurrentCity() {
         try { const saved = localStorage.getItem(STORAGE_KEYS.userCity); if (saved) return saved; } catch {}
         const btn = document.getElementById('currentCityText');
@@ -285,6 +315,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         return 'كل المدن';
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       12. Conversations Management
+       ═══════════════════════════════════════════════════════════ */
     function loadConversations() {
         try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.conversations) || '[]'); } catch { return []; }
     }
@@ -381,6 +414,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         listEl.querySelectorAll('[data-delete]').forEach(btn => { btn.addEventListener('click', (e) => deleteConversation(btn.dataset.delete, e)); });
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       13. UI Building
+       ═══════════════════════════════════════════════════════════ */
     function buildUI() {
         const existing = document.getElementById('lomiOverlay');
         if (existing) { if (refs.messages && document.body.contains(refs.messages)) return; existing.remove(); refs = {}; }
@@ -443,6 +479,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         });
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       14. Messages Management
+       ═══════════════════════════════════════════════════════════ */
     function pushMessage(entry) {
         messageHistory.push(entry);
         if (messageHistory.length > CONFIG.historyLimit) { const removed = messageHistory.splice(0, messageHistory.length - CONFIG.historyLimit); removed.forEach(m => m.element?.remove()); }
@@ -581,6 +620,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         }
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       15. Send Message (Main Flow)
+       ═══════════════════════════════════════════════════════════ */
     async function sendMessage(text) {
         const cleanText = (text || '').trim();
         if (!cleanText) return;
@@ -703,6 +745,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         }
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       16. Stop Generation
+       ═══════════════════════════════════════════════════════════ */
     function stopGeneration() {
         if (currentAbortController) { try { currentAbortController.abort(); } catch (e) {} currentAbortController = null; }
         document.getElementById('lomiTyping')?.remove();
@@ -712,6 +757,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         if (refs.statusDot) refs.statusDot.classList.remove('busy');
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       17. Public API
+       ═══════════════════════════════════════════════════════════ */
     window.openLomi = function () {
         buildUI();
         const overlay = document.getElementById('lomiOverlay');
