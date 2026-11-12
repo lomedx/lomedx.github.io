@@ -241,7 +241,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         const labels = { doctor: 'طبيب', pharmacy: 'صيدلية', lab: 'مخبر', center: 'مركز', hospital: 'مشفى' };
 
         const avatarHTML = item.image
-            ? `<img src="${escapeHtml(item.image)}" class="lomi-entity-avatar" onerror="this.outerHTML='<div class=\\'lomi-entity-avatar-fallback\\'>${icons[item.type] || '📍'}</div>'">`
+            ? `<img src="\( {escapeHtml(item.image)}" class="lomi-entity-avatar" onerror="this.outerHTML='<div class=\\'lomi-entity-avatar-fallback\\'> \){icons[item.type] || '📍'}</div>'">`
             : `<div class="lomi-entity-avatar-fallback">${icons[item.type] || '📍'}</div>`;
 
         let statusBadge = '';
@@ -297,7 +297,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
         if (remainingItems.length > 0) {
             const containerId = 'lomi_more_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-            html += `<div id="${containerId}" style="display:none;">${remainingItems.map(buildEntityCard).join('')}</div>`;
+            html += `<div id="\( {containerId}" style="display:none;"> \){remainingItems.map(buildEntityCard).join('')}</div>`;
             html += `<button class="lomi-show-more-btn" onclick="document.getElementById('${containerId}').style.display='block'; this.remove();">
                 <span>عرض ${remainingItems.length} نتيجة أخرى</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M6 9l6 6 6-6"/></svg>
@@ -386,7 +386,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     function getCacheKey(text, city) {
         const route = window.location.pathname;
         const device = window.innerWidth < 768 ? 'mobile' : 'desktop';
-        return `${normalizeForCache(text)}|${city || ''}|${route}|${device}`;
+        return `\( {normalizeForCache(text)}| \){city || ''}|\( {route}| \){device}`;
     }
 
     function getCachedResponse(text, city) {
@@ -550,7 +550,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 entry.bubble.innerHTML = formatText(m.content);
                 const acts = document.createElement('div');
                 acts.className = 'lomi-msg-actions';
-                acts.innerHTML = `<button class="lomi-action-btn" data-action="copy">${ICONS.copy}</button><button class="lomi-action-btn" data-action="regen">${ICONS.regen}</button>`;
+                acts.innerHTML = `<button class="lomi-action-btn" data-action="copy">\( {ICONS.copy}</button><button class="lomi-action-btn" data-action="regen"> \){ICONS.regen}</button>`;
                 entry.element.querySelector('.lomi-msg-row').appendChild(acts);
                 messageHistory.push(entry);
             }
@@ -606,13 +606,13 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             const timeStr = date.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' }) + ' • ' +
                 date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
             const isActive = c.id === currentConversationId ? 'active' : '';
-            return `<div class="lomi-history-item ${isActive}" data-id="${c.id}">
+            return `<div class="lomi-history-item \( {isActive}" data-id=" \){c.id}">
                 <div class="lomi-history-item-icon">💬</div>
                 <div class="lomi-history-item-body">
                     <div class="lomi-history-item-title">${escapeHtml(c.title)}</div>
                     <div class="lomi-history-item-meta"><span>${escapeHtml(timeStr)}</span></div>
                 </div>
-                <button class="lomi-history-item-delete" data-delete="${c.id}" title="حذف">${ICONS.trash}</button>
+                <button class="lomi-history-item-delete" data-delete="\( {c.id}" title="حذف"> \){ICONS.trash}</button>
             </div>`;
         }).join('');
 
@@ -752,16 +752,31 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     function pushMessage(entry) {
         messageHistory.push(entry);
 
+        // حد أقصى لعدد الرسائل في الذاكرة
         if (messageHistory.length > CONFIG.historyLimit) {
             const removed = messageHistory.splice(0, messageHistory.length - CONFIG.historyLimit);
-            removed.forEach(m => m.element?.remove());
+            removed.forEach(m => {
+                if (m.element) {
+                    m.element.remove();
+                    m.element = null;
+                }
+            });
         }
 
+        // حد أقصى للعناصر المرئية في الـ DOM (إصلاح تسريب الذاكرة)
         if (refs.messages) {
             const visible = refs.messages.querySelectorAll('.lomi-msg');
             if (visible.length > CONFIG.domLimit) {
                 const toRemove = visible.length - CONFIG.domLimit;
-                for (let i = 0; i < toRemove; i++) visible[i].remove();
+                for (let i = 0; i < toRemove; i++) {
+                    const el = visible[i];
+                    // قطع المرجع من messageHistory لمنع تسريب الذاكرة
+                    const msg = messageHistory.find(m => m.element === el);
+                    if (msg) {
+                        msg.element = null;
+                    }
+                    el.remove();
+                }
 
                 if (!refs.messages.querySelector('.lomi-truncated-notice')) {
                     const notice = document.createElement('div');
@@ -931,7 +946,12 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 return;
             }
             const removed = messageHistory.splice(idx);
-            removed.forEach(m => m.element?.remove());
+            removed.forEach(m => {
+                if (m.element) {
+                    m.element.remove();
+                    m.element = null;
+                }
+            });
 
             refs.input.value = msg.content;
             refs.sendBtn.disabled = false;
@@ -950,7 +970,12 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             if (uIdx >= 0) {
                 const t = messageHistory[uIdx].content;
                 const removed = messageHistory.splice(uIdx);
-                removed.forEach(m => m.element?.remove());
+                removed.forEach(m => {
+                    if (m.element) {
+                        m.element.remove();
+                        m.element = null;
+                    }
+                });
                 sendMessage(t);
             }
             return;
