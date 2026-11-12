@@ -753,14 +753,32 @@ function disableViewportFix() {
         document.getElementById('lomiHistoryNewBtn').addEventListener('click', startNewConversation);
 
         refs.input.addEventListener('input', () => {
-            refs.input.style.height = 'auto';
-            refs.input.style.height = Math.min(refs.input.scrollHeight, 130) + 'px';
-            refs.sendBtn.disabled = !refs.input.value.trim() || isSending;
-            const len = refs.input.value.length;
-            refs.charCounter.textContent = `${len} / 1000`;
-            refs.charCounter.classList.toggle('show', len > 0);
-        });
+    // إعادة حساب ارتفاع الحقل
+    refs.input.style.height = 'auto';
+    refs.input.style.height = Math.min(refs.input.scrollHeight, 130) + 'px';
 
+    refs.sendBtn.disabled = !refs.input.value.trim() || isSending;
+    const len = refs.input.value.length;
+    refs.charCounter.textContent = `${len} / 1000`;
+    refs.charCounter.classList.toggle('show', len > 0);
+
+    // ===== إصلاح اختفاء الهيدر عند الكتابة =====
+    // نجبر الصفحة والرسائل على البقاء في مكانها
+    requestAnimationFrame(() => {
+        window.scrollTo(0, 0);
+        if (refs.messages) {
+            refs.messages.scrollTop = refs.messages.scrollHeight;
+        }
+        // إعادة ضبط الارتفاع بعد تغيير حجم الـ textarea
+        updateAppHeight();
+    });
+});
+        refs.input.addEventListener('focus', () => {
+    setTimeout(() => {
+        window.scrollTo(0, 0);
+        updateAppHeight();
+    }, 100);
+});
         refs.input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
