@@ -98,11 +98,8 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
        ═══════════════════════════════════════════════════════════ */
     function escapeHtml(t) {
         return String(t || '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
     function formatText(t) {
@@ -114,13 +111,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     function normalizeArabic(str) {
         if (!str) return '';
         return String(str).toLowerCase()
-            .replace(/[أإآ]/g, 'ا')
-            .replace(/ى/g, 'ي')
-            .replace(/ة/g, 'ه')
-            .replace(/[\u064B-\u065F]/g, '')
-            .replace(/[^\w\s\u0600-\u06FF]/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
+            .replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
+            .replace(/[\u064B-\u065F]/g, '').replace(/[^\w\s\u0600-\u06FF]/g, ' ')
+            .replace(/\s+/g, ' ').trim();
     }
 
     function normalizeForCache(str) {
@@ -935,7 +928,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
             refs.input.value = msg.content;
             refs.sendBtn.disabled = false;
-            refs.input.focus();
+            refs.input.focus({ preventScroll: true });
             refs.input.style.height = 'auto';
             refs.input.style.height = Math.min(refs.input.scrollHeight, 130) + 'px';
             return;
@@ -1170,11 +1163,10 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         if (refs.statusDot) refs.statusDot.classList.remove('busy');
     }
 
-        /* ═══════════════════════════════════════════════════════════
+    /* ═══════════════════════════════════════════════════════════
        17. Public API
        ═══════════════════════════════════════════════════════════ */
 
-    //  دالة منفصلة ومستقلة للتعامل مع لوحة المفاتيح
     function handleKeyboard() {
         const app = document.querySelector('.lomi-app');
         if (app && window.visualViewport) {
@@ -1208,12 +1200,10 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             }
         } catch {}
 
-        //  تفعيل مراقبة لوحة المفاتيح
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', handleKeyboard);
         }
 
-        //  منع القفز عند التركيز
         setTimeout(() => {
             if (refs.input) {
                 refs.input.focus({ preventScroll: true });
@@ -1230,25 +1220,11 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
         const overlay = document.getElementById('lomiOverlay');
         if (overlay) overlay.classList.remove('active');
-        
-        //  إعادة الصفحة لطبيعتها
         document.body.style.overflow = '';
-        
-        // ✅ إيقاف مراقبة لوحة المفاتيح
+
         if (window.visualViewport) {
             window.visualViewport.removeEventListener('resize', handleKeyboard);
         }
-
-        if (isSending) stopGeneration();
-        clearAllTimeouts();
-        saveCurrentConversation();
-    };
-
-})();
-
-        const overlay = document.getElementById('lomiOverlay');
-        if (overlay) overlay.classList.remove('active');
-        document.body.style.overflow = '';
 
         if (isSending) stopGeneration();
         clearAllTimeouts();
