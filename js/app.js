@@ -328,66 +328,44 @@ function updateTipDisplay() {
 
 
 /* ═══════════════════════════════════════════════════════════
-   بوابة المتخصصين — زر واحد يفتح 4 أزرار بتصاميمها الأصلية
+   بوابات النظام — نافذة فيها الأزرار الأصلية (نفس التصميم)
    ═══════════════════════════════════════════════════════════ */
-window.openSpecialistLogin = () => {
-    openCtrlPanel('دخول المتخصصين', `
-        <div class="flex flex-col gap-3 max-w-md mx-auto py-4">
-            
-            <!-- العنوان -->
-            <div class="text-center mb-3">
-                <div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" 
-                     style="background: linear-gradient(135deg, #0E7C5F, #10B981);">
-                    <i class="fas fa-user-shield text-2xl text-white"></i>
-                </div>
-                <h3 class="font-bold text-lg" style="font-family: 'Noto Kufi Arabic';">
-                    بوابة المتخصصين
-                </h3>
-                <p class="text-xs text-gray-500 mt-1">
-                    اختر نوع الحساب للدخول
-                </p>
+window.openSystemPortals = () => {
+    openCtrlPanel('بوابات النظام', `
+        <div class="premium-card rounded-3xl p-4 mb-3">
+            <div class="text-sm font-bold text-gold-gradient mb-4 px-2 flex items-center gap-2">
+                <i class="fas fa-shield-halved text-xs"></i> بوابات النظام
             </div>
             
-            <!-- ═══ زر الطبيب — نفس التصميم الأصلي ═══ -->
-            <button onclick="closeCtrlPanel(); openDoctorLogin()" 
-                    class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90"
-                    style="background: #2563EB;">
-                <i class="fas fa-user-md"></i>
-                <span>الطبيب</span>
-            </button>
+            <div class="grid grid-cols-3 gap-3 mb-3">
+                <button onclick="closeCtrlPanel(); openDoctorLogin()" class="portal-grid-btn flex flex-col items-center justify-center gap-2 p-3 rounded-2xl">
+                    <i class="fas fa-user-doctor text-lg icon-gold-gradient"></i>
+                    <span class="text-[10px] font-bold text-white/90">الطبيب</span>
+                </button>
+                <button onclick="closeCtrlPanel(); openPharmacyLogin()" class="portal-grid-btn flex flex-col items-center justify-center gap-2 p-3 rounded-2xl">
+                    <i class="fas fa-prescription-bottle-medical text-lg icon-gold-gradient"></i>
+                    <span class="text-[10px] font-bold text-white/90">الصيدلية</span>
+                </button>
+                <button onclick="closeCtrlPanel(); openAdminLogin()" class="portal-grid-btn flex flex-col items-center justify-center gap-2 p-3 rounded-2xl">
+                    <i class="fas fa-gears text-lg icon-gold-gradient"></i>
+                    <span class="text-[10px] font-bold text-white/90">الإدارة</span>
+                </button>
+            </div>
             
-            <!-- ═══ زر الصيدلية — نفس التصميم الأصلي ═══ -->
-            <button onclick="closeCtrlPanel(); openPharmacyLogin()" 
-                    class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90"
-                    style="background: #0E7C5F;">
-                <i class="fas fa-prescription-bottle-medical"></i>
-                <span>الصيدلية</span>
+            <button onclick="closeCtrlPanel(); openDutyAdminLogin()" class="duty-portal-bar">
+                <div class="duty-portal-bar-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="duty-portal-bar-text">
+                    <span class="duty-portal-bar-title">لوحة إدارة المناوبات</span>
+                    <span class="duty-portal-bar-subtitle">جدول الصيدليات المناوبة</span>
+                </div>
+                <i class="fas fa-chevron-left duty-portal-bar-arrow"></i>
             </button>
-            
-            <!-- ═══ زر الإدارة — نفس التصميم الأصلي ═══ -->
-            <button onclick="closeCtrlPanel(); openAdminLogin()" 
-                    class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90"
-                    style="background: #073D2E;">
-                <i class="fas fa-cogs"></i>
-                <span>الإدارة</span>
-            </button>
-            
-            <!-- ═══ زر إدارة المناوبات — نفس التصميم الأصلي ═══ -->
-            <button onclick="closeCtrlPanel(); openDutyAdminLogin()" 
-                    class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90"
-                    style="background: #1E3A5F;">
-                <i class="fas fa-calendar-check"></i>
-                <span>إدارة المناوبات</span>
-            </button>
-            
-            <!-- ملاحظة -->
-            <p class="text-center text-xs text-gray-400 mt-3">
-                <i class="fas fa-lock ml-1"></i>
-                الدخول محمي بكلمة مرور
-            </p>
         </div>
     `, '#0E7C5F');
 };
+
 
 
 
