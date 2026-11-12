@@ -346,42 +346,86 @@
 }
 
 /* ─── 6. أزرار الإجراءات (النسخ، التقييم) ─── */
-.lomi-msg-actions {
+/* ─── 6. أزرار الميزات (Features) - كما في الكود الأصلي ─── */
+.lomi-feature-actions {
     display: flex !important;
-    gap: 2px !important;
-    align-self: flex-end !important;
-    opacity: 0.7 !important; /* ✅ تظهر دائماً بشفافية قليلة بدلاً من الاختفاء */
-    transition: opacity 0.2s var(--ease-smooth) !important;
-    margin-bottom: 2px !important;
-    flex-shrink: 0 !important;
-}
-.lomi-msg:hover .lomi-msg-actions,
-.lomi-msg:focus-within .lomi-msg-actions {
-    opacity: 1 !important;
+    flex-direction: column !important;
+    gap: 10px !important; /* زيادة المسافة بين الأزرار قليلاً */
+    margin-top: 12px !important;
+    width: 100% !important;
 }
 
-.lomi-action-btn {
-    width: 26px !important; /* ✅ تصغير */
-    height: 26px !important;
-    border-radius: 6px !important;
-    background: transparent !important;
-    border: none !important;
+.lomi-feature-btn {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    padding: 14px 18px !important; /* الحشو الأصلي المريح */
+    background: linear-gradient(135deg, #ffffff, var(--brand-50)) !important;
+    border: 1.5px solid var(--brand-500) !important;
+    border-radius: 16px !important; /* زوايا مستديرة جميلة */
+    cursor: pointer !important;
+    transition: all 0.25s var(--ease-smooth) !important;
+    text-decoration: none !important;
+    color: var(--brand-800) !important;
+    font-family: inherit !important;
+    width: 100% !important;
+    text-align: right !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.05) !important; /* ظل خفيف */
+}
+
+.lomi-feature-btn:hover {
+    box-shadow: var(--shadow-lg) !important;
+    transform: translateY(-2px) !important;
+    border-color: var(--brand-600) !important;
+}
+
+.lomi-feature-btn-icon {
+    width: 42px !important; /* حجم الأيقونة الأصلي */
+    height: 42px !important;
+    border-radius: 12px !important;
+    background: var(--gradient-brand) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    cursor: pointer !important;
-    color: var(--ink-400) !important;
-    transition: all 0.2s var(--ease-smooth) !important;
-    font-size: 13px !important;
-}
-.lomi-action-btn:hover {
-    background: var(--ink-100) !important;
-    color: var(--brand-700) !important;
+    font-size: 20px !important;
+    flex-shrink: 0 !important;
 }
 
-/* ✅ على الجوال تظهر الأزرار دائماً */
-@media (hover: none) and (pointer: coarse) {
-    .lomi-msg-actions { opacity: 1 !important; }
+.lomi-feature-btn-text {
+    flex: 1 !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+.lomi-feature-btn-title {
+    font-size: 14px !important;
+    font-weight: 800 !important; /* عنوان عريض وواضح */
+    color: var(--brand-800) !important;
+    margin-bottom: 4px !important;
+    line-height: 1.3 !important;
+}
+
+.lomi-feature-btn-sub {
+    font-size: 11.5px !important;
+    color: var(--ink-500) !important;
+    line-height: 1.4 !important;
+}
+
+.lomi-feature-btn-arrow {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--brand-600) !important;
+    margin-right: auto !important; /* يدفع السهم لأقصى اليسار */
+    margin-left: 5px !important;
+    transition: transform 0.2s var(--ease-smooth) !important;
+    flex-shrink: 0 !important;
+}
+
+.lomi-feature-btn:hover .lomi-feature-btn-arrow {
+    transform: translateX(-4px) !important;
 }
 
 /* ─── 7. مؤشر الكتابة (النقاط الثلاث) ─── */
