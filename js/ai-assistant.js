@@ -785,7 +785,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         try { if (refs.input?.value.trim()) localStorage.setItem(STORAGE_KEYS.unsentInput, refs.input.value); } catch {}
         const overlay = document.getElementById('lomiOverlay');
         if (overlay) overlay.classList.remove('active');
-        document.body.style.overflow = '';
+        document.body.style.overflow = 'hidden';
         if (isSending) stopGeneration();
         clearAllTimeouts();
         saveCurrentConversation();
