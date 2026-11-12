@@ -1181,7 +1181,12 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         if (!overlay) return;
 
         overlay.classList.add('active');
+        
+        // ✅ تجميد الصفحة الأساسية لمنع القفز
         document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
 
         if (currentConversationId && messageHistory.length === 0) {
             loadConversation(currentConversationId);
@@ -1200,10 +1205,12 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             }
         } catch {}
 
+        // ✅ مراقبة لوحة المفاتيح
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', handleKeyboard);
         }
 
+        // ✅ منع القفز عند التركيز
         setTimeout(() => {
             if (refs.input) {
                 refs.input.focus({ preventScroll: true });
@@ -1220,8 +1227,14 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
         const overlay = document.getElementById('lomiOverlay');
         if (overlay) overlay.classList.remove('active');
+        
+        // ✅ إعادة الصفحة لطبيعتها
         document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.height = '';
 
+        // ✅ إيقاف مراقبة لوحة المفاتيح
         if (window.visualViewport) {
             window.visualViewport.removeEventListener('resize', handleKeyboard);
         }
