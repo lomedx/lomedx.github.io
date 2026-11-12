@@ -15,19 +15,14 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         domLimit: 30,
         maxBufferSize: 100 * 1024,
         duplicateWindowMs: 3000,
-        cacheTtl: 24 * 60 * 60 * 1000,
-        cacheMaxEntries: 50,
         singleResultAutoOpenMs: 1200,
-        typingIndicatorId: 'lomiTyping',
-        rateLimitPerMinute: 20
+        typingIndicatorId: 'lomiTyping'
     });
 
     const STORAGE_KEYS = Object.freeze({
         conversations: 'lomi_conversations',
-        cache: 'lomi_response_cache',
         unsentInput: 'lomi_unsent_input',
-        userCity: 'lomedx_user_city',
-        rateLimit: 'lomi_rate_limit'
+        userCity: 'lomedx_user_city'
     });
 
     /* ═══════════════════════════════════════════════════════════
@@ -76,10 +71,10 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         'events-first-aid': { icon: '🎉', title: 'إسعافات المناسبات', sub: 'حوادث الأفراح والتجمعات', route: '/events-first-aid' },
         'add-facility': { icon: '🏥', title: 'أضف منشأتك', sub: 'سجل مجاناً في المنصة', route: '/add-facility' },
         'contact': { icon: '📞', title: 'تواصل معنا', sub: 'الدعم الفني والاستفسارات', route: '/contact' },
-        'social-facebook': { icon: '📘', title: 'فيسبوك', sub: 'تابعنا على فيسبوك', url: 'https://www.facebook.com/share/1GLT1xyBPA/' },
+        'social-facebook': { icon: '📲', title: 'فيسبوك', sub: 'تابعنا على فيسبوك', url: 'https://www.facebook.com/share/1GLT1xyBPA/' },
         'social-instagram': { icon: '📸', title: 'إنستغرام', sub: 'تابعنا على إنستغرام', url: 'https://www.instagram.com/lomed_x' },
         'join-doctor': { icon: '👨‍⚕️', title: 'اشتراك طبيب', sub: 'ارتقِ بعيادتك (ميزات متقدمة)', handler: 'join-doctor' },
-        'join-pharmacy': { icon: '💊', title: 'اشتراك صيدلية', sub: 'حوّل صيدليتك لرقمية', handler: 'join-pharmacy' }
+        'join-pharmacy': { icon: '🧑‍🔬', title: 'اشتراك صيدلية', sub: 'حوّل صيدليتك لرقمية', handler: 'join-pharmacy' }
     });
 
     /* ═══════════════════════════════════════════════════════════
@@ -112,15 +107,9 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
     function formatText(text) {
         let safe = String(text ?? '');
-        // 1. إزالة أي وسوم HTML قد يرسلها النموذج (ما عدا span الذي نستخدمه للتلوين)
         safe = safe.replace(/<(?!\/?span\b)[^>]*>?/gm, '');
-        
-        // 2. تحويل علامات النجمة (Markdown) إلى وسوم HTML آمنة
         safe = safe.replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
-        
-        // 3. تحويل النقاط إلى نقاط ملونة
         safe = safe.replace(/^• /gm, '<span style="color:var(--brand-600);font-weight:700;">• </span>');
-        
         return safe;
     }
 
@@ -134,10 +123,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             .replace(/[^\w\s\u0600-\u06FF]/g, ' ')
             .replace(/\s+/g, ' ')
             .trim();
-    }
-
-    function normalizeForCache(str) {
-        return String(str || '').toLowerCase().trim().replace(/\s+/g, ' ');
     }
 
     function safeSetTimeout(callback, delay) {
@@ -203,33 +188,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
-       6. Rate Limiting
-       ═══════════════════════════════════════════════════════════ */
-    function checkRateLimit() {
-        try {
-            const now = Date.now();
-            const windowStart = now - 60_000;
-            let timestamps = [];
-            try {
-                timestamps = JSON.parse(localStorage.getItem(STORAGE_KEYS.rateLimit) || '[]');
-            } catch { timestamps = []; }
-
-            timestamps = timestamps.filter(t => t > windowStart);
-
-            if (timestamps.length >= CONFIG.rateLimitPerMinute) {
-                return false;
-            }
-
-            timestamps.push(now);
-            localStorage.setItem(STORAGE_KEYS.rateLimit, JSON.stringify(timestamps));
-            return true;
-        } catch {
-            return true;
-        }
-    }
-
-    /* ═══════════════════════════════════════════════════════════
-       7. البحث في الكيانات
+       6. البحث في الكيانات
        ═══════════════════════════════════════════════════════════ */
     function getNormalizedEntity(item) {
         if (normalizedEntityCache.has(item)) return normalizedEntityCache.get(item);
@@ -362,7 +321,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
-       8. Handlers العامة
+       7. Handlers العامة
        ═══════════════════════════════════════════════════════════ */
     window.lomiOpenEntity = function (id) {
         if (!id) return;
@@ -396,7 +355,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     };
 
     /* ═══════════════════════════════════════════════════════════
-       9. Features Rendering
+       8. Features Rendering
        ═══════════════════════════════════════════════════════════ */
     function buildFeatureButton(id) {
         const f = FEATURES[id];
@@ -435,47 +394,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
-       10. Cache Engine
-       ═══════════════════════════════════════════════════════════ */
-    function getCacheKey(text, city) {
-        const route = window.location.pathname;
-        const device = window.innerWidth < 768 ? 'mobile' : 'desktop';
-        return `${normalizeForCache(text)}|${city || ''}|${route}|${device}`;
-    }
-
-    function getCachedResponse(text, city) {
-        try {
-            const cache = JSON.parse(localStorage.getItem(STORAGE_KEYS.cache) || '{}');
-            const entry = cache[getCacheKey(text, city)];
-            if (entry && (Date.now() - entry.timestamp) < CONFIG.cacheTtl) {
-                return entry.response;
-            }
-        } catch { /* ignore */ }
-        return null;
-    }
-
-    function setCachedResponse(text, city, response) {
-        try {
-            const cache = JSON.parse(localStorage.getItem(STORAGE_KEYS.cache) || '{}');
-            cache[getCacheKey(text, city)] = { response, timestamp: Date.now() };
-
-            const keys = Object.keys(cache);
-            const excess = keys.length - CONFIG.cacheMaxEntries;
-            if (excess > 0) {
-                keys.sort((a, b) => cache[a].timestamp - cache[b].timestamp)
-                    .slice(0, excess)
-                    .forEach(k => delete cache[k]);
-            }
-            localStorage.setItem(STORAGE_KEYS.cache, JSON.stringify(cache));
-        } catch (e) {
-            if (e.name === 'QuotaExceededError') {
-                try { localStorage.removeItem(STORAGE_KEYS.cache); } catch { /* ignore */ }
-            }
-        }
-    }
-
-    /* ═══════════════════════════════════════════════════════════
-       11. Analytics
+       9. Analytics
        ═══════════════════════════════════════════════════════════ */
     async function submitRating(rating, container) {
         if (!container) return;
@@ -493,7 +412,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
-       12. City Helper
+       10. City Helper
        ═══════════════════════════════════════════════════════════ */
     function getCurrentCity() {
         try {
@@ -515,7 +434,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
-       13. Conversations Management
+       11. Conversations Management
        ═══════════════════════════════════════════════════════════ */
     function loadConversations() {
         try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.conversations) || '[]'); }
@@ -684,7 +603,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
-       14. UI Building
+       12. UI Building
        ═══════════════════════════════════════════════════════════ */
     function buildUI() {
         const existing = document.getElementById('lomiOverlay');
@@ -808,7 +727,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
-       15. Messages Management
+       13. Messages Management
        ═══════════════════════════════════════════════════════════ */
     function pushMessage(entry) {
         messageHistory.push(entry);
@@ -834,7 +753,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         }
     }
 
-    // ✅ دالة الترحيب المحدثة (8 فترات + تلوين الكلمات المهمة)
     function showWelcome() {
         const el = createAssistantMessage('');
         const hour = new Date().getHours();
@@ -845,17 +763,17 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         if (hour >= 0 && hour < 4) {
             smartSuggestion = `🌙 <span class="text-brand">ليلة هادئة</span> — إذا احتجت مساعدة طارئة، أنا هنا. صيدليات المناوبة في ${escapeHtml(city)} جاهزة.`;
         } else if (hour >= 4 && hour < 6) {
-            smartSuggestion = `🌅 <span class="text-brand">الفجر</span> — وقت الصلاة والراحة. هل تحتاج دواءً من صيدلية مناوبة في ${escapeHtml(city)}؟`;
+            smartSuggestion = ` <span class="text-brand">الفجر</span> — وقت الصلاة والراحة. هل تحتاج دواءً من صيدلية مناوبة في ${escapeHtml(city)}؟`;
         } else if (hour >= 6 && hour < 9) {
             smartSuggestion = `☀️ <span class="text-brand">صباح الخير</span> — ابدأ يومك بصحة. هل تريد حجز موعد اليوم؟ اسألني: "أريد حجز موعد"`;
         } else if (hour >= 9 && hour < 12) {
             smartSuggestion = `🌞 <span class="text-brand">صباح النشاط</span> — هل تحتاج استشارة طبية سريعة؟ اسألني: "أريد اسأل طبيب"`;
         } else if (hour >= 12 && hour < 14) {
-            smartSuggestion = `🍽️ <span class="text-brand">وقت الغداء</span> — لا تنس شرب الماء! هل تحتاج حاسبة احتياجك اليومي من الماء؟`;
+            smartSuggestion = ` <span class="text-brand">وقت الغداء</span> — لا تنس شرب الماء! هل تحتاج حاسبة احتياجك اليومي من الماء؟`;
         } else if (hour >= 14 && hour < 17) {
             smartSuggestion = `☕ <span class="text-brand">فترة العصر</span> — هل تحتاج حاسبة جرعات لطفلك؟ أو تجديد دواء؟`;
         } else if (hour >= 17 && hour < 20) {
-            smartSuggestion = `🌆 <span class="text-brand">مساء الخير</span> — هل تريد استشارة طبيب؟ اسألني: "أريد اسأل طبيب"`;
+            smartSuggestion = ` <span class="text-brand">مساء الخير</span> — هل تريد استشارة طبيب؟ اسألني: "أريد اسأل طبيب"`;
         } else if (hour >= 20 && hour < 22) {
             smartSuggestion = `🌙 <span class="text-brand">مساء هادئ</span> — هل تحتاج صيدلية مناوبة في ${escapeHtml(city)}؟ اسألني: "أريد صيدلية مناوبة"`;
         } else {
@@ -951,7 +869,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             entry.element.appendChild(a);
         }
 
-        // ✅ إرجاع أزرار الإجراءات (نسخ، إعادة، لايك/دسلايك) كما كانت
         const acts = document.createElement('div');
         acts.className = 'lomi-msg-actions';
         acts.innerHTML = `
@@ -1041,7 +958,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
-       16. Send Message (Main Flow)
+       14. Send Message (Main Flow)
        ═══════════════════════════════════════════════════════════ */
     async function sendMessage(text) {
         const cleanText = String(text || '').trim();
@@ -1054,15 +971,10 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             return;
         }
 
-        if (!checkRateLimit()) {
-            showLomiToast('⏳ تجاوزت الحد الأقصى للرسائل. انتظر قليلاً.', true);
-            return;
-        }
-
         const now = Date.now();
         lastSentMessages = lastSentMessages.filter(m => now - m.time < CONFIG.duplicateWindowMs);
         if (lastSentMessages.some(m => m.text === cleanText)) {
-            showLomiToast('⏳ تم إرسال هذه الرسالة للتو', true);
+            showLomiToast(' تم إرسال هذه الرسالة للتو', true);
             return;
         }
         lastSentMessages.push({ text: cleanText, time: now });
@@ -1086,20 +998,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         pushMessage(userEntry);
 
         const currentCity = getCurrentCity();
-
-        const cached = getCachedResponse(cleanText, currentCity);
-        if (cached) {
-            const cachedEntry = createAssistantMessage('');
-            pushMessage(cachedEntry);
-            renderAssistantFinal(cachedEntry, cached);
-            isSending = false;
-            refs.sendBtn.innerHTML = ICONS.send;
-            refs.sendBtn.classList.remove('stop');
-            refs.sendBtn.disabled = !refs.input.value.trim();
-            refs.statusText.textContent = 'متصل ⚡';
-            refs.statusDot.classList.remove('busy');
-            return;
-        }
 
         const typing = document.createElement('div');
         typing.className = 'lomi-msg assistant';
@@ -1167,7 +1065,12 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
 
                         if (p.error) {
                             typing.remove();
-                            showLomiError(p.error.message || 'حدث خطأ في معالجة طلبك. يرجى المحاولة لاحقاً.');
+                        
+                            if (p.error.message?.includes('high demand') || p.error.message?.includes('unavailable')) {
+                                showLomiError('المساعد يواجه ضغطاً كبيراً جداً الآن. يرجى المحاولة بعد قليل.');
+                            } else {
+                                showLomiError(p.error.message || 'حدث خطأ في معالجة طلبك. يرجى المحاولة لاحقاً.');
+                            }
                             return;
                         }
 
@@ -1189,10 +1092,8 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                             }
                             accumulated += chunk;
                             
-                            // ✅ [إصلاح البطء] عرض النص الخام مباشرة أثناء البث لسرعة فائقة
                             assistantEntry.bubble.textContent = accumulated;
                             
-                            // ✅ [إصلاح البطء] التمرير المباشر بدون تأخير
                             if (refs.messages) refs.messages.scrollTop = refs.messages.scrollHeight;
                         }
                     } catch { /* تجاهل chunk تالف */ }
@@ -1204,7 +1105,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             if (assistantEntry) {
                 renderAssistantFinal(assistantEntry, accumulated);
                 saveCurrentConversation();
-                setCachedResponse(cleanText, currentCity, accumulated);
             }
 
             refs.statusText.textContent = 'متصل';
@@ -1247,11 +1147,11 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
-       17. Stop Generation
+       15. Stop Generation
        ═══════════════════════════════════════════════════════════ */
     function stopGeneration() {
         if (currentAbortController) {
-            try { currentAbortController.abort(); } catch { /* ignore */ }
+            try { currentAbortController.abort(); } catch {  }
             currentAbortController = null;
         }
 
@@ -1268,7 +1168,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
-       18. Public API
+       16. Public API
        ═══════════════════════════════════════════════════════════ */
     window.openLomi = function () {
         buildUI();
@@ -1294,7 +1194,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                 refs.input.style.height = Math.min(refs.input.scrollHeight, 130) + 'px';
                 localStorage.removeItem(STORAGE_KEYS.unsentInput);
             }
-        } catch { /* ignore */ }
+        } catch { }
 
         setTimeout(() => refs.input?.focus({ preventScroll: true }), 300);
     };
@@ -1319,9 +1219,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     };
 
     window.__lomiDebug = {
-        getState: () => ({ messageHistory, isSending, currentConversationId }),
-        getCache: () => JSON.parse(localStorage.getItem(STORAGE_KEYS.cache) || '{}'),
-        clearCache: () => localStorage.removeItem(STORAGE_KEYS.cache)
+        getState: () => ({ messageHistory, isSending, currentConversationId })
     };
 
 })();
