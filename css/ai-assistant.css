@@ -347,6 +347,13 @@
 
 /* ─── 6. أزرار الإجراءات (النسخ، التقييم) ─── */
 /* ─── 6. أزرار الميزات (Features) - كما في الكود الأصلي ─── */
+
+
+
+
+
+
+
 .lomi-feature-actions {
     display: flex !important;
     flex-direction: column !important;
@@ -492,8 +499,8 @@
     color: var(--brand-800) !important;
 }
 .lomi-bubble .text-brand {
-    color: var(--brand-600) !important; /* اللون الأخضر الزاهي */
-    font-weight: 800 !important;
+    color: var(--brand-800) !important;
+    font-weight: 700 !important;      
 }
 /* ─── 9. منطقة الإدخال ─── */
 .lomi-input-area {
