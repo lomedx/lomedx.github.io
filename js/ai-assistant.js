@@ -1199,8 +1199,18 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             }
         } catch {}
 
-        setTimeout(() => refs.input?.focus({ preventScroll: true }), 300);
-    };
+        setTimeout(() => {
+    if (refs.input) {
+        refs.input.focus({ preventScroll: true }); // ✅ يمنع القفز
+    }
+}, 300);
+    function handleKeyboard() {
+    const app = document.querySelector('.lomi-app');
+    if (app && window.visualViewport) {
+        // تعديل الارتفاع بهدوء دون التسبب في تمرير
+        app.style.height = `${window.visualViewport.height}px`;
+    }
+}
 
     window.closeLomi = function () {
         try {
