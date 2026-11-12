@@ -326,6 +326,72 @@ function updateTipDisplay() {
     }, 300);
 }
 
+
+/* ═══════════════════════════════════════════════════════════
+   بوابة المتخصصين — زر واحد يفتح 4 أزرار بتصاميمها الأصلية
+   ═══════════════════════════════════════════════════════════ */
+window.openSpecialistLogin = () => {
+    openCtrlPanel('دخول المتخصصين', `
+        <div class="flex flex-col gap-3 max-w-md mx-auto py-4">
+            
+            <!-- العنوان -->
+            <div class="text-center mb-3">
+                <div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" 
+                     style="background: linear-gradient(135deg, #0E7C5F, #10B981);">
+                    <i class="fas fa-user-shield text-2xl text-white"></i>
+                </div>
+                <h3 class="font-bold text-lg" style="font-family: 'Noto Kufi Arabic';">
+                    بوابة المتخصصين
+                </h3>
+                <p class="text-xs text-gray-500 mt-1">
+                    اختر نوع الحساب للدخول
+                </p>
+            </div>
+            
+            <!-- ═══ زر الطبيب — نفس التصميم الأصلي ═══ -->
+            <button onclick="closeCtrlPanel(); openDoctorLogin()" 
+                    class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90"
+                    style="background: #2563EB;">
+                <i class="fas fa-user-md"></i>
+                <span>الطبيب</span>
+            </button>
+            
+            <!-- ═══ زر الصيدلية — نفس التصميم الأصلي ═══ -->
+            <button onclick="closeCtrlPanel(); openPharmacyLogin()" 
+                    class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90"
+                    style="background: #0E7C5F;">
+                <i class="fas fa-prescription-bottle-medical"></i>
+                <span>الصيدلية</span>
+            </button>
+            
+            <!-- ═══ زر الإدارة — نفس التصميم الأصلي ═══ -->
+            <button onclick="closeCtrlPanel(); openAdminLogin()" 
+                    class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90"
+                    style="background: #073D2E;">
+                <i class="fas fa-cogs"></i>
+                <span>الإدارة</span>
+            </button>
+            
+            <!-- ═══ زر إدارة المناوبات — نفس التصميم الأصلي ═══ -->
+            <button onclick="closeCtrlPanel(); openDutyAdminLogin()" 
+                    class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90"
+                    style="background: #1E3A5F;">
+                <i class="fas fa-calendar-check"></i>
+                <span>إدارة المناوبات</span>
+            </button>
+            
+            <!-- ملاحظة -->
+            <p class="text-center text-xs text-gray-400 mt-3">
+                <i class="fas fa-lock ml-1"></i>
+                الدخول محمي بكلمة مرور
+            </p>
+        </div>
+    `, '#0E7C5F');
+};
+
+
+
+
 window.addEventListener('DOMContentLoaded', () => {
     const isOAuthRedirect = window.location.href.includes('code=') || window.location.href.includes('access_token=');
     const isGoogleIntent = sessionStorage.getItem('google_login_intent') === 'true';
