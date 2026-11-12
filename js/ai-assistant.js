@@ -27,7 +27,8 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         cache: 'lomi_response_cache',
         unsentInput: 'lomi_unsent_input',
         userCity: 'lomedx_user_city',
-        rateLimit: 'lomi_rate_limit'
+        rateLimit: 'lomi_rate_limit',
+        userName: 'lomedx_user_name' // ✅ جديد: لحفظ اسم المستخدم
     });
 
     /* ═══════════════════════════════════════════════════════════
@@ -111,13 +112,21 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /**
-     * ✅ إصلاح XSS: نطبق escapeHtml أولاً ثم نسمح بتنسيق محدود فقط
+     * ✅ إصلاح نهائي: يمنع ظهور أكواد HTML البرمجية (<strong>) ويحولها لتنسيق صحيح
      */
     function formatText(text) {
-        const safe = escapeHtml(String(text ?? ''));
-        return safe
-            .replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>')
-            .replace(/^• /gm, '<span style="color:var(--brand-600);font-weight:700;">• </span>');
+        let safe = String(text ?? '');
+        
+        // 1. إزالة أي وسوم HTML قد يرسلها النموذج (مثل <strong> أو <br>)
+        safe = safe.replace(/<[^>]*>?/gm, '');
+        
+        // 2. تحويل علامات النجمة (Markdown) إلى وسوم HTML آمنة
+        safe = safe.replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
+        
+        // 3. تحويل النقاط إلى نقاط ملونة
+        safe = safe.replace(/^• /gm, '<span style="color:var(--brand-600);font-weight:700;">• </span>');
+        
+        return safe;
     }
 
     function normalizeArabic(str) {
@@ -150,17 +159,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         activeTimeouts.clear();
     }
 
-    function debounce(fn, wait) {
-        let timer;
-        return function (...args) {
-            clearTimeout(timer);
-            timer = safeSetTimeout(() => fn.apply(this, args), wait);
-        };
-    }
-
-    /**
-     * ✅ تحسين الأداء: تجميع تحديثات scroll في rAF واحد
-     */
     function scheduleScrollToBottom() {
         if (scrollRafPending) return;
         scrollRafPending = true;
@@ -210,7 +208,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
-       6. Rate Limiting (جديد - حماية من الإساءة)
+       6. Rate Limiting
        ═══════════════════════════════════════════════════════════ */
     function checkRateLimit() {
         try {
@@ -500,7 +498,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     }
 
     /* ═══════════════════════════════════════════════════════════
-       12. City Helper
+       12. City & User Helper
        ═══════════════════════════════════════════════════════════ */
     function getCurrentCity() {
         try {
@@ -519,6 +517,14 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             if (t && t !== 'كل المدن') return t;
         }
         return 'كل المدن';
+    }
+
+    function getCurrentUserName() {
+        try {
+            return localStorage.getItem(STORAGE_KEYS.userName) || 'يا غالي';
+        } catch {
+            return 'يا غالي';
+        }
     }
 
     /* ═══════════════════════════════════════════════════════════
@@ -545,9 +551,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         return t.length > 40 ? t.slice(0, 40) + '…' : t;
     }
 
-    /**
-     * ✅ إصلاح: نحفظ النص الخام (rawContent) بدلاً من HTML
-     */
     function saveCurrentConversation() {
         const toSave = messageHistory
             .filter(m => {
@@ -600,9 +603,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         closeHistoryPanel();
     }
 
-    /**
-     * ✅ إصلاح: نستخدم renderAssistantFinal بدلاً من innerHTML المباشر
-     */
     function loadConversation(id) {
         if (isSending) {
             showLomiToast('انتظر انتهاء الرد الحالي', true);
@@ -702,10 +702,7 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
     function buildUI() {
         const existing = document.getElementById('lomiOverlay');
         if (existing) {
-            if (refs.messages && existing.contains(refs.messages)) {
-                // الواجهة موجودة وجاهزة
-                return;
-            }
+            if (refs.messages && existing.contains(refs.messages)) return;
             existing.remove();
             refs = {};
         }
@@ -850,23 +847,49 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         }
     }
 
+    /**
+     * ✅ تحديث: رسالة الترحيب حسب الوقت (8 فترات دقيقة) + اسم المستخدم + المدينة
+     */
     function showWelcome() {
         const el = createAssistantMessage('');
         const hour = new Date().getHours();
         const city = getCurrentCity();
+        const userName = getCurrentUserName();
 
         let smartSuggestion = '';
-        if (hour >= 22 || hour < 6) {
-            smartSuggestion = `🌙 <strong>صيدليات المناوبة الليلة</strong> في ${escapeHtml(city)} جاهزة. اسألني: "أريد صيدلية مناوبة"`;
-        } else if (hour >= 6 && hour < 12) {
-            smartSuggestion = `☀️ <strong>صباح الخير!</strong> هل تريد حجز موعد اليوم؟ اسألني: "أريد حجز موعد"`;
-        } else if (hour >= 12 && hour < 17) {
-            smartSuggestion = `💊 <strong>وقت الغداء</strong> — هل تحتاج حاسبة جرعات لطفلك؟`;
+        let greeting = '';
+
+        // ✅ 8 فترات زمنية دقيقة
+        if (hour >= 0 && hour < 4) {
+            greeting = '🌙 ليلة هادئة';
+            smartSuggestion = `إذا احتجت مساعدة طارئة، أنا هنا. صيدليات المناوبة في **${escapeHtml(city)}** جاهزة.`;
+        } else if (hour >= 4 && hour < 6) {
+            greeting = '🌅 الفجر';
+            smartSuggestion = `وقت الصلاة والراحة. هل تحتاج دواءً من صيدلية مناوبة في **${escapeHtml(city)}**؟`;
+        } else if (hour >= 6 && hour < 9) {
+            greeting = '☀️ صباح الخير';
+            smartSuggestion = `ابدأ يومك بصحة — هل تريد حجز موعد اليوم؟ اسألني: "أريد حجز موعد"`;
+        } else if (hour >= 9 && hour < 12) {
+            greeting = '🌞 صباح النشاط';
+            smartSuggestion = `هل تحتاج استشارة طبية سريعة؟ اسألني: "أريد اسأل طبيب"`;
+        } else if (hour >= 12 && hour < 14) {
+            greeting = '🍽️ وقت الغداء';
+            smartSuggestion = `لا تنس شرب الماء! هل تحتاج حاسبة احتياجك اليومي من الماء؟`;
+        } else if (hour >= 14 && hour < 17) {
+            greeting = '☕ فترة العصر';
+            smartSuggestion = `هل تحتاج حاسبة جرعات لطفلك؟ أو تجديد دواء؟`;
+        } else if (hour >= 17 && hour < 20) {
+            greeting = '🌆 مساء الخير';
+            smartSuggestion = `هل تريد استشارة طبيب؟ اسألني: "أريد اسأل طبيب"`;
+        } else if (hour >= 20 && hour < 22) {
+            greeting = '🌙 مساء هادئ';
+            smartSuggestion = `هل تحتاج صيدلية مناوبة في **${escapeHtml(city)}**؟ اسألني: "أريد صيدلية مناوبة"`;
         } else {
-            smartSuggestion = `👨‍⚕️ <strong>مساء الخير</strong> — هل تريد استشارة طبية سريعة؟ اسألني: "أريد اسأل طبيب"`;
+            greeting = '🌙 صيدليات المناوبة';
+            smartSuggestion = `صيدليات المناوبة الليلة في **${escapeHtml(city)}** جاهزة. اسألني: "أريد صيدلية مناوبة"`;
         }
 
-        const welcomeText = `أهلاً وسهلاً فيك في منصة LomedX يا غالي! 🌹\n\nأنا Lomi، مساعدك الطبي الذكي.\n\n${smartSuggestion}\n`;
+        const welcomeText = `أهلاً ${userName} في منصة LomedX! 🌹\n\nأنا Lomi، مساعدك الطبي الذكي.\n\n${greeting} — ${smartSuggestion}\n`;
         el.rawContent = welcomeText;
         el.bubble.innerHTML = formatText(welcomeText);
         pushMessage(el);
@@ -905,14 +928,10 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         };
     }
 
-    /**
-     * ✅ إصلاح XSS الجذري + حفظ rawContent منفصلاً
-     */
     function renderAssistantFinal(entry, fullText) {
         const raw = String(fullText || '');
         entry.rawContent = raw;
 
-        // استخراج الميزات والكيانات من النص الخام (قبل escapeHtml)
         const features = [];
         let textClean = raw.replace(/\[OPEN:([\w-]+)\]/g, (match, id) => {
             if (FEATURES[id] && !features.includes(id)) features.push(id);
@@ -943,7 +962,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
             return placeholder;
         });
 
-        // ✅ formatText يطبق escapeHtml أولاً
         let finalHTML = formatText(textClean);
         placeholders.forEach((html, index) => {
             finalHTML = finalHTML.replace(`__ENT_${index}__`, html);
@@ -1011,7 +1029,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
         const msg = messageHistory[idx];
 
         if (action === 'copy') {
-            // ✅ نسخ من rawContent بدلاً من HTML
             const textToCopy = String(msg.rawContent ?? msg.content ?? '');
             copyText(textToCopy);
             return;
@@ -1138,7 +1155,8 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                     fingerprint: 'web',
                     context: {
                         currentRoute: window.location.pathname,
-                        currentCity: currentCity
+                        currentCity: currentCity,
+                        userName: getCurrentUserName() // ✅ إرسال اسم المستخدم للسيرفر
                     }
                 })
             });
@@ -1196,11 +1214,11 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                                 pushMessage(assistantEntry);
                             }
                             accumulated += chunk;
-                            // معاينة أثناء البث: نطبق escapeHtml فقط (بلا تنسيق)
                             const tempText = accumulated
                                 .replace(/\[OPEN:[\w-]+\]/g, '')
                                 .replace(/\[FIND:[\w-]+:[^\]]+\]/g, '')
-                                .replace(/\[BLOG:[^\]]+\]/g, '');
+                                .replace(/\[BLOG:[^\]]+\]/g, '')
+                                .replace(/<[^>]*>?/gm, ''); // ✅ تنظيف أثناء البث أيضاً
                             assistantEntry.bubble.textContent = tempText;
                             scheduleScrollToBottom();
                         }
@@ -1229,7 +1247,6 @@ import { supabaseUrl, supabaseKey } from './supabase.js';
                     stopNote.bubble.innerHTML = '<span style="color:var(--ink-500);font-style:italic;">⏹️ تم إيقاف التوليد</span>';
                     pushMessage(stopNote);
                 } else {
-                    // ✅ حتى لو لم يبدأ الرد، نبلغ المستخدم
                     const stopNote = createAssistantMessage('');
                     stopNote.rawContent = 'تم الإيقاف قبل بدء الرد.';
                     stopNote.bubble.innerHTML = '<span style="color:var(--ink-500);font-style:italic;">⏹️ تم الإيقاف</span>';
