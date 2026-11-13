@@ -7875,11 +7875,32 @@ function renderArticlesList(articles) {
 }
 
 // 5. دالة لمعالجة النص (الخط العريض وصناديق التنبيه)
+// 5. دالة لمعالجة النص (الخط العريض وصناديق التنبيه والقوائم)
 function parseArticleContent(text) {
     let html = escapeHtml(text);
+    
+    // 1. تحويل صناديق التنبيه (> نص) إلى صناديق حمراء
     html = html.replace(/^&gt;\s?(.*)$/gm, '<div class="my-4 p-4 bg-red-50 border-r-4 border-red-500 rounded-xl flex items-start gap-3"><i class="fas fa-exclamation-triangle text-red-500 mt-1"></i><div class="text-sm text-red-800 font-semibold">$1</div></div>');
+    
+    // 2. تحويل القوائم المرقمة (1. نص) إلى أسطر منظمة
+    html = html.replace(/^(\d+)\.\s(.*)$/gm, '<div class="flex items-start gap-3 mb-3"><span class="font-bold text-emerald-600 flex-shrink-0 min-w-[24px]">$1.</span><span>$2</span></div>');
+    
+    // 3. تحويل القوائم النقطية (* نص) إلى أسطر منظمة
+    html = html.replace(/^\*\s(.*)$/gm, '<div class="flex items-start gap-2 mb-2"><i class="fas fa-circle text-[6px] mt-[10px] text-emerald-500 flex-shrink-0"></i><span>$1</span></div>');
+    
+    // 4. تحويل النص العريض
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>');
-    html = html.replace(/^([^\n]+?):/gm, '<strong class="font-bold text-gray-900">$1:</strong>');
+    
+    // 5. تحويل "كلمة:" في بداية السطر إلى خط عريض
+    html = html.replace(/^([^\n<]+?):/gm, '<strong class="font-bold text-gray-900">$1:</strong>');
+    
+    // 6. تحويل الأسطر العادية المتبقية إلى فقرات (إضافة <br> للأسطر الفارغة)
+    html = html.replace(/\n(?!\s*<div)/g, '<br>');
+    
+    // 7. تنظيف: إزالة <br> الزائدة قبل وبعد عناصر الـ div
+    html = html.replace(/<br>(\s*<div)/g, '$1');
+    html = html.replace(/(<\/div>)<br>/g, '$1');
+    
     return html;
 }
 
