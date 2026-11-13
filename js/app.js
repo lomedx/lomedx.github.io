@@ -6099,28 +6099,7 @@ async function fetchHomeAdsForAdmin() {
     if (allHomeAds.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 text-sm">لا توجد إعلانات.</p>'; return; }
     list.innerHTML = allHomeAds.map(ad => `<div class="flex items-center justify-between p-2 rounded-lg border"><div class="text-xs truncate flex-1 flex items-center gap-2"><i class="fas ${ad.type === 'image' ? 'fa-image text-blue-500' : 'fa-video text-purple-500'}"></i><span class="truncate">${escapeHtml(ad.content.substring(0, 30))}...</span></div><div class="flex gap-1 mr-2"><button onclick="toggleHomeAdStatus('${ad.id}', ${!ad.is_active})" class="px-2 py-1 rounded text-xs ${ad.is_active ? 'bg-green-500 text-white' : 'bg-gray-200'}">${ad.is_active ? 'مفعّل' : 'معطّل'}</button><button onclick="deleteHomeAd('${ad.id}')" class="px-2 py-1 rounded text-xs bg-red-500 text-white"><i class="fas fa-trash"></i></button></div></div>`).join('');
 }
-async function fetchHomeAdsPublic() {
-    const cachedAds = localStorage.getItem('cached_home_ads');
-    if (cachedAds) {
-        activeAds = JSON.parse(cachedAds);
-        const section = document.getElementById('homeMediaAdsSection');
-        if (activeAds.length === 0) section.classList.add('hidden');
-        else { section.classList.remove('hidden'); currentAdIndex = 0; renderAdSlide(currentAdIndex); }
-    }
-    const { data: configSnap } = await supabase.from('app_config').select('last_update').eq('id', 'ads_sync').single();
-    let serverTime = configSnap?.last_update || 0;
-    if (serverTime === 0) { await supabase.from('app_config').upsert({ id: 'ads_sync', last_update: Date.now() }); serverTime = Date.now(); }
-    const localTime = parseInt(localStorage.getItem('ads_last_fetch') || '0');
-    if (serverTime > localTime) {
-        const { data: snap } = await supabase.from('homepage_ads').select('*').eq('is_active', true).limit(5);
-        activeAds = snap || [];
-        const section = document.getElementById('homeMediaAdsSection');
-        if (activeAds.length === 0) { section.classList.add('hidden'); if (adInterval) clearInterval(adInterval); } 
-        else { section.classList.remove('hidden'); currentAdIndex = 0; renderAdSlide(currentAdIndex); }
-        try { localStorage.setItem('cached_home_ads', JSON.stringify(activeAds)); localStorage.setItem('ads_last_fetch', serverTime.toString()); } catch(e) {}
-    }
-}
-fetchHomeAdsPublic();
+
             
 //==========الجزء الأخير==============
 // === الأدوات الطبية والرادار واسأل طبيب ===
