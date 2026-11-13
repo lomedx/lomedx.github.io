@@ -1,8 +1,183 @@
 import { supabase, supabaseUrl, supabaseKey } from './supabase.js';
+/* ═══════════════════════════════════════════════════════════════════
+   نظام التحكم بالميزات (Feature Flags) - إطلاق تدريجي
+   ═══════════════════════════════════════════════════════════════════ */
+const FEATURES = {
+    // ═══ الميزات الأساسية (مفعلة افتراضياً) ═══
+    directory: true,         // دليل المنشآت والبحث
+    bloodBank: true,         // بنك الدم
+    duties: true,            // جدول المناوبات
+    calculators: true,       // الحاسبات الطبية
+    blog: true,              // المدونة الطبية
+    medicineFinder: true,    // البحث عن دواء
+    askDoctor: true,         // اسأل طبيب
+    medicalMap: true,        // الخريطة الطبية
+    patientReminder: true,   // دفتر التذكير
+    seasonalDiseases: true,  // الأمراض الموسمية
+    preTestGuide: true,      // تعليمات التحاليل
+    preVisitGuide: true,     // إرشادات زيارة الطبيب
+    foodInteractions: true,  // تعارضات الأدوية
+    medSymbols: true,        // رموز التحاليل
+    chronicNutrition: true,  // تغذية الأمراض المزمنة
+    eventsFirstAid: true,    // إسعافات المناسبات
+    firstAid: true,          // الإسعافات الأولية
+    burnCalculator: true,    // مسعف الحروق
+    pregnancyCalc: true,     // حاسبة الحمل
+    doseCalc: true,          // حاسبة الجرعات
+    vaccineScheduler: true,  // جدول اللقاحات
+    healthCalc: true,        // حاسبة الصحة
+    waterCalc: true,         // حاسبة الماء
+    medRenewal: true,        // حاسبة تجديد الدواء
+    medicineDonation: false,  // الأجهزة الطبية
+    // ═══ ميزات متقدمة (يمكنك إغلاقها عند الإطلاق) ═══
+    healthFile: true,        // الملف الصحي
+    radar: true,             // الرادار الصحي
+    lomi: true,              // المساعد الذكي
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   دالة تطبيق الإخفاء (تخفي الأزرار والبطاقات فقط، ولا تحذف الكود)
+   ═══════════════════════════════════════════════════════════════════ */
+function applyFeatureFlags() {
+    // 1. الملف الصحي
+    if (!FEATURES.healthFile) {
+        document.querySelectorAll('a[href="/health-file"], button[onclick*="openHealthFile"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 2. بنك الدم
+    if (!FEATURES.bloodBank) {
+        document.querySelectorAll('a[href="/blood-bank"], button[onclick*="openBloodBank"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 3. الرادار الصحي
+    if (!FEATURES.radar) {
+        document.querySelectorAll('a[href="/raheba-radar"], button[onclick*="openRahebaRadar"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 4. المساعد الذكي Lomi
+    if (!FEATURES.lomi) {
+        document.querySelectorAll('.lomi-card').forEach(el => el.style.display = 'none');
+    }
+    
+    // 5. المدونة
+    if (!FEATURES.blog) {
+        document.querySelectorAll('a[href="/blog"], button[onclick*="openMedicalBlog"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 6. البحث عن دواء
+    if (!FEATURES.medicineFinder) {
+        document.querySelectorAll('button[onclick*="openMedicineFinder"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 7. اسأل طبيب
+    if (!FEATURES.askDoctor) {
+        document.querySelectorAll('a[href="/ask-doctor"], button[onclick*="openAskDoctor"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 8. الخريطة الطبية
+    if (!FEATURES.medicalMap) {
+        document.querySelectorAll('a[href="/medical-map"], button[onclick*="openMedicalMap"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 9. الأجهزة الطبية
+    if (!FEATURES.medicineDonation) {
+        document.querySelectorAll('a[href="/medicine-donation"], button[onclick*="openMedicineDonation"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 10. دفتر التذكير
+    if (!FEATURES.patientReminder) {
+        document.querySelectorAll('a[href="/patient-reminder"], button[onclick*="openPatientReminder"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 11. الأمراض الموسمية
+    if (!FEATURES.seasonalDiseases) {
+        document.querySelectorAll('a[href="/seasonal-diseases"], button[onclick*="openSeasonalDiseases"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 12. إرشادات قبل التحاليل
+    if (!FEATURES.preTestGuide) {
+        document.querySelectorAll('a[href="/pre-test-guide"], button[onclick*="openPreTestGuide"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 13. إرشادات قبل الزيارة
+    if (!FEATURES.preVisitGuide) {
+        document.querySelectorAll('a[href="/pre-visit-guide"], button[onclick*="openPreVisitGuide"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 14. تعارضات الأدوية
+    if (!FEATURES.foodInteractions) {
+        document.querySelectorAll('a[href="/food-interactions"], button[onclick*="openFoodInteractions"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 15. رموز التحاليل
+    if (!FEATURES.medSymbols) {
+        document.querySelectorAll('a[href="/med-symbols"], button[onclick*="openMedSymbols"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 16. تغذية الأمراض المزمنة
+    if (!FEATURES.chronicNutrition) {
+        document.querySelectorAll('a[href="/chronic-nutrition"], button[onclick*="openChronicNutrition"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 17. إسعافات المناسبات
+    if (!FEATURES.eventsFirstAid) {
+        document.querySelectorAll('a[href="/events-first-aid"], button[onclick*="openEventsFirstAid"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 18. الإسعافات الأولية
+    if (!FEATURES.firstAid) {
+        document.querySelectorAll('a[href="/first-aid"], button[onclick*="openFirstAid"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 19. مسعف الحروق
+    if (!FEATURES.burnCalculator) {
+        document.querySelectorAll('a[href="/burn-calculator"], button[onclick*="openBurnCalculator"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 20. حاسبة الحمل
+    if (!FEATURES.pregnancyCalc) {
+        document.querySelectorAll('a[href="/pregnancy-calc"], button[onclick*="openPregnancyCalc"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 21. حاسبة الجرعات
+    if (!FEATURES.doseCalc) {
+        document.querySelectorAll('a[href="/dose-calc"], button[onclick*="openDoseCalc"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 22. جدول اللقاحات
+    if (!FEATURES.vaccineScheduler) {
+        document.querySelectorAll('a[href="/vaccine-scheduler"], button[onclick*="openVaccineScheduler"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 23. حاسبة الصحة
+    if (!FEATURES.healthCalc) {
+        document.querySelectorAll('a[href="/health-calc"], button[onclick*="openHealthCalc"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 24. حاسبة الماء
+    if (!FEATURES.waterCalc) {
+        document.querySelectorAll('a[href="/water-calc"], button[onclick*="openWaterCalc"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 25. حاسبة تجديد الدواء
+    if (!FEATURES.medRenewal) {
+        document.querySelectorAll('a[href="/med-renewal-calc"], button[onclick*="openMedRenewalCalc"]').forEach(el => el.style.display = 'none');
+    }
+    
+    // 26. الحاسبات الطبية (في القائمة المنسدلة)
+    if (!FEATURES.calculators) {
+        document.querySelectorAll('.tools-dropdown-menu a').forEach(el => {
+            if (el.href.includes('-calc') || el.href.includes('med-symbols') || el.href.includes('chronic-nutrition') || el.href.includes('food-interactions') || el.href.includes('patient-reminder')) {
+                el.style.display = 'none';
+            }
+        });
+    }
+}
+
+
 
 
 const daysOfWeek = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
-
 let currentSpecialtyFilter = ''; 
 let currentAnnouncement = null;
 let allAnnouncements = [];
@@ -327,6 +502,7 @@ function updateTipDisplay() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+    applyFeatureFlags();
     const isOAuthRedirect = window.location.href.includes('code=') || window.location.href.includes('access_token=');
     const isGoogleIntent = sessionStorage.getItem('google_login_intent') === 'true';
     
