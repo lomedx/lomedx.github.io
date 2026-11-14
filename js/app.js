@@ -6851,9 +6851,9 @@ window.openMedicalMap = () => {
                         <p class="text-xs text-gray-500 truncate mt-0.5" id="fcAddress">اختر منشأة من القائمة أدناه</p>
                     </div>
                 </div>
-                <button onclick="openMapListModal()" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center flex-shrink-0 transition-colors">
-                    <i class="fas fa-list-ul"></i>
-                </button>
+                <button onclick="event.stopPropagation(); openMapListModal()" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center flex-shrink-0 transition-colors">
+    <i class="fas fa-list-ul"></i>
+</button>
             </div>
 
         </div>
