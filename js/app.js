@@ -16,29 +16,29 @@ const FEATURES = {
     MEDICINE_FINDER: true,   // البحث عن دواء
 
     // ═══ الميزات القادمة (مغلقة - تظهر كقفل) ═══
-//    HEALTH_FILE: false,      // الملف الصحي
-//    BLOOD_BANK: false,       // بنك الدم
-//    LOMI: false,             // المساعد الذكي
-//    RADAR: false,            // الرادار الصحي
-//    ASK_DOCTOR: false,       // اسأل طبيب
-//    MED_DONATION: false,     // الأجهزة الطبية
-//    CALCULATORS: false,      // الحاسبات الطبية
-//    MED_SYMBOLS: false,      // رموز التحاليل
-//    CHRONIC_NUTRITION: false,// تغذية الأمراض المزمنة
-//    FOOD_INTERACTIONS: false,// تعارضات الأدوية
-//    PATIENT_REMINDER: false, // دفتر التذكير
-//    PRE_TEST_GUIDE: false,   // إرشادات التحاليل
-//    PRE_VISIT_GUIDE: false,  // إرشادات زيارة الطبيب
-//    SEASONAL_DISEASES: false,// الأمراض الموسمية
-//    FIRST_AID: false,        // الإسعافات الأولية
-//    EVENTS_FIRST_AID: false, // إسعافات المناسبات
-//    BURN_CALCULATOR: false,  // مسعف الحروق
-//    PREGNANCY_CALC: false,   // حاسبة الحمل
-//    DOSE_CALC: false,        // حاسبة الجرعات
-//    VACCINE_SCHEDULER: false,// جدول اللقاحات
-//    HEALTH_CALC: false,      // حاسبة الصحة
-//    WATER_CALC: false,       // حاسبة الماء
-//    MED_RENEWAL: false,      // حاسبة تجديد الدواء
+    HEALTH_FILE: true,      // الملف الصحي
+    BLOOD_BANK: true,       // بنك الدم
+    LOMI: true,             // المساعد الذكي
+    RADAR: true,            // الرادار الصحي
+    ASK_DOCTOR: true,       // اسأل طبيب
+    MED_DONATION: true,     // الأجهزة الطبية
+   CALCULATORS: true,      // الحاسبات الطبية
+   MED_SYMBOLS: true,      // رموز التحاليل
+   CHRONIC_NUTRITION: true,// تغذية الأمراض المزمنة
+ FOOD_INTERACTIONS: true,// تعارضات الأدوية
+    PATIENT_REMINDER: true, // دفتر التذكير
+    PRE_TEST_GUIDE: true,   // إرشادات التحاليل
+    PRE_VISIT_GUIDE: true,  // إرشادات زيارة الطبيب
+    SEASONAL_DISEASES: true,// الأمراض الموسمية
+    FIRST_AID: true,        // الإسعافات الأولية
+    EVENTS_FIRST_AID: true, // إسعافات المناسبات
+   BURN_CALCULATOR: true,  // مسعف الحروق
+   PREGNANCY_CALC: true,   // حاسبة الحمل
+    DOSE_CALC: true,        // حاسبة الجرعات
+   VACCINE_SCHEDULER: true,// جدول اللقاحات
+    HEALTH_CALC: true,      // حاسبة الصحة
+   WATER_CALC: true,       // حاسبة الماء
+   MED_RENEWAL: true,      // حاسبة تجديد الدواء
     MEDICAL_MAP: true,      // الخريطة الطبية
 };
 
@@ -6825,27 +6825,31 @@ window.openEventsFirstAid = () => {
 // === Interactive Medical Map ===
 window.openMedicalMap = () => {
     openCtrlPanel('الخريطة الطبية التفاعلية', `
-        <div class="relative w-full h-[75vh] sm:h-[70vh] rounded-xl overflow-hidden border" style="border-color: var(--border);">
+        <!-- حاوية بارتفاع ثابت يناسب الجوال (65% من الشاشة) -->
+        <div class="relative w-full h-[65vh] sm:h-[70vh] rounded-xl overflow-hidden border shadow-sm" style="border-color: var(--border);">
             
-            <!-- الخريطة (تأخذ المساحة كاملة) -->
-            <iframe id="mapFrame" width="100%" height="100%" frameborder="0" style="border:0; position: absolute; inset: 0; z-index: 1;" src="https://maps.google.com/maps?q=الرحيبة%20سوريا&output=embed" allowfullscreen></iframe>
+            <!-- الخريطة (تأخذ الخلفية بالكامل) -->
+            <iframe id="mapFrame" width="100%" height="100%" frameborder="0" style="border:0; position: absolute; inset: 0; z-index: 1;" src="https://maps.google.com/maps?q=الرحيبة%20سوريا&t=p&z=14&output=embed" allowfullscreen></iframe>
 
-            <!-- قائمة المنشآت (عائمة في الأسفل) -->
-            <div class="absolute bottom-0 left-0 right-0 z-10 bg-white rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.1)] flex flex-col transition-transform duration-300" 
-                 style="height: 40%; min-height: 250px; border-top: 1px solid var(--border);">
+            <!-- بطاقة القائمة (ارتفاع ثابت 35% من الحاوية، مما يترك 65% للخريطة) -->
+            <div class="absolute bottom-0 left-0 right-0 z-10 bg-white rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.15)] flex flex-col" 
+                 style="height: 35%; min-height: 200px; border-top: 1px solid var(--border);">
                 
                 <!-- شريط السحب -->
-                <div class="w-full flex justify-center py-2" onclick="toggleMapList()">
+                <div class="w-full flex justify-center py-2 cursor-pointer" onclick="toggleMapList()">
                     <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
                 </div>
                 
+                <!-- العنوان والعداد -->
                 <div class="px-4 pb-2 flex justify-between items-center">
-                    <h3 class="font-bold text-sm" style="font-family: 'Noto Kufi Arabic'; color: var(--fg);">المنشآت القريبة</h3>
-                    <span class="text-xs text-gray-500" id="mapListCount">0 منشأة</span>
+                    <h3 class="font-bold text-sm" style="font-family: 'Noto Kufi Arabic'; color: var(--fg);">
+                        <i class="fas fa-map-marker-alt text-[var(--accent)] ml-1"></i> المنشآت القريبة
+                    </h3>
+                    <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-1 rounded-full" id="mapListCount">0 منشأة</span>
                 </div>
 
                 <!-- القائمة -->
-                <div class="flex-1 overflow-y-auto px-2 pb-4" id="mapListContainer">
+                <div class="flex-1 overflow-y-auto px-3 pb-4" id="mapListContainer">
                     <p class="text-center py-8 text-gray-400 text-sm">جاري التحميل...</p>
                 </div>
             </div>
@@ -6863,10 +6867,10 @@ window.toggleMapList = () => {
     if (!container) return;
     
     if (window.mapListExpanded) {
-        container.style.height = '40%';
+        container.style.height = '35%'; // الوضع الافتراضي (التركيز على الخريطة)
         window.mapListExpanded = false;
     } else {
-        container.style.height = '80%';
+        container.style.height = '85%'; // الوضع الموسع (التركيز على القائمة)
         window.mapListExpanded = true;
     }
 }
@@ -6898,40 +6902,46 @@ function renderMapList() {
     container.innerHTML = allData.map(item => {
         const color = typeColors[item.type] || 'var(--accent)';
         const icon = typeIcons[item.type] || 'fa-map-marker-alt';
-        const locationQuery = encodeURIComponent((item.address || item.clinic || item.name) + ' سوريا');
+        // استخدمنا الإحداثيات إذا وجدت، وإلا استخدمنا العنوان
+        const locationQuery = item.latlng ? item.latlng : encodeURIComponent((item.address || item.clinic || item.name) + ' سوريا');
         
         return `
             <div onclick="updateMapFrame('${locationQuery}')" 
-                 class="flex items-center gap-3 p-3 mb-2 rounded-xl border bg-white cursor-pointer hover:border-[var(--accent)] transition-all shadow-sm" 
+                 class="flex items-center gap-3 p-2.5 mb-2 rounded-xl border bg-white cursor-pointer hover:border-[var(--accent)] hover:shadow-md transition-all" 
                  style="border-color: var(--border)">
                 
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: ${color}15; color: ${color};">
-                    <i class="fas ${icon}"></i>
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background: ${color}15; color: ${color};">
+                    <i class="fas ${icon} text-sm"></i>
                 </div>
                 
                 <div class="flex-1 min-w-0">
-                    <div class="font-bold text-sm text-gray-800 truncate">${escapeHtml(item.name)}</div>
-                    <div class="text-xs text-gray-500 truncate mt-0.5">
+                    <div class="font-bold text-xs text-gray-800 truncate">${escapeHtml(item.name)}</div>
+                    <div class="text-[10px] text-gray-500 truncate mt-0.5">
                         ${escapeHtml(item.address || item.clinic || 'الرحيبة، سوريا')}
                     </div>
                 </div>
                 
-                <i class="fas fa-location-arrow text-gray-300"></i>
+                <div class="w-7 h-7 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0 text-gray-400">
+                    <i class="fas fa-chevron-left text-[10px]"></i>
+                </div>
             </div>`;
     }).join('');
 }
 
 window.updateMapFrame = (query) => { 
+    // تحديث الخريطة لتضاريس (t=p)
     const frame = document.getElementById('mapFrame'); 
-    if (frame) frame.src = `https://maps.google.com/maps?q=${query}&output=embed`; 
+    if (frame) frame.src = `https://maps.google.com/maps?q=${query}&t=p&z=16&output=embed`; 
     
-    // إذا كانت القائمة مفتوحة بمساحة كبيرة، نصغرها عند اختيار منشأة
+    // تصغير القائمة عند اختيار منشأة لرؤية الخريطة
     const container = document.querySelector('.absolute.bottom-0.left-0.right-0.z-10');
     if (container && window.mapListExpanded) {
-        container.style.height = '40%';
+        container.style.height = '35%';
         window.mapListExpanded = false;
     }
 }
+
+
 
 // === Raheba Health Radar ===
 const radarDiseasesData = {
