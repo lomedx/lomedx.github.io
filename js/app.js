@@ -16,29 +16,29 @@ const FEATURES = {
     MEDICINE_FINDER: true,   // البحث عن دواء
 
     // ═══ الميزات القادمة (مغلقة - تظهر كقفل) ═══
-    HEALTH_FILE: false,      // الملف الصحي
-    BLOOD_BANK: false,       // بنك الدم
-    LOMI: false,             // المساعد الذكي
-    RADAR: false,            // الرادار الصحي
-    ASK_DOCTOR: false,       // اسأل طبيب
-    MED_DONATION: false,     // الأجهزة الطبية
-    CALCULATORS: false,      // الحاسبات الطبية
-    MED_SYMBOLS: false,      // رموز التحاليل
-    CHRONIC_NUTRITION: false,// تغذية الأمراض المزمنة
-    FOOD_INTERACTIONS: false,// تعارضات الأدوية
-    PATIENT_REMINDER: false, // دفتر التذكير
-    PRE_TEST_GUIDE: false,   // إرشادات التحاليل
-    PRE_VISIT_GUIDE: false,  // إرشادات زيارة الطبيب
-    SEASONAL_DISEASES: false,// الأمراض الموسمية
-    FIRST_AID: false,        // الإسعافات الأولية
-    EVENTS_FIRST_AID: false, // إسعافات المناسبات
-    BURN_CALCULATOR: false,  // مسعف الحروق
-    PREGNANCY_CALC: false,   // حاسبة الحمل
-    DOSE_CALC: false,        // حاسبة الجرعات
-    VACCINE_SCHEDULER: false,// جدول اللقاحات
-    HEALTH_CALC: false,      // حاسبة الصحة
-    WATER_CALC: false,       // حاسبة الماء
-    MED_RENEWAL: false,      // حاسبة تجديد الدواء
+//    HEALTH_FILE: false,      // الملف الصحي
+//    BLOOD_BANK: false,       // بنك الدم
+//    LOMI: false,             // المساعد الذكي
+//    RADAR: false,            // الرادار الصحي
+//    ASK_DOCTOR: false,       // اسأل طبيب
+//    MED_DONATION: false,     // الأجهزة الطبية
+//    CALCULATORS: false,      // الحاسبات الطبية
+//    MED_SYMBOLS: false,      // رموز التحاليل
+//    CHRONIC_NUTRITION: false,// تغذية الأمراض المزمنة
+//    FOOD_INTERACTIONS: false,// تعارضات الأدوية
+//    PATIENT_REMINDER: false, // دفتر التذكير
+//    PRE_TEST_GUIDE: false,   // إرشادات التحاليل
+//    PRE_VISIT_GUIDE: false,  // إرشادات زيارة الطبيب
+//    SEASONAL_DISEASES: false,// الأمراض الموسمية
+//    FIRST_AID: false,        // الإسعافات الأولية
+//    EVENTS_FIRST_AID: false, // إسعافات المناسبات
+//    BURN_CALCULATOR: false,  // مسعف الحروق
+//    PREGNANCY_CALC: false,   // حاسبة الحمل
+//    DOSE_CALC: false,        // حاسبة الجرعات
+//    VACCINE_SCHEDULER: false,// جدول اللقاحات
+//    HEALTH_CALC: false,      // حاسبة الصحة
+//    WATER_CALC: false,       // حاسبة الماء
+//    MED_RENEWAL: false,      // حاسبة تجديد الدواء
     MEDICAL_MAP: true,      // الخريطة الطبية
 };
 
