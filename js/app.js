@@ -6824,69 +6824,73 @@ window.openEventsFirstAid = () => {
 
 // === Interactive Medical Map ===
 window.openMedicalMap = () => {
-    openCtrlPanel('الخريطة الطبية التفاعلية', `
-        <!-- حاوية بارتفاع ثابت يناسب الجوال (65% من الشاشة) -->
-        <div class="relative w-full h-[65vh] sm:h-[70vh] rounded-xl overflow-hidden border shadow-sm" style="border-color: var(--border);">
+    openCtrlPanel('الخريطة الطبية', `
+        <div class="relative w-full h-[75vh] sm:h-[70vh] rounded-2xl overflow-hidden border shadow-sm" style="border-color: var(--border);">
             
-            <!-- الخريطة (تأخذ الخلفية بالكامل) -->
-            <iframe id="mapFrame" width="100%" height="100%" frameborder="0" style="border:0; position: absolute; inset: 0; z-index: 1;" src="https://maps.google.com/maps?q=الرحيبة%20سوريا&t=p&z=14&output=embed" allowfullscreen></iframe>
+            <!-- الخريطة (تأخذ كامل المساحة) -->
+            <iframe id="mapFrame" width="100%" height="100%" frameborder="0" style="border:0; position: absolute; inset: 0; z-index: 1;" src="https://maps.google.com/maps?q=الرحيبة%20سوريا&t=m&z=14&output=embed" allowfullscreen></iframe>
 
-            <!-- بطاقة القائمة (ارتفاع ثابت 35% من الحاوية، مما يترك 65% للخريطة) -->
-            <div class="absolute bottom-0 left-0 right-0 z-10 bg-white rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.15)] flex flex-col" 
-                 style="height: 35%; min-height: 200px; border-top: 1px solid var(--border);">
-                
-                <!-- شريط السحب -->
-                <div class="w-full flex justify-center py-2 cursor-pointer" onclick="toggleMapList()">
-                    <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
-                </div>
-                
-                <!-- العنوان والعداد -->
-                <div class="px-4 pb-2 flex justify-between items-center">
-                    <h3 class="font-bold text-sm" style="font-family: 'Noto Kufi Arabic'; color: var(--fg);">
-                        <i class="fas fa-map-marker-alt text-[var(--accent)] ml-1"></i> المنشآت القريبة
-                    </h3>
-                    <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-1 rounded-full" id="mapListCount">0 منشأة</span>
-                </div>
+            <!-- أزرار التبديل (يمين أعلى) -->
+            <div class="absolute top-4 right-4 z-10 bg-white rounded-xl shadow-lg overflow-hidden flex flex-col border" style="border-color: var(--border);">
+                <button class="map-toggle-btn p-3 text-lg transition-all active" data-type="m" onclick="toggleMapType('m', this)" title="خريطة عادية" style="color: var(--accent); background: var(--brand-50); border-bottom: 1px solid var(--border);">
+                    <i class="fas fa-map"></i>
+                </button>
+                <button class="map-toggle-btn p-3 text-lg transition-all text-gray-500 hover:bg-gray-50" data-type="k" onclick="toggleMapType('k', this)" title="تضاريس / قمر صناعي">
+                    <i class="fas fa-satellite"></i>
+                </button>
+            </div>
 
-                <!-- القائمة -->
-                <div class="flex-1 overflow-y-auto px-3 pb-4" id="mapListContainer">
-                    <p class="text-center py-8 text-gray-400 text-sm">جاري التحميل...</p>
+            <!-- بطاقة المنشأة العائمة (يسار أسفل) -->
+            <div class="absolute bottom-5 left-5 right-5 z-10 bg-white/95 backdrop-blur-md rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] p-4 border border-white/50 flex items-center justify-between" id="floatingCard">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-[var(--brand-50)] text-[var(--accent)] flex items-center justify-center text-xl flex-shrink-0" id="fcIcon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h4 class="font-bold text-sm text-gray-800 truncate" id="fcName" style="font-family: 'Noto Kufi Arabic';">الخريطة الطبية</h4>
+                        <p class="text-xs text-gray-500 truncate mt-0.5" id="fcAddress">اختر منشأة من القائمة أدناه</p>
+                    </div>
                 </div>
+                <button onclick="openMapListModal()" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center flex-shrink-0 transition-colors">
+                    <i class="fas fa-list-ul"></i>
+                </button>
             </div>
 
         </div>
     `, '#10B981');
     
-    renderMapList();
-    window.mapListExpanded = false;
+    // تحديث البطاقة العائمة بأول منشأة في القائمة (إذا وجدت)
+    setTimeout(() => {
+        if (allData && allData.length > 0) {
+            updateFloatingCard(allData[0]);
+        }
+    }, 500);
 }
 
-// دالة لطي وتوسيع القائمة
-window.toggleMapList = () => {
-    const container = document.querySelector('.absolute.bottom-0.left-0.right-0.z-10');
-    if (!container) return;
+// دالة تبديل نوع الخريطة
+window.toggleMapType = (type, btn) => {
+    const iframe = document.getElementById('mapFrame');
+    if (!iframe) return;
     
-    if (window.mapListExpanded) {
-        container.style.height = '35%'; // الوضع الافتراضي (التركيز على الخريطة)
-        window.mapListExpanded = false;
-    } else {
-        container.style.height = '85%'; // الوضع الموسع (التركيز على القائمة)
-        window.mapListExpanded = true;
-    }
+    // استبدال النوع في الرابط (t=m أو t=k)
+    iframe.src = iframe.src.replace(/t=[a-z]/, `t=${type}`);
+    
+    // تحديث شكل الأزرار
+    document.querySelectorAll('.map-toggle-btn').forEach(b => {
+        b.classList.remove('active', 'text-[var(--accent)]', 'bg-[var(--brand-50)]');
+        b.classList.add('text-gray-500', 'hover:bg-gray-50');
+    });
+    
+    btn.classList.remove('text-gray-500', 'hover:bg-gray-50');
+    btn.classList.add('active', 'text-[var(--accent)]', 'bg-[var(--brand-50)]');
 }
 
-function renderMapList() {
-    const container = document.getElementById('mapListContainer');
-    const countEl = document.getElementById('mapListCount');
-    if (!container) return;
-    
+// دالة عرض قائمة المنشآت في نافذة منبثقة
+window.openMapListModal = () => {
     if (!allData || allData.length === 0) {
-        container.innerHTML = '<p class="text-center py-8 text-gray-400 text-sm">لا توجد منشآت مسجلة حالياً.</p>';
-        if(countEl) countEl.innerText = '0 منشأة';
+        showToast('لا توجد منشآت مسجلة حالياً', 'error');
         return;
     }
-
-    if(countEl) countEl.innerText = `${allData.length} منشأة`;
 
     const typeColors = { 
         hospital: 'var(--hospital)', clinic: 'var(--clinic)', 
@@ -6899,45 +6903,97 @@ function renderMapList() {
         doctor: 'fa-user-md', pharmacy: 'fa-pills' 
     };
 
-    container.innerHTML = allData.map(item => {
+    let listHtml = allData.map((item, index) => {
         const color = typeColors[item.type] || 'var(--accent)';
         const icon = typeIcons[item.type] || 'fa-map-marker-alt';
-        // استخدمنا الإحداثيات إذا وجدت، وإلا استخدمنا العنوان
-        const locationQuery = item.latlng ? item.latlng : encodeURIComponent((item.address || item.clinic || item.name) + ' سوريا');
         
         return `
-            <div onclick="updateMapFrame('${locationQuery}')" 
-                 class="flex items-center gap-3 p-2.5 mb-2 rounded-xl border bg-white cursor-pointer hover:border-[var(--accent)] hover:shadow-md transition-all" 
+            <div onclick="selectMapFacility(${index})" 
+                 class="flex items-center gap-3 p-3 mb-2 rounded-xl border bg-white cursor-pointer hover:border-[var(--accent)] hover:shadow-md transition-all" 
                  style="border-color: var(--border)">
                 
-                <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background: ${color}15; color: ${color};">
-                    <i class="fas ${icon} text-sm"></i>
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: ${color}15; color: ${color};">
+                    <i class="fas ${icon}"></i>
                 </div>
                 
                 <div class="flex-1 min-w-0">
-                    <div class="font-bold text-xs text-gray-800 truncate">${escapeHtml(item.name)}</div>
-                    <div class="text-[10px] text-gray-500 truncate mt-0.5">
+                    <div class="font-bold text-sm text-gray-800 truncate">${escapeHtml(item.name)}</div>
+                    <div class="text-[11px] text-gray-500 truncate mt-0.5">
                         ${escapeHtml(item.address || item.clinic || 'الرحيبة، سوريا')}
                     </div>
                 </div>
                 
-                <div class="w-7 h-7 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0 text-gray-400">
-                    <i class="fas fa-chevron-left text-[10px]"></i>
+                <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0 text-gray-400">
+                    <i class="fas fa-chevron-left text-xs"></i>
                 </div>
             </div>`;
     }).join('');
+
+    // نافذة منبثقة (Modal) للقائمة
+    document.getElementById('modalContent').innerHTML = `
+        <div class="p-5 h-[60vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b" style="border-color: var(--border);">
+                <h3 class="font-bold text-lg" style="font-family: 'Noto Kufi Arabic'; color: var(--fg);">
+                    <i class="fas fa-map-marker-alt text-[var(--accent)] ml-1"></i> المنشآت القريبة
+                </h3>
+                <button onclick="closeModal()" class="text-2xl hover:text-gray-400 leading-none">&times;</button>
+            </div>
+            <div class="overflow-y-auto pr-1 flex-1">
+                ${listHtml}
+            </div>
+        </div>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+    lockScroll();
 }
 
-window.updateMapFrame = (query) => { 
-    // تحديث الخريطة لتضاريس (t=p)
-    const frame = document.getElementById('mapFrame'); 
-    if (frame) frame.src = `https://maps.google.com/maps?q=${query}&t=p&z=16&output=embed`; 
+// دالة اختيار منشأة من القائمة وتحديث الخريطة
+window.selectMapFacility = (index) => {
+    const item = allData[index];
+    if (!item) return;
     
-    // تصغير القائمة عند اختيار منشأة لرؤية الخريطة
-    const container = document.querySelector('.absolute.bottom-0.left-0.right-0.z-10');
-    if (container && window.mapListExpanded) {
-        container.style.height = '35%';
-        window.mapListExpanded = false;
+    closeModal(); // إغلاق قائمة المنشآت
+    updateFloatingCard(item); // تحديث البطاقة العائمة
+    
+    // تحديث الخريطة بموقع المنشأة
+    const query = item.latlng ? item.latlng : encodeURIComponent((item.address || item.clinic || item.name) + ' سوريا');
+    const iframe = document.getElementById('mapFrame');
+    if (iframe) {
+        // الحفاظ على نوع الخريطة الحالي (عادية أو تضاريس)
+        const currentType = iframe.src.match(/t=([a-z])/) ? iframe.src.match(/t=([a-z])/)[1] : 'm';
+        iframe.src = `https://maps.google.com/maps?q=${query}&t=${currentType}&z=16&output=embed`;
+    }
+}
+
+// دالة تحديث البطاقة العائمة السفلية
+window.updateFloatingCard = (item) => {
+    if (!item) return;
+    
+    const typeIcons = { 
+        hospital: 'fa-hospital', center: 'fa-clinic-medical', lab: 'fa-flask', 
+        doctor: 'fa-user-md', pharmacy: 'fa-pills' 
+    };
+    const typeLabels = { 
+        hospital: 'مشفى', center: 'مركز طبي', lab: 'مخبر', 
+        doctor: 'طبيب', pharmacy: 'صيدلية' 
+    };
+
+    const nameEl = document.getElementById('fcName');
+    const addressEl = document.getElementById('fcAddress');
+    const iconEl = document.getElementById('fcIcon');
+
+    if (nameEl) nameEl.innerText = item.name;
+    if (addressEl) addressEl.innerText = (item.address || item.clinic || 'الرحيبة، سوريا');
+    if (iconEl) iconEl.innerHTML = `<i class="fas ${typeIcons[item.type] || 'fa-map-marker-alt'}"></i>`;
+    
+    // جعل البطاقة قابلة للضغط لفتح تفاصيل المنشأة
+    const card = document.getElementById('floatingCard');
+    if (card) {
+        // إزالة أي onclick سابق لتجنب التكرار
+        card.onclick = () => {
+            closeCtrlPanel();
+            setTimeout(() => openModal(item.id), 300);
+        };
     }
 }
 
