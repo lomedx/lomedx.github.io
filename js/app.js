@@ -6824,31 +6824,114 @@ window.openEventsFirstAid = () => {
 
 // === Interactive Medical Map ===
 window.openMedicalMap = () => {
-    openCtrlPanel('الخريطة الطبية ', `
-        <div class="flex flex-col sm:flex-row gap-4 h-[70vh]">
-            <div class="w-full sm:w-1/3 flex flex-col gap-2 overflow-y-auto pr-1" id="mapListContainer">
-                <p class="text-center text-gray-400 text-sm py-10">جاري تحميل المنشآت...</p>
+    openCtrlPanel('الخريطة الطبية التفاعلية', `
+        <div class="relative w-full h-[75vh] sm:h-[70vh] rounded-xl overflow-hidden border" style="border-color: var(--border);">
+            
+            <!-- الخريطة (تأخذ المساحة كاملة) -->
+            <iframe id="mapFrame" width="100%" height="100%" frameborder="0" style="border:0; position: absolute; inset: 0; z-index: 1;" src="https://maps.google.com/maps?q=الرحيبة%20سوريا&output=embed" allowfullscreen></iframe>
+
+            <!-- قائمة المنشآت (عائمة في الأسفل) -->
+            <div class="absolute bottom-0 left-0 right-0 z-10 bg-white rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.1)] flex flex-col transition-transform duration-300" 
+                 style="height: 40%; min-height: 250px; border-top: 1px solid var(--border);">
+                
+                <!-- شريط السحب -->
+                <div class="w-full flex justify-center py-2" onclick="toggleMapList()">
+                    <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+                </div>
+                
+                <div class="px-4 pb-2 flex justify-between items-center">
+                    <h3 class="font-bold text-sm" style="font-family: 'Noto Kufi Arabic'; color: var(--fg);">المنشآت القريبة</h3>
+                    <span class="text-xs text-gray-500" id="mapListCount">0 منشأة</span>
+                </div>
+
+                <!-- القائمة -->
+                <div class="flex-1 overflow-y-auto px-2 pb-4" id="mapListContainer">
+                    <p class="text-center py-8 text-gray-400 text-sm">جاري التحميل...</p>
+                </div>
             </div>
-            <div class="w-full sm:w-2/3 rounded-xl overflow-hidden border" style="border-color: var(--border)">
-                <iframe id="mapFrame" width="100%" height="100%" frameborder="0" style="border:0; min-height: 400px;" src="https://maps.google.com/maps?q=الرحيبة%20سوريا&output=embed" allowfullscreen></iframe>
-            </div>
+
         </div>
-        ${generateToolSEOHtml('medical-map')}
     `, '#10B981');
+    
     renderMapList();
+    window.mapListExpanded = false;
 }
+
+// دالة لطي وتوسيع القائمة
+window.toggleMapList = () => {
+    const container = document.querySelector('.absolute.bottom-0.left-0.right-0.z-10');
+    if (!container) return;
+    
+    if (window.mapListExpanded) {
+        container.style.height = '40%';
+        window.mapListExpanded = false;
+    } else {
+        container.style.height = '80%';
+        window.mapListExpanded = true;
+    }
+}
+
 function renderMapList() {
     const container = document.getElementById('mapListContainer');
+    const countEl = document.getElementById('mapListCount');
     if (!container) return;
-    if (allData.length === 0) { container.innerHTML = '<p class="text-center text-gray-400 text-sm py-10">لا توجد منشآت.</p>'; return; }
-    const typeColors = { hospital: 'var(--hospital)', clinic: 'var(--clinic)', center: 'var(--center)', lab: 'var(--lab)', doctor: 'var(--doctor)', pharmacy: 'var(--pharmacy)' };
+    
+    if (!allData || allData.length === 0) {
+        container.innerHTML = '<p class="text-center py-8 text-gray-400 text-sm">لا توجد منشآت مسجلة حالياً.</p>';
+        if(countEl) countEl.innerText = '0 منشأة';
+        return;
+    }
+
+    if(countEl) countEl.innerText = `${allData.length} منشأة`;
+
+    const typeColors = { 
+        hospital: 'var(--hospital)', clinic: 'var(--clinic)', 
+        center: 'var(--center)', lab: 'var(--lab)', 
+        doctor: 'var(--doctor)', pharmacy: 'var(--pharmacy)' 
+    };
+    
+    const typeIcons = { 
+        hospital: 'fa-hospital', center: 'fa-clinic-medical', lab: 'fa-flask', 
+        doctor: 'fa-user-md', pharmacy: 'fa-pills' 
+    };
+
     container.innerHTML = allData.map(item => {
         const color = typeColors[item.type] || 'var(--accent)';
-        const locationQuery = encodeURIComponent((item.address || item.clinic || item.name) + ' الرحيبة سوريا');
-        return `<div onclick="updateMapFrame('${locationQuery}')" class="p-3 rounded-lg border cursor-pointer hover:bg-gray-50 transition-all" style="border-color: var(--border)"><div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full" style="background: ${escapeHtml(color)}"></span><span class="font-bold text-sm text-gray-800 truncate">${escapeHtml(item.name)}</span></div><div class="text-xs text-gray-500 mt-1 truncate">${escapeHtml(item.address || item.clinic || 'الرحيبة')}</div></div>`;
+        const icon = typeIcons[item.type] || 'fa-map-marker-alt';
+        const locationQuery = encodeURIComponent((item.address || item.clinic || item.name) + ' سوريا');
+        
+        return `
+            <div onclick="updateMapFrame('${locationQuery}')" 
+                 class="flex items-center gap-3 p-3 mb-2 rounded-xl border bg-white cursor-pointer hover:border-[var(--accent)] transition-all shadow-sm" 
+                 style="border-color: var(--border)">
+                
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: ${color}15; color: ${color};">
+                    <i class="fas ${icon}"></i>
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                    <div class="font-bold text-sm text-gray-800 truncate">${escapeHtml(item.name)}</div>
+                    <div class="text-xs text-gray-500 truncate mt-0.5">
+                        ${escapeHtml(item.address || item.clinic || 'الرحيبة، سوريا')}
+                    </div>
+                </div>
+                
+                <i class="fas fa-location-arrow text-gray-300"></i>
+            </div>`;
     }).join('');
 }
-window.updateMapFrame = (query) => { const frame = document.getElementById('mapFrame'); if (frame) frame.src = `https://maps.google.com/maps?q=${query}&output=embed`; };
+
+window.updateMapFrame = (query) => { 
+    const frame = document.getElementById('mapFrame'); 
+    if (frame) frame.src = `https://maps.google.com/maps?q=${query}&output=embed`; 
+    
+    // إذا كانت القائمة مفتوحة بمساحة كبيرة، نصغرها عند اختيار منشأة
+    const container = document.querySelector('.absolute.bottom-0.left-0.right-0.z-10');
+    if (container && window.mapListExpanded) {
+        container.style.height = '40%';
+        window.mapListExpanded = false;
+    }
+}
 
 // === Raheba Health Radar ===
 const radarDiseasesData = {
